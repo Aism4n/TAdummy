@@ -112,4 +112,4 @@
 		)
 	
 	if(!isdarkelf(H)) //TA EDIT
-		change_origin(H, /datum/virtue/origin/otava, "Holy order")
+		change_origin(H, /datum/virtue/origin/otava, "Holy Order")

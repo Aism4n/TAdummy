@@ -88,6 +88,6 @@
 			H.put_in_hands(new /obj/item/rogueweapon/scabbard/sword(H))
 			H.adjust_skillrank_up_to(/datum/skill/combat/swords, 4, TRUE)
 	if(!isdarkelf(H)) //TA EDIT
-		change_origin(H, /datum/virtue/origin/otava, "Holy order")
+		change_origin(H, /datum/virtue/origin/otava, "Holy Order")
 /datum/outfit/job/roguetown/psyaltrist
 	job_bitflag = BITFLAG_HOLY_WARRIOR
