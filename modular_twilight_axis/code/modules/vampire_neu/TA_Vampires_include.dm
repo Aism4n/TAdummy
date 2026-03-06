@@ -14,14 +14,14 @@
 */
 
 // Early define slot and shared cross-module vampire hooks.
-//#include "./overrides/__DEFINES/vampires.dm" // Placeholder for local vampire defines.
-//#include "./overrides/datums/components/vampire_disguise.dm" // Vampire disguise component mirror.
-//#include "./overrides/modules/events/antagonist/solo/vampires.dm" // Solo vampire round event.
+#include "./other_files/vampires_defines.dm" // Placeholder for local vampire defines.
+//#include "./other_files/vampire_disguise.dm" // Vampire disguise component mirror.
+//#include "./other_files/vampires_migrants.dm" // Solo vampire round event.
 //#include "./other_files/modules/events/antagonist/solo/vampires_and_werewolves.dm" // Cross-antag vampire/werewolf event glue.
-//#include "./other_files/modules/jobs/job_types/roguetown/other/vampire_guard.dm" // Vampire guard job.
-//#include "./other_files/modules/jobs/job_types/roguetown/other/vampire_servant.dm" // Vampire servant job.
-//#include "./other_files/modules/jobs/job_types/roguetown/other/vampire_spawn.dm" // Vampire spawn job.
-//#include "./overrides/modules/spells/roguetown/vampire.dm" // Vampire spell mirror.
+//#include "./other_files/vampire_guard.dm" // Vampire guard job.
+//#include "./other_files/vampire_servant.dm" // Vampire servant job.
+//#include "./other_files/vampire_spawn.dm" // Vampire spawn job.
+//#include "./other_files/vampire_spell.dm" // Vampire spell mirror.
 
 // Main vampire_neu block.
 #include "./overrides/modules/vampire_neu/living_modifications.dm" // Downstream policy hooks and safe living-side tuning.
@@ -30,7 +30,7 @@
 //#include "./overrides/modules/vampire_neu/coven_action.dm" // Coven action button datum.
 //#include "./overrides/modules/vampire_neu/death_knight.dm" // Death knight support.
 //#include "./overrides/modules/vampire_neu/frenzy.dm" // Frenzy systems.
-//#include "./overrides/modules/vampire_neu/vampire.dm" // Raw mirrored vampire core scaffold.
+#include "./overrides/modules/vampire_neu/vampire.dm" // Raw mirrored vampire core scaffold.
 //#include "./overrides/modules/vampire_neu/vampirelord.dm" // Vampire lord systems.
 
 // Clan framework and concrete clans.
