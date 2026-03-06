@@ -8,7 +8,7 @@
 	Notes:
 	- Order mostly follows upstream roguetown.dme.
 	- living_modifications.dm is kept before bloodsuck.dm on purpose for the
-	  downstream twilight_vamp_* policy hooks.
+	  downstream TA_* policy hooks.
 	- The root ./vampire.dm is kept last so the known-safe TA on_gain override
 	  wins over the raw mirrored vampire.dm scaffold.
 */

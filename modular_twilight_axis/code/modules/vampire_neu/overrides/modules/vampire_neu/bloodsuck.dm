@@ -3,14 +3,14 @@
 // Intentionally overrides only the public entry proc and uses uniquely named
 // helper procs so upstream vars and type definitions remain authoritative.
 
-/mob/living/twilight_vamp_get_drinker()
+/mob/living/proc/TA_get_drinker()
 	return mind?.has_antag_datum(/datum/antagonist/vampire)
 
-/mob/living/twilight_vamp_get_victim(mob/living/carbon/victim)
+/mob/living/proc/TA_get_victim(mob/living/carbon/victim)
 	return victim.mind?.has_antag_datum(/datum/antagonist/vampire)
 
-/mob/living/twilight_vamp_check_silver_block(mob/living/carbon/victim)
-	var/datum/antagonist/vampire/VDrinker = twilight_vamp_get_drinker()
+/mob/living/proc/TA_check_silver_block(mob/living/carbon/victim)
+	var/datum/antagonist/vampire/VDrinker = TA_get_drinker()
 	if(!VDrinker)
 		return TRUE
 	if(!ishuman(victim))
@@ -26,7 +26,7 @@
 
 	return TRUE
 
-/mob/living/twilight_vamp_perform_initial_blooddrink(mob/living/carbon/victim, sublimb_grabbed)
+/mob/living/proc/TA_perform_initial_blooddrink(mob/living/carbon/victim, sublimb_grabbed)
 	if(ishuman(victim))
 		var/mob/living/carbon/human/H = victim
 		H.add_bite_animation()
@@ -52,11 +52,11 @@
 	to_chat(src, span_warning("I drink from [victim]'s [parse_zone(sublimb_grabbed)]."))
 	log_combat(src, victim, "drank blood from ")
 
-/mob/living/twilight_vamp_force_puke()
+/mob/living/proc/TA_force_puke()
 	to_chat(src, span_warning("I'm going to puke..."))
 	addtimer(CALLBACK(src, TYPE_PROC_REF(/mob/living/carbon, vomit), 0, TRUE), rand(8 SECONDS, 15 SECONDS))
 
-/mob/living/twilight_vamp_consume_vitae(mob/living/carbon/victim)
+/mob/living/proc/TA_consume_vitae(mob/living/carbon/victim)
 	var/used_vitae = 150
 
 	victim.blood_volume = max(victim.blood_volume - 45, 0)
@@ -74,7 +74,7 @@
 	adjust_bloodpool(used_vitae)
 	adjust_hydration(used_vitae * 0.1)
 
-/mob/living/twilight_vamp_handle_diablerie(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
+/mob/living/proc/TA_handle_diablerie(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
 	if(VVictim)
 		AdjustMasquerade(-1)
 		message_admins("[ADMIN_LOOKUPFLW(src)] successfully Diablerized [ADMIN_LOOKUPFLW(victim)]")
@@ -98,20 +98,20 @@
 
 	return FALSE
 
-/mob/living/twilight_vamp_process_vampire_blood(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
-	var/blood_handle = twilight_vamp_build_blood_handle(victim, VVictim)
+/mob/living/proc/TA_process_vampire_blood(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
+	var/blood_handle = TA_build_blood_handle(victim, VVictim)
 	clan.handle_bloodsuck(src, blood_handle)
 
 	if(victim.bloodpool > 0)
-		twilight_vamp_consume_vitae(victim)
+		TA_consume_vitae(victim)
 		return FALSE
 
-	if(twilight_vamp_handle_diablerie(victim, VDrinker, VVictim))
+	if(TA_handle_diablerie(victim, VDrinker, VVictim))
 		return TRUE
 
 	return FALSE
 
-/mob/living/twilight_vamp_attempt_siring_prompt(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker)
+/mob/living/proc/TA_attempt_siring_prompt(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker)
 	if(victim.clan || !victim.mind || !ishuman(victim))
 		return
 	if(VDrinker.generation <= GENERATION_THINBLOOD)
@@ -119,7 +119,7 @@
 	if(victim.blood_volume > BLOOD_VOLUME_BAD)
 		return
 
-	var/datum/antagonist/vampire/vdrinker = twilight_vamp_get_drinker()
+	var/datum/antagonist/vampire/vdrinker = TA_get_drinker()
 	if(!istype(vdrinker))
 		return
 
@@ -144,39 +144,39 @@
 		to_chat(src, span_warning("[victim] has already refused your offer to sire them."))
 		return
 
-	if(!twilight_vamp_can_offer_siring(victim))
+	if(!TA_can_offer_siring(victim))
 		return
 
 	var/mob/living/carbon/human/H = victim
-	if(H.twilight_vamp_has_pending_conversion_prompt())
+	if(H.TA_has_pending_conversion_prompt())
 		to_chat(src, span_warning("[victim] still fights the curse."))
 		return
 
 	INVOKE_ASYNC(victim, TYPE_PROC_REF(/mob/living/carbon/human, vampire_conversion_prompt), src)
 
-/mob/living/twilight_vamp_resolve_blooddrink_consequences(mob/living/carbon/victim)
-	var/datum/antagonist/vampire/VDrinker = twilight_vamp_get_drinker()
+/mob/living/proc/TA_resolve_blooddrink_consequences(mob/living/carbon/victim)
+	var/datum/antagonist/vampire/VDrinker = TA_get_drinker()
 
 	if(!VDrinker)
-		if(twilight_vamp_should_puke_nonvamp())
-			twilight_vamp_force_puke()
+		if(TA_should_puke_nonvamp())
+			TA_force_puke()
 		return
 
-	if(twilight_vamp_should_puke_bad_source(victim))
-		twilight_vamp_force_puke()
+	if(TA_should_puke_bad_source(victim))
+		TA_force_puke()
 		return
 
-	var/datum/antagonist/vampire/VVictim = twilight_vamp_get_victim(victim)
+	var/datum/antagonist/vampire/VVictim = TA_get_victim(victim)
 	if(VVictim)
 		to_chat(src, span_userdanger("<b>YOU TRY TO COMMIT DIABLERIE ON [victim].</b>"))
 
-	if(twilight_vamp_process_vampire_blood(victim, VDrinker, VVictim))
+	if(TA_process_vampire_blood(victim, VDrinker, VVictim))
 		return
 
-	twilight_vamp_attempt_siring_prompt(victim, VDrinker)
+	TA_attempt_siring_prompt(victim, VDrinker)
 
 /mob/living/drinksomeblood(mob/living/carbon/victim, sublimb_grabbed)
-	if(!twilight_vamp_can_use_drinksomeblood())
+	if(!TA_can_use_drinksomeblood())
 		return
 
 	if(!istype(victim))
@@ -191,8 +191,8 @@
 		to_chat(src, span_warning("Sigh. No blood."))
 		return
 
-	if(!twilight_vamp_check_silver_block(victim))
+	if(!TA_check_silver_block(victim))
 		return
 
-	twilight_vamp_perform_initial_blooddrink(victim, sublimb_grabbed)
-	twilight_vamp_resolve_blooddrink_consequences(victim)
+	TA_perform_initial_blooddrink(victim, sublimb_grabbed)
+	TA_resolve_blooddrink_consequences(victim)
