@@ -1,3 +1,10 @@
+// Mirrored vampire files live under:
+// - ./overrides/
+// - ./other_files/
+// They are intentionally not included here. BYOND rejects duplicate vars and
+// most duplicate /proc definitions on the same exact path, so they are a
+// reference scaffold, not an active detachment layer.
+
 #define THRALLS_METHUSELAH	69
 #define THRALLS_ANCILLAE	20
 #define THRALLS_NEONATE		5
@@ -25,4 +32,3 @@
 #undef THRALLS_NEONATE
 #undef THRALLS_THINBLOOD
 #undef THRALLS_DEFAULT
-
