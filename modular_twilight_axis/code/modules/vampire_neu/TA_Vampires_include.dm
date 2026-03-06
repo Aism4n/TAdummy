@@ -9,15 +9,15 @@
 	- Order mostly follows upstream roguetown.dme.
 	- living_modifications.dm is kept before bloodsuck.dm on purpose for the
 	  downstream TA_* policy hooks.
-	- The root ./vampire.dm is kept last so the known-safe TA on_gain override
-	  wins over the raw mirrored vampire.dm scaffold.
+	- THRALLS_* are loaded from vampires_defines.dm and cleared at the bottom
+	  via TA_Vampires_uniclude.dm.
 */
 
 // Early define slot and shared cross-module vampire hooks.
-#include "./other_files/vampires_defines.dm" // Placeholder for local vampire defines.
+#include "./vampires_defines.dm" // Shared TA vampire defines for vampire override files.
 //#include "./other_files/vampire_disguise.dm" // Vampire disguise component mirror.
 //#include "./other_files/vampires_migrants.dm" // Solo vampire round event.
-//#include "./other_files/modules/events/antagonist/solo/vampires_and_werewolves.dm" // Cross-antag vampire/werewolf event glue.
+//#include "./other_files/vampires_and_werewolves.dm" // Cross-antag vampire/werewolf event glue.
 //#include "./other_files/vampire_guard.dm" // Vampire guard job.
 //#include "./other_files/vampire_servant.dm" // Vampire servant job.
 //#include "./other_files/vampire_spawn.dm" // Vampire spawn job.
@@ -30,7 +30,7 @@
 //#include "./overrides/modules/vampire_neu/coven_action.dm" // Coven action button datum.
 //#include "./overrides/modules/vampire_neu/death_knight.dm" // Death knight support.
 //#include "./overrides/modules/vampire_neu/frenzy.dm" // Frenzy systems.
-#include "./overrides/modules/vampire_neu/vampire.dm" // Raw mirrored vampire core scaffold.
+#include "./overrides/modules/vampire_neu/vampire.dm" // Late-include TA supplement for upstream vampire.dm.
 //#include "./overrides/modules/vampire_neu/vampirelord.dm" // Vampire lord systems.
 
 // Clan framework and concrete clans.
@@ -69,5 +69,4 @@
 //#include "./overrides/modules/vampire_neu/objects/throne.dm" // Vampire throne object.
 //#include "./overrides/modules/vampire_neu/spells/transfix_neu.dm" // Transfix spell support.
 
-// Keep TA root override last so it wins over the mirrored core scaffold.
-#include "./vampire.dm" // Known-safe TA override for vampire antagonist gain logic.
+#include "./TA_Vampires_uniclude.dm" // Soft cleanup for TA vampire defines.
