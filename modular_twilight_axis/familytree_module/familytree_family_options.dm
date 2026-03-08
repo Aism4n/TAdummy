@@ -59,18 +59,10 @@
 			P.gender_choice_pref = _ui_to_gender(params["genderPreference"])
 			P.species_preference_mode = istext(params["speciesPreferenceMode"]) ? params["speciesPreferenceMode"] : "ANY"
 			P.preferred_species_type = istext(params["preferredSpeciesType"]) ? params["preferredSpeciesType"] : null
-			P.preferred_species_anatomy = text2num(params["preferredSpeciesAnatomy"])
-			P.setspouse = istext(params["favoriteName"]) ? copytext(params["favoriteName"], 1, 65) : ""
+			P.preferred_species_anatomy = params["preferredSpeciesAnatomy"]
+			P.setspouse = istext(params["favoriteName"]) ? params["favoriteName"] : ""
 
-			if(!(P.preferred_species_anatomy in list(0,1,2)))
-				P.preferred_species_anatomy = 0
-
-			if(!(P.species_preference_mode in list("ANY", "SAME_TYPE", "SPECIFIC_TYPE")))
-				P.species_preference_mode = "ANY"
-
-			if(P.species_preference_mode != "SPECIFIC_TYPE")
-				P.preferred_species_type = null
-
+			P.familytree_module_sanitize_character()
 			P.familytree_module_save_character()
 
 			SStgui.update_uis(src)

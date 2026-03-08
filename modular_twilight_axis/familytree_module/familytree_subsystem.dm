@@ -154,7 +154,7 @@ SUBSYSTEM_DEF(familytree)
 	var/role = H.mind?.assigned_role || H.job
 	switch(role)
 		if("Grand Duke", "Grand Duchess", "Consort", "Suitor")
-			return H.titles_pref == TITLES_F ? FAMILY_MOTHER : FAMILY_FATHER
+			return H.familytree_get_parental_style() == "feminine" ? FAMILY_MOTHER : FAMILY_FATHER
 		if("Prince", "Princess")
 			return FAMILY_PROGENY
 		if("Hand")

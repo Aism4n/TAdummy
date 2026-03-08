@@ -50,8 +50,7 @@
 	else if(!istext(preferred_species_type) || !(preferred_species_type in get_selectable_species()))
 		species_preference_mode = "ANY"
 		preferred_species_type = null
-	if(!(preferred_species_anatomy in list(0, 1, 2)))
-		preferred_species_anatomy = text2num("[preferred_species_anatomy]")
+	preferred_species_anatomy = text2num("[preferred_species_anatomy]")
 	if(!(preferred_species_anatomy in list(0, 1, 2)))
 		preferred_species_anatomy = 0
 	if(!istext(setspouse))
@@ -164,6 +163,39 @@
 
 /mob/living/carbon/human/proc/ReturnRelation(mob/living/carbon/human/stranger)
 	return family_datum.ReturnRelation(src, stranger)
+
+/mob/living/carbon/human/proc/familytree_get_parental_style()
+	var/has_penis = getorganslot(ORGAN_SLOT_PENIS) != null
+	var/has_vagina = getorganslot(ORGAN_SLOT_VAGINA) != null
+
+	if(has_penis && !has_vagina)
+		return "masculine"
+	if(has_vagina && !has_penis)
+		return "feminine"
+	if(has_penis && has_vagina)
+		if(titles_pref == TITLES_M)
+			return "masculine"
+		if(titles_pref == TITLES_F)
+			return "feminine"
+
+	if(titles_pref == TITLES_M)
+		return "masculine"
+	if(titles_pref == TITLES_F)
+		return "feminine"
+
+	switch(pronouns)
+		if(HE_HIM)
+			return "masculine"
+		if(SHE_HER)
+			return "feminine"
+
+	switch(gender)
+		if(MALE)
+			return "masculine"
+		if(FEMALE)
+			return "feminine"
+
+	return "neutral"
 
 /datum/mind/proc/familytree_get_known_family_relation(mob/living/carbon/human/viewer, mob/living/carbon/human/known_person)
 	if(!viewer || !known_person || !viewer.family_datum || viewer.family_datum != known_person.family_datum)

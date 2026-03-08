@@ -186,12 +186,12 @@
 	family = new_family
 	person?.family_member_datum = src
 	var/old_dir = person?.dir
-	var/old_inivisiity = person?.invisibility
+	var/old_invisibility = person?.invisibility
 	person?.invisibility = 0
 	person?.dir = SOUTH
 	cloned_look = new_person?.appearance
 	person?.dir = old_dir
-	person?.invisibility = old_inivisiity
+	person?.invisibility = old_invisibility
 
 /datum/family_member/proc/AddParent(datum/family_member/parent, skip_reciprocal = FALSE)
 	if(!parent || (parent in parents))
@@ -380,7 +380,8 @@
 	return "neutral"
 
 /datum/family_member/proc/GetParentTerm()
-	switch(GetRelationshipStyle())
+	var/parent_style = person?.familytree_get_parental_style()
+	switch(parent_style)
 		if("masculine")
 			return "father"
 		if("feminine")
@@ -829,36 +830,35 @@
 	popup.open()
 
 /datum/heritage/proc/SpeciesCalculation(mob/living/carbon/human/child, mob/living/carbon/human/parent1, mob/living/carbon/human/parent2)
-	var/datum/species/child_species = child.dna?.species
-	var/datum/species/dad_species = parent1.dna?.species
-	var/datum/species/mom_species = parent2.dna?.species
+	var/child_species_type = child.dna?.species?.type
+	var/parent1_species_type = parent1.dna?.species?.type
+	var/parent2_species_type = parent2.dna?.species?.type
 
-	if(!child_species || !dad_species || !mom_species)
+	if(!child_species_type || !parent1_species_type || !parent2_species_type)
 		return FALSE
 
-	var/list/mixes = list(
-		"human+elf+" = /datum/species/human/halfelf,
-		"human+horc+" = /datum/species/halforc,
-	)
+	if(child_species_type == parent1_species_type && child_species_type == parent2_species_type)
+		return TRUE
 
-	var/mix_text = ""
+	// Tiefling bloodlines are dominant in local species lore.
+	if((parent1_species_type == /datum/species/tieberian) || (parent2_species_type == /datum/species/tieberian))
+		return child_species_type == /datum/species/tieberian
 
-	// Straightforward basic parentage
-	if(istype(dad_species, mom_species))
-		if(istype(child_species, dad_species))
-			return TRUE
+	var/parent1_is_human = (parent1_species_type == /datum/species/human/northern)
+	var/parent2_is_human = (parent2_species_type == /datum/species/human/northern)
+	var/parent1_is_elf = ispath(parent1_species_type, /datum/species/elf)
+	var/parent2_is_elf = ispath(parent2_species_type, /datum/species/elf)
+	if((parent1_is_human && parent2_is_elf) || (parent2_is_human && parent1_is_elf))
+		return child_species_type == /datum/species/human/halfelf
 
-	// Build mix string
-	if(istype(dad_species, /datum/species/human/northern) || istype(mom_species, /datum/species/human/northern))
-		mix_text += "human+"
-	if(istype(dad_species, /datum/species/elf/dark) || istype(mom_species, /datum/species/elf/dark))
-		mix_text += "darkelf+"
-	if(istype(dad_species, /datum/species/dwarf/mountain) || istype(mom_species, /datum/species/dwarf/mountain))
-		mix_text += "dwarf+"
-	if(istype(dad_species, /datum/species/tieberian) || istype(mom_species, /datum/species/tieberian))
-		mix_text += "tiefling+"
+	var/parent1_is_orcish = ispath(parent1_species_type, /datum/species/orc)
+	var/parent2_is_orcish = ispath(parent2_species_type, /datum/species/orc)
+	var/parent1_is_halforc = (parent1_species_type == /datum/species/halforc)
+	var/parent2_is_halforc = (parent2_species_type == /datum/species/halforc)
+	if((parent1_is_human && (parent2_is_orcish || parent2_is_halforc)) || (parent2_is_human && (parent1_is_orcish || parent1_is_halforc)))
+		return child_species_type == /datum/species/halforc
 
-	if(istype(child_species, mixes[mix_text]))
+	if(parent1_is_elf && parent2_is_elf && ispath(child_species_type, /datum/species/elf))
 		return TRUE
 
 	return FALSE
