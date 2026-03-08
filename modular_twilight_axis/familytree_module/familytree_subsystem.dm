@@ -76,7 +76,7 @@ SUBSYSTEM_DEF(familytree)
 		return job
 
 	var/role_text = "[role_or_job]"
-	for(var/datum/job/candidate in SSjob.occupations)
+	for(var/datum/job/candidate as anything in SSjob.occupations)
 		if(candidate.title == role_text || candidate.display_title == role_text || candidate.f_title == role_text)
 			return candidate
 
@@ -232,17 +232,17 @@ SUBSYSTEM_DEF(familytree)
 	if(!house.members.len)
 		return FALSE
 	// Check against existing family members for age conflicts
-	for(var/datum/family_member/member in house.members)
+	for(var/datum/family_member/member as anything in house.members)
 		if(!member.person)
 			continue
 
 		// Check if person is too young to be parent of existing children
-		for(var/datum/family_member/child in member.children)
+		for(var/datum/family_member/child as anything in member.children)
 			if(child.person && !CanBeParentOf(person, child.person))
 				return TRUE
 
 		// Check if person is too old to be child of existing parents
-		for(var/datum/family_member/parent in member.parents)
+		for(var/datum/family_member/parent as anything in member.parents)
 			if(parent.person && !CanBeParentOf(parent.person, person))
 				return TRUE
 
@@ -278,7 +278,7 @@ SUBSYSTEM_DEF(familytree)
 /datum/controller/subsystem/familytree/proc/DetermineAppropriateRole(datum/heritage/house, mob/living/carbon/human/person, adopted = FALSE)
 	// Look for potential parents (older members who could be parents)
 	var/list/potential_parents = list()
-	for(var/datum/family_member/member in house.members)
+	for(var/datum/family_member/member as anything in house.members)
 		if(member.person && CanBeParentOf(member.person, person))
 			potential_parents += member
 
@@ -287,7 +287,7 @@ SUBSYSTEM_DEF(familytree)
 		return "child"
 
 	// Look for potential siblings (similar age)
-	for(var/datum/family_member/member in house.members)
+	for(var/datum/family_member/member as anything in house.members)
 		if(member.person && CanBeSiblings(member.person.age, person.age))
 			return "sibling"
 
@@ -357,7 +357,7 @@ SUBSYSTEM_DEF(familytree)
 
 /datum/controller/subsystem/familytree/proc/GetCurrentMonarch()
 	// Find the monarch at generation 12 (current ruling generation)
-	for(var/datum/family_member/member in ruling_family.members)
+	for(var/datum/family_member/member as anything in ruling_family.members)
 		if(member.generation == 12 && is_royal_monarch_job(get_familytree_job(member.person)))
 			return member
 	return null
@@ -483,15 +483,15 @@ SUBSYSTEM_DEF(familytree)
 	var/list/high_priority_houses = list()
 
 	if(H.setspouse)
-		for(var/datum/heritage/house in families)
-			for(var/datum/family_member/M in house.members)
+		for(var/datum/heritage/house as anything in families)
+			for(var/datum/family_member/M as anything in house.members)
 				if(M.person && M.person.real_name == H.setspouse)
 					if(!SpeciesCompatible(H, M.person))
 						continue
 					chosen_house = house
 
 	// Prioritize houses with existing members but not too many
-	for(var/datum/heritage/house in families)
+	for(var/datum/heritage/house as anything in families)
 		if(house.housename && house.members.len >= 1 && house.members.len < 6)
 			high_priority_houses += house
 		else
@@ -499,7 +499,7 @@ SUBSYSTEM_DEF(familytree)
 
 	// Try high priority houses first
 	if(!chosen_house)
-		for(var/datum/heritage/house in high_priority_houses)
+		for(var/datum/heritage/house as anything in high_priority_houses)
 			if(house.dominant_race.name == our_race && house.members.len < 4)
 				if(!WouldCreateAgeConflict(house, H))
 					chosen_house = house
@@ -513,7 +513,7 @@ SUBSYSTEM_DEF(familytree)
 
 	// Try low priority houses if no high priority match
 	if(!chosen_house)
-		for(var/datum/heritage/house in low_priority_houses)
+		for(var/datum/heritage/house as anything in low_priority_houses)
 			if(house.dominant_race.name == our_race)
 				if(!WouldCreateAgeConflict(house, H))
 					chosen_house = house
@@ -529,7 +529,7 @@ SUBSYSTEM_DEF(familytree)
 		if("child")
 			// Find suitable parents
 			var/list/potential_parents = list()
-			for(var/datum/family_member/member in house.members)
+			for(var/datum/family_member/member as anything in house.members)
 				if(member.person && CanBeParentOf(member.person, person))
 					potential_parents += member
 
@@ -572,7 +572,7 @@ SUBSYSTEM_DEF(familytree)
 
 		if("sibling")
 			// Find a sibling and share their parents
-			for(var/datum/family_member/member in house.members)
+			for(var/datum/family_member/member as anything in house.members)
 				if(member.person && CanBeSiblings(member.person.age, person.age))
 					var/datum/family_member/parent1 = member.parents.len > 0 ? member.parents[1] : null
 					var/datum/family_member/parent2 = member.parents.len > 1 ? member.parents[2] : null
@@ -625,13 +625,13 @@ SUBSYSTEM_DEF(familytree)
 	var/list/eligible_houses = list()
 
 	// Find houses that need a spouse
-	for(var/datum/heritage/house in families)
+	for(var/datum/heritage/house as anything in families)
 		if(house.dominant_race.name != our_race)
 			continue
 
 		// Check if there's a potential spouse
 		var/has_single_adult = FALSE
-		for(var/datum/family_member/member in house.members)
+		for(var/datum/family_member/member as anything in house.members)
 			if(member.person && !member.spouses.len)
 				// Check setspouse compatibility
 				if(H.setspouse && member.person.real_name == H.setspouse)
@@ -657,9 +657,9 @@ SUBSYSTEM_DEF(familytree)
 			eligible_houses += house // Empty house for founding
 
 	// Try to assign to a house
-	for(var/datum/heritage/house in eligible_houses)
+	for(var/datum/heritage/house as anything in eligible_houses)
 		// Find a spouse
-		for(var/datum/family_member/member in house.members)
+		for(var/datum/family_member/member as anything in house.members)
 			if(member.person && !member.spouses.len)
 				// Check compatibility
 				var/compatible = FALSE
@@ -694,7 +694,7 @@ SUBSYSTEM_DEF(familytree)
 	viable_spouses += H
 	var/list/potential_matches = list()
 
-	for(var/mob/living/carbon/human/potential_spouse in viable_spouses)
+	for(var/mob/living/carbon/human/potential_spouse as anything in viable_spouses)
 		if(!potential_spouse || potential_spouse == H || potential_spouse.spouse_mob)
 			continue
 		// Check if they are mutually setspouse
@@ -741,7 +741,7 @@ SUBSYSTEM_DEF(familytree)
 	var/datum/heritage/chosen_house
 
 	// Find houses with established families that could use an aunt/uncle
-	for(var/datum/heritage/house in families)
+	for(var/datum/heritage/house as anything in families)
 		if(house.dominant_race.name != base_species)
 			continue
 		if(!house.housename || house.members.len < 2)
@@ -749,7 +749,7 @@ SUBSYSTEM_DEF(familytree)
 
 		// Check if there are children who could use an aunt/uncle
 		var/has_children = FALSE
-		for(var/datum/family_member/member in house.members)
+		for(var/datum/family_member/member as anything in house.members)
 			if(member.children.len > 0)
 				has_children = TRUE
 				break
@@ -763,45 +763,36 @@ SUBSYSTEM_DEF(familytree)
 		var/datum/family_member/new_member = chosen_house.CreateFamilyMember(H)
 		if(new_member)
 			// Find a parent to be sibling to
-			for(var/datum/family_member/member in chosen_house.members)
+			for(var/datum/family_member/member as anything in chosen_house.members)
 				if(member.children.len > 0 && CanBeSiblings(H.age, member.person.age))
 					// Share the same parents as this member
-					for(var/datum/family_member/grandparent in member.parents)
+					for(var/datum/family_member/grandparent as anything in member.parents)
 						new_member.AddParent(grandparent)
 					break
-
-/datum/controller/subsystem/familytree/proc/ReturnAllFamilies()
-	. = ""
-	if(ruling_family && ruling_family.members.len)
-		. += ruling_family.FormatFamilyList()
-	for(var/datum/heritage/house in families)
-		if(!house.housename && !house.members.len)
-			continue
-		. += house.FormatFamilyList()
 
 /datum/controller/subsystem/familytree/proc/ValidateAllFamilies()
 	if(ruling_family && ruling_family.members.len)
 		ValidateFamily(ruling_family)
-	for(var/datum/heritage/family in families)
+	for(var/datum/heritage/family as anything in families)
 		if(family.members.len)
 			ValidateFamily(family)
 
 /datum/controller/subsystem/familytree/proc/ValidateFamily(datum/heritage/family)
 	// Clean up any broken references
-	for(var/datum/family_member/member in family.members)
+	for(var/datum/family_member/member as anything in family.members)
 		if(!member.person)
 			family.members -= member
 			continue
 
 		// Validate parent relationships
-		for(var/datum/family_member/parent in member.parents)
+		for(var/datum/family_member/parent as anything in member.parents)
 			if(!parent.person || !(member in parent.children))
 				member.parents -= parent
 				if(parent.person)
 					parent.children -= member
 
 		// Validate child relationships
-		for(var/datum/family_member/child in member.children)
+		for(var/datum/family_member/child as anything in member.children)
 			if(!child.person || !(member in child.parents))
 				member.children -= child
 				if(child.person)

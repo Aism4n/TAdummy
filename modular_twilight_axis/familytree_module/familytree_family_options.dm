@@ -39,12 +39,13 @@
 	.["availableSpecies"] = species_names
 
 
-/datum/family_options/ui_act(action, params)
+/datum/family_options/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
 	. = ..()
 	if(.)
 		return
 
-	var/datum/preferences/P = usr?.client?.prefs
+	var/mob/user = ui?.user
+	var/datum/preferences/P = user?.client?.prefs
 	if(!P)
 		return FALSE
 
@@ -54,7 +55,7 @@
 			var/new_family = _ui_to_family(params["familyType"])
 
 			if(new_family == FAMILY_FULL && P.age == AGE_ADULT)
-				to_chat(usr, span_warning("You are too young to be a parent."))
+				to_chat(user, span_warning("You are too young to be a parent."))
 				return TRUE
 
 			P.family = new_family

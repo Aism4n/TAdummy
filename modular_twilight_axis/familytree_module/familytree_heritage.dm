@@ -75,22 +75,10 @@
 	if(!ishuman(usr))
 		return
 	var/mob/living/carbon/human/user = usr
-	if(user.family_datum)
-		var/curse_info = ""
-		for(var/datum/family_curse/curse in user.family_datum.family_curses)
-			curse_info += "<b>[curse.name]</b><br>"
-			curse_info += "[curse.description]<br>"
-			if(curse.cursed_by)
-				var/mob/curser = curse.cursed_by.resolve()
-				if(curser)
-					curse_info += "[curse.blessing ? "Blessed" : "Cursed"] by: [curser.real_name]<br>"
-			curse_info += "Severity: [curse.severity]/3<br>"
-			curse_info += "Time cursed: [DisplayTimeText(world.time - curse.when_cursed)] ago<br>"
+	if(!user.client || !user.family_datum)
+		return
 
-		if(curse_info)
-			var/datum/browser/popup = new(usr, "curse_info", "Family Modifier Details", 300, 200)
-			popup.set_content(curse_info)
-			popup.open()
+	user.family_datum.OpenCursePanel(user)
 
 /datum/heritage
 	var/housename
@@ -121,14 +109,14 @@
 	return new_curse
 
 /datum/heritage/proc/ApplyCurseEffects(datum/family_curse/curse)
-	for(var/datum/family_member/F in members)
+	for(var/datum/family_member/F as anything in members)
 		if(F.person)
 			for(var/effect in curse.curse_effects)
 				F.person.apply_status_effect(effect)
 
 /datum/heritage/proc/InheritCurses(datum/family_member/child)
 	// Pass inherited curses to new family members
-	for(var/datum/family_curse/curse in family_curses)
+	for(var/datum/family_curse/curse as anything in family_curses)
 		if(curse.inherited)
 			for(var/effect in curse.curse_effects)
 				child.person?.apply_status_effect(effect)
@@ -160,7 +148,7 @@
 	// Announce to all family members
 	var/announcement = "[bride.person?.real_name] and [groom.person?.real_name] have been wed in the [housename] family!"
 
-	for(var/datum/family_member/member in members)
+	for(var/datum/family_member/member as anything in members)
 		if(member.person && member.person?.client)
 			to_chat(member.person, span_love(announcement))
 
@@ -332,7 +320,7 @@
 
 /datum/family_member/proc/HandleBiologicalChildren(datum/family_member/spouse)
 	// Check if any children should be biological offspring of both parents
-	for(var/datum/family_member/child in children)
+	for(var/datum/family_member/child as anything in children)
 		if(child in spouse.children)
 			// Both are parents of this child
 			if(family.SpeciesCalculation(child.person, person, spouse.person))
@@ -348,14 +336,14 @@
 		generation = 0 // Founder/root generation
 	else
 		var/max_parent_gen = -1
-		for(var/datum/family_member/parent in parents)
+		for(var/datum/family_member/parent as anything in parents)
 			if(parent.generation > max_parent_gen)
 				max_parent_gen = parent.generation
 		generation = max_parent_gen + 1
 
 	recalculating_generation = FALSE
 
-	for(var/datum/family_member/child in children)
+	for(var/datum/family_member/child as anything in children)
 		if(!child.recalculating_generation)
 			child.RecalculateGeneration()
 
@@ -544,7 +532,7 @@
 	return "distant relative"
 
 /datum/family_member/proc/GetInLawRelation(datum/family_member/other)
-	for(var/datum/family_member/spouse in spouses)
+	for(var/datum/family_member/spouse as anything in spouses)
 		// Check direct relationships to spouse's family
 		if(other in spouse.parents)
 			return other.GetParentInLawTerm()
@@ -554,17 +542,17 @@
 			return other.GetSiblingInLawTerm()
 
 		// Check spouse's grandparents
-		for(var/datum/family_member/spouse_parent in spouse.parents)
+		for(var/datum/family_member/spouse_parent as anything in spouse.parents)
 			if(other in spouse_parent.parents)
 				return other.GetGrandparentInLawTerm()
 
 	// Check if other is married to our sibling
-	for(var/datum/family_member/member in family.members)
+	for(var/datum/family_member/member as anything in family.members)
 		if(AreSiblings(member) && (other in member.spouses))
 			return other.GetSiblingInLawTerm()
 
 	// Check if other is married to our child (son/daughter-in-law)
-	for(var/datum/family_member/child in children)
+	for(var/datum/family_member/child as anything in children)
 		if(other in child.spouses)
 			return other.GetChildInLawTerm()
 
@@ -577,21 +565,21 @@
 		return FALSE
 
 	// Check if they share at least one parent
-	for(var/datum/family_member/my_parent in parents)
+	for(var/datum/family_member/my_parent as anything in parents)
 		if(my_parent in other.parents)
 			return TRUE
 	return FALSE
 
 /datum/family_member/proc/GetAuntUncleRelation(datum/family_member/other)
 	// Check if other is aunt/uncle of src (sibling of parent)
-	for(var/datum/family_member/parent in parents)
+	for(var/datum/family_member/parent as anything in parents)
 		if(other.AreSiblings(parent) && other != parent)
 			return other.GetAuntUncleTerm()
 	return null
 
 /datum/family_member/proc/GetNieceNephewRelation(datum/family_member/other)
 	// Check if other is niece/nephew of src (child of sibling)
-	for(var/datum/family_member/sibling in family.members)
+	for(var/datum/family_member/sibling as anything in family.members)
 		if(AreSiblings(sibling) && (sibling != src) && (other in sibling.children))
 			return other.GetNieceNephewTerm()
 	return null
@@ -599,14 +587,14 @@
 
 /datum/family_member/proc/GetGrandparentRelation(datum/family_member/other)
 	// Check if other is grandparent of src
-	for(var/datum/family_member/parent in parents)
+	for(var/datum/family_member/parent as anything in parents)
 		if(other in parent.parents)
 			return other.GetGrandparentTerm()
 	return null
 
 /datum/family_member/proc/GetGrandchildRelation(datum/family_member/other)
 	// Check if other is grandchild of src
-	for(var/datum/family_member/child in children)
+	for(var/datum/family_member/child as anything in children)
 		if(other in child.children)
 			return other.GetGrandchildTerm()
 	return null
@@ -614,8 +602,8 @@
 
 /datum/family_member/proc/GetCousinRelation(datum/family_member/other)
 	// First cousins: their parents are siblings
-	for(var/datum/family_member/my_parent in parents)
-		for(var/datum/family_member/their_parent in other.parents)
+	for(var/datum/family_member/my_parent as anything in parents)
+		for(var/datum/family_member/their_parent as anything in other.parents)
 			if(my_parent.AreSiblings(their_parent))
 				return "cousin"
 
@@ -625,14 +613,14 @@
 
 /datum/family_member/proc/GetGreatRelation(datum/family_member/other)
 	// Great-grandparent: parent of grandparent
-	for(var/datum/family_member/parent in parents)
-		for(var/datum/family_member/grandparent in parent.parents)
+	for(var/datum/family_member/parent as anything in parents)
+		for(var/datum/family_member/grandparent as anything in parent.parents)
 			if(other in grandparent.parents)
 				return other.GetGreatGrandparentTerm()
 
 	// Great-grandchild: child of grandchild
-	for(var/datum/family_member/child in children)
-		for(var/datum/family_member/grandchild in child.children)
+	for(var/datum/family_member/child as anything in children)
+		for(var/datum/family_member/grandchild as anything in child.children)
 			if(other in grandchild.children)
 				return other.GetGreatGrandchildTerm()
 
@@ -658,7 +646,7 @@
 		return null
 
 	// Check if already in family
-	for(var/datum/family_member/existing in members)
+	for(var/datum/family_member/existing as anything in members)
 		if(existing.person == person)
 			return existing
 
@@ -721,7 +709,7 @@
 	return TRUE
 
 /datum/heritage/proc/GetFamilyMember(mob/living/carbon/human/person)
-	for(var/datum/family_member/member in members)
+	for(var/datum/family_member/member as anything in members)
 		if(member.person == person)
 			return member
 	return null
@@ -749,61 +737,86 @@
 
 	return span_love(span_bold("[relationship_text]."))
 
-/datum/heritage/proc/FormatFamilyList(checker)
-	var/household = uppertext(housename)
-	var/house_title = "THE [household] HOUSE"
-	. = "<center>[household ? house_title : "Nameless House"]:</center><BR>"
-	. += "-----<br>"
+/datum/heritage/proc/GetDisplayHouseTitle()
+	var/household = trim("[housename]")
+	if(!household)
+		return "Nameless House"
+	return "THE [uppertext(household)] HOUSE"
 
-	// Sort by generation
-	var/list/by_generation = list()
-	for(var/datum/family_member/member in members)
-		var/gen = member.generation
-		if(!by_generation["[gen]"])
-			by_generation["[gen]"] = list()
-		by_generation["[gen]"] += member
+/datum/heritage/proc/GetRelationColor(relation_text)
+	switch(relation_text)
+		if("father", "mother", "parent")
+			return "#4169E1"
+		if("son", "daughter", "child")
+			return "#32CD32"
+		if("brother", "sister", "sibling")
+			return "#FFD700"
+		if("husband", "wife", "spouse")
+			return "#FF69B4"
+	return "#9370DB"
 
-	// Display by generation
-	for(var/gen_text in by_generation)
-		var/gen_num = text2num(gen_text)
-		var/gen_name = GetGenerationName(gen_num)
-		. += "<B>[gen_name]:</B><BR>"
+/datum/heritage/proc/BuildFamilyDisplayEntry(datum/family_member/checker_member, datum/family_member/member)
+	if(!member?.person)
+		return null
 
-		for(var/datum/family_member/member in by_generation[gen_text])
-			var/status_text = ""
-			var/datum/family_member/checker_member = GetMemberForPerson(checker)
-			var/relation_text = ""
-			var/name_color = "9370DB"
-			if(checker_member)
-				relation_text = checker_member.GetRelationshipTo(member)
-				switch(relation_text)
-					if("father", "mother", "parent")
-						name_color = "4169E1"
-					if("son", "daughter", "child")
-						name_color = "32CD32"
-					if("brother", "sister", "sibling")
-						name_color = "FFD700"
-					if("husband", "wife", "spouse")
-						name_color = "FF69B4"
-			if(member.adoption_status)
-				status_text = " (Adopted)"
-			if(member.spouses.len)
-				var/spouse_names = ""
-				for(var/datum/family_member/spouse in member.spouses)
-					if(spouse_names)
-						spouse_names += ", "
-					spouse_names += spouse.person?.real_name
-				status_text += " (Married to: [spouse_names])"
-			relation_text = uppertext(relation_text)
+	var/relation_text = ""
+	if(checker_member)
+		relation_text = checker_member.GetRelationshipTo(member)
 
-			. += "<B><font color=#[name_color];text-shadow:0 0 10px #8d5958, 0 0 20px #8d5958, 0 0 30px #8d5958, 0 0 40px #8d5958, 0 0 50px #e60073, 0 0 60px #8d5958, 0 0 70px #8d5958;>\
-				[member.person?.real_name]</font></B> <B>[relation_text]</B> [status_text]<BR>"
-		. += "<BR>"
+	var/list/details = list()
+	if(member.adoption_status)
+		details += "Adopted"
+	if(member.spouses.len)
+		var/list/spouse_names = list()
+		for(var/datum/family_member/spouse as anything in member.spouses)
+			if(spouse.person?.real_name)
+				spouse_names += spouse.person.real_name
+		if(spouse_names.len)
+			details += "Married to: [jointext(spouse_names, ", ")]"
 
-	. += "----------<br>"
+	return list(
+		"name" = member.person.real_name,
+		"label" = relation_text ? uppertext(relation_text) : null,
+		"details" = details,
+		"accentColor" = GetRelationColor(relation_text),
+	)
+
+/datum/heritage/proc/OpenCursePanel(mob/living/carbon/human/user)
+	if(!user || !family_curses.len)
+		return FALSE
+
+	var/datum/familytree_display_panel/panel = new(
+		user,
+		"Family Modifier Details",
+		GetDisplayHouseTitle(),
+		"No family modifiers are active.",
+	)
+
+	var/list/entries = list()
+	for(var/datum/family_curse/curse as anything in family_curses)
+		var/list/details = list()
+		if(curse.description)
+			details += curse.description
+		if(curse.cursed_by)
+			var/mob/curser = curse.cursed_by.resolve()
+			if(curser?.real_name)
+				details += "[curse.blessing ? "Blessed" : "Cursed"] by: [curser.real_name]"
+		details += "Severity: [curse.severity]/3"
+		details += "Time cursed: [DisplayTimeText(world.time - curse.when_cursed)] ago"
+
+		entries += list(list(
+			"name" = curse.name,
+			"label" = curse.blessing ? "BLESSING" : "CURSE",
+			"details" = details,
+			"accentColor" = curse.blessing ? "#4CAF50" : "#C62828",
+		))
+
+	panel.add_section("Current Modifiers", entries)
+	panel.ui_interact(user)
+	return TRUE
 
 /datum/heritage/proc/GetMemberForPerson(mob/living/carbon/human/P)
-	for(var/datum/family_member/member in members)
+	for(var/datum/family_member/member as anything in members)
 		if(member.person == P)
 			return member
 	return null
@@ -825,13 +838,40 @@
 
 /datum/heritage/proc/ListFamily(mob/living/carbon/human/checker)
 	if(!checker)
-		return
+		return FALSE
 	if(!members.len)
-		return
-	var/contents = FormatFamilyList(checker)
-	var/datum/browser/popup = new(checker, "FAMILYDISPLAY", "", 300, 500)
-	popup.set_content(contents)
-	popup.open()
+		return FALSE
+
+	var/datum/familytree_display_panel/panel = new(
+		checker,
+		GetDisplayHouseTitle(),
+		"",
+		"No family members found.",
+	)
+
+	var/datum/family_member/checker_member = GetMemberForPerson(checker)
+	var/list/by_generation = list()
+	var/list/generation_order = list()
+
+	for(var/datum/family_member/member as anything in members)
+		var/gen_key = "[member.generation]"
+		if(!by_generation[gen_key])
+			by_generation[gen_key] = list()
+			generation_order += member.generation
+		by_generation[gen_key] += member
+
+	generation_order = sortList(generation_order, GLOBAL_PROC_REF(cmp_numeric_asc))
+
+	for(var/generation as anything in generation_order)
+		var/list/entries = list()
+		for(var/datum/family_member/member as anything in by_generation["[generation]"])
+			var/list/entry = BuildFamilyDisplayEntry(checker_member, member)
+			if(entry)
+				entries += list(entry)
+		panel.add_section(GetGenerationName(generation), entries)
+
+	panel.ui_interact(checker)
+	return TRUE
 
 /datum/heritage/proc/SpeciesCalculation(mob/living/carbon/human/child, mob/living/carbon/human/parent1, mob/living/carbon/human/parent2)
 	var/child_species_type = child.dna?.species?.type
@@ -911,7 +951,7 @@
 /datum/heritage/proc/ApplyUI(mob/living/carbon/human/iconer, toggle_true = FALSE)
 	if(!iconer.client)
 		return FALSE
-	for(var/mob/living/carbon/human/H in family_icons)
+	for(var/mob/living/carbon/human/H as anything in family_icons)
 		if(toggle_true)
 			iconer.client.images.Remove(family_icons[H])
 			continue
@@ -920,7 +960,7 @@
 		iconer.client.images.Add(family_icons[H])
 
 /datum/heritage/proc/LateJoinAddToUI(mob/living/carbon/human/new_fam)
-	for(var/datum/family_member/member in members)
+	for(var/datum/family_member/member as anything in members)
 		var/mob/living/carbon/human/H = member.person
 		if(H && H.family_UI && H.client && H != new_fam)
 			if(new_fam in family_icons)

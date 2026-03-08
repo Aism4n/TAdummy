@@ -253,7 +253,7 @@
 	var/list/house_names = list()
 	var/list/added_names = list()
 
-	for(var/datum/mind/M in SSticker.minds)
+	for(var/datum/mind/M as anything in SSticker.minds)
 		if(!ishuman(M.current))
 			continue
 
@@ -274,12 +274,6 @@
 		var/list/entries = house_entries[house_key]
 
 		var/list/person_info = known_people[H.real_name]
-		var/fcolor = person_info["VCOLOR"]
-		if(!fcolor)
-			fcolor = H.voice_color
-		if(!fcolor)
-			fcolor = "FFFFFF"
-
 		var/list/details = list()
 		var/relation = familytree_get_known_family_relation(user, H)
 		if(relation)
@@ -301,16 +295,12 @@
 		if(fage)
 			details += "[fage]"
 
-		var/detail_text = jointext(details, ", ")
-		var/entry_html = ""
 		var/fheresy = person_info["FHERESY"]
-		if(fheresy)
-			entry_html += "<B><font color=#f1d669>[fheresy]</font></B> "
-		entry_html += "<B><font color=#[fcolor];text-shadow:0 0 10px #8d5958, 0 0 20px #8d5958, 0 0 30px #8d5958, 0 0 40px #8d5958, 0 0 50px #e60073, 0 0 60px #8d5958, 0 0 70px #8d5958;>[H.real_name]</font></B>"
-		if(detail_text)
-			entry_html += "<BR>[detail_text]"
-
-		entries += entry_html
+		entries += list(list(
+			"name" = H.real_name,
+			"label" = fheresy,
+			"details" = details,
+		))
 
 	if(!house_names.len)
 		to_chat(user, span_warning("I don't know any families."))
@@ -318,17 +308,17 @@
 
 	house_names = sortList(house_names)
 
-	var/contents = "<center>Known families of [name || user.real_name]:</center><BR>"
-	contents += "<i>Shows currently present known people with active family data.</i><BR><BR>"
+	var/datum/familytree_display_panel/panel = new(
+		user,
+		"Known Families of [name || user.real_name]",
+		"Shows currently present known people with active family data.",
+		"I don't know any families.",
+	)
 
 	for(var/house_key in house_names)
-		contents += "<center><B>THE [house_key] HOUSE</B></center><BR>"
-		for(var/entry_html in house_entries[house_key])
-			contents += "[entry_html]<BR><BR>"
+		panel.add_section("THE [house_key] HOUSE", house_entries[house_key])
 
-	var/datum/browser/popup = new(user, "KNOWNFAMILIES", "", 320, 420)
-	popup.set_content(contents)
-	popup.open()
+	panel.ui_interact(user)
 
 /mob/living/carbon/human/verb/known_families()
 	set name = "Known Families"
