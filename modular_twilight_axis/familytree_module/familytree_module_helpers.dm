@@ -5,13 +5,13 @@
 	var/datum/family_options/family_options
 	var/gender_choice_pref = ANY_GENDER
 	var/species_preference_mode = "ANY"
-	var/preferred_species_type
+	var/list/preferred_species_types = list()
 	var/preferred_species_anatomy = 0
 	var/tmp/familytree_module_loaded_slot
 	var/tmp/familytree_module_loaded_path
 
 /mob/living/carbon/human
-	var/family_UI = FALSE
+	var/family_UI = TRUE
 	var/mob/living/carbon/spouse_mob
 	var/image/spouse_indicator
 	var/setspouse
@@ -69,23 +69,42 @@
 	setspouse = initial(setspouse)
 	gender_choice_pref = initial(gender_choice_pref)
 	species_preference_mode = initial(species_preference_mode)
-	preferred_species_type = initial(preferred_species_type)
+	preferred_species_types = list()
 	preferred_species_anatomy = initial(preferred_species_anatomy)
 
 /datum/preferences/proc/familytree_module_sanitize_character()
 	family = sanitize_integer(family, FAMILY_NONE, FAMILY_NEWLYWED, FAMILY_NONE)
 	gender_choice_pref = sanitize_integer(gender_choice_pref, ANY_GENDER, DIFFERENT_GENDER, ANY_GENDER)
 	species_preference_mode = sanitize_text(species_preference_mode, "ANY")
+
 	if(!(species_preference_mode in list("ANY", "SAME_TYPE", "SPECIFIC_TYPE")))
 		species_preference_mode = "ANY"
-	if(species_preference_mode != "SPECIFIC_TYPE")
-		preferred_species_type = null
-	else if(!istext(preferred_species_type) || !(preferred_species_type in familytree_module_get_selectable_species()))
-		species_preference_mode = "ANY"
-		preferred_species_type = null
+
+	var/list/valid_species = familytree_module_get_selectable_species()
+	var/list/sanitized_species = list()
+
+	if(islist(preferred_species_types))
+		for(var/entry in preferred_species_types)
+			if(!istext(entry))
+				continue
+			if(!(entry in valid_species))
+				continue
+			if(entry in sanitized_species)
+				continue
+			sanitized_species += entry
+
+	preferred_species_types = sanitized_species
+
+	if(species_preference_mode == "SPECIFIC_TYPE")
+		if(!preferred_species_types.len)
+			species_preference_mode = "ANY"
+	else
+		preferred_species_types = list()
+
 	preferred_species_anatomy = text2num("[preferred_species_anatomy]")
 	if(!(preferred_species_anatomy in list(0, 1, 2)))
 		preferred_species_anatomy = 0
+
 	if(!istext(setspouse))
 		setspouse = ""
 	else
@@ -117,7 +136,7 @@
 			S["gender_choice_pref"] >> gender_choice_pref
 			S["setspouse"] >> setspouse
 			S["species_preference_mode"] >> species_preference_mode
-			S["preferred_species_type"] >> preferred_species_type
+			S["preferred_species_types"] >> preferred_species_types
 			S["preferred_species_anatomy"] >> preferred_species_anatomy
 
 	familytree_module_sanitize_character()
@@ -141,7 +160,7 @@
 	WRITE_FILE(S["gender_choice_pref"], gender_choice_pref)
 	WRITE_FILE(S["setspouse"], setspouse)
 	WRITE_FILE(S["species_preference_mode"], species_preference_mode)
-	WRITE_FILE(S["preferred_species_type"], preferred_species_type)
+	WRITE_FILE(S["preferred_species_types"], preferred_species_types)
 	WRITE_FILE(S["preferred_species_anatomy"], preferred_species_anatomy)
 
 	familytree_module_loaded_slot = slot

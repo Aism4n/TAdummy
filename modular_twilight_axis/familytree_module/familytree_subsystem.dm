@@ -122,6 +122,26 @@ SUBSYSTEM_DEF(familytree)
 
 	return "closed"
 
+/datum/controller/subsystem/familytree/proc/get_preference_species_type_list(datum/preferences/P) as /list
+	var/list/result = list()
+	if(!P)
+		return result
+
+	if(!islist(P.preferred_species_types))
+		return result
+
+	for(var/entry in P.preferred_species_types)
+		var/species_type = entry
+		if(istext(species_type))
+			species_type = GLOB.species_list[species_type]
+		if(!ispath(species_type, /datum/species))
+			continue
+		if(species_type in result)
+			continue
+		result += species_type
+
+	return result
+
 /datum/controller/subsystem/familytree/proc/get_royal_partner_allowed_races(mob/living/carbon/human/duke, datum/preferences/P, list/default_races) as /list
 	var/list/allowed_races = islist(default_races) ? default_races.Copy() : list()
 	if(!P)
@@ -136,11 +156,9 @@ SUBSYSTEM_DEF(familytree)
 			if(ispath(duke_species_type, /datum/species))
 				return list(duke_species_type)
 		if("SPECIFIC_TYPE")
-			var/species_type = P.preferred_species_type
-			if(istext(species_type))
-				species_type = GLOB.species_list[species_type]
-			if(ispath(species_type, /datum/species))
-				return list(species_type)
+			var/list/preferred_species = get_preference_species_type_list(P)
+			if(preferred_species.len)
+				return preferred_species
 
 	return allowed_races
 
@@ -257,7 +275,7 @@ SUBSYSTEM_DEF(familytree)
 		"duke_species_type" = duke.client?.prefs?.pref_species?.type,
 		"gender_choice_pref" = P.gender_choice_pref,
 		"species_preference_mode" = P.species_preference_mode,
-		"preferred_species_type" = P.preferred_species_type,
+		"preferred_species_types" = islist(P.preferred_species_types) ? P.preferred_species_types.Copy() : list(),
 		"preferred_species_anatomy" = P.preferred_species_anatomy,
 		"setspouse" = P.setspouse,
 	)
@@ -280,17 +298,25 @@ SUBSYSTEM_DEF(familytree)
 		return FALSE
 
 	var/preference_mode = current_royal_partner_snapshot["species_preference_mode"]
-	var/preferred_species_type = current_royal_partner_snapshot["preferred_species_type"]
 	var/duke_species_type = current_royal_partner_snapshot["duke_species_type"]
+	var/list/preferred_species_types = current_royal_partner_snapshot["preferred_species_types"]
 
-	if(istext(preferred_species_type))
-		preferred_species_type = GLOB.species_list[preferred_species_type]
+	if(!islist(preferred_species_types))
+		preferred_species_types = list()
+
+	var/list/resolved_species = list()
+	for(var/entry in preferred_species_types)
+		var/species_entry = entry
+		if(istext(species_entry))
+			species_entry = GLOB.species_list[species_entry]
+		if(ispath(species_entry, /datum/species))
+			resolved_species += species_entry
 
 	switch(preference_mode)
 		if("SAME_TYPE")
 			return species_type == duke_species_type
 		if("SPECIFIC_TYPE")
-			return species_type == preferred_species_type
+			return species_type in resolved_species
 
 	return TRUE
 
@@ -961,6 +987,7 @@ SUBSYSTEM_DEF(familytree)
 		return our_gender != other_gender
 
 	return FALSE
+
 /datum/controller/subsystem/familytree/proc/AssignToFamily(mob/living/carbon/human/H)
 	if(!H)
 		return
@@ -995,7 +1022,6 @@ SUBSYSTEM_DEF(familytree)
 						if(is_human_job_in_list(member.person, nomarry_jobs))
 							continue
 
-
 		if(!has_single_adult && !house.housename)
 			eligible_houses += house // Empty house for founding
 
@@ -1014,7 +1040,7 @@ SUBSYSTEM_DEF(familytree)
 						var/ok_gender_H = H.pronouns_match(H, member.person)
 						var/ok_gender_M = member.person.pronouns_match(member.person, H)
 
-						if(ok_gender_H && ok_gender_M)
+						if(ok_gender_H && ok_gender_M && SpeciesCompatible(H, member.person))
 							compatible = TRUE
 
 				if(compatible)
@@ -1156,33 +1182,29 @@ SUBSYSTEM_DEF(familytree)
 
 	var/typeA = A.dna.species.type
 	var/typeB = B.dna.species.type
-	var/type_pref_a = PA?.preferred_species_type
-	var/type_pref_b = PB?.preferred_species_type
-
-	if(istext(type_pref_a))
-		type_pref_a = GLOB.species_list[type_pref_a]
-	if(istext(type_pref_b))
-		type_pref_b = GLOB.species_list[type_pref_b]
-
+	var/list/pref_types_a = get_preference_species_type_list(PA)
+	var/list/pref_types_b = get_preference_species_type_list(PB)
 
 	if(PA)
 		switch(PA.species_preference_mode)
 			if("ANY")
+				;
 			if("SAME_TYPE")
 				if(typeA != typeB)
 					return FALSE
 			if("SPECIFIC_TYPE")
-				if(typeB != type_pref_a)
+				if(!(typeB in pref_types_a))
 					return FALSE
 
 	if(PB)
 		switch(PB.species_preference_mode)
 			if("ANY")
+				;
 			if("SAME_TYPE")
 				if(typeA != typeB)
 					return FALSE
 			if("SPECIFIC_TYPE")
-				if(typeA != type_pref_b)
+				if(!(typeA in pref_types_b))
 					return FALSE
 
 	if(PA)
