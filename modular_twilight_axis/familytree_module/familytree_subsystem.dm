@@ -47,10 +47,16 @@ SUBSYSTEM_DEF(familytree)
 		)
 	//This creates 2 families for each race roundstart so that siblings dont fail to be added to a family.
 	var/list/preset_family_species = list()
+	var/list/royal_partner_job_baselines = list()
+	var/mob/living/carbon/human/current_royal_partner_owner
+	var/current_royal_partner_mode = "closed"
+	var/list/current_royal_partner_snapshot = list()
 
 /datum/controller/subsystem/familytree/Initialize()
 	ruling_family = new /datum/heritage(null, "Royal", /datum/species/human/northern)
 	preset_family_species = build_preset_family_species()
+	ensure_royal_partner_job_baselines()
+	reset_royal_partner_jobs()
 	//Blank starter families that we can customize for players.
 	for(var/pioneer_household in preset_family_species)
 		for(var/I = 1 to 2)
@@ -64,6 +70,193 @@ SUBSYSTEM_DEF(familytree)
 
 /datum/controller/subsystem/familytree/proc/build_preset_family_species() as /list
 	. = familytree_module_get_selectable_species_types()
+
+/datum/controller/subsystem/familytree/proc/find_job_by_type(job_type)
+	if(!job_type)
+		return null
+
+	for(var/datum/job/candidate as anything in SSjob.occupations)
+		if(candidate.type == job_type)
+			return candidate
+
+	for(var/datum/job/candidate as anything in SSjob.occupations)
+		if(istype(candidate, job_type))
+			return candidate
+
+	return null
+
+/datum/controller/subsystem/familytree/proc/ensure_royal_partner_job_baselines()
+	if(royal_partner_job_baselines.len)
+		return TRUE
+
+	var/datum/job/consort_job = find_job_by_type(/datum/job/roguetown/lady)
+	var/datum/job/suitor_job = find_job_by_type(/datum/job/roguetown/suitor)
+
+	if(consort_job)
+		royal_partner_job_baselines["consort"] = list(
+			"allowed_races" = islist(consort_job.allowed_races) ? consort_job.allowed_races.Copy() : list(),
+			"allowed_sexes" = islist(consort_job.allowed_sexes) ? consort_job.allowed_sexes.Copy() : list(),
+			"total_positions" = consort_job.total_positions,
+			"spawn_positions" = consort_job.spawn_positions,
+		)
+
+	if(suitor_job)
+		royal_partner_job_baselines["suitor"] = list(
+			"allowed_races" = islist(suitor_job.allowed_races) ? suitor_job.allowed_races.Copy() : list(),
+			"allowed_sexes" = islist(suitor_job.allowed_sexes) ? suitor_job.allowed_sexes.Copy() : list(),
+			"total_positions" = suitor_job.total_positions,
+			"spawn_positions" = suitor_job.spawn_positions,
+		)
+
+	return royal_partner_job_baselines.len >= 2
+
+/datum/controller/subsystem/familytree/proc/get_royal_partner_mode_from_preferences(datum/preferences/P)
+	if(!P)
+		return "closed"
+
+	switch(P.family)
+		if(FAMILY_NEWLYWED)
+			return "consort"
+		if(FAMILY_PARTIAL, FAMILY_FULL)
+			return "suitor"
+
+	return "closed"
+
+/datum/controller/subsystem/familytree/proc/get_royal_partner_allowed_races(mob/living/carbon/human/duke, datum/preferences/P, list/default_races) as /list
+	var/list/allowed_races = islist(default_races) ? default_races.Copy() : list()
+	if(!P)
+		return allowed_races
+
+	var/duke_species_type = duke?.client?.prefs?.pref_species?.type
+	if(!ispath(duke_species_type, /datum/species))
+		duke_species_type = duke?.dna?.species?.type
+
+	switch(P.species_preference_mode)
+		if("SAME_TYPE")
+			if(ispath(duke_species_type, /datum/species))
+				return list(duke_species_type)
+		if("SPECIFIC_TYPE")
+			var/species_type = P.preferred_species_type
+			if(istext(species_type))
+				species_type = GLOB.species_list[species_type]
+			if(ispath(species_type, /datum/species))
+				return list(species_type)
+
+	return allowed_races
+
+/datum/controller/subsystem/familytree/proc/get_royal_partner_allowed_sexes(mob/living/carbon/human/duke, datum/preferences/P, list/default_sexes) as /list
+	var/list/allowed_sexes = islist(default_sexes) ? default_sexes.Copy() : list()
+	if(!P)
+		return allowed_sexes
+
+	var/duke_body_type = duke?.client?.prefs?.gender
+	if(duke_body_type != MALE && duke_body_type != FEMALE)
+		duke_body_type = duke?.gender
+
+	switch(P.gender_choice_pref)
+		if(SAME_GENDER)
+			if(duke_body_type == MALE || duke_body_type == FEMALE)
+				return list(duke_body_type)
+		if(DIFFERENT_GENDER)
+			if(duke_body_type == MALE)
+				return list(FEMALE)
+			if(duke_body_type == FEMALE)
+				return list(MALE)
+
+	return allowed_sexes
+
+/datum/controller/subsystem/familytree/proc/apply_royal_partner_job_state(job_key, enabled, open_slots = 0, list/allowed_races, list/allowed_sexes)
+	if(!ensure_royal_partner_job_baselines())
+		return FALSE
+
+	var/datum/job/job = null
+	switch(job_key)
+		if("consort")
+			job = find_job_by_type(/datum/job/roguetown/lady)
+		if("suitor")
+			job = find_job_by_type(/datum/job/roguetown/suitor)
+
+	var/list/baseline = royal_partner_job_baselines[job_key]
+	if(!job || !baseline)
+		return FALSE
+
+	job.allowed_races = islist(baseline["allowed_races"]) ? baseline["allowed_races"].Copy() : list()
+	job.allowed_sexes = islist(baseline["allowed_sexes"]) ? baseline["allowed_sexes"].Copy() : list()
+	job.total_positions = baseline["total_positions"]
+	job.spawn_positions = baseline["spawn_positions"]
+
+	if(enabled)
+		job.allowed_races = islist(allowed_races) ? allowed_races.Copy() : list()
+		job.allowed_sexes = islist(allowed_sexes) ? allowed_sexes.Copy() : list()
+		job.total_positions = open_slots
+		job.spawn_positions = open_slots
+	else
+		job.total_positions = 0
+		job.spawn_positions = 0
+
+	return TRUE
+
+/datum/controller/subsystem/familytree/proc/reset_royal_partner_jobs()
+	current_royal_partner_owner = null
+	current_royal_partner_mode = "closed"
+	current_royal_partner_snapshot = list()
+
+	apply_royal_partner_job_state("consort", FALSE)
+	apply_royal_partner_job_state("suitor", FALSE)
+
+/datum/controller/subsystem/familytree/proc/refresh_royal_partner_jobs(mob/living/carbon/human/duke, datum/preferences/P)
+	if(!duke?.client)
+		return FALSE
+
+	if(!ensure_royal_partner_job_baselines())
+		return FALSE
+
+	if(!P)
+		P = duke.client.prefs
+	if(!P)
+		return FALSE
+
+	if(current_royal_partner_owner == duke && current_royal_partner_snapshot.len)
+		return TRUE
+
+	if(current_royal_partner_owner && current_royal_partner_owner != duke)
+		return FALSE
+
+	P.familytree_module_load_character()
+
+	var/mode = get_royal_partner_mode_from_preferences(P)
+	var/list/consort_baseline = royal_partner_job_baselines["consort"]
+	var/list/suitor_baseline = royal_partner_job_baselines["suitor"]
+	if(!consort_baseline || !suitor_baseline)
+		return FALSE
+
+	var/list/consort_allowed_races = get_royal_partner_allowed_races(duke, P, consort_baseline["allowed_races"])
+	var/list/consort_allowed_sexes = get_royal_partner_allowed_sexes(duke, P, consort_baseline["allowed_sexes"])
+	var/list/suitor_allowed_races = get_royal_partner_allowed_races(duke, P, suitor_baseline["allowed_races"])
+	var/list/suitor_allowed_sexes = get_royal_partner_allowed_sexes(duke, P, suitor_baseline["allowed_sexes"])
+
+	switch(mode)
+		if("consort")
+			apply_royal_partner_job_state("consort", TRUE, 1, consort_allowed_races, consort_allowed_sexes)
+			apply_royal_partner_job_state("suitor", FALSE)
+		if("suitor")
+			apply_royal_partner_job_state("consort", FALSE)
+			apply_royal_partner_job_state("suitor", TRUE, 2, suitor_allowed_races, suitor_allowed_sexes)
+		else
+			apply_royal_partner_job_state("consort", FALSE)
+			apply_royal_partner_job_state("suitor", FALSE)
+
+	current_royal_partner_owner = duke
+	current_royal_partner_mode = mode
+	current_royal_partner_snapshot = list(
+		"family" = P.family,
+		"gender_choice_pref" = P.gender_choice_pref,
+		"species_preference_mode" = P.species_preference_mode,
+		"preferred_species_type" = P.preferred_species_type,
+		"preferred_species_anatomy" = P.preferred_species_anatomy,
+		"setspouse" = P.setspouse,
+	)
+	return TRUE
 
 /datum/controller/subsystem/familytree/proc/resolve_job_datum(role_or_job)
 	if(istype(role_or_job, /datum/job))
@@ -117,7 +310,10 @@ SUBSYSTEM_DEF(familytree)
 	return istype(job, /datum/job/roguetown/lord)
 
 /datum/controller/subsystem/familytree/proc/is_royal_consort_job(datum/job/job)
-	return istype(job, /datum/job/roguetown/lady) || istype(job, /datum/job/roguetown/suitor)
+	return istype(job, /datum/job/roguetown/lady)
+
+/datum/controller/subsystem/familytree/proc/is_royal_suitor_job(datum/job/job)
+	return istype(job, /datum/job/roguetown/suitor)
 
 /datum/controller/subsystem/familytree/proc/is_royal_progeny_job(datum/job/job)
 	return istype(job, /datum/job/roguetown/prince)
@@ -155,12 +351,20 @@ SUBSYSTEM_DEF(familytree)
 	try_queue_assignment(H)
 
 /datum/controller/subsystem/familytree/proc/try_queue_assignment(mob/living/carbon/human/H)
-	if(!H || H.familytree_assignment_scheduled || H.family_datum || istype(H, /mob/living/carbon/human/dummy))
+	if(!H || istype(H, /mob/living/carbon/human/dummy))
+		return
+
+	var/datum/job/job = get_familytree_job(H)
+	var/datum/preferences/P = H.client?.prefs
+	if(P && is_royal_monarch_job(job) && !current_royal_partner_owner)
+		P.familytree_module_load_character()
+		refresh_royal_partner_jobs(H, P)
+
+	if(H.familytree_assignment_scheduled || H.family_datum)
 		if(H?.family_datum)
 			stop_tracking_human(H)
 		return
 
-	var/datum/preferences/P = H.client?.prefs
 	if(!P)
 		return
 
@@ -168,6 +372,10 @@ SUBSYSTEM_DEF(familytree)
 	H.familytree_pref = P.family
 	H.gender_choice_pref = P.gender_choice_pref
 	H.setspouse = P.setspouse
+
+	if(is_royal_suitor_job(job))
+		stop_tracking_human(H)
+		return
 
 	var/royal_status = get_royal_status(H)
 	if(royal_status)
@@ -299,6 +507,8 @@ SUBSYSTEM_DEF(familytree)
 		return
 	// Royals are handled by the dedicated royal flow.
 	if(get_royal_status(H))
+		return
+	if(is_royal_suitor_job(get_familytree_job(H)))
 		return
 	if(is_human_job_in_list(H, excluded_jobs))
 		return
