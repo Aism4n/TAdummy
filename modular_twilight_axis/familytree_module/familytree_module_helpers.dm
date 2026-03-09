@@ -91,6 +91,17 @@
 	else
 		setspouse = copytext(setspouse, 1, 65)
 
+/datum/preferences/proc/familytree_module_has_enabled_customizer_entry(entry_type)
+	validate_customizer_entries()
+	var/datum/customizer_entry/entry = get_customizer_entry_of_type(entry_type)
+	return entry && !entry.disabled
+
+/datum/preferences/proc/familytree_module_has_penis()
+	return familytree_module_has_enabled_customizer_entry(/datum/customizer_entry/organ/penis)
+
+/datum/preferences/proc/familytree_module_has_vagina()
+	return familytree_module_has_enabled_customizer_entry(/datum/customizer_entry/organ/vagina)
+
 /datum/preferences/proc/familytree_module_load_character(slot, force = FALSE)
 	slot = familytree_module_get_slot(slot)
 	if(!force && (familytree_module_loaded_path == path) && (familytree_module_loaded_slot == slot))

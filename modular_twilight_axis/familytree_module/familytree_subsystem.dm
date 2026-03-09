@@ -250,12 +250,116 @@ SUBSYSTEM_DEF(familytree)
 	current_royal_partner_mode = mode
 	current_royal_partner_snapshot = list(
 		"family" = P.family,
+		"duke_gender" = duke.client?.prefs?.gender,
+		"duke_pronouns" = duke.client?.prefs?.pronouns,
+		"duke_species_type" = duke.client?.prefs?.pref_species?.type,
 		"gender_choice_pref" = P.gender_choice_pref,
 		"species_preference_mode" = P.species_preference_mode,
 		"preferred_species_type" = P.preferred_species_type,
 		"preferred_species_anatomy" = P.preferred_species_anatomy,
 		"setspouse" = P.setspouse,
 	)
+	return TRUE
+
+/datum/controller/subsystem/familytree/proc/get_royal_partner_job_key(role_or_job)
+	var/datum/job/job = resolve_job_datum(role_or_job)
+	if(is_royal_consort_job(job))
+		return "consort"
+	if(is_royal_suitor_job(job))
+		return "suitor"
+	return null
+
+/datum/controller/subsystem/familytree/proc/royal_partner_species_match(datum/preferences/P)
+	if(!P)
+		return FALSE
+
+	var/species_type = P.pref_species?.type
+	if(!ispath(species_type, /datum/species))
+		return FALSE
+
+	var/preference_mode = current_royal_partner_snapshot["species_preference_mode"]
+	var/preferred_species_type = current_royal_partner_snapshot["preferred_species_type"]
+	var/duke_species_type = current_royal_partner_snapshot["duke_species_type"]
+
+	if(istext(preferred_species_type))
+		preferred_species_type = GLOB.species_list[preferred_species_type]
+
+	switch(preference_mode)
+		if("SAME_TYPE")
+			return species_type == duke_species_type
+		if("SPECIFIC_TYPE")
+			return species_type == preferred_species_type
+
+	return TRUE
+
+/datum/controller/subsystem/familytree/proc/royal_partner_gender_match(datum/preferences/P)
+	if(!P)
+		return FALSE
+
+	var/gender_pref = current_royal_partner_snapshot["gender_choice_pref"]
+	if(!gender_pref || gender_pref == ANY_GENDER)
+		return TRUE
+
+	var/duke_pronouns = current_royal_partner_snapshot["duke_pronouns"]
+	var/candidate_pronouns = P.pronouns
+	if(!isnull(duke_pronouns) && !isnull(candidate_pronouns))
+		if(gender_pref == SAME_GENDER)
+			return duke_pronouns == candidate_pronouns
+		if(gender_pref == DIFFERENT_GENDER)
+			return duke_pronouns != candidate_pronouns
+
+	var/duke_gender = current_royal_partner_snapshot["duke_gender"]
+	var/candidate_gender = P.gender
+	if(gender_pref == SAME_GENDER)
+		return duke_gender == candidate_gender
+	if(gender_pref == DIFFERENT_GENDER)
+		return duke_gender != candidate_gender
+
+	return TRUE
+
+/datum/controller/subsystem/familytree/proc/royal_partner_anatomy_match(datum/preferences/P)
+	if(!P)
+		return FALSE
+
+	var/anatomy_pref = current_royal_partner_snapshot["preferred_species_anatomy"]
+	switch(anatomy_pref)
+		if(0)
+			return TRUE
+		if(1)
+			return P.familytree_module_has_penis()
+		if(2)
+			return P.familytree_module_has_vagina()
+
+	return TRUE
+
+/datum/controller/subsystem/familytree/proc/royal_partner_name_match(datum/preferences/P)
+	if(!P)
+		return FALSE
+
+	var/required_name = current_royal_partner_snapshot["setspouse"]
+	if(!istext(required_name) || !length(required_name))
+		return TRUE
+
+	return P.real_name == required_name
+
+/datum/controller/subsystem/familytree/proc/royal_partner_candidate_allowed(client/C, role_or_job)
+	if(!C?.prefs || !current_royal_partner_owner || !current_royal_partner_snapshot.len)
+		return FALSE
+
+	var/job_key = get_royal_partner_job_key(role_or_job)
+	if(!job_key || current_royal_partner_mode != job_key)
+		return FALSE
+
+	var/datum/preferences/P = C.prefs
+	if(!royal_partner_species_match(P))
+		return FALSE
+	if(!royal_partner_gender_match(P))
+		return FALSE
+	if(!royal_partner_anatomy_match(P))
+		return FALSE
+	if(job_key == "consort" && !royal_partner_name_match(P))
+		return FALSE
+
 	return TRUE
 
 /datum/controller/subsystem/familytree/proc/resolve_job_datum(role_or_job)

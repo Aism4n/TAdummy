@@ -36,6 +36,7 @@
 #define FAMILY_INLAW "In Law"
 
 #include "familytree_module_helpers.dm"
+#include "familytree_royal_job_hooks.dm"
 #include "familytree_display.dm"
 #include "familytree_heritage.dm"
 #include "familytree_family_options.dm"
