@@ -1063,11 +1063,18 @@ SUBSYSTEM_DEF(familytree)
 	if(!H || is_familytree_antagonist(H))
 		ignore_familytree_antagonist(H)
 		return
+	if(!H.client)
+		viable_spouses -= H
+		return
+
 	viable_spouses += H
 	var/list/potential_matches = list()
 
 	for(var/mob/living/carbon/human/potential_spouse as anything in viable_spouses)
 		if(!potential_spouse || potential_spouse == H || potential_spouse.spouse_mob)
+			continue
+		if(!potential_spouse.client)
+			viable_spouses -= potential_spouse
 			continue
 		if(is_familytree_antagonist(potential_spouse))
 			viable_spouses -= potential_spouse
