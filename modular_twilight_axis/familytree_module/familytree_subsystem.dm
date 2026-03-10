@@ -279,6 +279,7 @@ SUBSYSTEM_DEF(familytree)
 		"preferred_species_anatomy" = P.preferred_species_anatomy,
 		"setspouse" = P.setspouse,
 	)
+	familytree_log_mob(duke, "royal_partner_snapshot", "mode=[mode]", P)
 	return TRUE
 
 /datum/controller/subsystem/familytree/proc/get_royal_partner_job_key(role_or_job)
@@ -425,12 +426,37 @@ SUBSYSTEM_DEF(familytree)
 		return TRUE
 	return !!mind.has_antag_datum(/datum/antagonist)
 
-/datum/controller/subsystem/familytree/proc/ignore_familytree_antagonist(mob/living/carbon/human/H)
+/datum/controller/subsystem/familytree/proc/is_familytree_wildshape(mob/living/carbon/human/H)
+	return istype(H, /mob/living/carbon/human/species/wildshape)
+
+/datum/controller/subsystem/familytree/proc/get_familytree_unsubscribe_reason(mob/living/carbon/human/H)
+	if(!H)
+		return "null human"
+	if(QDELETED(H))
+		return "qdeleted"
+	if(istype(H, /mob/living/carbon/human/dummy))
+		return "dummy mob"
+	if(is_familytree_wildshape(H))
+		return "wildshape form"
+	if(is_familytree_antagonist(H))
+		return "antagonist"
+	return null
+
+/datum/controller/subsystem/familytree/proc/get_familytree_runtime_block_reason(mob/living/carbon/human/H, require_client = FALSE)
+	var/reason = get_familytree_unsubscribe_reason(H)
+	if(reason)
+		return reason
+	if(require_client && !H.client)
+		return "no client"
+	return null
+
+/datum/controller/subsystem/familytree/proc/unsubscribe_familytree_human(mob/living/carbon/human/H, reason)
 	if(!H)
 		return
 	viable_spouses -= H
 	H.familytree_assignment_scheduled = FALSE
-	stop_tracking_human(H)
+	familytree_log_mob(H, "unsubscribe", "reason=[reason]")
+	stop_tracking_human(H, reason)
 
 /datum/controller/subsystem/familytree/proc/is_human_job_in_list(mob/living/carbon/human/H, list/title_list)
 	if(!H || !title_list)
@@ -473,6 +499,7 @@ SUBSYSTEM_DEF(familytree)
 	if(!ishuman(new_mob) || QDELETED(new_mob) || istype(new_mob, /mob/living/carbon/human/dummy))
 		return
 	var/mob/living/carbon/human/H = new_mob
+	familytree_log_mob(H, "mob_created", "global mob-created signal received")
 	register_human(H)
 	try_queue_assignment(H)
 
@@ -481,27 +508,44 @@ SUBSYSTEM_DEF(familytree)
 		return
 	H.familytree_module_signal_bound = TRUE
 	RegisterSignal(H, COMSIG_MOB_LOGIN, PROC_REF(on_human_login))
+	RegisterSignal(H, COMSIG_MOB_LOGOUT, PROC_REF(on_human_logout))
 	RegisterSignal(H, COMSIG_JOB_RECEIVED, PROC_REF(on_human_job_received))
+	familytree_log_mob(H, "tracking_start", "registered mob signals")
 
-/datum/controller/subsystem/familytree/proc/stop_tracking_human(mob/living/carbon/human/H)
+/datum/controller/subsystem/familytree/proc/stop_tracking_human(mob/living/carbon/human/H, reason = "unspecified")
 	if(!H || !H.familytree_module_signal_bound)
 		return
 	H.familytree_module_signal_bound = FALSE
-	UnregisterSignal(H, list(COMSIG_MOB_LOGIN, COMSIG_JOB_RECEIVED))
+	UnregisterSignal(H, list(COMSIG_MOB_LOGIN, COMSIG_MOB_LOGOUT, COMSIG_JOB_RECEIVED))
+	familytree_log_mob(H, "tracking_stop", "reason=[reason]")
 
 /datum/controller/subsystem/familytree/proc/on_human_login(mob/living/carbon/human/H)
 	SIGNAL_HANDLER
+	familytree_log_mob(H, "signal_login", "client login signal received")
 	try_queue_assignment(H)
+
+/datum/controller/subsystem/familytree/proc/on_human_logout(mob/living/carbon/human/H)
+	SIGNAL_HANDLER
+	var/was_scheduled = H?.familytree_assignment_scheduled
+	var/was_in_spouse_pool = (H in viable_spouses)
+	if(H)
+		viable_spouses -= H
+	familytree_log_mob(H, "signal_logout", "scheduled=[was_scheduled]; spouse_pool=[was_in_spouse_pool]; spouse pool cleared")
 
 /datum/controller/subsystem/familytree/proc/on_human_job_received(mob/living/carbon/human/H, rank)
 	SIGNAL_HANDLER
+	familytree_log_mob(H, "signal_job_received", "rank=[rank]")
 	try_queue_assignment(H)
 
 /datum/controller/subsystem/familytree/proc/try_queue_assignment(mob/living/carbon/human/H)
 	if(!H || QDELETED(H) || istype(H, /mob/living/carbon/human/dummy))
 		return
-	if(is_familytree_antagonist(H))
-		ignore_familytree_antagonist(H)
+	var/unsubscribe_reason = get_familytree_unsubscribe_reason(H)
+	if(unsubscribe_reason)
+		unsubscribe_familytree_human(H, unsubscribe_reason)
+		return
+	if(!H.client)
+		familytree_log_mob(H, "queue_wait", "reason=no client")
 		return
 
 	var/datum/job/job = get_familytree_job(H)
@@ -510,39 +554,48 @@ SUBSYSTEM_DEF(familytree)
 		P.familytree_module_load_character()
 		refresh_royal_partner_jobs(H, P)
 
-	if(H.familytree_assignment_scheduled || H.family_datum)
-		if(H?.family_datum)
-			stop_tracking_human(H)
+	if(H.family_datum)
+		stop_tracking_human(H, "family already assigned")
+		return
+
+	if(H.familytree_assignment_scheduled)
+		familytree_log_mob(H, "queue_wait", "reason=assignment already scheduled")
+		return
+
+	if(H in viable_spouses)
+		familytree_log_mob(H, "queue_wait", "reason=already in viable_spouses")
 		return
 
 	if(!P)
+		familytree_log_mob(H, "queue_wait", "reason=no preferences datum")
 		return
 
 	P.familytree_module_load_character()
 	H.familytree_pref = P.family
 	H.gender_choice_pref = P.gender_choice_pref
 	H.setspouse = P.setspouse
+	familytree_log_mob(H, "queue_attempt", "loaded familytree preferences", P)
 
 	if(is_royal_suitor_job(job))
-		stop_tracking_human(H)
+		stop_tracking_human(H, "royal suitor bypasses familytree assignment")
 		return
 
 	var/royal_status = get_royal_status(H)
 	if(royal_status)
 		H.familytree_assignment_scheduled = TRUE
-		stop_tracking_human(H)
+		familytree_log_mob(H, "queue_royal", "status=[royal_status]; delay=[get_royal_delay(H)]")
 		addtimer(CALLBACK(src, PROC_REF(run_royal_assignment), H, royal_status), get_royal_delay(H) SECONDS)
 		return
 
 	if(H.familytree_pref != FAMILY_NONE)
 		H.familytree_assignment_scheduled = TRUE
-		stop_tracking_human(H)
 		var/timer = rand(1, 30) + 10
+		familytree_log_mob(H, "queue_local", "status=[H.familytree_pref]; delay=[timer]")
 		addtimer(CALLBACK(src, PROC_REF(run_local_assignment), H, H.familytree_pref), timer SECONDS)
 		return
 
 	if(H.client && (H.mind?.assigned_role || H.job))
-		stop_tracking_human(H)
+		stop_tracking_human(H, "familytree disabled for this character")
 
 /datum/controller/subsystem/familytree/proc/get_royal_status(mob/living/carbon/human/H)
 	var/datum/job/job = get_familytree_job(H)
@@ -565,13 +618,41 @@ SUBSYSTEM_DEF(familytree)
 	return 45
 
 /datum/controller/subsystem/familytree/proc/run_local_assignment(mob/living/carbon/human/H, status)
-	if(!H || QDELETED(H) || H.family_datum || is_familytree_antagonist(H))
+	if(!H || QDELETED(H))
 		return
+	var/block_reason = get_familytree_runtime_block_reason(H, TRUE)
+	if(block_reason == "no client")
+		H.familytree_assignment_scheduled = FALSE
+		familytree_log_mob(H, "local_assignment_deferred", "reason=no client")
+		return
+	if(block_reason)
+		unsubscribe_familytree_human(H, "local assignment aborted: [block_reason]")
+		return
+	if(H.family_datum)
+		H.familytree_assignment_scheduled = FALSE
+		stop_tracking_human(H, "local assignment skipped; family already assigned")
+		return
+	H.familytree_assignment_scheduled = FALSE
+	familytree_log_mob(H, "local_assignment_start", "status=[status]")
 	AddLocal(H, status)
 
 /datum/controller/subsystem/familytree/proc/run_royal_assignment(mob/living/carbon/human/H, status)
-	if(!H || QDELETED(H) || H.family_datum || is_familytree_antagonist(H))
+	if(!H || QDELETED(H))
 		return
+	var/block_reason = get_familytree_runtime_block_reason(H, TRUE)
+	if(block_reason == "no client")
+		H.familytree_assignment_scheduled = FALSE
+		familytree_log_mob(H, "royal_assignment_deferred", "reason=no client")
+		return
+	if(block_reason)
+		unsubscribe_familytree_human(H, "royal assignment aborted: [block_reason]")
+		return
+	if(H.family_datum)
+		H.familytree_assignment_scheduled = FALSE
+		stop_tracking_human(H, "royal assignment skipped; family already assigned")
+		return
+	H.familytree_assignment_scheduled = FALSE
+	familytree_log_mob(H, "royal_assignment_start", "status=[status]")
 	AddRoyal(H, status)
 
 /datum/controller/subsystem/familytree/proc/GetAgeValue(age_string)
@@ -655,46 +736,71 @@ SUBSYSTEM_DEF(familytree)
 /datum/controller/subsystem/familytree/proc/AddLocal(mob/living/carbon/human/H, status)
 	if(!H || !status || istype(H, /mob/living/carbon/human/dummy))
 		return
-	if(is_familytree_antagonist(H))
-		ignore_familytree_antagonist(H)
+	var/block_reason = get_familytree_runtime_block_reason(H, TRUE)
+	if(block_reason == "no client")
+		familytree_log_mob(H, "local_assignment_blocked", "reason=no client")
 		return
+	if(block_reason)
+		unsubscribe_familytree_human(H, "local assignment blocked: [block_reason]")
+		return
+	familytree_log_mob(H, "local_assignment_enter", "status=[status]")
 	// Royals are handled by the dedicated royal flow.
 	if(get_royal_status(H))
+		stop_tracking_human(H, "local assignment skipped; handled by royal flow")
 		return
 	if(is_royal_suitor_job(get_familytree_job(H)))
+		stop_tracking_human(H, "local assignment skipped; suitor job")
 		return
 	if(is_human_job_in_list(H, excluded_jobs))
+		stop_tracking_human(H, "local assignment skipped; excluded job")
 		return
 	if(is_human_job_in_list(H, nomarry_jobs))
 		if(status != FAMILY_NONE)
 			AssignToHouse(H)
+			stop_tracking_human(H, H.family_datum ? "assigned to house through nomarry job flow" : "nomarry job flow completed without family")
 			return
 	switch(status)
 		if(FAMILY_PARTIAL)
 			AssignToHouse(H)
+			stop_tracking_human(H, H.family_datum ? "assigned to house" : "house assignment completed without family")
 
 		if(FAMILY_NEWLYWED)
 			AssignNewlyWed(H)
+			if(H.spouse_mob || H.family_datum)
+				stop_tracking_human(H, "newlywed flow matched spouse")
+			else
+				familytree_log_mob(H, "spouse_pool_wait", "waiting in viable_spouses pool")
 
 		if(FAMILY_FULL)
 			if(H.virginity)
+				stop_tracking_human(H, "full family flow skipped; virginity gate")
 				return
 			AssignToFamily(H)
+			stop_tracking_human(H, H.family_datum ? "assigned to family" : "family assignment completed without family")
 
 /datum/controller/subsystem/familytree/proc/AddRoyal(mob/living/carbon/human/H, status)
-	if(!H || is_familytree_antagonist(H))
-		ignore_familytree_antagonist(H)
+	if(!H)
 		return
+	var/block_reason = get_familytree_runtime_block_reason(H, TRUE)
+	if(block_reason == "no client")
+		familytree_log_mob(H, "royal_assignment_blocked", "reason=no client")
+		return
+	if(block_reason)
+		unsubscribe_familytree_human(H, "royal assignment blocked: [block_reason]")
+		return
+	familytree_log_mob(H, "royal_assignment_enter", "status=[status]")
 	if(!ruling_family.housename)
 		ruling_family.housename = " Royal"
 	var/datum/family_member/member = ruling_family.CreateFamilyMember(H)
 	if(!member)
+		stop_tracking_human(H, "royal assignment failed; member creation returned null")
 		return
 
 	// If this is the first royal, generate a historical lineage
 	if(!ruling_family.founder)
 		GenerateRoyalLineage(member, status)
 		H.ShowFamilyUI(TRUE)
+		stop_tracking_human(H, "royal lineage generated")
 		return
 
 	// Handle adding new royals to existing family
@@ -720,6 +826,7 @@ SUBSYSTEM_DEF(familytree)
 			CreateBranchFamily(member)
 
 	H.ShowFamilyUI(TRUE)
+	stop_tracking_human(H, "royal assignment completed")
 
 /datum/controller/subsystem/familytree/proc/GetCurrentMonarch()
 	// Find the monarch at generation 12 (current ruling generation)
@@ -1060,24 +1167,31 @@ SUBSYSTEM_DEF(familytree)
 
 
 /datum/controller/subsystem/familytree/proc/AssignNewlyWed(mob/living/carbon/human/H)
-	if(!H || is_familytree_antagonist(H))
-		ignore_familytree_antagonist(H)
+	if(!H)
 		return
-	if(!H.client)
+	var/block_reason = get_familytree_runtime_block_reason(H, TRUE)
+	if(block_reason == "no client")
 		viable_spouses -= H
+		familytree_log_mob(H, "newlywed_blocked", "reason=no client")
 		return
-
-	viable_spouses += H
+	if(block_reason)
+		unsubscribe_familytree_human(H, "newlywed blocked: [block_reason]")
+		return
+	if(!(H in viable_spouses))
+		viable_spouses += H
+	familytree_log_mob(H, "newlywed_pool_add", "pool_size=[viable_spouses.len]")
 	var/list/potential_matches = list()
 
 	for(var/mob/living/carbon/human/potential_spouse as anything in viable_spouses)
 		if(!potential_spouse || potential_spouse == H || potential_spouse.spouse_mob)
 			continue
-		if(!potential_spouse.client)
+		var/potential_block_reason = get_familytree_runtime_block_reason(potential_spouse, TRUE)
+		if(potential_block_reason == "no client")
 			viable_spouses -= potential_spouse
+			familytree_log_mob(potential_spouse, "newlywed_pool_remove", "reason=no client")
 			continue
-		if(is_familytree_antagonist(potential_spouse))
-			viable_spouses -= potential_spouse
+		if(potential_block_reason)
+			unsubscribe_familytree_human(potential_spouse, "removed from newlywed pool: [potential_block_reason]")
 			continue
 		// Check if they are mutually setspouse
 		var/mutual_setspouse = (H.setspouse == potential_spouse.real_name) && (potential_spouse.setspouse == H.real_name)
@@ -1116,6 +1230,8 @@ SUBSYSTEM_DEF(familytree)
 			var/mob/living/carbon/human/chosen_spouse = pick(best_matches)
 			viable_spouses -= chosen_spouse
 			viable_spouses -= H
+			familytree_log_mob(H, "newlywed_match", "chosen_spouse=[chosen_spouse.real_name]([REF(chosen_spouse)])")
+			familytree_log_mob(chosen_spouse, "newlywed_match", "chosen_spouse=[H.real_name]([REF(H)])")
 			H.MarryTo(chosen_spouse)
 
 /datum/controller/subsystem/familytree/proc/AssignAuntUncle(mob/living/carbon/human/H)

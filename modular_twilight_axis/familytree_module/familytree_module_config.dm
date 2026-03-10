@@ -35,6 +35,7 @@
 #define FAMILY_OMMER "Parents Sibling"
 #define FAMILY_INLAW "In Law"
 
+#include "familytree_logging.dm"
 #include "familytree_module_helpers.dm"
 #include "familytree_royal_job_hooks.dm"
 #include "familytree_display.dm"
