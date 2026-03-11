@@ -1155,35 +1155,31 @@ SUBSYSTEM_DEF(familytree)
 				house.housename = house.SurnameFormatting(person)
 
 
-/// Human Helper proc to check gender choice based on pronouns
+/// Human helper proc to check gender choice based on pronouns symmetrically.
 
-/mob/living/carbon/human/proc/pronouns_match(mob/living/carbon/human/H, mob/living/carbon/human/other)
-	if(!H.gender_choice_pref)
-		H.gender_choice_pref = ANY_GENDER
-	if(!other.gender_choice_pref)
-		other.gender_choice_pref = ANY_GENDER
-	var/our_gender = H.pronouns
-	var/other_gender = other.pronouns
-	if(H.gender_choice_pref == ANY_GENDER && other.gender_choice_pref == ANY_GENDER)
-		return TRUE
-	if(H.gender_choice_pref == ANY_GENDER)
-		if(other.gender_choice_pref == SAME_GENDER)
-			return our_gender == other_gender
-		if(other.gender_choice_pref == DIFFERENT_GENDER)
-			return our_gender != other_gender
-		return TRUE
-	if(other.gender_choice_pref == ANY_GENDER)
-		if(H.gender_choice_pref == SAME_GENDER)
-			return our_gender == other_gender
-		if(H.gender_choice_pref == DIFFERENT_GENDER)
-			return our_gender != other_gender
-		return TRUE
-	if(H.gender_choice_pref == SAME_GENDER)
-		return our_gender == other_gender
-	if(H.gender_choice_pref == DIFFERENT_GENDER)
-		return our_gender != other_gender
+/proc/pronoun_preference_matches(preference, same_pronouns)
+	if(!preference)
+		preference = ANY_GENDER
+
+	switch(preference)
+		if(ANY_GENDER)
+			return TRUE
+		if(SAME_GENDER)
+			return same_pronouns
+		if(DIFFERENT_GENDER)
+			return !same_pronouns
 
 	return FALSE
+
+/proc/pronouns_compatible(mob/living/carbon/human/A, mob/living/carbon/human/B)
+	if(!A || !B)
+		return FALSE
+
+	var/pref_a = A.gender_choice_pref || ANY_GENDER
+	var/pref_b = B.gender_choice_pref || ANY_GENDER
+	var/same_pronouns = (A.pronouns == B.pronouns)
+
+	return pronoun_preference_matches(pref_a, same_pronouns) && pronoun_preference_matches(pref_b, same_pronouns)
 
 /datum/controller/subsystem/familytree/proc/AssignToFamily(mob/living/carbon/human/H)
 	if(!H)
@@ -1212,9 +1208,7 @@ SUBSYSTEM_DEF(familytree)
 				else if(!H.setspouse)
 
 					if(!member.person.setspouse || member.person.setspouse == H.real_name)
-						var/ok_gender_H = H.pronouns_match(H, member.person)
-						var/ok_gender_M = member.person.pronouns_match(member.person, H)
-						if(!ok_gender_H || !ok_gender_M)
+						if(!pronouns_compatible(H, member.person))
 							familytree_log_family_reject(H, member.person, "pronouns mismatch")
 							continue
 						var/species_failure_reason = GetSpeciesCompatibilityFailureReason(H, member.person)
@@ -1262,13 +1256,10 @@ SUBSYSTEM_DEF(familytree)
 				else if(!H.setspouse)
 					if(!member.person.setspouse || member.person.setspouse == H.real_name)
 						// Pronouns matching according to Gender Preference
-						var/ok_gender_H = H.pronouns_match(H, member.person)
-						var/ok_gender_M = member.person.pronouns_match(member.person, H)
-
-						if(ok_gender_H && ok_gender_M && SpeciesCompatible(H, member.person))
+						if(pronouns_compatible(H, member.person) && SpeciesCompatible(H, member.person))
 							compatible = TRUE
 						else
-							if(!ok_gender_H || !ok_gender_M)
+							if(!pronouns_compatible(H, member.person))
 								familytree_log_family_reject(H, member.person, "pronouns mismatch")
 							else
 								familytree_log_family_reject(H, member.person, GetSpeciesCompatibilityFailureReason(H, member.person))
@@ -1337,7 +1328,7 @@ SUBSYSTEM_DEF(familytree)
 		// Check if they are mutually setspouse
 		var/mutual_setspouse = (H.setspouse == potential_spouse.real_name) && (potential_spouse.setspouse == H.real_name)
 		if(!mutual_setspouse)
-			if(!H.pronouns_match(H, potential_spouse) || !potential_spouse.pronouns_match(potential_spouse, H))
+			if(!pronouns_compatible(H, potential_spouse))
 				familytree_log_newlywed_reject(H, potential_spouse, "pronouns mismatch")
 				continue // skip if gender preferences incompatible
 			var/species_failure_reason = GetSpeciesCompatibilityFailureReason(H, potential_spouse)
