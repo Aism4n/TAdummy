@@ -47,6 +47,9 @@
 	return "[title_pref]"
 
 /proc/familytree_log_mob(mob/living/carbon/human/H, event, details = null, datum/preferences/P = null)
+	if(H && !H.familytree_module_loggable && !H.client)
+		return
+
 	var/list/parts = list("event=[event]")
 
 	if(H)
@@ -81,3 +84,47 @@
 		parts += details
 
 	log_familytree(parts.Join(" | "))
+
+/proc/familytree_log_candidate_details(mob/living/carbon/human/candidate)
+	if(!candidate)
+		return "candidate=none"
+
+	var/candidate_ckey = candidate.ckey ? candidate.ckey : "none"
+	var/candidate_species = candidate.dna?.species?.type || "none"
+	var/candidate_pronouns = familytree_log_pronouns(candidate.pronouns)
+	var/candidate_titles = familytree_log_titles(candidate.titles_pref)
+	var/candidate_body = familytree_log_body_type(candidate.gender)
+	var/candidate_has_penis = !!candidate.getorganslot(ORGAN_SLOT_PENIS)
+	var/candidate_has_vagina = !!candidate.getorganslot(ORGAN_SLOT_VAGINA)
+	var/candidate_has_breasts = !!candidate.getorganslot(ORGAN_SLOT_BREASTS)
+
+	return "candidate=[candidate.real_name]([REF(candidate)]); candidate_ckey=[candidate_ckey]; candidate_species=[candidate_species]; candidate_body=[candidate_body]; candidate_pronouns=[candidate_pronouns]; candidate_titles=[candidate_titles]; candidate_organs{penis=[candidate_has_penis]; vagina=[candidate_has_vagina]; breasts=[candidate_has_breasts]}"
+
+/proc/familytree_log_newlywed_reject(mob/living/carbon/human/H, mob/living/carbon/human/candidate, reason)
+	if(!H || !reason)
+		return
+	familytree_log_mob(H, "newlywed_candidate_reject", "[familytree_log_candidate_details(candidate)] | reason=[reason]")
+
+/proc/familytree_log_list_values(list/entries)
+	if(!islist(entries) || !entries.len)
+		return "none"
+
+	var/list/rendered = list()
+	for(var/entry in entries)
+		rendered += "[entry]"
+	return rendered.Join(",")
+
+/proc/familytree_log_house_details(datum/heritage/house)
+	if(!house)
+		return "house=none"
+
+	var/house_name = trim("[house.housename]")
+	if(!length(house_name))
+		house_name = "unnamed"
+	var/dominant_race = house.dominant_race?.type || "none"
+	return "house=[house_name]([REF(house)]); dominant_race=[dominant_race]; members=[house.members.len]"
+
+/proc/familytree_log_family_reject(mob/living/carbon/human/H, mob/living/carbon/human/candidate, reason)
+	if(!H || !reason)
+		return
+	familytree_log_mob(H, "family_candidate_reject", "[familytree_log_candidate_details(candidate)] | reason=[reason]")

@@ -217,12 +217,16 @@ SUBSYSTEM_DEF(familytree)
 	return TRUE
 
 /datum/controller/subsystem/familytree/proc/reset_royal_partner_jobs()
+	var/previous_owner = current_royal_partner_owner
+	var/previous_mode = current_royal_partner_mode
 	current_royal_partner_owner = null
 	current_royal_partner_mode = "closed"
 	current_royal_partner_snapshot = list()
 
 	apply_royal_partner_job_state("consort", FALSE)
 	apply_royal_partner_job_state("suitor", FALSE)
+	if(previous_owner || previous_mode != "closed")
+		familytree_log_mob(previous_owner, "royal_partner_gate_reset", "previous_mode=[previous_mode]")
 
 /datum/controller/subsystem/familytree/proc/refresh_royal_partner_jobs(mob/living/carbon/human/duke, datum/preferences/P)
 	if(!duke?.client)
@@ -279,7 +283,14 @@ SUBSYSTEM_DEF(familytree)
 		"preferred_species_anatomy" = P.preferred_species_anatomy,
 		"setspouse" = P.setspouse,
 	)
+	var/consort_slots = 0
+	var/suitor_slots = 0
+	if(mode == "consort")
+		consort_slots = 1
+	else if(mode == "suitor")
+		suitor_slots = 2
 	familytree_log_mob(duke, "royal_partner_snapshot", "mode=[mode]", P)
+	familytree_log_mob(duke, "royal_partner_gate_refresh", "mode=[mode]; consort_slots=[consort_slots]; suitor_slots=[suitor_slots]; consort_allowed_races=[familytree_log_list_values(consort_allowed_races)]; consort_allowed_sexes=[familytree_log_list_values(consort_allowed_sexes)]; suitor_allowed_races=[familytree_log_list_values(suitor_allowed_races)]; suitor_allowed_sexes=[familytree_log_list_values(suitor_allowed_sexes)]", P)
 	return TRUE
 
 /datum/controller/subsystem/familytree/proc/get_royal_partner_job_key(role_or_job)
@@ -534,6 +545,8 @@ SUBSYSTEM_DEF(familytree)
 
 /datum/controller/subsystem/familytree/proc/on_human_login(mob/living/carbon/human/H)
 	SIGNAL_HANDLER
+	if(H)
+		H.familytree_module_loggable = TRUE
 	familytree_log_mob(H, "signal_login", "client login signal received")
 	try_queue_assignment(H)
 
@@ -553,6 +566,18 @@ SUBSYSTEM_DEF(familytree)
 /datum/controller/subsystem/familytree/proc/on_human_revive(mob/living/carbon/human/H, full_heal, admin_revive)
 	SIGNAL_HANDLER
 	familytree_log_mob(H, "signal_revive", "full_heal=[full_heal]; admin_revive=[admin_revive]")
+	addtimer(CALLBACK(src, PROC_REF(run_revive_recheck), H, full_heal, admin_revive, 1), 2)
+
+/datum/controller/subsystem/familytree/proc/run_revive_recheck(mob/living/carbon/human/H, full_heal, admin_revive, attempt)
+	if(!H || QDELETED(H))
+		return
+	var/block_reason = get_familytree_runtime_block_reason(H, TRUE)
+	if(block_reason == "dead")
+		familytree_log_mob(H, "revive_recheck_wait", "reason=dead; attempt=[attempt]; full_heal=[full_heal]; admin_revive=[admin_revive]")
+		if(attempt < 5)
+			addtimer(CALLBACK(src, PROC_REF(run_revive_recheck), H, full_heal, admin_revive, attempt + 1), 2)
+		return
+	familytree_log_mob(H, "revive_recheck", "attempt=[attempt]; full_heal=[full_heal]; admin_revive=[admin_revive]")
 	try_queue_assignment(H)
 
 /datum/controller/subsystem/familytree/proc/on_human_job_received(mob/living/carbon/human/H, rank)
@@ -563,6 +588,8 @@ SUBSYSTEM_DEF(familytree)
 /datum/controller/subsystem/familytree/proc/try_queue_assignment(mob/living/carbon/human/H)
 	if(!H || QDELETED(H) || istype(H, /mob/living/carbon/human/dummy))
 		return
+	if(H.client)
+		H.familytree_module_loggable = TRUE
 	var/unsubscribe_reason = get_familytree_unsubscribe_reason(H)
 	if(unsubscribe_reason)
 		unsubscribe_familytree_human(H, unsubscribe_reason)
@@ -995,14 +1022,20 @@ SUBSYSTEM_DEF(familytree)
 	var/datum/heritage/chosen_house
 	var/list/low_priority_houses = list()
 	var/list/high_priority_houses = list()
+	var/setspouse_found = FALSE
+	var/age_conflict_count = 0
+	var/same_race_house_count = 0
 
 	if(H.setspouse)
 		for(var/datum/heritage/house as anything in families)
 			for(var/datum/family_member/M as anything in house.members)
 				if(M.person && M.person.real_name == H.setspouse)
+					setspouse_found = TRUE
 					if(!SpeciesCompatible(H, M.person))
+						familytree_log_family_reject(H, M.person, "setspouse species mismatch")
 						continue
 					chosen_house = house
+					familytree_log_mob(H, "house_assignment_choice", "[familytree_log_house_details(house)] | mode=setspouse")
 
 	// Prioritize houses with existing members but not too many
 	for(var/datum/heritage/house as anything in families)
@@ -1014,27 +1047,46 @@ SUBSYSTEM_DEF(familytree)
 	// Try high priority houses first
 	if(!chosen_house)
 		for(var/datum/heritage/house as anything in high_priority_houses)
+			if(house.dominant_race.name == our_race)
+				same_race_house_count++
 			if(house.dominant_race.name == our_race && house.members.len < 4)
 				if(!WouldCreateAgeConflict(house, H))
 					chosen_house = house
+					familytree_log_mob(H, "house_assignment_choice", "[familytree_log_house_details(house)] | mode=existing_same_race")
 					break
+				age_conflict_count++
 		// Small chance for adoption into different species family
 			if(prob(20) && house.members.len <= 8)
 				if(!WouldCreateAgeConflict(house, H))
 					chosen_house = house
 					adopted = TRUE
+					familytree_log_mob(H, "house_assignment_choice", "[familytree_log_house_details(house)] | mode=adoption")
 					break
+				age_conflict_count++
 
 	// Try low priority houses if no high priority match
 	if(!chosen_house)
 		for(var/datum/heritage/house as anything in low_priority_houses)
 			if(house.dominant_race.name == our_race)
+				same_race_house_count++
+			if(house.dominant_race.name == our_race)
 				if(!WouldCreateAgeConflict(house, H))
 					chosen_house = house
+					familytree_log_mob(H, "house_assignment_choice", "[familytree_log_house_details(house)] | mode=low_priority_same_race")
 					break
+				age_conflict_count++
 
 	if(chosen_house)
 		AddPersonToHouse(chosen_house, H, adopted)
+	else
+		var/failure_reason = "no suitable house"
+		if(H.setspouse && !setspouse_found)
+			failure_reason = "setspouse target missing"
+		else if(age_conflict_count && same_race_house_count)
+			failure_reason = "age conflict"
+		else if(!same_race_house_count)
+			failure_reason = "no same-race house"
+		familytree_log_mob(H, "house_assignment_fail", "reason=[failure_reason]; same_race_houses=[same_race_house_count]; age_conflicts=[age_conflict_count]")
 
 /datum/controller/subsystem/familytree/proc/AddPersonToHouse(datum/heritage/house, mob/living/carbon/human/person, adopted = FALSE)
 	var/role = DetermineAppropriateRole(house, person, adopted)
@@ -1138,16 +1190,20 @@ SUBSYSTEM_DEF(familytree)
 		return
 	var/our_race = H.dna.species.name
 	var/list/eligible_houses = list()
+	var/same_race_house_count = 0
+	var/single_adult_count = 0
 
 	// Find houses that need a spouse
 	for(var/datum/heritage/house as anything in families)
 		if(house.dominant_race.name != our_race)
 			continue
+		same_race_house_count++
 
 		// Check if there's a potential spouse
 		var/has_single_adult = FALSE
 		for(var/datum/family_member/member as anything in house.members)
 			if(member.person && !member.spouses.len)
+				single_adult_count++
 				// Check setspouse compatibility
 				if(H.setspouse && member.person.real_name == H.setspouse)
 					eligible_houses.Insert(1, house) // High priority
@@ -1159,16 +1215,40 @@ SUBSYSTEM_DEF(familytree)
 						var/ok_gender_H = H.pronouns_match(H, member.person)
 						var/ok_gender_M = member.person.pronouns_match(member.person, H)
 						if(!ok_gender_H || !ok_gender_M)
+							familytree_log_family_reject(H, member.person, "pronouns mismatch")
 							continue
-						if(!SpeciesCompatible(H, member.person))
+						var/species_failure_reason = GetSpeciesCompatibilityFailureReason(H, member.person)
+						if(species_failure_reason)
+							familytree_log_family_reject(H, member.person, species_failure_reason)
 							continue
 						if(member.person.familytree_pref == FAMILY_PARTIAL)
+							familytree_log_family_reject(H, member.person, "candidate partial-family only")
 							continue
 						if(is_human_job_in_list(member.person, nomarry_jobs))
+							familytree_log_family_reject(H, member.person, "candidate nomarry job")
 							continue
+						has_single_adult = TRUE
+						eligible_houses += house
+						break
+					else
+						familytree_log_family_reject(H, member.person, "setspouse mismatch")
+						continue
+				else
+					familytree_log_family_reject(H, member.person, "setspouse mismatch")
 
 		if(!has_single_adult && !house.housename)
 			eligible_houses += house // Empty house for founding
+
+	if(!eligible_houses.len)
+		var/failure_reason = "no eligible house"
+		if(H.setspouse)
+			failure_reason = "setspouse target missing"
+		else if(!same_race_house_count)
+			failure_reason = "no same-race house"
+		else if(!single_adult_count)
+			failure_reason = "no single adults"
+		familytree_log_mob(H, "family_assignment_fail", "reason=[failure_reason]; same_race_houses=[same_race_house_count]; single_adults=[single_adult_count]")
+		return
 
 	// Try to assign to a house
 	for(var/datum/heritage/house as anything in eligible_houses)
@@ -1187,11 +1267,19 @@ SUBSYSTEM_DEF(familytree)
 
 						if(ok_gender_H && ok_gender_M && SpeciesCompatible(H, member.person))
 							compatible = TRUE
+						else
+							if(!ok_gender_H || !ok_gender_M)
+								familytree_log_family_reject(H, member.person, "pronouns mismatch")
+							else
+								familytree_log_family_reject(H, member.person, GetSpeciesCompatibilityFailureReason(H, member.person))
+					else
+						familytree_log_family_reject(H, member.person, "setspouse mismatch")
 
 				if(compatible)
 					var/datum/family_member/new_member = house.CreateFamilyMember(H)
 					if(new_member)
 						house.MarryMembers(new_member, member)
+						familytree_log_mob(H, "family_assignment_choice", "[familytree_log_house_details(house)] | spouse=[member.person.real_name]([REF(member.person)]) | mode=married_existing_member")
 						return
 
 		// Or found a new house
@@ -1201,7 +1289,10 @@ SUBSYSTEM_DEF(familytree)
 				house.founder = new_member
 				new_member.generation = 0
 				house.housename = house.SurnameFormatting(H)
+				familytree_log_mob(H, "family_assignment_choice", "[familytree_log_house_details(house)] | mode=founded_new_house")
 				return
+
+	familytree_log_mob(H, "family_assignment_fail", "reason=eligible_houses_exhausted; eligible_houses=[eligible_houses.len]")
 
 
 /datum/controller/subsystem/familytree/proc/AssignNewlyWed(mob/living/carbon/human/H)
@@ -1224,25 +1315,34 @@ SUBSYSTEM_DEF(familytree)
 	var/list/potential_matches = list()
 
 	for(var/mob/living/carbon/human/potential_spouse as anything in viable_spouses)
-		if(!potential_spouse || potential_spouse == H || potential_spouse.spouse_mob)
+		if(!potential_spouse || potential_spouse == H)
+			continue
+		if(potential_spouse.spouse_mob)
+			familytree_log_newlywed_reject(H, potential_spouse, "already married")
 			continue
 		var/potential_block_reason = get_familytree_runtime_block_reason(potential_spouse, TRUE)
 		if(potential_block_reason == "dead")
 			pause_familytree_human(potential_spouse, "removed from newlywed pool: dead")
+			familytree_log_newlywed_reject(H, potential_spouse, "candidate dead")
 			continue
 		if(potential_block_reason == "no client")
 			viable_spouses -= potential_spouse
 			familytree_log_mob(potential_spouse, "newlywed_pool_remove", "reason=no client")
+			familytree_log_newlywed_reject(H, potential_spouse, "candidate disconnected")
 			continue
 		if(potential_block_reason)
 			unsubscribe_familytree_human(potential_spouse, "removed from newlywed pool: [potential_block_reason]")
+			familytree_log_newlywed_reject(H, potential_spouse, "candidate blocked: [potential_block_reason]")
 			continue
 		// Check if they are mutually setspouse
 		var/mutual_setspouse = (H.setspouse == potential_spouse.real_name) && (potential_spouse.setspouse == H.real_name)
 		if(!mutual_setspouse)
 			if(!H.pronouns_match(H, potential_spouse) || !potential_spouse.pronouns_match(potential_spouse, H))
+				familytree_log_newlywed_reject(H, potential_spouse, "pronouns mismatch")
 				continue // skip if gender preferences incompatible
-			if(!SpeciesCompatible(H, potential_spouse))
+			var/species_failure_reason = GetSpeciesCompatibilityFailureReason(H, potential_spouse)
+			if(species_failure_reason)
+				familytree_log_newlywed_reject(H, potential_spouse, species_failure_reason)
 				continue
 		// Check setspouse compatibility
 		var/priority = 0
@@ -1253,6 +1353,7 @@ SUBSYSTEM_DEF(familytree)
 		else if(!H.setspouse && !potential_spouse.setspouse)
 			priority = 0 // Random match
 		else
+			familytree_log_newlywed_reject(H, potential_spouse, "setspouse mismatch")
 			continue // Incompatible
 
 		potential_matches += list(list(potential_spouse, priority))
@@ -1272,8 +1373,15 @@ SUBSYSTEM_DEF(familytree)
 
 		if(best_matches.len)
 			var/mob/living/carbon/human/chosen_spouse = pick(best_matches)
+			var/priority_label = "random"
+			if(best_priority == 3)
+				priority_label = "perfect"
+			else if(best_priority == 1)
+				priority_label = "decent"
 			viable_spouses -= chosen_spouse
 			viable_spouses -= H
+			familytree_log_mob(H, "newlywed_match_choice", "chosen_spouse=[chosen_spouse.real_name]([REF(chosen_spouse)]); priority=[priority_label]; tied_best=[best_matches.len]; considered=[potential_matches.len]")
+			familytree_log_mob(chosen_spouse, "newlywed_match_choice", "chosen_spouse=[H.real_name]([REF(H)]); priority=[priority_label]; tied_best=[best_matches.len]; considered=[potential_matches.len]")
 			familytree_log_mob(H, "newlywed_match", "chosen_spouse=[chosen_spouse.real_name]([REF(chosen_spouse)])")
 			familytree_log_mob(chosen_spouse, "newlywed_match", "chosen_spouse=[H.real_name]([REF(H)])")
 			H.MarryTo(chosen_spouse)
@@ -1341,8 +1449,11 @@ SUBSYSTEM_DEF(familytree)
 					child.parents -= member
 
 /datum/controller/subsystem/familytree/proc/SpeciesCompatible(mob/living/carbon/human/A, mob/living/carbon/human/B)
+	return !GetSpeciesCompatibilityFailureReason(A, B)
+
+/datum/controller/subsystem/familytree/proc/GetSpeciesCompatibilityFailureReason(mob/living/carbon/human/A, mob/living/carbon/human/B)
 	if(!A || !B)
-		return FALSE
+		return "missing mob"
 
 	var/datum/preferences/PA = A.client?.prefs
 	var/datum/preferences/PB = B.client?.prefs
@@ -1358,10 +1469,10 @@ SUBSYSTEM_DEF(familytree)
 				;
 			if("SAME_TYPE")
 				if(typeA != typeB)
-					return FALSE
+					return "species mismatch"
 			if("SPECIFIC_TYPE")
 				if(!(typeB in pref_types_a))
-					return FALSE
+					return "species mismatch"
 
 	if(PB)
 		switch(PB.species_preference_mode)
@@ -1369,20 +1480,20 @@ SUBSYSTEM_DEF(familytree)
 				;
 			if("SAME_TYPE")
 				if(typeA != typeB)
-					return FALSE
+					return "species mismatch"
 			if("SPECIFIC_TYPE")
 				if(!(typeA in pref_types_b))
-					return FALSE
+					return "species mismatch"
 
 	if(PA)
 		if(!AnatomyCompatible(PA.preferred_species_anatomy, B))
-			return FALSE
+			return "anatomy mismatch"
 
 	if(PB)
 		if(!AnatomyCompatible(PB.preferred_species_anatomy, A))
-			return FALSE
+			return "anatomy mismatch"
 
-	return TRUE
+	return null
 
 /datum/controller/subsystem/familytree/proc/AnatomyCompatible(pref, mob/living/carbon/human/target)
 	switch(pref)
