@@ -362,15 +362,26 @@ drinksomeblood()
 				var/research_suffix = (research_cost == 1) ? "" : "s"
 				cost_line = "Cost on success: [research_cost] research point[research_suffix], -[maxbloodpool_cost] max bloodpool."
 
-			var/choice = alert(
-				src,
-				"How will I claim [victim]?\n[cost_line]\nOffer Convert grants [TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD] research point whether [victim.p_they()] submit or resist.",
-				"THE CURSE OF KAIN",
-				"Force Convert",
-				"Offer Convert",
-				"I Rescind"
-			)
-			if(choice != "Force Convert" && choice != "Offer Convert")
+			var/choice
+			if(VDrinker.generation == GENERATION_METHUSELAH)
+				choice = alert(
+					src,
+					"How will I claim [victim]?\n[cost_line]",
+					"THE CURSE OF KAIN",
+					"Force",
+					"Cancel"
+				)
+			else
+				choice = alert(
+					src,
+					"How will I claim [victim]?\n[cost_line]\nOffer Convert grants [TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD] research point whether [victim.p_they()] submit or resist.",
+					"THE CURSE OF KAIN",
+					"Offer",
+					"Force",
+					"Cancel"
+				)
+
+			if(choice != "Force" && choice != "Offer")
 				to_chat(src, span_warning("I decide [victim] is unworthy."))
 			else
 				visible_message(span_danger("[src] begins channeling their energies to [victim]!"))
@@ -386,7 +397,7 @@ drinksomeblood()
 					var/mob/living/carbon/human/H = victim
 					if(H.vampire_conversion_prompt_active)
 						to_chat(src, span_warning("[victim] still fights the curse."))
-					else if(choice == "Force Convert")
+					else if(choice == "Force")
 						H.finish_vampire_conversion(src, VDrinker, FALSE)
 					else
 						INVOKE_ASYNC(victim, TYPE_PROC_REF(/mob/living/carbon/human, vampire_conversion_prompt), src, TRUE)
