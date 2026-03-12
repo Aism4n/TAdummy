@@ -408,8 +408,6 @@ drinksomeblood()
 				visible_message(span_danger("[src] begins channeling their energies to [victim]!"))
 				if(!do_mob(src, victim, 7 SECONDS, double_progress = TRUE, can_move = FALSE))
 					to_chat(src, span_warning("I was interrupted during my siring!"))
-				else if(victim.stat == DEAD)
-					return FALSE
 				else if(HAS_TRAIT(victim, TRAIT_UNLYCKERABLE))
 					return FALSE
 				else if(HAS_TRAIT(victim, TRAIT_REFUSED_VAMP_CONVERT))
