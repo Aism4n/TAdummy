@@ -3490,7 +3490,7 @@
 #include "modular_twilight_axis\code\modules\surgery\organs\feature_organs\tails.dm"
 #include "modular_twilight_axis\code\modules\surgery\organs\feature_organs\wings.dm"
 #include "modular_twilight_axis\code\modules\vampire_neu\TA_Vampires_include.dm"
-#include "modular_twilight_axis\code\modules\surgery\surgeries_hearth\extract_lux.dm
+#include "modular_twilight_axis\code\modules\surgery\surgeries_hearth\extract_lux.dm"
 #include "modular_twilight_axis\code\onclick\click.dm"
 #include "modular_twilight_axis\firearms\code\clothes\feet.dm"
 #include "modular_twilight_axis\firearms\code\clothes\hats.dm"
