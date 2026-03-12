@@ -43,6 +43,9 @@ finish_vampire_conversion(), attempt_siring_prompt()
 vampire_conversion_prompt()
 	Player-facing conversion and spawn creation.
 
+get_siring_block_reason()
+	Validates that the target can even enter the conversion branch.
+
 requires_finishing_blooddrink_delay()
 	Delay gate for lethal blood-drinking attempts.
 
@@ -359,9 +362,37 @@ drinksomeblood()
 	vampire_conversion_prompt_active = FALSE
 	return TRUE
 
+/// SIRING TARGET VALIDATION
+/mob/living/carbon/human/proc/get_siring_block_reason(mob/living/carbon/victim)
+	if(!ishuman(victim))
+		return "Only living humans can be turned into spawn."
+	if(victim.clan)
+		return "This target is already bound to a vampire clan."
+	if(!victim.mind)
+		return "This target has no soul to claim."
+	if(victim.blood_volume > BLOOD_VOLUME_BAD)
+		return "This target still has too much blood left."
+	if(victim.stat == DEAD)
+		return "A corpse cannot be safely raised as my spawn."
+	if(HAS_TRAIT(victim, TRAIT_UNLYCKERABLE))
+		return "[victim] cannot bear the Sun curse."
+	if(HAS_TRAIT(victim, TRAIT_SILVER_BLESSED))
+		return "[victim]'s blood is silver-blessed and rejects the curse."
+	if(victim.mind?.has_antag_datum(/datum/antagonist/zombie))
+		return "[victim] is already a deadite."
+	if(victim.mind?.has_antag_datum(/datum/antagonist/werewolf))
+		return "[victim] is already claimed by another curse."
+
+	var/mob/living/carbon/human/H = victim
+	if(istype(H.wear_neck, /obj/item/clothing/neck/roguetown/psicross/silver))
+		return "[victim] is warded by silver."
+
+	return null
+
 /// SIRING
 /mob/living/carbon/human/proc/attempt_siring_prompt(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker)
-	if(!victim.clan && victim.mind && ishuman(victim) && victim.blood_volume <= BLOOD_VOLUME_BAD)
+	var/block_reason = get_siring_block_reason(victim)
+	if(!block_reason)
 		if(HAS_TRAIT(victim, TRAIT_REFUSED_VAMP_CONVERT))
 			to_chat(src, span_warning("[victim] has already rejected the curse and cannot be offered it again."))
 		else if(!can_pay_conversion_cost(VDrinker))
@@ -409,10 +440,10 @@ drinksomeblood()
 				visible_message(span_danger("[src] begins channeling their energies to [victim]!"))
 				if(!do_mob(src, victim, 7 SECONDS, double_progress = TRUE, can_move = FALSE))
 					to_chat(src, span_warning("I was interrupted during my siring!"))
-				else if(HAS_TRAIT(victim, TRAIT_UNLYCKERABLE))
-					return FALSE
 				else if(HAS_TRAIT(victim, TRAIT_REFUSED_VAMP_CONVERT))
 					to_chat(src, span_warning("[victim] has already rejected the curse and cannot be offered it again."))
+				else if((block_reason = get_siring_block_reason(victim)))
+					to_chat(src, span_warning(block_reason))
 				else
 					var/mob/living/carbon/human/H = victim
 					if(H.vampire_conversion_prompt_active)
@@ -421,6 +452,8 @@ drinksomeblood()
 						H.finish_vampire_conversion(src, VDrinker, FALSE)
 					else
 						INVOKE_ASYNC(victim, TYPE_PROC_REF(/mob/living/carbon/human, vampire_conversion_prompt), src, TRUE)
+	else
+		to_chat(src, span_warning(block_reason))
 
 /// CONVERSION
 /mob/living/carbon/human/vampire_conversion_prompt(mob/living/carbon/sire, voluntary = FALSE)
