@@ -123,6 +123,7 @@
 	if(physiology)
 		protection += physiology.armor.getRating(d_type)
 	
+	protection += get_trophy_armor_bonus_for_zone(def_zone, d_type)
 	return protection
 
 /mob/living/carbon/human/proc/checkcritarmor(def_zone, bclass)
@@ -928,7 +929,8 @@
 
 /mob/living/carbon/human/on_fire_stack(seconds_per_tick, datum/status_effect/fire_handler/fire_stacks/fire_handler)
 	//SEND_SIGNAL(src, COMSIG_HUMAN_BURNING)
-	burn_clothing(seconds_per_tick, fire_handler.stacks)
+	if(fire_handler.stacks >= 5)
+		burn_clothing(seconds_per_tick, fire_handler.stacks)
 	var/no_protection = FALSE
 	fire_handler.harm_human(seconds_per_tick, no_protection)
 

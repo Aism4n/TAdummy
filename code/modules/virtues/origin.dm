@@ -130,8 +130,31 @@
 	name = "Hammerholdian"
 	origin_name = "Hammerhold"
 	added_languages = list(/datum/language/dwarvish)
-	desc = "I originate from mountainous Hammerhold, a frigid archipelago in the far north. The region is considered the homeland of the Dwarves.<br>"
-	origin_desc = "PLEASE PING THE LORE TEAM TO ADD LORE FOR THIS"
+	desc = "I originate from mountainous Hammerhold, a mountainous region in the frigid north. \
+	The region is considered the homeland of the Dwarves.<br>"
+	origin_desc = "The peaks and piedmont of Hammerhold shelter a patchwork of petty lords, \
+	dwarvish freeholds, and roaming hill clans, all sworn to the banner of their High King, \
+	Harlond IX. \
+	\
+	<br><br>Once under the yoke of Grenzehoft’s Holy See for its mines, herds, and quarries, \
+	the Kingdom tore itself away from the Imperate in the chaos brought on by the Four, eventually \
+	uniting under the first king, Gronnic adventurer Harlan the Dreamer and his dwarven allies. \
+	To this dae, his line still rules from the sprawling coastal city of Norwardine, and spans \
+	the mighty rivers that run through the Kingdom’s southern reaches. \
+	\
+	<br><br>Since Hammerhold’s foundation, the nominally Psydonite Harlonds have enjoyed a special \
+	relationship with Otava, welcoming their trade as freely as the Gronnic merchants, \
+	raiders, and mercenaries that seek to sell their goods and services. Despite this \
+	history of trade, and several abortive attempts by the Holy See to reclaim their \
+	prize, faith in the Kingdom comprises a mixture of Ascendant and Tennite hero-cults \
+	organized under the umbrella of several psuedo-pantheons. \
+	\
+	<br><br>These “Ten-Thousand” span from simple local legends to the gods themselves- with many \
+	members of the royal family named among their number. \
+	\
+	<br><br>While renowned among the north for their pork, coal, and stonework, foreign traders \
+	would most likely know Hammerhold through its strong vodenna spirits, vibrant dyed \
+	satin, and finely forged dwarven steel."
 
 /datum/virtue/origin/avar
 	name = "Aavnic"
@@ -146,6 +169,17 @@
 	Their saiga, their sabre, their cattle, and their freedom. For while coin remains the main currency even in the wild steppes, it means nothing \
 	without the freedom to spend it as you wish. As the saying goes, 'a man can earn coin, but a man cannot earn freedom. It must be taken, it must be constantly achieved."
 
+/*/datum/virtue/origin/Lirvas //TA EDIT - REMOVED
+	name = "Lirvan"
+	origin_name = "Lirvas"
+	added_languages = list(/datum/language/draconic)
+	desc = "I originate from the draconic lands of Lirvas, a hellish debt society known for its strict hierarchy. To be above someone in Lirvas is to be their master, to be below them is to know endless debt and servitude. Drakians and Kobolds originate from these lands—a gift from Matthios to the dragons that once reigned supreme over the kingdom. Today, only the great drake Zarvlor remains.<br>"
+	origin_desc = "A haven for draconic people of all origins, Lirvas' history was once wholly of wealth and prosperity. To venture to the so-called \
+	'dragon lands' was considered a must for any adventurer, as no culture could quite compare to one built by dragons and sisseans alike. \
+	Now, centuries after Zizo's ascendance, Lirvas has become one of the few places no adventurer dares travel to. To describe the kingdom as \
+	a hierarchy would hardly be apt; it stands proudly with different rings of social status, shrinking gradually in size as one climbs to the top. \
+	In Lirvas, wealth is everything in determining which ring you stand on, and how hard it is to climb higher."*/
+
 /datum/virtue/origin/racial/underdark
 	name = "Underdweller"
 	added_languages = list(/datum/language/undercommon)
@@ -159,7 +193,36 @@
 				/datum/species/goblinp,
 				/datum/species/anthromorphsmall
 )
-	origin_desc = "PLEASE PING THE LORE TEAM TO ADD LORE FOR THIS"
+	origin_desc = "Underdwellers are those who are descendants of their lengthy lineage that settled, lived and toiled in the darkest and deepest \
+	of depths of the vast, deadly Underdark a millennia ago. When one speaks of a 'Underdweller',a dark elf first comes to mynd, though despite them\
+	dominating these vast cavern riddled depths, there are more that can call the Underdark their home: Dwarves in their deep fortresses, mostly\
+	isolated from the rest of the depths they reside, Kobolds that scavenge and roam in a nomadic fashion, moving away as soon as they\
+	strip their dugout clear of valuables and Gnomes, often referred to as 'Deep Gnomes' due to their natural affinity for boasting\
+	dark elf-like complexions. Goblins have scurried their way into the shallowest of depths, but struggle to survive in this hostile\
+	environment due to their fragility and lack of necessary instincts to survive.\n<br><br>\
+	\
+	Despite vast differences amongst these races, they all have things in common. Their forms over the generations have garnered darker or \
+	paler complexions, their bodies slightly shorter than their surface dwelling compatriots, dark elves being amongst the tallest species in \
+	the Underdark, despite on average being shorted than an average Hammerholdian humen. Despite this in most cases noticable lack of height, these \
+	races have also grown sturdier, more resilient and more cautious and keen, out of pure necessity. Survival in these depths demands one's all.  \
+	A fact those of the surface that delve deep into these cavers, tend to forget, resulting in their untimely demise. Or worse.\n<br><br>\
+	\
+	The Underdark itself is a gigantic system of different caves, caverns tunnels and hollowed out underground regions that span leagues upon \
+	leagues both across and deep into Psydonia's soil. Not all of these systems are inherenty connected, paved or make logical sense,  but the \
+	Underdwellers always have  knack for traversing them. Underdark as a whole, is split into Western and Eastern, Western being the one that \
+	resides beneath Azuria and its continent, and the Eastern that is located deep within Raneshen and Kazengun's soil, noticeably less populated \
+	than the western counterpart, shrouded in mystery; more so than the other. Most important fact remains, Western and Eastern Underdark are NOT \
+	connected directly, only point where one could pass from one into the other, in theory being a marvel of artifice, constructed by the deep \
+	dwarves, known as Duergar. Their hostile and isolationist nature prevents any who seek passage through their fortress of artifice that sits \
+	above the vast molten sea in the deepest of depths, from obtaining it in this lyfe. This makes Eastern Underdwellers somewhat more rare in \
+	places lyke Azuria due to the sheer difficulty and amount of hoops one'd need to jump through to reach its forests.\n<br><br>\
+	\
+	Underdwellers live a harsh lyfe, filled with hard toil, sweat and blood, and thusly they are no strangers to violence and darker things one \
+	could experience in mortal lyfe. Most settlements in these depths practice some sort of violent cultural tradition, engage in bloodsports, or \
+	both. And so much more. They live and have lived very different lives for a millennia, which often causes Underdwellers to have trouble adapting \
+	to surface cultures and  communities, often perceived as strange at best, and downright evil at worst. A stigma developed by those who live upon \
+	the surface about their home and culture, believing all things evil crawl out of the very depths they reside in. A stigma that has lessened in \
+	recent yils, but still vastly present nonetheless."
 
 /datum/virtue/origin/apply_to_human(mob/living/carbon/human/recipient)
 	recipient.dna.species.origin = origin_name
