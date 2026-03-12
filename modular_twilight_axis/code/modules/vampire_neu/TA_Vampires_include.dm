@@ -24,7 +24,7 @@
 //#include "./other_files/vampire_spell.dm" // Vampire spell mirror.
 
 // Main vampire_neu block.
-#include "./overrides/modules/vampire_neu/living_modifications.dm" // Downstream policy hooks and safe living-side tuning.
+//#include "./overrides/modules/vampire_neu/living_modifications.dm" // Downstream policy hooks and safe living-side tuning.
 #include "./overrides/modules/vampire_neu/bloodsuck.dm" // Downstream drinksomeblood override and blood flow helpers.
 //#include "./overrides/modules/vampire_neu/_actions.dm" // Action buttons and disguise verbs.
 //#include "./overrides/modules/vampire_neu/coven_action.dm" // Coven action button datum.
