@@ -376,7 +376,7 @@ drinksomeblood()
 				cost_line = "Cost on success: [research_cost] research point[research_suffix], -[maxbloodpool_cost] max bloodpool."
 
 			var/choice
-			if(highpop_rules && VDrinker.generation == GENERATION_METHUSELAH)
+			if(VDrinker.generation == GENERATION_METHUSELAH)
 				choice = alert(
 					src,
 					"How will I claim [victim]?\n[cost_line]",
