@@ -52,8 +52,11 @@
 	to_chat(src, span_warning("I drink from [victim]'s [parse_zone(sublimb_grabbed)]."))
 	log_combat(src, victim, "drank blood from ")
 
-/mob/living/proc/TA_force_puke()
-	to_chat(src, span_warning("I'm going to puke..."))
+/mob/living/proc/TA_force_puke(danger = FALSE)
+	if(danger)
+		to_chat(src, span_danger("I'm going to puke..."))
+	else
+		to_chat(src, span_warning("I'm going to puke..."))
 	addtimer(CALLBACK(src, TYPE_PROC_REF(/mob/living/carbon, vomit), 0, TRUE), rand(8 SECONDS, 15 SECONDS))
 
 /mob/living/proc/TA_consume_vitae(mob/living/carbon/victim)
@@ -163,7 +166,7 @@
 		return
 
 	if(TA_should_puke_bad_source(victim))
-		TA_force_puke()
+		TA_force_puke(TRUE)
 		return
 
 	var/datum/antagonist/vampire/VVictim = TA_get_victim(victim)

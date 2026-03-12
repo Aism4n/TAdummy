@@ -5,7 +5,7 @@
 /mob/living/proc/TA_can_use_drinksomeblood()
 	if(world.time <= next_move)
 		return FALSE
-	if(world.time < last_drinkblood_use + 2 SECONDS)
+	if(world.time - last_drinkblood_use < 2 SECONDS)
 		return FALSE
 	return TRUE
 
@@ -15,17 +15,27 @@
 	return TRUE
 
 /mob/living/proc/TA_should_puke_bad_source(mob/living/carbon/victim)
-	if(victim.mind?.has_antag_datum(/datum/antagonist/werewolf))
+	var/datum/mind/M = victim?.mind
+	if(!M)
+		return FALSE
+	if(M.has_antag_datum(/datum/antagonist/werewolf))
 		return TRUE
-	if(victim.stat != DEAD && victim.mind?.has_antag_datum(/datum/antagonist/zombie))
+	if(victim.stat != DEAD && M.has_antag_datum(/datum/antagonist/zombie))
 		return TRUE
 	return FALSE
 
 /mob/living/proc/TA_can_offer_siring(mob/living/carbon/victim)
+	if(!victim || QDELETED(victim))
+		return FALSE
+	if(!ishuman(victim))
+		return FALSE
 	if(victim.stat == DEAD)
 		return FALSE
 	if(HAS_TRAIT(victim, TRAIT_UNLYCKERABLE))
 		return FALSE
+	if(HAS_TRAIT_FROM(victim, TRAIT_REFUSED_VAMP_CONVERT, REF(src)))
+		return FALSE
+
 	return TRUE
 
 /mob/living/carbon/human/proc/TA_has_pending_conversion_prompt()
