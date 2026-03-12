@@ -43,6 +43,9 @@ finish_vampire_conversion(), attempt_siring_prompt()
 vampire_conversion_prompt()
 	Player-facing conversion and spawn creation.
 
+requires_finishing_blooddrink_delay()
+	Delay gate for lethal blood-drinking attempts.
+
 resolve_blooddrink_consequences()
 	Post-drink resolution logic.
 
@@ -175,7 +178,7 @@ drinksomeblood()
 
 /// DIABLERIE
 /mob/living/carbon/human/proc/handle_diablerie(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
-	if(VVictim)
+	if(VVictim && victim.stat != DEAD)
 		AdjustMasquerade(-1)
 		message_admins("[ADMIN_LOOKUPFLW(src)] successfully Diablerized [ADMIN_LOOKUPFLW(victim)]")
 		log_attack("[key_name(src)] successfully Diablerized [key_name(victim)].")
@@ -184,12 +187,10 @@ drinksomeblood()
 		if(VVictim.generation > VDrinker.generation)
 			VDrinker.generation = VVictim.generation
 
-		VDrinker.research_points += TA_VAMP_DIABLERIE_RESEARCH_BONUS
+		if(victim.clan != clan)
+			VDrinker.research_points += TA_VAMP_DIABLERIE_RESEARCH_BONUS
 		VDrinker.research_points += VVictim.research_points
-		victim.death()
-		victim.adjustBruteLoss(-50, TRUE)
-		victim.adjustFireLoss(-50, TRUE)
-		addtimer(CALLBACK(victim, TYPE_PROC_REF(/mob/living, dust)), 10 SECONDS)
+		victim.dust(drop_items = TRUE)
 		return TRUE
 
 	if(victim.blood_volume < BLOOD_VOLUME_SURVIVE && victim.stat != DEAD)
@@ -475,6 +476,17 @@ drinksomeblood()
 
 	return finish_vampire_conversion(sire, VDrinker, voluntary)
 
+/// KILL GATE
+/mob/living/carbon/human/proc/requires_finishing_blooddrink_delay(mob/living/carbon/victim)
+	if(victim.stat == DEAD)
+		return FALSE
+
+	var/datum/antagonist/vampire/VVictim = get_vampire_victim(victim)
+	if(VVictim)
+		return victim.bloodpool <= 0
+
+	return victim.bloodpool <= 0 && victim.blood_volume < BLOOD_VOLUME_SURVIVE
+
 /// RESOLUTION
 /mob/living/carbon/human/proc/resolve_blooddrink_consequences(mob/living/carbon/victim)
 	var/datum/antagonist/vampire/VDrinker = get_vampire_drinker()
@@ -489,7 +501,7 @@ drinksomeblood()
 		return
 
 	var/datum/antagonist/vampire/VVictim = get_vampire_victim(victim)
-	if(VVictim)
+	if(VVictim && victim.stat != DEAD)
 		to_chat(src, span_userdanger("<b>YOU TRY TO COMMIT DIABLERIE ON [victim].</b>"))
 
 	if(process_vampire_blood(victim, VDrinker, VVictim))
@@ -516,6 +528,14 @@ drinksomeblood()
 
 	if(!check_silver_block(victim))
 		return
+
+	if(requires_finishing_blooddrink_delay(victim))
+		visible_message(span_danger("[src] tightens [p_their()] grip and prepares to drain [victim] dry!"))
+		if(!do_mob(src, victim, TA_VAMP_LETHAL_BLOODDRINK_DELAY, double_progress = TRUE, can_move = FALSE))
+			to_chat(src, span_warning("I fail to complete the killing drain."))
+			return
+		if(QDELETED(victim))
+			return
 
 	perform_initial_blooddrink(victim, sublimb_grabbed)
 	resolve_blooddrink_consequences(victim)
