@@ -34,7 +34,10 @@ handle_diablerie(), process_vampire_blood()
 get_conversion_costs(), can_pay_conversion_cost(), apply_conversion_cost()
 	Cost calculation for spawn creation.
 
-handle_offer_conversion_refusal(), finish_vampire_conversion(), attempt_siring_prompt()
+use_highpop_conversion_rules(), handle_offer_conversion_refusal()
+	Population-gated conversion rules and refusal handling.
+
+finish_vampire_conversion(), attempt_siring_prompt()
 	Checks and initiates siring flow.
 
 vampire_conversion_prompt()
@@ -281,9 +284,18 @@ drinksomeblood()
 	to_chat(src, span_notice("The offered conversion grants me [TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD] research point."))
 	return TRUE
 
+/mob/living/carbon/human/proc/use_highpop_conversion_rules()
+	return get_active_player_count() > TA_VAMP_CONVERT_HIGHPOP_THRESHOLD
+
 /mob/living/carbon/human/proc/handle_offer_conversion_refusal(mob/living/carbon/human/sire, datum/antagonist/vampire/VDrinker)
 	ADD_TRAIT(src, TRAIT_REFUSED_VAMP_CONVERT, TRAIT_GENERIC)
 	sire.grant_offer_conversion_reward(VDrinker)
+
+	if(!use_highpop_conversion_rules())
+		to_chat(src, span_warning("I reject the curse and deny [sire]'s offer."))
+		to_chat(sire, span_warning("[src] rejects the offered curse."))
+		vampire_conversion_prompt_active = FALSE
+		return FALSE
 
 	var/datum/antagonist/zombie/zombie_antag = zombie_check_can_convert()
 	if(!zombie_antag)
@@ -354,6 +366,7 @@ drinksomeblood()
 		else if(!can_pay_conversion_cost(VDrinker))
 			to_chat(src, span_warning("I lack the power to create a new spawn."))
 		else
+			var/highpop_rules = use_highpop_conversion_rules()
 			var/list/costs = get_conversion_costs(VDrinker)
 			var/research_cost = costs["research_cost"]
 			var/maxbloodpool_cost = costs["maxbloodpool_cost"]
@@ -363,7 +376,7 @@ drinksomeblood()
 				cost_line = "Cost on success: [research_cost] research point[research_suffix], -[maxbloodpool_cost] max bloodpool."
 
 			var/choice
-			if(VDrinker.generation == GENERATION_METHUSELAH)
+			if(highpop_rules && VDrinker.generation == GENERATION_METHUSELAH)
 				choice = alert(
 					src,
 					"How will I claim [victim]?\n[cost_line]",
@@ -371,13 +384,21 @@ drinksomeblood()
 					"Force",
 					"Cancel"
 				)
-			else
+			else if(highpop_rules)
 				choice = alert(
 					src,
 					"How will I claim [victim]?\n[cost_line]\nOffer Convert grants [TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD] research point whether [victim.p_they()] submit or resist.",
 					"THE CURSE OF KAIN",
 					"Offer",
 					"Force",
+					"Cancel"
+				)
+			else
+				choice = alert(
+					src,
+					"How will I claim [victim]?\n[cost_line]\nOffer Convert grants [TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD] research point whether [victim.p_they()] accept or refuse.",
+					"THE CURSE OF KAIN",
+					"Offer",
 					"Cancel"
 				)
 
@@ -420,9 +441,13 @@ drinksomeblood()
 		apply_status_effect(/datum/status_effect/incapacitating/stun, VAMP_CONVERT_TIMEOUT)
 		apply_status_effect(/datum/status_effect/incapacitating/knockdown, VAMP_CONVERT_TIMEOUT)
 
+	var/prompt_text = "Do you want to become a vampire?"
+	if(use_highpop_conversion_rules())
+		prompt_text += " If you refuse, you will rise as a deadite instead."
+
 	var/vampire_choice = tgui_alert(
 		src,
-		"Do you want to become a vampire? If you refuse, you will rise as a deadite instead.",
+		prompt_text,
 		"THE CURSE OF KAIN",
 		list("ACCEPT", "REFUSE"),
 		VAMP_CONVERT_TIMEOUT
