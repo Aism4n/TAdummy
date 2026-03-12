@@ -1,6 +1,15 @@
 /*
 Bloodsuck flow overview (top-down reading order):
 
+TA note:
+	Upstream override entrypoints in this file must stay in shorthand form:
+		/mob/living/carbon/human/add_bite_animation()
+		/mob/living/carbon/human/remove_bite()
+		/mob/living/carbon/human/vampire_conversion_prompt()
+		/mob/living/carbon/human/drinksomeblood()
+	New helper procs must be declared with explicit /proc/, for example:
+		/mob/living/carbon/human/proc/helper_name()
+
 add_bite_animation(), remove_bite()
 	Visual feedback for blood drinking.
 
@@ -22,7 +31,10 @@ build_blood_handle(), consume_vitae()
 handle_diablerie(), process_vampire_blood()
 	Diablerie resolution and blood mechanics.
 
-attempt_siring_prompt()
+get_conversion_costs(), can_pay_conversion_cost(), apply_conversion_cost()
+	Cost calculation for spawn creation.
+
+handle_offer_conversion_refusal(), finish_vampire_conversion(), attempt_siring_prompt()
 	Checks and initiates siring flow.
 
 vampire_conversion_prompt()
@@ -47,14 +59,14 @@ drinksomeblood()
 	remove_overlay(SUNDER_LAYER)
 
 /// BASIC CHECKS
-/mob/living/carbon/human/can_use_drinksomeblood()
+/mob/living/carbon/human/proc/can_use_drinksomeblood()
 	if(world.time <= next_move)
 		return FALSE
 	if(world.time < last_drinkblood_use + 2 SECONDS)
 		return FALSE
 	return TRUE
 
-/mob/living/carbon/human/check_silver_block(mob/living/carbon/victim)
+/mob/living/carbon/human/proc/check_silver_block(mob/living/carbon/victim)
 	var/datum/antagonist/vampire/VDrinker = get_vampire_drinker()
 	if(!VDrinker)
 		return TRUE
@@ -72,14 +84,14 @@ drinksomeblood()
 	return TRUE
 
 /// CONTEXT
-/mob/living/carbon/human/get_vampire_drinker()
+/mob/living/carbon/human/proc/get_vampire_drinker()
 	return mind?.has_antag_datum(/datum/antagonist/vampire)
 
-/mob/living/carbon/human/get_vampire_victim(mob/living/carbon/victim)
+/mob/living/carbon/human/proc/get_vampire_victim(mob/living/carbon/victim)
 	return victim.mind?.has_antag_datum(/datum/antagonist/vampire)
 
 /// INITIAL ACTION
-/mob/living/carbon/human/perform_initial_blooddrink(mob/living/carbon/victim, sublimb_grabbed)
+/mob/living/carbon/human/proc/perform_initial_blooddrink(mob/living/carbon/victim, sublimb_grabbed)
 	if(ishuman(victim))
 		var/mob/living/carbon/human/H = victim
 		H.add_bite_animation()
@@ -106,16 +118,16 @@ drinksomeblood()
 	log_combat(src, victim, "drank blood from ")
 
 /// SIDE EFFECTS
-/mob/living/carbon/human/force_puke(use_danger = FALSE)
+/mob/living/carbon/human/proc/force_puke(use_danger = FALSE)
 	to_chat(src, use_danger ? span_danger("I'm going to puke...") : span_warning("I'm going to puke..."))
 	addtimer(CALLBACK(src, TYPE_PROC_REF(/mob/living/carbon, vomit), 0, TRUE), rand(8 SECONDS, 15 SECONDS))
 
-/mob/living/carbon/human/should_puke_nonvamp()
+/mob/living/carbon/human/proc/should_puke_nonvamp()
 	if(HAS_TRAIT(src, TRAIT_HORDE) || HAS_TRAIT(src, TRAIT_NASTY_EATER))
 		return FALSE
 	return TRUE
 
-/mob/living/carbon/human/should_puke_bad_source(mob/living/carbon/victim)
+/mob/living/carbon/human/proc/should_puke_bad_source(mob/living/carbon/victim)
 	if(victim.mind?.has_antag_datum(/datum/antagonist/werewolf))
 		return TRUE
 	if(victim.stat != DEAD && victim.mind?.has_antag_datum(/datum/antagonist/zombie))
@@ -123,7 +135,7 @@ drinksomeblood()
 	return FALSE
 
 /// BLOOD MECHANICS
-/mob/living/carbon/human/build_blood_handle(mob/living/carbon/victim, datum/antagonist/vampire/VVictim)
+/mob/living/carbon/human/proc/build_blood_handle(mob/living/carbon/victim, datum/antagonist/vampire/VVictim)
 	var/blood_handle
 
 	if(victim.stat == DEAD)
@@ -140,7 +152,7 @@ drinksomeblood()
 
 	return blood_handle
 
-/mob/living/carbon/human/consume_vitae(mob/living/carbon/victim)
+/mob/living/carbon/human/proc/consume_vitae(mob/living/carbon/victim)
 	var/used_vitae = 150
 
 	victim.blood_volume = max(victim.blood_volume - 45, 0)
@@ -159,7 +171,7 @@ drinksomeblood()
 	adjust_hydration(used_vitae * 0.1)
 
 /// DIABLERIE
-/mob/living/carbon/human/handle_diablerie(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
+/mob/living/carbon/human/proc/handle_diablerie(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
 	if(VVictim)
 		AdjustMasquerade(-1)
 		message_admins("[ADMIN_LOOKUPFLW(src)] successfully Diablerized [ADMIN_LOOKUPFLW(victim)]")
@@ -169,10 +181,12 @@ drinksomeblood()
 		if(VVictim.generation > VDrinker.generation)
 			VDrinker.generation = VVictim.generation
 
+		VDrinker.research_points += TA_VAMP_DIABLERIE_RESEARCH_BONUS
 		VDrinker.research_points += VVictim.research_points
 		victim.death()
 		victim.adjustBruteLoss(-50, TRUE)
 		victim.adjustFireLoss(-50, TRUE)
+		addtimer(CALLBACK(victim, TYPE_PROC_REF(/mob/living, dust)), 10 SECONDS)
 		return TRUE
 
 	if(victim.blood_volume < BLOOD_VOLUME_SURVIVE && victim.stat != DEAD)
@@ -183,7 +197,7 @@ drinksomeblood()
 
 	return FALSE
 
-/mob/living/carbon/human/process_vampire_blood(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
+/mob/living/carbon/human/proc/process_vampire_blood(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
 	var/blood_handle = build_blood_handle(victim, VVictim)
 	clan.handle_bloodsuck(src, blood_handle)
 
@@ -196,94 +210,106 @@ drinksomeblood()
 
 	return FALSE
 
-/// SIRING
-/mob/living/carbon/human/attempt_siring_prompt(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker)
-	if(!victim.clan && victim.mind && ishuman(victim) && VDrinker.generation > GENERATION_THINBLOOD && victim.blood_volume <= BLOOD_VOLUME_BAD)
-		var/datum/antagonist/vampire/vdrinker = mind?.has_antag_datum(/datum/antagonist/vampire)
-		if((vdrinker.max_thralls <= 0) || (isnull(vdrinker.max_thralls || VDrinker.generation == GENERATION_THINBLOOD)))
-			to_chat(src, span_warning("I cannot sire thralls, my blood is too weak!"))
-		else if(vdrinker.thrall_count >= vdrinker.max_thralls)
-			to_chat(src, span_warning("I cannot sire anymore thralls.."))
-		else
-			if(alert(src, "Would you like to sire a new spawn?", "THE CURSE OF KAIN", "MAKE IT SO", "I RESCIND") != "MAKE IT SO")
-				to_chat(src, span_warning("I decide [victim] is unworthy."))
-			else
-				visible_message(span_danger("[src] begins channeling their energies to [victim]!"))
-				if(!do_mob(src, victim, 7 SECONDS, double_progress = TRUE, can_move = FALSE))
-					to_chat(src, span_warning("I was interrupted during my siring!"))
-				else if(HAS_TRAIT_FROM(victim, TRAIT_REFUSED_VAMP_CONVERT, REF(src)))
-					to_chat(src, span_warning("[victim] has already refused your offer to sire them."))
-				else if(victim.stat == DEAD)
-					return FALSE
-				else if(HAS_TRAIT(victim, TRAIT_UNLYCKERABLE))
-					return FALSE
-				else
-					var/mob/living/carbon/human/H = victim
-					if(H.vampire_conversion_prompt_active)
-						to_chat(src, span_warning("[victim] still fights the curse."))
-					else
-						INVOKE_ASYNC(victim, TYPE_PROC_REF(/mob/living/carbon/human, vampire_conversion_prompt), src)
+/mob/living/carbon/human/proc/get_conversion_costs(datum/antagonist/vampire/VDrinker)
+	var/list/costs = list(
+		"research_cost" = 0,
+		"maxbloodpool_cost" = 0,
+	)
 
-/// CONVERSION
-/mob/living/carbon/human/vampire_conversion_prompt(mob/living/carbon/sire)
-	if(!mind || QDELETED(src))
-		return
+	switch(VDrinker.generation)
+		if(GENERATION_ANCILLAE)
+			costs["research_cost"] = TA_VAMP_CONVERT_ANCILLAE_RESEARCH_COST
+			costs["maxbloodpool_cost"] = TA_VAMP_CONVERT_ANCILLAE_MAXBLOODPOOL_COST
+		if(GENERATION_NEONATE)
+			costs["research_cost"] = TA_VAMP_CONVERT_NEONATE_RESEARCH_COST
+			costs["maxbloodpool_cost"] = TA_VAMP_CONVERT_NEONATE_MAXBLOODPOOL_COST
 
-	if(vampire_conversion_prompt_active)
-		return
-	vampire_conversion_prompt_active = TRUE
+	return costs
 
-	var/datum/antagonist/vampire/VDrinker = sire?.mind?.has_antag_datum(/datum/antagonist/vampire)
+/mob/living/carbon/human/proc/can_pay_conversion_cost(datum/antagonist/vampire/VDrinker)
+	var/list/costs = get_conversion_costs(VDrinker)
+	var/research_cost = costs["research_cost"]
+	var/maxbloodpool_cost = costs["maxbloodpool_cost"]
+
+	if(VDrinker.research_points < research_cost)
+		return FALSE
+	if(maxbloodpool <= maxbloodpool_cost)
+		return FALSE
+
+	return TRUE
+
+/mob/living/carbon/human/proc/apply_conversion_cost(datum/antagonist/vampire/VDrinker)
+	var/list/costs = get_conversion_costs(VDrinker)
+	var/research_cost = costs["research_cost"]
+	var/maxbloodpool_cost = costs["maxbloodpool_cost"]
+
+	if(!can_pay_conversion_cost(VDrinker))
+		return FALSE
+
+	VDrinker.research_points -= research_cost
+	maxbloodpool = max(maxbloodpool - maxbloodpool_cost, 1)
+	set_bloodpool(bloodpool)
+
+	return TRUE
+
+/mob/living/carbon/human/proc/show_conversion_cost_feedback(mob/living/carbon/human/target, datum/antagonist/vampire/VDrinker, voluntary = FALSE)
+	var/list/costs = get_conversion_costs(VDrinker)
+	var/research_cost = costs["research_cost"]
+	var/maxbloodpool_cost = costs["maxbloodpool_cost"]
+
+	if(voluntary)
+		to_chat(src, span_warning("I draw [target] into the curse, spending my own strength to do it."))
+	else
+		to_chat(src, span_warning("I break [target]'s soul and force the curse into them, spending my own strength to do it."))
+
+	if(research_cost || maxbloodpool_cost)
+		var/list/losses = list()
+		if(research_cost)
+			var/research_suffix = (research_cost == 1) ? "" : "s"
+			losses += "[research_cost] research point[research_suffix]"
+		if(maxbloodpool_cost)
+			losses += "[maxbloodpool_cost] max bloodpool"
+		to_chat(src, span_notice("I lose [english_list(losses)]."))
+	else
+		to_chat(src, span_notice("This conversion costs me nothing."))
+
+/mob/living/carbon/human/proc/grant_offer_conversion_reward(datum/antagonist/vampire/VDrinker)
 	if(!istype(VDrinker))
+		return FALSE
+
+	VDrinker.research_points += TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD
+	to_chat(src, span_notice("The offered conversion grants me [TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD] research point."))
+	return TRUE
+
+/mob/living/carbon/human/proc/handle_offer_conversion_refusal(mob/living/carbon/human/sire, datum/antagonist/vampire/VDrinker)
+	ADD_TRAIT(src, TRAIT_REFUSED_VAMP_CONVERT, TRAIT_GENERIC)
+	sire.grant_offer_conversion_reward(VDrinker)
+
+	var/datum/antagonist/zombie/zombie_antag = zombie_check_can_convert()
+	if(!zombie_antag)
+		to_chat(sire, span_warning("[src] resists the curse, but cannot be dragged into undeath."))
 		vampire_conversion_prompt_active = FALSE
-		return
+		return FALSE
+
+	to_chat(src, span_userdanger("My resistance twists the curse into something foul and deathless!"))
+	to_chat(sire, span_danger("[src] rejects the offered curse and rises as a deadite!"))
+
+	zombie_antag.wake_zombie(TRUE)
+	Paralyze(TA_VAMP_CONVERT_RESIST_STUN_TIME)
+
+	vampire_conversion_prompt_active = FALSE
+	return TRUE
+
+/mob/living/carbon/human/proc/finish_vampire_conversion(mob/living/carbon/human/sire, datum/antagonist/vampire/VDrinker, voluntary = FALSE)
+	if(!istype(sire) || !istype(VDrinker))
+		return FALSE
+
+	if(!sire.apply_conversion_cost(VDrinker))
+		to_chat(sire, span_warning("I no longer have the strength to create a spawn."))
+		vampire_conversion_prompt_active = FALSE
+		return FALSE
 
 	var/datum/mind/original_mind = mind
-	if(stat != DEAD)
-		apply_status_effect(/datum/status_effect/incapacitating/stun, VAMP_CONVERT_TIMEOUT)
-		apply_status_effect(/datum/status_effect/incapacitating/knockdown, VAMP_CONVERT_TIMEOUT)
-
-	var/vampire_choice = tgui_alert(
-		src,
-		"Would you like to rise as a vampire spawn? Warning: refusal may or may not mortally wound you.",
-		"THE CURSE OF KAIN",
-		list("MAKE IT SO", "I RESCIND"),
-		VAMP_CONVERT_TIMEOUT
-	)
-	remove_status_effect(/datum/status_effect/incapacitating/stun)
-	remove_status_effect(/datum/status_effect/incapacitating/knockdown)
-
-	if(QDELETED(src) || !mind)
-		vampire_conversion_prompt_active = FALSE
-		return
-
-	if(QDELETED(sire) || !sire?.mind)
-		vampire_conversion_prompt_active = FALSE
-		return
-
-	VDrinker = sire.mind.has_antag_datum(/datum/antagonist/vampire)
-	if(!istype(VDrinker))
-		vampire_conversion_prompt_active = FALSE
-		return
-
-	if(vampire_choice != "MAKE IT SO")
-		if(!vampire_choice)
-			vampire_conversion_prompt_active = FALSE
-			return
-
-		if(HAS_TRAIT_FROM(src, TRAIT_REFUSED_VAMP_CONVERT, REF(sire)))
-			to_chat(sire, span_danger("Your victim resists the curse once more."))
-			vampire_conversion_prompt_active = FALSE
-			return
-
-		to_chat(
-			sire,
-			span_danger("The curse fails to take hold of [src], yet you still manage to squeeze the last drop of vitae out of them.")
-		)
-		sire.adjust_bloodpool(VITAE_PER_UNIQUE_CONVERSION_REJECT)
-		ADD_TRAIT(src, TRAIT_REFUSED_VAMP_CONVERT, REF(sire))
-		vampire_conversion_prompt_active = FALSE
-		return
 
 	if(stat == DEAD)
 		revive(full_heal = TRUE)
@@ -311,14 +337,112 @@ drinksomeblood()
 
 	mind?.add_antag_datum(new_antag)
 	VDrinker.thrall_count++
+	sire.show_conversion_cost_feedback(src, VDrinker, voluntary)
+	if(voluntary)
+		sire.grant_offer_conversion_reward(VDrinker)
 	adjust_bloodpool(VAMP_CONVERT_BLOOD_GAIN)
 	apply_status_effect(/datum/status_effect/incapacitating/stun, VAMP_CONVERT_POST_STUN)
 
 	vampire_conversion_prompt_active = FALSE
-	return
+	return TRUE
+
+/// SIRING
+/mob/living/carbon/human/proc/attempt_siring_prompt(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker)
+	if(!victim.clan && victim.mind && ishuman(victim) && victim.blood_volume <= BLOOD_VOLUME_BAD)
+		if(HAS_TRAIT(victim, TRAIT_REFUSED_VAMP_CONVERT))
+			to_chat(src, span_warning("[victim] has already rejected the curse and cannot be offered it again."))
+		else if(!can_pay_conversion_cost(VDrinker))
+			to_chat(src, span_warning("I lack the power to create a new spawn."))
+		else
+			var/list/costs = get_conversion_costs(VDrinker)
+			var/research_cost = costs["research_cost"]
+			var/maxbloodpool_cost = costs["maxbloodpool_cost"]
+			var/cost_line = "Cost: free."
+			if(research_cost || maxbloodpool_cost)
+				var/research_suffix = (research_cost == 1) ? "" : "s"
+				cost_line = "Cost on success: [research_cost] research point[research_suffix], -[maxbloodpool_cost] max bloodpool."
+
+			var/choice = alert(
+				src,
+				"How will I claim [victim]?\n[cost_line]\nOffer Convert grants [TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD] research point whether [victim.p_they()] submit or resist.",
+				"THE CURSE OF KAIN",
+				"Force Convert",
+				"Offer Convert",
+				"I Rescind"
+			)
+			if(choice != "Force Convert" && choice != "Offer Convert")
+				to_chat(src, span_warning("I decide [victim] is unworthy."))
+			else
+				visible_message(span_danger("[src] begins channeling their energies to [victim]!"))
+				if(!do_mob(src, victim, 7 SECONDS, double_progress = TRUE, can_move = FALSE))
+					to_chat(src, span_warning("I was interrupted during my siring!"))
+				else if(victim.stat == DEAD)
+					return FALSE
+				else if(HAS_TRAIT(victim, TRAIT_UNLYCKERABLE))
+					return FALSE
+				else if(HAS_TRAIT(victim, TRAIT_REFUSED_VAMP_CONVERT))
+					to_chat(src, span_warning("[victim] has already rejected the curse and cannot be offered it again."))
+				else
+					var/mob/living/carbon/human/H = victim
+					if(H.vampire_conversion_prompt_active)
+						to_chat(src, span_warning("[victim] still fights the curse."))
+					else if(choice == "Force Convert")
+						H.finish_vampire_conversion(src, VDrinker, FALSE)
+					else
+						INVOKE_ASYNC(victim, TYPE_PROC_REF(/mob/living/carbon/human, vampire_conversion_prompt), src, TRUE)
+
+/// CONVERSION
+/mob/living/carbon/human/vampire_conversion_prompt(mob/living/carbon/sire, voluntary = FALSE)
+	if(!mind || QDELETED(src))
+		return
+
+	if(vampire_conversion_prompt_active)
+		return
+	vampire_conversion_prompt_active = TRUE
+
+	var/datum/antagonist/vampire/VDrinker = sire?.mind?.has_antag_datum(/datum/antagonist/vampire)
+	if(!istype(VDrinker))
+		vampire_conversion_prompt_active = FALSE
+		return
+
+	if(stat != DEAD)
+		apply_status_effect(/datum/status_effect/incapacitating/stun, VAMP_CONVERT_TIMEOUT)
+		apply_status_effect(/datum/status_effect/incapacitating/knockdown, VAMP_CONVERT_TIMEOUT)
+
+	var/vampire_choice = tgui_alert(
+		src,
+		"Do you want to become a vampire? If you refuse, you will rise as a deadite instead.",
+		"THE CURSE OF KAIN",
+		list("ACCEPT", "REFUSE"),
+		VAMP_CONVERT_TIMEOUT
+	)
+	remove_status_effect(/datum/status_effect/incapacitating/stun)
+	remove_status_effect(/datum/status_effect/incapacitating/knockdown)
+
+	if(QDELETED(src) || !mind)
+		vampire_conversion_prompt_active = FALSE
+		return
+
+	if(QDELETED(sire) || !sire?.mind)
+		vampire_conversion_prompt_active = FALSE
+		return
+
+	VDrinker = sire.mind.has_antag_datum(/datum/antagonist/vampire)
+	if(!istype(VDrinker))
+		vampire_conversion_prompt_active = FALSE
+		return
+
+	if(vampire_choice != "ACCEPT")
+		if(!vampire_choice)
+			vampire_conversion_prompt_active = FALSE
+			return
+
+		return handle_offer_conversion_refusal(sire, VDrinker)
+
+	return finish_vampire_conversion(sire, VDrinker, voluntary)
 
 /// RESOLUTION
-/mob/living/carbon/human/resolve_blooddrink_consequences(mob/living/carbon/victim)
+/mob/living/carbon/human/proc/resolve_blooddrink_consequences(mob/living/carbon/victim)
 	var/datum/antagonist/vampire/VDrinker = get_vampire_drinker()
 
 	if(!VDrinker)
