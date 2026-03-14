@@ -101,10 +101,18 @@
 				beltl = /obj/item/rogueweapon/scabbard/sword
 				r_hand = /obj/item/rogueweapon/sword/short/psy
 				H.adjust_skillrank_up_to(/datum/skill/combat/swords, SKILL_LEVEL_EXPERT, TRUE)
-			if("Otavan Volf")
-				r_hand = /obj/item/rogueweapon/huntingknife/idagger/silver/psydagger
-				beltl = /obj/item/rogueweapon/scabbard/sheath
-				H.adjust_skillrank_up_to(/datum/skill/combat/knives, SKILL_LEVEL_EXPERT, TRUE)
+
+			if ("Otavan Volf")
+				var/weapons = list("Dagger", "Knuckledbusters")
+				var/weapon_choice = input(H,"Choose your WEAPON.", "TAKE UP PSYDON'S ARMS.") as anything in weapons
+				switch(weapon_choice)
+					if("Dagger")
+						r_hand = /obj/item/rogueweapon/huntingknife/idagger/silver/psydagger
+						beltl = /obj/item/rogueweapon/scabbard/sheath
+						H.adjust_skillrank_up_to(/datum/skill/combat/knives, SKILL_LEVEL_EXPERT, TRUE)
+					if("Knuckledbusters")
+						r_hand = /obj/item/clothing/gloves/roguetown/knuckles/psydon
+						H.adjust_skillrank_up_to(/datum/skill/combat/unarmed, SKILL_LEVEL_EXPERT, TRUE)
 				armor = /obj/item/clothing/suit/roguetown/armor/leather/heavy/coat/confessor
 				l_hand = /obj/item/gun/ballistic/twilight_firearm/arquebus_pistol/umbra
 				head = /obj/item/clothing/head/roguetown/roguehood/psydon/confessor
