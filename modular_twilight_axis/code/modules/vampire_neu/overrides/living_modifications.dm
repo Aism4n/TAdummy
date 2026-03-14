@@ -23,3 +23,24 @@
 			GLOB.coven_breakers_list -= src
 	else if(masquerade < 3)
 		GLOB.coven_breakers_list |= src
+
+/mob/living/carbon/human/CheckEyewitness(mob/living/source, mob/attacker, range = 0, affects_source = FALSE)
+	var/actual_range = max(1, round(range*(attacker.alpha/255)))
+	var/list/seenby = list()
+	for(var/mob/living/carbon/human/human in oviewers(1, source))
+		if(get_turf(src) != turn(human.dir, 180))
+			seenby |= human
+	for(var/mob/living/carbon/human/human in viewers(actual_range, source))
+		if(affects_source)
+			if(human == source)
+				seenby |= human
+		if(!human.pulledby)
+			var/turf/LC = get_turf(attacker)
+			if(LC.get_lumcount() > 0.25 || get_dist(human, attacker) <= 1)
+				if(!attacker.InCone(human))
+					if((human == source) && !affects_source)
+						continue
+					seenby |= human
+	if(length(seenby) >= 1)
+		return TRUE
+	return FALSE

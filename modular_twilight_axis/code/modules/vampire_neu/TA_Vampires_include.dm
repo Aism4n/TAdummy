@@ -21,8 +21,7 @@
 #include "./overrides/living_modifications.dm"
 #include "./overrides/bloodsuck.dm"
 #include "./overrides/vampire.dm"
-#include "./overrides/_base_power.dm"
-#include "./overrides/_base_clan.dm"
+#include "./overrides/helpers.dm"
 // MISC
 #include "./other_files/TA_vampire_disguise.dm"
 #include "./other_files/TA_sun_hater.dm"
