@@ -181,25 +181,46 @@ drinksomeblood()
 
 /// DIABLERIE
 /mob/living/carbon/human/proc/handle_diablerie(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
+
 	if(VVictim && victim.stat != DEAD)
-		AdjustMasquerade(-1)
+
+		var/is_breaker = GLOB.coven_breakers_list.Find(victim)
+
+		if(!is_breaker)
+			AdjustMasquerade(-1)
+
 		message_admins("[ADMIN_LOOKUPFLW(src)] successfully Diablerized [ADMIN_LOOKUPFLW(victim)]")
 		log_attack("[key_name(src)] successfully Diablerized [key_name(victim)].")
+
 		to_chat(src, span_danger("I have... Consumed my kindred!"))
+
+		if(is_breaker)
+			VDrinker.research_points += 2
+			GLOB.coven_breakers_list -= victim
+
+			to_chat(src, span_danger("Their blood reeks of broken oaths. I claim greater power from it!"))
+			to_chat(src, span_notice("Justice for the Masquerade has been served."))
 
 		if(VVictim.generation > VDrinker.generation)
 			VDrinker.generation = VVictim.generation
 
 		if(victim.clan != clan)
 			VDrinker.research_points += TA_VAMP_DIABLERIE_RESEARCH_BONUS
+
 		VDrinker.research_points += VVictim.research_points
+
 		victim.dust(drop_items = TRUE)
+
 		return TRUE
 
 	if(victim.blood_volume < BLOOD_VOLUME_SURVIVE && victim.stat != DEAD)
+
 		to_chat(src, span_warning("This sad sacrifice for your own pleasure affects something deep in your mind."))
+
 		AdjustMasquerade(-1)
+
 		victim.death()
+
 		return TRUE
 
 	return FALSE

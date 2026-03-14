@@ -22,5 +22,7 @@
 		qdel(ta_disguise)
 
 	// Add Twilight Axis versions
-	H.AddComponent(/datum/component/TA_sunlight_vulnerability)
-	H.AddComponent(/datum/component/TA_vampire_disguise)
+	if(!H.GetComponent(/datum/component/TA_sunlight_vulnerability))
+		H.AddComponent(/datum/component/TA_sunlight_vulnerability)
+	if(!H.GetComponent(/datum/component/TA_vampire_disguise))
+		H.AddComponent(/datum/component/TA_vampire_disguise)
