@@ -68,31 +68,7 @@
 
 	var/atom/center = target ? target : owner
 
-	if(!owner.CheckEyewitness(center, owner, 7, TRUE, 3))
+	if(!owner.CheckEyewitness(center, owner, 7, TRUE, 1))
 		return
 
 	owner.AdjustMasquerade(-1)
-
-/mob/living/carbon/human/proc/CheckEyewitness(mob/living/source, mob/attacker, range = 0, affects_source = FALSE, required = 1)
-
-	var/actual_range = max(1, round(range * (attacker.alpha / 255)))
-	var/witness_count = 0
-
-	for(var/mob/living/carbon/human/H in viewers(actual_range, source))
-
-		if(H == source && !affects_source)
-			continue
-
-		if(H.pulledby)
-			continue
-
-		var/turf/T = get_turf(attacker)
-
-		if(T.get_lumcount() > 0.25 || get_dist_squared(H, attacker) <= 1)
-
-			if(!attacker.InCone(H))
-
-				if(++witness_count >= required)
-					return TRUE
-
-	return FALSE

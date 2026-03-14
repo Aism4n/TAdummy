@@ -24,23 +24,24 @@
 	else if(masquerade < 3)
 		GLOB.coven_breakers_list |= src
 
-/mob/living/carbon/human/CheckEyewitness(mob/living/source, mob/attacker, range = 0, affects_source = FALSE)
-	var/actual_range = max(1, round(range*(attacker.alpha/255)))
-	var/list/seenby = list()
-	for(var/mob/living/carbon/human/human in oviewers(1, source))
-		if(get_turf(src) != turn(human.dir, 180))
-			seenby |= human
-	for(var/mob/living/carbon/human/human in viewers(actual_range, source))
-		if(affects_source)
-			if(human == source)
-				seenby |= human
-		if(!human.pulledby)
-			var/turf/LC = get_turf(attacker)
-			if(LC.get_lumcount() > 0.25 || get_dist(human, attacker) <= 1)
-				if(!attacker.InCone(human))
-					if((human == source) && !affects_source)
-						continue
-					seenby |= human
-	if(length(seenby) >= 1)
-		return TRUE
+/mob/living/carbon/human/CheckEyewitness(atom/source, mob/living/attacker, range = 7, affects_source = FALSE, required = 1)
+	var/actual_range = max(1, round(range * (attacker.alpha / 255.0)))
+	var/witness_count = 0
+
+	for(var/mob/living/carbon/human/H in viewers(actual_range, source))
+		if(H == source && !affects_source)
+			continue
+
+		if(H.stat != CONSCIOUS)
+			continue
+
+		var/turf/T = get_turf(attacker)
+		if(!T) continue
+
+		if(T.get_lumcount() > 0.25 || get_dist(H, attacker) <= 1)
+			if(H.InCone(attacker))
+				witness_count++
+				if(witness_count >= required)
+					return TRUE
+
 	return FALSE
