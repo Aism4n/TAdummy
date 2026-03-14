@@ -18,14 +18,13 @@
 
 
 // Main vampire_neu block.
-#include "./vampire_neu/overrides/living_modifications.dm"
-#include "./vampire_neu/overrides/bloodsuck.dm"
-#include "./vampire_neu/overrides/vampire.dm"
-#include "./vampire_neu/overrides/vampire_disguise.dm"
-#include "./vampire_neu/overrides/_base_power.dm"
-#include "./vampire_neu/overrides/_base_clan.dm"
+#include "./overrides/living_modifications.dm"
+#include "./overrides/bloodsuck.dm"
+#include "./overrides/vampire.dm"
+#include "./overrides/_base_power.dm"
+#include "./overrides/_base_clan.dm"
 // MISC
-#include "./vampire_neu/overrides/other_files/TA_vampire_disguise.dm"
-#include "./vampire_neu/overrides/other_files/TA_sun_hater.dm"
+#include "./other_files/TA_vampire_disguise.dm"
+#include "./other_files/TA_sun_hater.dm"
 // Local defines
 #include "./TA_Vampires_uniclude.dm"
