@@ -1,4 +1,4 @@
-/datum/clan/proc/apply_clan_components(mob/living/carbon/human/H)
+/datum/clan/apply_clan_components(mob/living/carbon/human/H)
 	if(!H)
 		return
 

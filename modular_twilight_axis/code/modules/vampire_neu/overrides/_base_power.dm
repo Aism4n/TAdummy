@@ -1,4 +1,4 @@
-/datum/coven_power/proc/do_masquerade_violation(atom/target)
+/datum/coven_power/do_masquerade_violation(atom/target)
 	if (violates_masquerade)
 		if (owner.CheckEyewitness(target ? target : owner, owner, 7, TRUE))
 			//TODO: detach this from being a human
