@@ -28,7 +28,7 @@
 		var/datum/antagonist/vampire/my_vamp = examiner?.mind?.has_antag_datum(/datum/antagonist/vampire)
 		var/datum/antagonist/vampire/target_vamp = examined_datum
 
-		if(examined != examiner && examined in GLOB.coven_breakers_list && !istype(target_vamp, /datum/antagonist/vampire/lord))
+		if(examined != examiner && (examined in GLOB.coven_breakers_list) && !istype(target_vamp, /datum/antagonist/vampire/lord))
 			return span_userdanger("A breaker of the Masquerade. SHAME!!!")
 
 		if(my_vamp)
