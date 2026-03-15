@@ -39,7 +39,7 @@
 	subclass_stashed_items = list(
 		"Tome of Psydon" = /obj/item/book/rogue/bibble/psy
 	)
-	extra_context = "Legionnaire subclass can choose between light and medium armor options, gaining Dodge Expert or Maille Training, respectively."
+	extra_context = "This subclass can choose between two archetypes: Legionnaire and Otavan Volf. Legionnaire wield powerful blackpowder weapons and may select between light or medium armor, gaining Dodge Expert or Maille Training respectively. Otavan Volf specialize in stealth, rune magyck and silent firearms."
 
 /datum/outfit/job/roguetown/blackpowder_legionnaire
 	job_bitflag = BITFLAG_HOLY_WARRIOR
@@ -48,8 +48,9 @@
 	..()
 	backl = /obj/item/storage/backpack/rogue/satchel/otavan
 	shoes = /obj/item/clothing/shoes/roguetown/boots/psydonboots
+	cloak = /obj/item/clothing/cloak/bandolier
 	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/inq
-	neck = /obj/item/clothing/neck/roguetown/gorget
+	neck = /obj/item/clothing/neck/roguetown/leather/blackpowder
 	gloves = /obj/item/clothing/gloves/roguetown/chain/psydon
 	mask = /obj/item/clothing/mask/rogue/facemask/steel/confessor
 	id = /obj/item/clothing/ring/signet/silver
@@ -101,7 +102,6 @@
 				beltl = /obj/item/rogueweapon/scabbard/sword
 				r_hand = /obj/item/rogueweapon/sword/short/psy
 				H.adjust_skillrank_up_to(/datum/skill/combat/swords, SKILL_LEVEL_EXPERT, TRUE)
-
 			if ("Otavan Volf")
 				var/weapons = list("Dagger", "Knuckledbusters")
 				var/weapon_choice = input(H,"Choose your WEAPON.", "TAKE UP PSYDON'S ARMS.") as anything in weapons

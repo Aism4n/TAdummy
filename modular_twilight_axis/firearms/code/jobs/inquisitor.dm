@@ -24,14 +24,13 @@
 	cmode_music = 'modular_twilight_axis/firearms/sound/music/combat_blackpowder.ogg'
 	category_tags = list(CTAG_INQUSITOR)
 	classes = list("Vanguard" = "You are an experienced commander who has served in the Blackpowder Order long enough to earn honor and glory on the battlefield. Few can rival your willpower, your shoulders bear the deadly weapons of the new era, capable of killing a God. No heretic or beast can escape Psydon's wrath.",
-	"Investigator" = "You are a patient hunter in the service of the Blackpowder Order, entrusted not with glory, but with certainty. While others wage open war, you trace whispers, follow powder trails, and study the subtle tremors of heresy beneath the surface of Psydon's realm. No sinner may hide forever from a mind that does not tire, and a hand that does not tremble.",
 	"Runed Volf" = "Many of your brothers died in horrible ways. Someone's body couldn't withstand the new power and tear itself apart, someone was killed on suicidal missions deep behind enemy lines. But you survived and were commissioned as an experienced commander of your order, capable of finding your prey anywhere.")
 	traits_applied = list(
 		TRAIT_STEELHEARTED,
 		TRAIT_SILVER_BLESSED,
 		TRAIT_INQUISITION,
 		TRAIT_FIREARMS_MARKSMAN,
-		TRAIT_PERFECT_TRACKER,
+		TRAIT_SLEUTH,
 		TRAIT_PURITAN,
 		TRAIT_OUTLANDER,
 		TRAIT_ARTILLERY_EXPERT
@@ -65,7 +64,7 @@
 		"Branding Letters" = /obj/item/branding_letters, //TA Branding
 		"Branding Iron" = /obj/item/branding_iron
 	)
-	extra_context = "This subclass can choose between three roles: Vanguard with the Doomsdae runic rifle and 'Medium Armor' trait, Investigator with the Inquest pistol and the 'Black Bagger' trait, and Runed Volf with the Umbra, silent arquebus pistol, rune magyck and the 'Dodge Expert' trait."
+	extra_context = "This subclass can choose between three roles: Vanguard with the Doomsdae runic rifle and 'Medium Armor' trait and Runed Volf with the Umbra, silent arquebus pistol, rune magyck and the 'Dodge Expert' trait."
 
 /datum/outfit/job/roguetown/inquisitor/blackpowder/pre_equip(mob/living/carbon/human/H)
 	..()
@@ -74,7 +73,7 @@
 	H.verbs |= /mob/living/carbon/human/proc/torture_victim
 	armor = /obj/item/clothing/suit/roguetown/armor/plate/scale/inqcoat
 	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/inq
-	neck = /obj/item/clothing/neck/roguetown/gorget/steel
+	neck = /obj/item/clothing/neck/roguetown/leather/blackpowder
 	shoes = /obj/item/clothing/shoes/roguetown/boots/otavan/inqboots
 	wrists = /obj/item/clothing/neck/roguetown/psicross/silver
 	pants = /obj/item/clothing/under/roguetown/heavy_leather_pants/otavan
@@ -97,6 +96,7 @@
 	switch(classchoice)
 		if("Vanguard")
 			H.equip_to_slot_or_del(new /obj/item/clothing/head/roguetown/inqhat, SLOT_HEAD, TRUE)
+			H.equip_to_slot_or_del(new /obj/item/clothing/cloak/bandolier, SLOT_CLOAK, TRUE)
 			H.equip_to_slot_or_del(new /obj/item/storage/belt/rogue/leather/black, SLOT_BELT, TRUE)
 			H.equip_to_slot_or_del(new /obj/item/quiver/twilight_bullet/runicbag/blessed, SLOT_BELT_R, TRUE)
 			H.equip_to_slot_or_del(new /obj/item/rogueweapon/scabbard/sword, SLOT_BELT_L, TRUE)
@@ -115,44 +115,6 @@
 			var/datum/devotion/C = new /datum/devotion(H, H.patron)
 			C.grant_miracles(H, cleric_tier = CLERIC_T1, passive_gain = CLERIC_REGEN_WEAK, devotion_limit = CLERIC_REQ_1) //Capped to T1 miracles.
 			ADD_TRAIT(H, TRAIT_MEDIUMARMOR, TRAIT_GENERIC)
-		if("Investigator")
-			H.equip_to_slot_or_del(new /obj/item/clothing/head/roguetown/inqcap, SLOT_HEAD, TRUE)
-			H.equip_to_slot_or_del(new /obj/item/clothing/gloves/roguetown/otavan/inqgloves, SLOT_GLOVES, TRUE)
-			H.equip_to_slot_or_del(new /obj/item/storage/belt/rogue/leather/twilight_holsterbelt/blackpowder, SLOT_BELT, TRUE)
-			H.equip_to_slot_or_del(new /obj/item/quiver/twilight_bullet/silver, SLOT_BELT_R, TRUE)
-			H.equip_to_slot_or_del(new /obj/item/rogueweapon/scabbard/sword/noble, SLOT_BELT_L, TRUE)
-			if(isdarkelf(H))
-				H.equip_to_slot_or_del(new /obj/item/clothing/mask/rogue/facemask, SLOT_WEAR_MASK, TRUE)
-			H.put_in_hands(new /obj/item/gun/ballistic/twilight_firearm/arquebus_pistol/inquest(H), TRUE)
-			H.put_in_hands(new /obj/item/rogueweapon/sword/rapier/psyrapier(H), TRUE)
-			var/obj/item/belt = H.get_item_by_slot(SLOT_BELT)
-			var/obj/item/back = H.get_item_by_slot(SLOT_BACK_R)
-			var/quivers = list("Holy Fyrepowder", "Arcyne Gunpowder")
-			var/ammochoice = input(H,"CHOOSE YOUR MUNITIONS.", "LAY WASTE TO THE HERETICS.") as anything in quivers
-			switch(ammochoice)
-				if("Holy Fyrepowder")
-					var/obj/item/powderflask = new /obj/item/twilight_powderflask/holyfyre(H)
-					if(!SEND_SIGNAL(belt, COMSIG_TRY_STORAGE_INSERT, powderflask, null, TRUE, TRUE))
-						addtimer(CALLBACK(PROC_REF(move_storage), powderflask, H.loc), 3 SECONDS)
-				if("Arcyne Gunpowder")
-					var/obj/item/powderflask = new /obj/item/twilight_powderflask/arcyne(H)
-					if(!SEND_SIGNAL(belt, COMSIG_TRY_STORAGE_INSERT, powderflask, null, TRUE, TRUE))
-						addtimer(CALLBACK(PROC_REF(move_storage), powderflask, H.loc), 3 SECONDS)
-			var/obj/item/lockpickring = new /obj/item/lockpickring/mundane(H)
-			if(!SEND_SIGNAL(belt, COMSIG_TRY_STORAGE_INSERT, lockpickring, null, TRUE, TRUE))
-				addtimer(CALLBACK(PROC_REF(move_storage), lockpickring, H.loc), 3 SECONDS)
-			var/obj/item/blackbag = new /obj/item/clothing/head/inqarticles/blackbag(H)
-			if(!SEND_SIGNAL(back, COMSIG_TRY_STORAGE_INSERT, blackbag, null, TRUE, TRUE))
-				addtimer(CALLBACK(PROC_REF(move_storage), blackbag, H.loc), 3 SECONDS)
-			H.adjust_skillrank_up_to(/datum/skill/craft/alchemy, 2, TRUE)
-			H.adjust_skillrank_up_to(/datum/skill/combat/swords, 4, TRUE)
-			H.adjust_skillrank_up_to(/datum/skill/combat/wrestling, 4, TRUE)
-			H.adjust_skillrank_up_to(/datum/skill/combat/unarmed, 4, TRUE)
-			H.adjust_skillrank_up_to(/datum/skill/misc/lockpicking, 4, TRUE)
-			H.adjust_skillrank_up_to(/datum/skill/misc/tracking, 5, TRUE)
-			var/datum/devotion/C = new /datum/devotion(H, H.patron)
-			C.grant_miracles(H, cleric_tier = CLERIC_T1, passive_gain = CLERIC_REGEN_WEAK, devotion_limit = CLERIC_REQ_1) //Capped to T1 miracles.
-			ADD_TRAIT(H, TRAIT_BLACKBAGGER, TRAIT_GENERIC)
 		if("Runed Volf")
 			H.equip_to_slot_or_del(new /obj/item/storage/belt/rogue/leather/twilight_holsterbelt, SLOT_BELT, TRUE)
 			H.equip_to_slot_or_del(new /obj/item/quiver/twilight_bullet/silver, SLOT_BELT_R, TRUE)
@@ -173,12 +135,16 @@
 					var/obj/item/powderflask = new /obj/item/twilight_powderflask/thunder(H)
 					if(!SEND_SIGNAL(belt, COMSIG_TRY_STORAGE_INSERT, powderflask, null, TRUE, TRUE))
 						addtimer(CALLBACK(PROC_REF(move_storage), powderflask, H.loc), 3 SECONDS)
+			var/obj/item/back = H.get_item_by_slot(SLOT_BACK_R)
 			var/obj/item/lockpickring = new /obj/item/lockpickring/mundane(H)
-			if(!SEND_SIGNAL(belt, COMSIG_TRY_STORAGE_INSERT, lockpickring, null, TRUE, TRUE))
+			if(!SEND_SIGNAL(back, COMSIG_TRY_STORAGE_INSERT, lockpickring, null, TRUE, TRUE))
 				addtimer(CALLBACK(PROC_REF(move_storage), lockpickring, H.loc), 3 SECONDS)
 			var/obj/item/garrote = new /obj/item/inqarticles/garrote(H)
-			if(!SEND_SIGNAL(belt, COMSIG_TRY_STORAGE_INSERT, garrote, null, TRUE, TRUE))
+			if(!SEND_SIGNAL(back, COMSIG_TRY_STORAGE_INSERT, garrote, null, TRUE, TRUE))
 				addtimer(CALLBACK(PROC_REF(move_storage), garrote, H.loc), 3 SECONDS)
+			var/obj/item/blackbag = new /obj/item/clothing/head/inqarticles/blackbag(H)
+			if(!SEND_SIGNAL(back, COMSIG_TRY_STORAGE_INSERT, blackbag, null, TRUE, TRUE))
+				addtimer(CALLBACK(PROC_REF(move_storage), blackbag, H.loc), 3 SECONDS)
 			H.adjust_skillrank_up_to(/datum/skill/misc/sneaking, 5, TRUE)
 			H.adjust_skillrank_up_to(/datum/skill/misc/lockpicking, 5, TRUE)
 			H.adjust_skillrank_up_to(/datum/skill/magic/arcane, 3, TRUE)
@@ -189,5 +155,5 @@
 			H.mind?.AddSpell(new /obj/effect/proc_holder/spell/invoked/invisibility)
 			H.mind?.AddSpell(new /obj/effect/proc_holder/spell/invoked/projectile/fetch)
 			H.mind?.AddSpell(new /obj/effect/proc_holder/spell/invoked/stasis/runed)
-			ADD_TRAIT(H, TRAIT_DODGEEXPERT, TRAIT_GENERIC)
-			ADD_TRAIT(H, TRAIT_SLEUTH, TRAIT_GENERIC)
+			ADD_TRAIT(H, TRAIT_PERFECT_TRACKER, TRAIT_GENERIC)
+			ADD_TRAIT(H, TRAIT_BLACKBAGGER, TRAIT_GENERIC)

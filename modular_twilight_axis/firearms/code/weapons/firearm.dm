@@ -1014,14 +1014,3 @@
 	advanced_icon_r = 'modular_twilight_axis/firearms/icons/harquebus/harquebus_r.dmi'
 	advanced_icon_norod	= 'modular_twilight_axis/firearms/icons/harquebus/harquebus_norod.dmi'
 	advanced_icon_r_norod = 'modular_twilight_axis/firearms/icons/harquebus/harquebus_r_norod.dmi'
-
-/obj/item/gun/ballistic/twilight_firearm/arquebus_pistol/inquest
-	name = "\"Inquest\""
-	desc = "Надёжный пистоль отавийского образца, предназначенный для следователей. Лишённый излишеств рунической магии и изящества отавианских артефактов, этот пистоль создан для простого и неоспоримого вердикта. Каждое расследование рано или поздно заканчивается приговором."
-	damfactor = 1.1
-	icon = 'modular_twilight_axis/firearms/icons/inquest/pistol.dmi'
-	advanced_icon = 'modular_twilight_axis/firearms/icons/inquest/pistol.dmi'
-	advanced_icon_r = 'modular_twilight_axis/firearms/icons/inquest/pistol_r.dmi'
-	advanced_icon_norod	= 'modular_twilight_axis/firearms/icons/inquest/pistol_norod.dmi'
-	advanced_icon_r_norod = 'modular_twilight_axis/firearms/icons/inquest/pistol_r_norod.dmi'
-	effective_range = 4
