@@ -16,17 +16,21 @@
 // Early define slot and shared cross-module vampire hooks.
 #include "./vampires_defines.dm"
 
-
-// Main vampire_neu block.
 #include "./overrides/living_modifications.dm"
 #include "./overrides/bloodsuck.dm"
 #include "./overrides/vampire.dm"
+// Main vampire_neu block.
+/*  // HOT FIX
 #include "./overrides/helpers.dm"
 #include "./overrides/_base_clan.dm"
 #include "./overrides/_base_power.dm"
 #include "./overrides/_actions.dm"
+
 // MISC
 #include "./other_files/TA_vampire_disguise.dm"
 #include "./other_files/TA_sun_hater.dm"
+
+
+*/ // HOT FIX
 // Local defines
 #include "./TA_Vampires_uniclude.dm"

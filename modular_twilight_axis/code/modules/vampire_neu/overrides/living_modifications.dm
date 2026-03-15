@@ -45,3 +45,14 @@
 					return TRUE
 
 	return FALSE
+
+/datum/coven_power/do_masquerade_violation(atom/target)
+	if(!violates_masquerade || !ishuman(owner))
+		return
+
+	var/atom/center = target ? target : owner
+
+	if(!owner.CheckEyewitness(center, owner, 7, TRUE, 1))
+		return
+
+	owner.AdjustMasquerade(-1)
