@@ -561,7 +561,8 @@ drinksomeblood()
 	if(process_vampire_blood(victim, VDrinker, VVictim))
 		return
 
-	attempt_siring_prompt(victim, VDrinker)
+	if(victim.mind)
+		attempt_siring_prompt(victim, VDrinker)
 
 /// ENTRY POINT
 /mob/living/carbon/human/drinksomeblood(mob/living/carbon/victim, sublimb_grabbed)

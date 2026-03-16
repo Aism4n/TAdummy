@@ -16,7 +16,7 @@
 // Early define slot and shared cross-module vampire hooks.
 #include "./vampires_defines.dm"
 
-#include "./overrides/living_modifications.dm"
+//#include "./overrides/living_modifications.dm"
 #include "./overrides/bloodsuck.dm"
 #include "./overrides/vampire.dm"
 // Main vampire_neu block.
