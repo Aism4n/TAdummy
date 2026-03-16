@@ -1,7 +1,3 @@
-/datum/job/roguetown/orthodoxist/New()
-	job_subclasses += list(/datum/advclass/blackpowder_legionnaire)
-	. = ..()
-
 /datum/advclass/blackpowder_legionnaire
 	name = "Blackpowder Legionnaire"
 	tutorial = "In the Blackpowder Order, every fourth soldier is a sharpshooter, armed with advanced Otavan firearms. These Legionnaires are the very essence of the everchanging face of warfare, and when the Final War begins, it is with their power that the evil will be driven back."
