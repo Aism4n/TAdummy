@@ -291,7 +291,7 @@ GLOBAL_LIST_INIT(primordial_wounds, init_primordial_wounds())
 	//TA EDIT END
 
 	if(HAS_TRAIT(owner, TRAIT_PSYDONITE) && !passive_healing)
-		heal_wound(0.2)
+		heal_wound(0.6)
 		if(!owner || QDELETED(owner) || QDELETED(src))
 			return FALSE
 
