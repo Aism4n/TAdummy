@@ -52,12 +52,12 @@
 			/*for(var/datum/wound/wound as anything in get_wounds())//TA EDIT START
 				if(wound?.severity <= WOUND_SEVERITY_MODERATE)
 					wound.heal_wound(0.4)*/
-			if(HAS_TRAIT(src, TRAIT_PSYDONITE_4)
-				owner.adjustBruteLoss(-6)
-				owner.adjustFireLoss(-6)
-			else if(HAS_TRAIT(src, TRAIT_PSYDONITE_3)
-				owner.adjustBruteLoss(-2)
-				owner.adjustFireLoss(-2) //TA EDIT END
+			if(HAS_TRAIT(src, TRAIT_PSYDONITE_4))
+				adjustBruteLoss(-6)
+				adjustFireLoss(-6)
+			else if(HAS_TRAIT(src, TRAIT_PSYDONITE_3))
+				adjustBruteLoss(-2)
+				adjustFireLoss(-2) //TA EDIT END
 	if(HAS_TRAIT(src, TRAIT_WOUNDREGEN))
 		for(var/datum/wound/wound as anything in get_wounds())
 			wound.heal_wound(10)
