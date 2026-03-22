@@ -1,4 +1,4 @@
 author: "Lamasmaster"
 delete-after: True
 changes:
-  - balance: "Treasure grave spawns"
+  - bugfix: "Waterskin starting uncorked"
