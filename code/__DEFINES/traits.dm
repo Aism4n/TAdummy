@@ -289,7 +289,7 @@
 #define TRAIT_FOOD_STIPEND "Vomitorium-known"
 
 //TA TRAITS
-#define TRAIT_PSYDONITE_2 "Psydonic Resptie"
+#define TRAIT_PSYDONITE_2 "Psydonic Respite"
 #define TRAIT_PSYDONITE_3 "Psydonic Respite (II)"
 #define TRAIT_PSYDONITE_4 "Psydonic Respite (III)"
 #define TRAIT_PSYDONIC_MEDICINE "My Hands are Steady by HIS Grace"
