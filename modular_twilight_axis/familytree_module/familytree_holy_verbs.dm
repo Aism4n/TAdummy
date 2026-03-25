@@ -46,19 +46,6 @@
 /proc/bond_type_is_sibling(bond_type)
 	return (bond_type == BOND_BROTHER || bond_type == BOND_SISTER)
 
-/datum/controller/subsystem/familytree/proc/grant_holy_verbs(mob/living/carbon/human/H)
-	if(!H || QDELETED(H))
-		return
-	var/holy_level = H.get_skill_level(/datum/skill/magic/holy)
-	if(holy_level >= SKILL_LEVEL_JOURNEYMAN)
-		H.verbs |= /mob/living/carbon/human/proc/familytree_establish_bond
-	else
-		H.verbs -= /mob/living/carbon/human/proc/familytree_establish_bond
-	if(holy_level >= SKILL_LEVEL_MASTER)
-		H.verbs |= /mob/living/carbon/human/proc/familytree_officiate_divorce
-	else
-		H.verbs -= /mob/living/carbon/human/proc/familytree_officiate_divorce
-
 /mob/living/carbon/human/proc/familytree_establish_bond()
 	set name = "Установить семейную связь"
 	set category = "Cleric"

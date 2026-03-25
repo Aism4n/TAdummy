@@ -46,6 +46,7 @@ SUBSYSTEM_DEF(familytree)
 	load_enigma_roles()
 	RegisterSignal(SSdcs, COMSIG_GLOB_MOB_CREATED, PROC_REF(on_mob_created))
 	for(var/mob/living/carbon/human/H in GLOB.mob_list)
+		grant_holy_verbs(H)
 		register_human(H)
 	return ..()
 
@@ -88,8 +89,15 @@ SUBSYSTEM_DEF(familytree)
 	if(!ishuman(new_mob) || QDELETED(new_mob) || istype(new_mob, /mob/living/carbon/human/dummy) || !new_mob.ckey)
 		return
 	var/mob/living/carbon/human/H = new_mob
+	grant_holy_verbs(H)
 	register_human(H)
 	try_queue_assignment(H)
+
+/datum/controller/subsystem/familytree/proc/grant_holy_verbs(mob/living/carbon/human/H)
+	if(!H || istype(H, /mob/living/carbon/human/dummy) || !H.ckey)
+		return
+	H.verbs |= /mob/living/carbon/human/proc/familytree_establish_bond
+	H.verbs |= /mob/living/carbon/human/proc/familytree_officiate_divorce
 
 /datum/controller/subsystem/familytree/proc/register_human(mob/living/carbon/human/H)
 	if(!H || istype(H, /mob/living/carbon/human/dummy) || H.familytree_module_signal_bound)
@@ -138,7 +146,6 @@ SUBSYSTEM_DEF(familytree)
 /datum/controller/subsystem/familytree/proc/on_human_job_received(mob/living/carbon/human/H, rank)
 	SIGNAL_HANDLER
 	try_queue_assignment(H)
-	grant_holy_verbs(H)
 
 /datum/controller/subsystem/familytree/proc/on_human_climax(mob/living/carbon/human/H)
 	SIGNAL_HANDLER
