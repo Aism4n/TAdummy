@@ -203,6 +203,7 @@ drinksomeblood()
 
 		if(VVictim.generation > VDrinker.generation)
 			VDrinker.generation = VVictim.generation
+			VDrinker.recalculate_hud_visibility()
 
 			// Inherit blood magic skill if victim's is higher
 			var/victim_blood_skill = victim.get_skill_level(/datum/skill/magic/blood)
