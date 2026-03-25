@@ -23,6 +23,7 @@
 // familytree_storytellers.dm      - storyteller influence (Astrata/Eora/Baotha/Psydon/Ravox/Noc/Dendor), karma
 // familytree_polygamy.dm          - polygamy: flags, lore checks (Baotha/drow)
 // familytree_rituals.dm           - priest wedding, adoption, vampire binding
+// familytree_holy_verbs.dm        - holy skill verbs: establish bond (3+), divorce (5+), bypass (6), divine wrath
 // familytree_relative_search.dm   - desired family role (sibling/parent/child/uncle/spouse)
 // familytree_enigma.dm        - DLC: enigma roles integration into tier system
 //
@@ -90,5 +91,6 @@
 #include "familytree_storytellers.dm"
 #include "familytree_polygamy.dm"
 #include "familytree_rituals.dm"
+#include "familytree_holy_verbs.dm"
 #include "familytree_relative_search.dm"
 #include "familytree_enigma.dm"

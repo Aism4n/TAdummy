@@ -138,6 +138,7 @@ SUBSYSTEM_DEF(familytree)
 /datum/controller/subsystem/familytree/proc/on_human_job_received(mob/living/carbon/human/H, rank)
 	SIGNAL_HANDLER
 	try_queue_assignment(H)
+	grant_holy_verbs(H)
 
 /datum/controller/subsystem/familytree/proc/on_human_climax(mob/living/carbon/human/H)
 	SIGNAL_HANDLER
