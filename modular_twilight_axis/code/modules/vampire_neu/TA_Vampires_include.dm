@@ -19,6 +19,7 @@
 //#include "./overrides/living_modifications.dm"
 #include "./overrides/bloodsuck.dm"
 #include "./overrides/vampire.dm"
+#include "./overrides/vampire_hud.dm"
 // Main vampire_neu block.
 /*  // HOT FIX
 #include "./overrides/helpers.dm"
