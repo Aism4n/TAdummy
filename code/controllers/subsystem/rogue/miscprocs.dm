@@ -129,8 +129,6 @@
 		REMOVE_TRAIT(holder, TRAIT_PSYDONITE_2, ROUNDSTART_TRAIT)
 	else if(trait == TRAIT_PSYDONITE_3)
 		REMOVE_TRAIT(holder, TRAIT_PSYDONITE_2, ROUNDSTART_TRAIT)
-	if(trait == TRAIT_PSYDONIC_MEDICINE)
-		holder.adjust_skillrank(/datum/skill/misc/medicine, 2, TRUE)
 	//TA EDIT END
 
 //The main proc that distributes all the needed devotion tweaks to the given class.
