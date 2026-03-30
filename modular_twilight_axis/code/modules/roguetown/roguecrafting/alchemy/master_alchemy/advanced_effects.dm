@@ -85,9 +85,11 @@
 
 /datum/reagent/advanced/speed/on_mob_add(mob/living/M)
 	M.add_movespeed_modifier("swift_feet", multiplicative_slowdown = -1.5)
+	M.AddComponent(/datum/component/after_image)
 
 /datum/reagent/advanced/speed/on_mob_delete(mob/living/M)
 	M.remove_movespeed_modifier("swift_feet")
+	qdel(M.GetComponent(/datum/component/after_image))
 
 /datum/reagent/advanced/elixir_of_life
 	name = "Elixir of Life"

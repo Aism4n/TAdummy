@@ -29,7 +29,7 @@
 	result_icon_state = "soulstone"
 	grid = list(
 		/obj/item/alch/waterdust, /obj/item/reagent_containers/lux_impure, /obj/item/alch/earthdust,
-		/obj/item/alch/magicdust, /obj/item/alch/viscera, /obj/item/alch/magicdust,
+		/obj/item/alch/magicdust, /obj/item/riddleofsteel, /obj/item/alch/magicdust,
 		/obj/item/alch/airdust, /obj/item/reagent_containers/lux, /obj/item/alch/firedust
 
 	)
