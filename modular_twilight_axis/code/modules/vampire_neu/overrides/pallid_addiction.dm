@@ -23,7 +23,7 @@
 
 /datum/status_effect/buff/pallid_blood/lck
 	id = "pallid_blood_lck"
-	effectedstats = list(STATKEY_LCK = 2)
+	effectedstats = list(STATKEY_LCK = 1)
 
 /atom/movable/screen/alert/status_effect/buff/pallid_blood
 	name = "Cursed Blood"
@@ -62,11 +62,11 @@
 	var/mob/living/carbon/human/owner = parent
 
 	var/list/candidates = list()
-	if(owner.STASTR < 15)
+	if(owner.STASTR < 14)
 		candidates += /datum/status_effect/buff/pallid_blood/str
-	if(owner.STASPD < 15)
+	if(owner.STASPD < 14)
 		candidates += /datum/status_effect/buff/pallid_blood/spd
-	if(owner.STAINT < 18)
+	if(owner.STAINT < 16)
 		candidates += /datum/status_effect/buff/pallid_blood/int
 	if(length(candidates))
 		buff_path = pick(candidates)
