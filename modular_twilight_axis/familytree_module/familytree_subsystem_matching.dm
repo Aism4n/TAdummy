@@ -60,16 +60,16 @@
 			request_family_confirmation(H, CALLBACK(src, PROC_REF(do_assign_house), H), "house")
 
 		if(FAMILY_NEWLYWED)
-			ftlog("AddLocal: [H.real_name] -> AssignNewlyWed (pending confirm)")
-			request_family_confirmation(H, CALLBACK(src, PROC_REF(do_assign_newlywed), H), "spouse")
+			ftlog("AddLocal: [H.real_name] -> FindNewlyWedMatch")
+			INVOKE_ASYNC(src, PROC_REF(find_and_confirm_newlywed), H)
 
 		if(FAMILY_FULL)
 			if(H.virginity)
 				ftlog("AddLocal: [H.real_name] SKIP: virginity gate")
 				stop_tracking_human(H, "full family flow skipped; virginity gate")
 				return
-			ftlog("AddLocal: [H.real_name] -> AssignToFamily (pending confirm)")
-			request_family_confirmation(H, CALLBACK(src, PROC_REF(do_assign_family), H), "family")
+			ftlog("AddLocal: [H.real_name] -> FindFamilyMatch")
+			INVOKE_ASYNC(src, PROC_REF(find_and_confirm_family), H)
 
 /datum/controller/subsystem/familytree/proc/do_assign_house(mob/living/carbon/human/H)
 	if(!H || QDELETED(H) || H.family_datum)
@@ -79,22 +79,59 @@
 	ftlog("AddLocal: [H.real_name] house result: family=[H.family_datum ? "YES" : "NO"]")
 	stop_tracking_human(H, H.family_datum ? "assigned to house" : "house assignment completed without family")
 
-/datum/controller/subsystem/familytree/proc/do_assign_newlywed(mob/living/carbon/human/H)
+/datum/controller/subsystem/familytree/proc/find_and_confirm_newlywed(mob/living/carbon/human/H)
 	if(!H || QDELETED(H) || H.spouse_mob)
 		return
-	ftlog("AddLocal: [H.real_name] -> AssignNewlyWed (confirmed)")
-	AssignNewlyWed(H)
-	ftlog("AddLocal: [H.real_name] newlywed result: spouse=[H.spouse_mob ? "YES" : "NO"] family=[H.family_datum ? "YES" : "NO"]")
-	if(H.spouse_mob || H.family_datum)
-		stop_tracking_human(H, "newlywed flow matched spouse")
+	var/mob/living/carbon/human/spouse = FindNewlyWedMatch(H)
+	if(!spouse)
+		ftlog("AddLocal: [H.real_name] newlywed no match found")
+		return
+	ftlog("AddLocal: [H.real_name] newlywed match=[spouse.real_name], requesting mutual confirm")
+	request_mutual_confirmation(H, spouse, CALLBACK(src, PROC_REF(do_execute_newlywed), H, spouse), "spouse")
 
-/datum/controller/subsystem/familytree/proc/do_assign_family(mob/living/carbon/human/H)
+/datum/controller/subsystem/familytree/proc/do_execute_newlywed(mob/living/carbon/human/H, mob/living/carbon/human/spouse)
+	if(!H || QDELETED(H) || H.spouse_mob)
+		return
+	if(!spouse || QDELETED(spouse) || spouse.spouse_mob)
+		return
+	ftlog("AddLocal: [H.real_name] + [spouse.real_name] -> MarryTo (both confirmed)")
+	viable_spouses -= H
+	viable_spouses -= spouse
+	H.MarryTo(spouse)
+	stop_tracking_human(H, "newlywed flow matched spouse")
+	stop_tracking_human(spouse, "newlywed flow matched spouse")
+
+/datum/controller/subsystem/familytree/proc/find_and_confirm_family(mob/living/carbon/human/H)
 	if(!H || QDELETED(H) || H.family_datum)
 		return
-	ftlog("AddLocal: [H.real_name] -> AssignToFamily (confirmed)")
-	AssignToFamily(H)
-	ftlog("AddLocal: [H.real_name] family result: family=[H.family_datum ? "YES" : "NO"]")
-	stop_tracking_human(H, H.family_datum ? "assigned to family" : "family assignment completed without family")
+	var/list/match = FindFamilyMatch(H)
+	if(!match)
+		ftlog("AddLocal: [H.real_name] family no match found, creating new house")
+		var/datum/heritage/new_house = new /datum/heritage(H, null)
+		families += new_house
+		ftlog("AddLocal: [H.real_name] founded new house '[new_house.housename]'")
+		stop_tracking_human(H, "founded new house (no match)")
+		return
+	var/datum/heritage/house = match[1]
+	var/datum/family_member/partner_member = match[2]
+	var/mob/living/carbon/human/partner = partner_member?.person
+	if(!partner)
+		return
+	ftlog("AddLocal: [H.real_name] family match=[partner.real_name] in house=[house.housename], requesting mutual confirm")
+	request_mutual_confirmation(H, partner, CALLBACK(src, PROC_REF(do_execute_family), H, house, partner_member), "family")
+
+/datum/controller/subsystem/familytree/proc/do_execute_family(mob/living/carbon/human/H, datum/heritage/house, datum/family_member/partner_member)
+	if(!H || QDELETED(H) || H.family_datum)
+		return
+	if(!house || !partner_member?.person)
+		return
+	if(partner_member.spouses.len)
+		return
+	ftlog("AddLocal: [H.real_name] -> AssignToFamily in house=[house.housename] (both confirmed)")
+	var/datum/family_member/new_member = house.CreateFamilyMember(H)
+	if(new_member)
+		house.MarryMembers(new_member, partner_member)
+	stop_tracking_human(H, H.family_datum ? "assigned to family" : "family assignment failed")
 
 /datum/controller/subsystem/familytree/proc/TryAssignToFavorite(mob/living/carbon/human/H, status)
 	if(!H?.setspouse || !length(H.setspouse))
@@ -115,8 +152,8 @@
 	var/mutual_sibling = (H.desired_relative_role == RELATIVE_SIBLING && favorite.desired_relative_role == RELATIVE_SIBLING)
 
 	if(mutual_sibling)
-		ftlog("TryFavorite: [H.real_name] + [favorite.real_name] mutual sibling -> forming house")
-		request_family_confirmation(H, CALLBACK(src, PROC_REF(do_form_sibling_house), H, favorite), "sibling_house")
+		ftlog("TryFavorite: [H.real_name] + [favorite.real_name] mutual sibling -> mutual confirm")
+		request_mutual_confirmation(H, favorite, CALLBACK(src, PROC_REF(do_form_sibling_house), H, favorite), "sibling_house")
 		return "assigned"
 
 	if(favorite.family_datum)
@@ -344,6 +381,86 @@
 				house.housename = house.SurnameFormatting(H)
 				return
 
+
+/datum/controller/subsystem/familytree/proc/FindNewlyWedMatch(mob/living/carbon/human/H)
+	if(!H)
+		return null
+	var/block_reason = get_familytree_runtime_block_reason(H, TRUE)
+	if(block_reason)
+		return null
+	if(!(H in viable_spouses))
+		viable_spouses += H
+
+	var/list/potential_matches = list()
+	for(var/mob/living/carbon/human/candidate as anything in viable_spouses)
+		if(!candidate || candidate == H || candidate.spouse_mob)
+			continue
+		if(candidate.familytree_opted_out)
+			continue
+		var/cand_block = get_familytree_runtime_block_reason(candidate, TRUE)
+		if(cand_block)
+			continue
+		if(!pronouns_compatible(H, candidate))
+			continue
+		if(GetSpeciesCompatibilityFailureReason(H, candidate))
+			continue
+		if(!familytree_estates_compatible(H, candidate))
+			continue
+		if(!familytree_role_tiers_compatible(H, candidate))
+			continue
+		if(candidate.setspouse && length(candidate.setspouse))
+			if(!familytree_names_match(candidate.setspouse, H.real_name))
+				continue
+		var/priority = 0
+		if(familytree_names_match(candidate.setspouse, H.real_name))
+			priority = 1
+		potential_matches += list(list(candidate, priority))
+
+	if(!potential_matches.len)
+		return null
+
+	var/best_priority = -1
+	var/list/best_matches = list()
+	for(var/list/match_data in potential_matches)
+		var/match_priority = match_data[2]
+		if(match_priority > best_priority)
+			best_priority = match_priority
+			best_matches = list(match_data[1])
+		else if(match_priority == best_priority)
+			best_matches += match_data[1]
+
+	if(!best_matches.len)
+		return null
+	return pick(best_matches)
+
+/datum/controller/subsystem/familytree/proc/FindFamilyMatch(mob/living/carbon/human/H)
+	if(!H)
+		return null
+	var/our_race = H.dna.species.name
+	var/our_isolated = is_isolated(H)
+
+	for(var/datum/heritage/house as anything in families)
+		if(house.closed)
+			continue
+		if(!house_race_compatible(house, our_race, our_isolated))
+			continue
+		for(var/datum/family_member/member as anything in house.members)
+			if(member.person && !member.spouses.len)
+				if(!member.person.setspouse || familytree_names_match(member.person.setspouse, H.real_name))
+					if(!pronouns_compatible(H, member.person))
+						continue
+					if(GetSpeciesCompatibilityFailureReason(H, member.person))
+						continue
+					if(!familytree_estates_compatible(H, member.person))
+						continue
+					if(!familytree_role_tiers_compatible(H, member.person))
+						continue
+					if(member.person.familytree_pref == FAMILY_PARTIAL)
+						continue
+					if(member.person.familytree_opted_out)
+						continue
+					return list(house, member)
+	return null
 
 /datum/controller/subsystem/familytree/proc/AssignNewlyWed(mob/living/carbon/human/H)
 	if(!H)
