@@ -602,17 +602,38 @@
 		else if(G["count"] == 1) final_smells["light"] += G["smell"]
 
 	var/datum/alch_cauldron_recipe/advanced/found_path = null
+	
+	var/total_cauldron_groups = length(final_smells["strong"]) + length(final_smells["medium"]) + length(final_smells["light"])
+
 	for(var/path in GLOB.alchemy_dynamic_manager.round_recipes)
 		var/list/reqs = GLOB.alchemy_dynamic_manager.round_recipes[path]
 		
-		var/match = TRUE
-		for(var/s in reqs["strong"]) if(!(s in final_smells["strong"])) match = FALSE
-		for(var/m in reqs["medium"]) if(!(m in final_smells["medium"])) match = FALSE
-		for(var/l in reqs["light"])  if(!(l in final_smells["light"]))  match = FALSE
+		var/total_recipe_groups = length(reqs["strong"]) + length(reqs["medium"]) + length(reqs["light"])
 		
-		if(match)
-			found_path = path
-			break
+		if(total_cauldron_groups != total_recipe_groups)
+			continue
+
+		var/match = TRUE
+		for(var/s in reqs["strong"]) 
+			if(!(s in final_smells["strong"])) 
+				match = FALSE
+				break
+		if(!match) continue
+
+		for(var/m in reqs["medium"]) 
+			if(!(m in final_smells["medium"])) 
+				match = FALSE
+				break
+		if(!match) continue
+
+		for(var/l in reqs["light"])  
+			if(!(l in final_smells["light"]))  
+				match = FALSE
+				break
+		if(!match) continue
+
+		found_path = path
+		break
 
 	if(found_path)
 		var/datum/alch_cauldron_recipe/advanced/R = new found_path
