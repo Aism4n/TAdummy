@@ -24,7 +24,7 @@ SUBSYSTEM_DEF(familytree)
 		/datum/antagonist/unbound_death_knight,
 		/datum/antagonist/hag,
 		/datum/antagonist/maniac,
-		/datum/antagonist/dreamwalker
+		/datum/antagonist/dreamwalker,
 		/datum/antagonist/assassin,
 		)
 	var/list/preset_family_species = list()
