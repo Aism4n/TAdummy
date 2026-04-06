@@ -304,7 +304,8 @@
 /atom/movable/screen/alert/status_effect/buff/erp_satisfaction
 	name = "Satisfied"
 	desc = "A warm afterglow lingers."
-	icon_state = "buff"
+	icon_state = "full_in"
+	icon = 'modular_twilight_axis/icons/roguetown/misc/screen_alert.dmi'
 
 /datum/status_effect/buff/erp_satisfaction/proc/set_tier(new_tier)
 	tier = clamp(new_tier, 0, ERP_SATISFY_MAX_TIER)
