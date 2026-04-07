@@ -233,12 +233,16 @@
 	set name = "List Family"
 	set category = "IC"
 	if(spouse_mob)
-		var/role = spouse_mob.mind?.assigned_role
-		var/title = role
-		if(istype(role, /datum/job))
-			var/datum/job/J = role
-			title = J.get_informed_title(spouse_mob)
-		to_chat(src, span_info("[spouse_mob.real_name] the [spouse_mob.dna.species.name] [title] is your lover."))
+		if(QDELETED(spouse_mob) || !spouse_mob.dna?.species)
+			to_chat(src, span_info("Your lover is no longer among the living."))
+			spouse_mob = null
+		else
+			var/role = spouse_mob.mind?.assigned_role
+			var/title = role
+			if(istype(role, /datum/job))
+				var/datum/job/J = role
+				title = J.get_informed_title(spouse_mob)
+			to_chat(src, span_info("[spouse_mob.real_name] the [spouse_mob.dna.species.name] [title] is your lover."))
 	if(family_datum)
 		family_datum.ListFamily(src)
 	else
@@ -250,8 +254,10 @@
 	ShowFamilyUI(FALSE)
 
 /mob/living/carbon/human/proc/ShowFamilyUI(silent)
-	if(spouse_mob)
+	if(spouse_mob && !QDELETED(spouse_mob))
 		ApplySpouseUI(family_UI)
+	else if(spouse_mob)
+		spouse_mob = null
 	if(family_datum)
 		family_datum.ApplyUI(src, family_UI)
 	else if(!silent)
@@ -264,6 +270,9 @@
 
 /mob/living/carbon/human/proc/ApplySpouseUI(toggle_true = FALSE)
 	if(!spouse_mob || !client)
+		return
+	if(QDELETED(spouse_mob))
+		spouse_mob = null
 		return
 	if(!spouse_indicator)
 		spouse_indicator = new('modular_twilight_axis/familytree_module/relations.dmi', loc = spouse_mob, icon_state = "related")
