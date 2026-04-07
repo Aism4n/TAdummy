@@ -122,7 +122,17 @@
 				if(HAS_TRAIT(src, TRAIT_SILVER_BLESSED))
 					to_chat(user, span_warning("BLEH! [bite_victim] tastes of SILVER! My gift cannot take hold."))
 				else
-					caused_wound?.werewolf_infect_attempt()
+					if(caused_wound)
+						var/infected = FALSE 
+
+						for(var/datum/wound/W in affecting.wounds)
+							if(W.werewolf_infect_attempt())
+								infected = TRUE
+								break
+
+						if(infected)
+							to_chat(user, span_boldnotice("I have successfully delivered the gift to [bite_victim] through their new wound!"))
+
 					if(prob(30))
 						user.werewolf_feed(bite_victim, 10)
 			if(istype(user.dna.species, /datum/species/gnoll))
