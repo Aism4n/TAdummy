@@ -522,10 +522,7 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 
 			_balloon("chain-step hit")
 
-	var/fired = RegisterInput(skill_id, target, last_action_zone)
-	if(fired)
-		_balloon("wanderer combo!")
-
+	RegisterInput(skill_id, target, last_action_zone)
 	if(!erotic_embrace_enabled)
 		SpendArousalStack(1)
 
@@ -552,11 +549,13 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 	reverse_ready = FALSE
 	reverse_expires_at = 0
 
+	WandererWaveUp("#5a0f1f")
 	var/d = get_dir(owner, attacker)
 	var/turf/my_turf = get_turf(owner)
 	if(my_turf && d)
 		var/turf/back = get_step(my_turf, turn(d, 180))
 		if(back && !back.density)
+			WandererAfterimage(my_turf, 0.8 SECONDS)
 			owner.forceMove(back)
 
 	ProcStrike(attacker, BODY_ZONE_CHEST, 1.40, 1.25)
@@ -573,6 +572,11 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 		return
 
 	current_stance = new_stance
+	if(current_stance == WANDERER_STANCE_PROC)
+		WandererParticleUp("#6b1f2b")
+	else
+		WandererParticleUp("#4a4f7a")
+
 	_balloon_stance()
 
 /datum/component/combo_core/wanderer/proc/ToggleEroticEmbrace()
@@ -580,8 +584,10 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 
 	if(erotic_embrace_enabled)
 		ADD_TRAIT(owner, TRAIT_DODGEEXPERT, WANDERER_EMBRACE_TRAIT_SOURCE)
+		WandererWaveUp("#6b2240")
 	else
 		REMOVE_TRAIT(owner, TRAIT_DODGEEXPERT, WANDERER_EMBRACE_TRAIT_SOURCE)
+		WandererParticleUp("#6b2240")
 
 	_balloon_embrace()
 
@@ -596,18 +602,46 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 	if(!zone)
 		zone = last_action_zone
 
-	if(current_stance == WANDERER_STANCE_PRECISE)
-		return ExecutePreciseCombo(rule_id, target, zone)
+	var/success = FALSE
 
-	return ExecuteProcCombo(rule_id, target, zone)
+	if(current_stance == WANDERER_STANCE_PRECISE)
+		success = ExecutePreciseCombo(rule_id, target, zone)
+	else
+		success = ExecuteProcCombo(rule_id, target, zone)
+
+	if(success)
+		_balloon_combo(rule_id)
+	
+	ConsumeOnCombo(rule_id)
+	return success
+
+/datum/component/combo_core/wanderer/proc/_balloon_combo(rule_id)
+	switch(rule_id)
+		if("line")
+			_balloon("combo: line")
+		if("cone")
+			_balloon("combo: cone")
+		if("reverse")
+			_balloon("combo: reverse")
+		if("spin")
+			_balloon("combo: spin")
+		if("charge")
+			_balloon("combo: charge")
+		if("chain_step")
+			_balloon("combo: chain-step")
+		else
+			_balloon("combo!")
 
 /datum/component/combo_core/wanderer/proc/ExecutePreciseCombo(rule_id, mob/living/target, zone)
 	if(!owner || !target || !rule_id)
 		return FALSE
 
 	var/zone_used = TryGetZone(zone)
-	var/dmg = max(1, round(GetComboDamageMultiplier() * GetComboBaseDamage(rule_id, TRUE)))
+	var/mult = GetComboDamageMultiplier()
+	if(erotic_embrace_enabled)
+		mult *= 0.25
 
+	var/dmg = max(1, round(mult * GetComboBaseDamage(rule_id, TRUE)))
 	target.adjustBruteLoss(dmg)
 	ApplyPreciseFinisher(target, zone_used, last_action_skill)
 
@@ -697,7 +731,7 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 
 	var/zone_used = TryGetZone(zone)
 	var/pure_damage = CalcPureDamage()
-	var/dmg = max(1, round((GetComboDamageMultiplier()/10 + 1) * damage_mult * pure_damage))
+	var/dmg = max(1, round(GetComboDamageMultiplier() * damage_mult * pure_damage))
 
 	owner.face_atom(target)
 	owner.do_attack_animation(target, ATTACK_EFFECT_DISARM)
@@ -717,12 +751,12 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 
 	var/d = owner.dir
 	var/any = FALSE
-
 	for(var/i in 1 to WANDERER_LINE_RANGE)
 		T = get_step(T, d)
 		if(!T)
 			break
 
+		WandererTileFX(T, "sweep_fx")
 		for(var/mob/living/L in T)
 			if(L == owner || L.stat == DEAD)
 				continue
@@ -743,6 +777,7 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 		if(!T)
 			continue
 
+		WandererTileFX(T, "blip")
 		for(var/mob/living/L in T)
 			if(L == owner || L.stat == DEAD)
 				continue
@@ -804,6 +839,7 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 	if(!owner || !T)
 		return
 
+	WandererTileFX(T, "sweep_fx")
 	for(var/mob/living/L in T)
 		if(L == owner || L.stat == DEAD)
 			continue
@@ -818,6 +854,7 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 	if(!target)
 		return FALSE
 
+	var/turf/origin = get_turf(owner)
 	var/turf/tt = get_turf(target)
 	if(!tt)
 		return FALSE
@@ -828,6 +865,7 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 
 	var/turf/before_target = get_step(tt, turn(d, 180))
 	if(before_target && !before_target.density)
+		WandererAfterimage(origin, 0.8 SECONDS)
 		owner.forceMove(before_target)
 
 	return ProcStrike(target, zone, 1.45, 1.2)
@@ -861,6 +899,7 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 	if(!target)
 		return FALSE
 
+	var/turf/origin = get_turf(owner)
 	var/turf/tt = get_turf(target)
 	if(!tt)
 		return FALSE
@@ -871,6 +910,7 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 
 	var/turf/behind = get_step(tt, d)
 	if(behind && !behind.density)
+		WandererAfterimage(origin, 0.8 SECONDS)
 		owner.forceMove(behind)
 
 	owner.face_atom(target)
@@ -879,7 +919,6 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 	chain_step_expires_at = world.time + WANDERER_CHAIN_STEP_WINDOW
 	chain_step_target = target
 
-	_balloon("chain-step")
 	return TRUE
 
 /datum/component/combo_core/wanderer/proc/FindNearbyTarget(max_range = 3, mob/living/preferred = null)
@@ -899,7 +938,8 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 
 	reverse_ready = TRUE
 	reverse_expires_at = world.time + WANDERER_REVERSE_WINDOW
-	_balloon("reverse ready")
+
+	WandererWaveUp("#5a0f1f")
 	return TRUE
 
 // ------------------------------------------------------------
@@ -1047,21 +1087,18 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 		return
 
 	combo_stacks = clamp(combo_stacks + amount, 0, max_combo_stacks)
-	_balloon_stacks()
 
 /datum/component/combo_core/wanderer/proc/ResetComboStacks()
 	if(combo_stacks <= 0)
 		return
 
 	combo_stacks = 0
-	_balloon_stacks()
 
 /datum/component/combo_core/wanderer/proc/AddArousalStack(amount = 1)
 	if(amount <= 0)
 		return
 
 	arousal_stacks = clamp(arousal_stacks + amount, 0, max_arousal_stacks)
-	_balloon_arousal()
 
 /datum/component/combo_core/wanderer/proc/SpendArousalStack(amount = 1)
 	if(amount <= 0)
@@ -1070,7 +1107,6 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 		return
 
 	arousal_stacks = clamp(arousal_stacks - amount, 0, max_arousal_stacks)
-	_balloon_arousal()
 
 /datum/component/combo_core/wanderer/proc/GetComboDamageMultiplier()
 	if(erotic_embrace_enabled)
@@ -1144,12 +1180,6 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 
 	last_balloon_at = world.time
 	owner.balloon_alert(owner, message)
-
-/datum/component/combo_core/wanderer/proc/_balloon_stacks()
-	_balloon("wanderer stacks: [combo_stacks]")
-
-/datum/component/combo_core/wanderer/proc/_balloon_arousal()
-	_balloon("wanderer arousal: [arousal_stacks]")
 
 /datum/component/combo_core/wanderer/proc/_balloon_stance()
 	if(current_stance == WANDERER_STANCE_PROC)
@@ -1241,7 +1271,7 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 	name = "Switch Stance"
 	desc = "Switch between proc stance and precise stance."
 	overlay_state = "switch_stance"
-	recharge_time = 2 SECONDS
+	recharge_time = 4 SECONDS
 
 /obj/effect/proc_holder/spell/self/wanderer/switch_stance/Execute(mob/living/user, datum/component/combo_core/wanderer/C)
 	if(!user || !C)
@@ -1278,12 +1308,60 @@ GLOBAL_LIST_INIT(wanderer_combat_skills, list(
 		L.balloon_alert(L, "Already awakened.")
 		return
 
-	wanderer_get_component(L)
+	var/datum/component/combo_core/wanderer/C = wanderer_get_component(L)
+	if(C)
+		C.WandererWaveUp("#3f1a5b")
 	L.balloon_alert(L, "You feel the wandering flow.")
 
 	if(L.mind)
 		L.mind.RemoveSpell(src)
 	qdel(src)
+
+/datum/component/combo_core/wanderer/proc/WandererTileFX(turf/T, icon_state = "sweep_fx")
+	if(!T)
+		return
+
+	var/obj/effect/temp_visual/fx = new(T)
+	fx.icon = 'icons/effects/effects.dmi'
+	fx.icon_state = icon_state
+
+/datum/component/combo_core/wanderer/proc/WandererAfterimage(turf/T, duration = 0.8 SECONDS)
+	if(!owner || !T)
+		return
+
+	var/mutable_appearance/ma = mutable_appearance(owner)
+	ma.alpha = 140
+	ma.layer = owner.layer - 0.01
+	ma.appearance_flags = KEEP_TOGETHER | PIXEL_SCALE | RESET_COLOR | RESET_ALPHA
+
+	var/obj/effect/temp_visual/dir_setting/wanderer_afterimage/A = new(T)
+	A.appearance = ma
+	A.dir = owner.dir
+	QDEL_IN(A, duration)
+
+/obj/effect/temp_visual/dir_setting/wanderer_afterimage
+	name = "afterimage"
+	icon = null
+	icon_state = null
+	duration = 10
+	randomdir = FALSE
+
+/datum/component/combo_core/wanderer/proc/WandererWaveUp(color = "#6b1f2b")
+	if(!owner)
+		return
+
+	var/obj/effect/temp_visual/wave_up/W = new(get_turf(owner), owner)
+	W.color = color
+	owner.vis_contents += W
+
+/datum/component/combo_core/wanderer/proc/WandererParticleUp(color = null)
+	if(!owner)
+		return
+
+	var/obj/effect/temp_visual/particle_up/P = new(get_turf(owner), owner, null)
+	if(color)
+		P.color = color
+	owner.vis_contents += P
 
 #undef WANDERER_COMBO_WINDOW
 #undef WANDERER_MAX_HISTORY
