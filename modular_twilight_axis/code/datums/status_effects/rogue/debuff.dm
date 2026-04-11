@@ -218,7 +218,7 @@
 
 /datum/status_effect/debuff/revive_dnr
 	id = "revive_dnr"
-	duration = 45 MINUTES
+	duration = 1 HOURS
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/revive_dnr
 
 /datum/status_effect/debuff/revive_dnr/on_apply()
