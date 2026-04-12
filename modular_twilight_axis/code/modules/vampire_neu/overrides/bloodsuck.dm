@@ -50,7 +50,7 @@ requires_finishing_blooddrink_delay()
 	Delay gate for lethal blood-drinking attempts.
 
 resolve_blooddrink_consequences()
-	Post-drink resolution logic.
+	Post-drink resolution logic. Silently skips siring for hard-blocked targets.
 
 drinksomeblood()
 	Main entry point.
@@ -182,7 +182,7 @@ drinksomeblood()
 /// DIABLERIE
 /mob/living/carbon/human/proc/handle_diablerie(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
 
-	if(VVictim && victim.stat != DEAD)
+	if(VVictim)
 
 		var/is_breaker = GLOB.coven_breakers_list.Find(victim)
 
@@ -205,14 +205,12 @@ drinksomeblood()
 			VDrinker.generation = VVictim.generation
 			VDrinker.recalculate_hud_visibility()
 
-			// Inherit blood magic skill if victim's is higher
 			var/victim_blood_skill = victim.get_skill_level(/datum/skill/magic/blood)
 			var/drinker_blood_skill = get_skill_level(/datum/skill/magic/blood)
 			if(victim_blood_skill > drinker_blood_skill)
 				adjust_skillrank_up_to(/datum/skill/magic/blood, victim_blood_skill, TRUE)
 				to_chat(src, span_notice("Их мастерство гемомантии перетекает в меня!"))
 
-			// Steal half of victim's max thralls
 			var/stolen_thralls = round(VVictim.max_thralls / 2)
 			if(stolen_thralls > 0)
 				VDrinker.max_thralls += stolen_thralls
@@ -246,6 +244,9 @@ drinksomeblood()
 	if(victim.bloodpool > 0)
 		consume_vitae(victim)
 		return FALSE
+
+	if(VVictim)
+		to_chat(src, span_userdanger("<b>Я ПЫТАЮСЬ ПОГЛОТИТЬ ДУШУ [victim].</b>"))
 
 	if(handle_diablerie(victim, VDrinker, VVictim))
 		return TRUE
@@ -290,7 +291,7 @@ drinksomeblood()
 
 	VDrinker.research_points -= research_cost
 	maxbloodpool = max(maxbloodpool - maxbloodpool_cost, 1)
-	set_bloodpool(bloodpool)
+	adjust_bloodpool(0)
 
 	return TRUE
 
@@ -315,12 +316,15 @@ drinksomeblood()
 	else
 		to_chat(src, span_notice("Эта конвертация мне ничего не стоит."))
 
-/mob/living/carbon/human/proc/grant_offer_conversion_reward(datum/antagonist/vampire/VDrinker)
+/mob/living/carbon/human/proc/grant_offer_conversion_reward(datum/antagonist/vampire/VDrinker, conversion_succeeded = FALSE)
 	if(!istype(VDrinker))
 		return FALSE
 
 	VDrinker.research_points += TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD
-	to_chat(src, span_notice("Предложенная конвертация приносит мне [TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD] RP."))
+	if(conversion_succeeded)
+		to_chat(src, span_notice("Я поглотил часть жизненной силы жертвы и стал сильнее, а мое проклятие укоренилось в ней! (+[TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD] RP)"))
+	else
+		to_chat(src, span_notice("Я поглотил часть жизненной силы жертвы и стал сильнее, но она преодолела мое проклятие! (+[TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD] RP)"))
 	return TRUE
 
 /mob/living/carbon/human/proc/use_pallid_conversion_rules()
@@ -394,10 +398,10 @@ drinksomeblood()
 	)
 
 	mind?.add_antag_datum(new_antag)
-	VDrinker.thrall_count++
+	VDrinker.register_thrall(new_antag)
 	sire.show_conversion_cost_feedback(src, VDrinker, voluntary)
 	if(voluntary)
-		sire.grant_offer_conversion_reward(VDrinker)
+		sire.grant_offer_conversion_reward(VDrinker, TRUE)
 	adjust_bloodpool(VAMP_CONVERT_BLOOD_GAIN)
 	apply_status_effect(/datum/status_effect/incapacitating/stun, VAMP_CONVERT_POST_STUN)
 
@@ -433,6 +437,7 @@ drinksomeblood()
 
 /// SIRING
 /mob/living/carbon/human/proc/attempt_siring_prompt(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker)
+	// === PRE-ALERT VALIDATION (hard blocks — nothing shown if impossible) ===
 	var/block_reason = get_siring_block_reason(victim)
 	if(block_reason)
 		to_chat(src, span_warning(block_reason))
@@ -442,10 +447,19 @@ drinksomeblood()
 		to_chat(src, span_warning("[victim] преодолел проклятие, я не смогу пленить его душу."))
 		return
 
-	var/can_force = (VDrinker.generation == GENERATION_METHUSELAH) || !use_pallid_conversion_rules()
+	if(!VDrinker.can_sire_thrall())
+		to_chat(src, span_warning("Клан достиг предела порождений."))
+		return
+
+	// === DETERMINE AVAILABLE OPTIONS ===
+	var/is_methuselah = (VDrinker.generation == GENERATION_METHUSELAH)
+	var/can_force = is_methuselah || !use_pallid_conversion_rules()
+	var/can_afford_force = can_force && (is_methuselah || can_pay_conversion_cost(VDrinker))
+
+	// === SHOW ALERT (only options the vampire can actually take) ===
 	var/choice
 
-	if(VDrinker.generation == GENERATION_METHUSELAH)
+	if(is_methuselah)
 		choice = alert(
 			src,
 			"Как я поступлю с [victim]?\nСиловая конвертация: бесплатно.",
@@ -453,7 +467,7 @@ drinksomeblood()
 			"Насильно обратить",
 			"Отмена"
 		)
-	else if(can_force)
+	else if(can_afford_force)
 		var/list/costs = get_conversion_costs(VDrinker)
 		var/research_cost = costs["research_cost"]
 		var/maxbloodpool_cost = costs["maxbloodpool_cost"]
@@ -483,20 +497,16 @@ drinksomeblood()
 		)
 
 	if(choice != "Насильно обратить" && choice != "Приглашение в клан")
-		to_chat(src, span_warning("[victim] недостоин."))
 		return
 
-	if(choice == "Насильно обратить" && !can_pay_conversion_cost(VDrinker))
-		to_chat(src, span_warning("Мне не хватает силы для насильственного обращения."))
-		return
-
+	// === DO_MOB CHANNEL ===
 	visible_message(span_danger("[src] наполняет [victim] тёмной энергией!"))
 	if(!do_mob(src, victim, 7 SECONDS, double_progress = TRUE, can_move = FALSE))
 		to_chat(src, span_warning("Меня прервали во время обращения!"))
 		return
 
-	if(HAS_TRAIT_FROM(victim, TRAIT_REFUSED_VAMP_CONVERT, REF(src)))
-		to_chat(src, span_warning("[victim] преодолел проклятие, я не смогу пленить его душу."))
+	// === POST-CHANNEL RE-VALIDATION (world may have changed during 7s) ===
+	if(QDELETED(victim) || QDELETED(src))
 		return
 
 	block_reason = get_siring_block_reason(victim)
@@ -504,10 +514,23 @@ drinksomeblood()
 		to_chat(src, span_warning(block_reason))
 		return
 
+	if(HAS_TRAIT_FROM(victim, TRAIT_REFUSED_VAMP_CONVERT, REF(src)))
+		to_chat(src, span_warning("[victim] преодолел проклятие, я не смогу пленить его душу."))
+		return
+
+	if(!VDrinker.can_sire_thrall())
+		to_chat(src, span_warning("Клан достиг предела порождений."))
+		return
+
 	var/mob/living/carbon/human/H = victim
 	if(H.vampire_conversion_prompt_active)
 		to_chat(src, span_warning("[victim] всё ещё борется с проклятием."))
-	else if(choice == "Насильно обратить")
+		return
+
+	if(choice == "Насильно обратить")
+		if(!can_pay_conversion_cost(VDrinker))
+			to_chat(src, span_warning("Мне не хватает силы для насильственного обращения."))
+			return
 		H.finish_vampire_conversion(src, VDrinker, FALSE)
 	else
 		INVOKE_ASYNC(victim, TYPE_PROC_REF(/mob/living/carbon/human, vampire_conversion_prompt), src, TRUE)
@@ -526,6 +549,15 @@ drinksomeblood()
 		vampire_conversion_prompt_active = FALSE
 		return
 
+	if(!VDrinker.can_sire_thrall())
+		to_chat(src, span_warning("Клан вампира достиг предела порождений. Проклятие рассеивается."))
+		vampire_conversion_prompt_active = FALSE
+		return
+
+	if(stat == DEAD)
+		vampire_conversion_prompt_active = FALSE
+		return
+
 	if(stat != DEAD)
 		apply_status_effect(/datum/status_effect/incapacitating/stun, VAMP_CONVERT_TIMEOUT)
 		apply_status_effect(/datum/status_effect/incapacitating/knockdown, VAMP_CONVERT_TIMEOUT)
@@ -536,12 +568,15 @@ drinksomeblood()
 	else
 		prompt_text += "При отказе проклятие убьёт вас."
 
+	var/use_byond_alert = stat != CONSCIOUS || blood_volume <= BLOOD_VOLUME_SURVIVE || InCritical()
 	var/vampire_choice = tgui_alert(
 		src,
 		prompt_text,
 		"ПРОКЛЯТИЕ КАИНА",
 		list("ДА", "НЕТ"),
-		VAMP_CONVERT_TIMEOUT
+		VAMP_CONVERT_TIMEOUT,
+		strict_byond = use_byond_alert,
+		ui_state = GLOB.tgui_always_state
 	)
 	remove_status_effect(/datum/status_effect/incapacitating/stun)
 	remove_status_effect(/datum/status_effect/incapacitating/knockdown)
@@ -556,6 +591,17 @@ drinksomeblood()
 
 	VDrinker = sire.mind.has_antag_datum(/datum/antagonist/vampire)
 	if(!istype(VDrinker))
+		vampire_conversion_prompt_active = FALSE
+		return
+
+	var/block_reason = get_siring_block_reason(src)
+	if(block_reason)
+		to_chat(src, span_warning(block_reason))
+		vampire_conversion_prompt_active = FALSE
+		return
+
+	if(!VDrinker.can_sire_thrall())
+		to_chat(src, span_warning("Клан вампира достиг предела порождений. Проклятие рассеивается."))
 		vampire_conversion_prompt_active = FALSE
 		return
 
@@ -579,7 +625,7 @@ drinksomeblood()
 	if(VVictim)
 		return victim.bloodpool <= 0
 
-	return victim.bloodpool <= 0 && victim.blood_volume < BLOOD_VOLUME_SURVIVE
+	return victim.bloodpool <= 0 && victim.blood_volume - 5 < BLOOD_VOLUME_SURVIVE
 
 /// RESOLUTION
 /mob/living/carbon/human/proc/resolve_blooddrink_consequences(mob/living/carbon/victim)
@@ -613,14 +659,29 @@ drinksomeblood()
 			return
 
 	var/datum/antagonist/vampire/VVictim = get_vampire_victim(victim)
-	if(VVictim && victim.stat != DEAD)
-		to_chat(src, span_userdanger("<b>Я ПЫТАЮСЬ ПОГЛОТИТЬ ДУШУ [victim].</b>"))
 
 	if(process_vampire_blood(victim, VDrinker, VVictim))
 		return
 
-	if(victim.mind)
-		attempt_siring_prompt(victim, VDrinker)
+	if(VVictim)
+		return
+
+	if(!victim.mind)
+		return
+
+	var/block_reason = get_siring_block_reason(victim)
+	if(block_reason)
+		return
+
+	if(ishuman(victim))
+		var/mob/living/carbon/human/H = victim
+		if(HAS_TRAIT_FROM(H, TRAIT_REFUSED_VAMP_CONVERT, REF(src)))
+			return
+
+	if(!VDrinker.can_sire_thrall())
+		return
+
+	attempt_siring_prompt(victim, VDrinker)
 
 /// ENTRY POINT
 /mob/living/carbon/human/drinksomeblood(mob/living/carbon/victim, sublimb_grabbed)

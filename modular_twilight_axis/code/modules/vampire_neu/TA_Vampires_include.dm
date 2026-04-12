@@ -21,6 +21,7 @@
 #include "./overrides/pallid_addiction.dm"
 #include "./overrides/pallid_spells.dm"
 #include "./overrides/quicksilver.dm"
+#include "./overrides/transfix.dm"
 #include "./overrides/vampire.dm"
 #include "./overrides/vampire_hud.dm"
 // Main vampire_neu block.

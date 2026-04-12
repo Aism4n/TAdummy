@@ -1,3 +1,39 @@
+/// Returns TRUE if two z-levels belong to the same map (connected via multiz UP/DOWN chain)
+/proc/are_z_levels_same_map(z1, z2)
+	if(z1 == z2)
+		return TRUE
+
+	var/list/checked = list(z1)
+	var/list/queue = list(z1)
+
+	while(length(queue))
+		var/current_z = queue[1]
+		queue.Cut(1, 2)
+
+		if(current_z < 1 || current_z > SSmapping.multiz_levels.len)
+			continue
+		var/list/links = SSmapping.multiz_levels[current_z]
+		if(!links)
+			continue
+
+		if(links[Z_LEVEL_UP])
+			var/z_up = current_z + 1
+			if(z_up == z2)
+				return TRUE
+			if(!(z_up in checked))
+				checked += z_up
+				queue += z_up
+
+		if(links[Z_LEVEL_DOWN])
+			var/z_down = current_z - 1
+			if(z_down == z2)
+				return TRUE
+			if(!(z_down in checked))
+				checked += z_down
+				queue += z_down
+
+	return FALSE
+
 /// VAMPIRE SPELL: Track all pallid victims (those who refused conversion and got TRAIT_PALLID from this vampire)
 /obj/effect/proc_holder/spell/self/pallid_track
 	name = "Резонанс Крови"
@@ -38,6 +74,10 @@
 	var/turf/user_turf = get_turf(user)
 	var/turf/victim_turf = get_turf(victim)
 
+	if(!are_z_levels_same_map(user_turf.z, victim_turf.z))
+		to_chat(user, span_warning("Цель слишком далеко..."))
+		return
+
 	if(user_turf.z != victim_turf.z)
 		to_chat(user, span_notice("Скверна [victim.real_name] пульсирует [user_turf.z > victim_turf.z ? "снизу" : "сверху"]."))
 		return
@@ -56,7 +96,7 @@
 /obj/effect/proc_holder/spell/self/pallid_sense
 	name = "Проклятая Интуиция"
 	desc = "Скверна в крови шепчет направление к тому, кто вас отметил."
-	recharge_time = 10 MINUTES
+	recharge_time = 5 MINUTES
 	overlay_icon = 'icons/mob/actions/vampspells.dmi'
 	action_icon = 'icons/mob/actions/vampspells.dmi'
 	overlay_state = "yourbloodismine"
@@ -79,14 +119,16 @@
 	var/turf/user_turf = get_turf(user)
 	var/turf/sire_turf = get_turf(sire)
 
-	if(user_turf.z != sire_turf.z)
-		to_chat(user, span_warning("Ужас приходит [user_turf.z > sire_turf.z ? "снизу" : "сверху"]..."))
+	if(!are_z_levels_same_map(user_turf.z, sire_turf.z))
+		to_chat(user, span_warning("Цель слишком далеко..."))
 		return
 
 	var/dist = get_dist(user, sire)
 	var/dir_text = dir2text(get_dir(user, sire))
 
-	if(dist <= 1)
+	if(user_turf.z != sire_turf.z)
+		to_chat(user, span_warning("Леденящий страх тянет меня [user_turf.z > sire_turf.z ? "вниз" : "вверх"]... Тварь СЛИШКОМ далеко."))
+	else if(dist <= 1)
 		to_chat(user, span_userdanger("Чудовище прямо здесь!"))
 	else if(dist < 15)
 		to_chat(user, span_warning("Леденящий страх тянет меня на [dir_text]. Тварь рядом."))
