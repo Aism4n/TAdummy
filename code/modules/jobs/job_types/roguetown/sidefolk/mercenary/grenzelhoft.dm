@@ -132,13 +132,13 @@
 	H.merctype = 7
 
 //crossbow and axe class. Rearguard. Utility skills, no medium armor, no dodge expert. This is NOT a go-face-first-into-war class.
-/datum/advclass/mercenary/grenzelhoft/crossbowman
+/datum/advclass/mercenary/grenzelhoft_crossbowman
 	name = "Jäger" //TA EDIT START
 	tutorial = "Trackers, Huntsmen, Marksmen. Those are the first words that describe a Jäger of the Freikorps. Usually drafted from recruits with hunting background, Jägers serve as support troops for the Imperial armies, scouting ahead of the main force, assassinating enemy officers, arranging crossings and foraging for much-needed supplies. As one of those elite soldiers, you are expected to provide the Guild with your expertise in tracking, and scouting. Alongside your marksmanship."
 	allowed_sexes = list(MALE, FEMALE)
 	allowed_races = RACES_ALL_KINDS
 	outfit = /datum/outfit/job/roguetown/mercenary/grenzelhoft_crossbowman
-	traits_applied = list(TRAIT_STEELHEARTED, TRAIT_SURVIVAL_EXPERT, TRAIT_SLEUTH, TRAIT_DODGEEXPERT) //DE to be replaced with Concealment Expert
+	traits_applied = list(TRAIT_SURVIVAL_EXPERT, TRAIT_SLEUTH, TRAIT_DODGEEXPERT) //DE to be replaced with Concealment Expert
 	class_select_category = CLASS_CAT_GRENZELHOFT
 	category_tags = list(CTAG_MERCENARY)
 	cmode_music = 'modular_twilight_axis/sound/music/combat_grenzelhoft_mage.ogg' //TA EDIT
