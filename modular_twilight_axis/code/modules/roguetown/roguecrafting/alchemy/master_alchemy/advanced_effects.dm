@@ -1,3 +1,4 @@
+#define ARMOR_STONESKIN list("blunt" = DR_MEDIUM, "slash" = DBLOCK_HEAVY, "stab" = DBLOCK_HEAVY, "piercing" = DBLOCK_MEDIUM, "fire" = DR_SUPER, "acid" = DR_SUPER)
 
 /obj/structure/alch_prop
 	name = "suspicious object"
@@ -65,7 +66,7 @@
 	metabolization_rate = REAGENTS_METABOLISM * 0.6
 
 /datum/reagent/advanced/sleep/on_mob_life(mob/living/M)
-	M.Sleeping(100)
+	M.Sleeping(150)
 	..()
 
 /datum/reagent/advanced/grace
@@ -73,7 +74,7 @@
 	description = "A shimmering golden oil that feels impossibly slippery. The container feels like it could slide from your hand at any moment."
 	color = "#ffd700"
 	taste_description = "creamy butter"
-	metabolization_rate = REAGENTS_METABOLISM * 0.6
+	metabolization_rate = REAGENTS_METABOLISM * 0.1
 
 /datum/reagent/advanced/grace/on_mob_life(mob/living/M)
 	ADD_TRAIT(M, TRAIT_NOFALLDAMAGE2, src)
@@ -282,7 +283,6 @@
 
 /datum/status_effect/titan_frenzy
 	id = "titan_frenzy"
-	duration = 6000
 	alert_type = /atom/movable/screen/alert/status_effect/buff/alch/strengthpot
 
 /datum/status_effect/titan_frenzy/on_apply()
@@ -374,7 +374,6 @@
 
 /datum/status_effect/mirror_reflection
 	id = "mirror_reflection"
-	duration = 30000
 	alert_type = /atom/movable/screen/alert/status_effect/buff/alch/mirror_reflection
 
 /datum/status_effect/mirror_reflection/on_apply()
@@ -474,7 +473,6 @@
 
 /datum/status_effect/levitation
 	id = "levitation"
-	duration = 6000
 	alert_type = /atom/movable/screen/alert/status_effect
 
 /datum/status_effect/levitation/on_apply()
@@ -557,3 +555,91 @@
 				to_chat(src, span_notice("Я спустился на уровень ниже."))
 			else
 				to_chat(src, span_warning("Я не могу спуститься туда!"))
+
+/obj/item/clothing/suit/roguetown/armor/regenerating/skin/stoneskin
+	name = "каменная кожа"
+	desc = "Алхимически закаленная плоть, твердая как гранит."
+	icon_state = null
+	item_state = null
+	slot_flags = null
+	
+	body_parts_covered = COVERAGE_FULL_BODY_ACTUAL
+	body_parts_inherent = COVERAGE_FULL_BODY_ACTUAL
+	
+	armor_class = ARMOR_CLASS_LIGHT
+	armor = ARMOR_STONESKIN
+	max_integrity = 1000
+	blocksound = PLATEHIT
+	blade_dulling = DULLING_BASHCHOP
+	
+	item_flags = DROPDEL
+	sewrepair = FALSE
+	resistance_flags = FIRE_PROOF | ACID_PROOF
+
+	auto_repair_mode = TRUE
+	auto_repair_mode_base = 50
+	auto_repair_mode_time = 5 SECONDS
+
+	interrupt_damount = 15 
+
+	repairmsg_begin = "Каменная крошка начинает притягиваться к трещинам на вашей коже..."
+	repairmsg_continue = "Ваш гранитный панцирь медленно зарастает..."
+	repairmsg_stop = "Тяжелый удар откалывает куски камня, прерывая восстановление!"
+	repairmsg_end = "Ваша каменная кожа вновь монолитна."
+
+/datum/status_effect/stoneskin_potion
+	id = "stoneskin_potion"
+	alert_type = /atom/movable/screen/alert/status_effect/buff/alch/stoneskin
+	var/obj/item/clothing/suit/old_skin
+
+/datum/status_effect/stoneskin_potion/on_apply()
+	var/mob/living/carbon/human/H = owner
+	if(!istype(H)) return FALSE
+	
+	if(H.skin_armor)
+		old_skin = H.skin_armor
+
+	H.skin_armor = new /obj/item/clothing/suit/roguetown/armor/regenerating/skin/stoneskin(H)
+	H.color = "#A9A9A9"
+	to_chat(H, span_boldnotice("Ваша плоть тяжелеет, превращаясь в живой гранит!"))
+	
+	H.update_inv_armor()
+	return ..()
+
+/datum/status_effect/stoneskin_potion/on_remove()
+	var/mob/living/carbon/human/H = owner
+	if(!istype(H)) return
+
+	if(H.skin_armor && istype(H.skin_armor, /obj/item/clothing/suit/roguetown/armor/regenerating/skin/stoneskin))
+		qdel(H.skin_armor)
+		H.skin_armor = null
+
+	if(old_skin)
+		H.skin_armor = old_skin
+		
+	H.color = initial(H.color)
+	
+	to_chat(H, span_warning("Ваша каменная броня трескается и осыпается мелкой пылью."))
+	
+	H.update_inv_armor()
+	..()
+
+/atom/movable/screen/alert/status_effect/buff/alch/stoneskin
+	name = "Каменная Кожа"
+	desc = "Вы покрыты толстым слоем алхимического камня."
+	icon_state = "buff"
+
+/datum/reagent/advanced/stoneskin
+	name = "Elixir of Ironskin"
+	description = "A heavy, grey suspension that looks like liquid concrete."
+	reagent_state = LIQUID
+	color = "#808080"
+	metabolization_rate = REAGENTS_METABOLISM * 0.3
+
+/datum/reagent/advanced/stoneskin/on_mob_add(mob/living/carbon/human/M)
+	if(!istype(M)) return
+	M.apply_status_effect(/datum/status_effect/stoneskin_potion)
+
+/datum/reagent/advanced/stoneskin/on_mob_delete(mob/living/carbon/human/M)
+	if(!istype(M)) return
+	M.remove_status_effect(/datum/status_effect/stoneskin_potion)
