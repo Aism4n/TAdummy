@@ -2,21 +2,11 @@
 	name = "Wandering Azurcaephan"
 	tutorial = "Вы гордый представитель азурской школы фехтования, во время своих долгих путешествий вы отточили своё мастерство владения оружием и боевой магией, а Ваш покровитель благославил Вас своими чудесами. Используйте свои специфические навыки чтобы заработать на безбедную старость и прославить своего покровителя и школу фехтования."
 	allowed_sexes = list(MALE, FEMALE)
-	allowed_races = list(\
-	/datum/species/human/northern,\
-	/datum/species/aasimar,\
-	/datum/species/human/halfelf,\
-	/datum/species/elf/dark,\
-	/datum/species/elf/dark/raider,\
-	/datum/species/elf/wood,\
-	/datum/species/elf/sun,\
-	/datum/species/dwarf,\
-	/datum/species/dwarf/gnome,\
-	)
+	allowed_races = RACES_ALL_KINDS
 	allowed_patrons = list(/datum/patron/inhumen/zizo, /datum/patron/divine/noc) // зизо оставлено тк слишком много наёмником ведут себя как СБухи 4.0, пускай у них будет хоть какой-то шанс наняться к антагам
 	outfit = /datum/outfit/job/roguetown/mercenary/twilight_wandering_azurcaephan
 	maximum_possible_slots = 1 // оставим один поскольку это нереально крутой класс у него короче магия и броня
-	class_select_category = CLASS_CAT_RACIAL
+	class_select_category = CLASS_CAT_AZURIA
 	category_tags = list(CTAG_MERCENARY)
 	traits_applied = list(TRAIT_MEDIUMARMOR, TRAIT_ARCYNE)
 	subclass_stats = list(
