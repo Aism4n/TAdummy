@@ -635,6 +635,7 @@
 	reagent_state = LIQUID
 	color = "#808080"
 	metabolization_rate = REAGENTS_METABOLISM * 0.3
+	taste_description = "dirt"
 
 /datum/reagent/advanced/stoneskin/on_mob_add(mob/living/carbon/human/M)
 	if(!istype(M)) return
