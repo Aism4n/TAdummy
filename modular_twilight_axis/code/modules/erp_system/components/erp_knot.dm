@@ -466,27 +466,6 @@
 			changed = TRUE
 			continue
 
-		var/found_runtime_link = FALSE
-		if(islist(L.penis_org.links))
-			for(var/datum/erp_sex_link/runtime_link in L.penis_org.links)
-				if(!runtime_link || QDELETED(runtime_link))
-					continue
-				if(runtime_link.state != LINK_STATE_ACTIVE)
-					continue
-				if(!runtime_link.is_valid())
-					continue
-				if(runtime_link.init_organ == L.penis_org && runtime_link.target_organ == L.receiving_org)
-					found_runtime_link = TRUE
-					break
-				if(runtime_link.target_organ == L.penis_org && runtime_link.init_organ == L.receiving_org)
-					found_runtime_link = TRUE
-					break
-
-		if(!found_runtime_link)
-			remove_single_link(L, forceful = FALSE, who_pulled = null)
-			changed = TRUE
-			continue
-
 	if(!active_links.len)
 		stop_decay()
 
