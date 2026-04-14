@@ -33,3 +33,38 @@
 		/obj/item/alch/airdust, /obj/item/reagent_containers/lux, /obj/item/alch/firedust
 
 	)
+
+/datum/alch_grid_recipe/infernaldust
+	name = "Инфернальная пыль"
+	result_type = /obj/item/alch/infernaldust
+	result_icon = 'icons/roguetown/misc/alchemy.dmi'
+	result_icon_state = "infernaldust"
+	grid = list(
+		null, null, /obj/item/alch/firedust,
+		null, /obj/item/alch/firedust, null,
+		/obj/item/alch/firedust, null, null
+
+	)
+
+/datum/alch_grid_recipe/bone
+	name = "Копчик"
+	result_type = /obj/item/alch/bone
+	result_icon = 'icons/roguetown/misc/alchemy.dmi'
+	result_icon_state = "bone"
+	grid = list(
+		/obj/item/alch/sinew, null, null,
+		null, /obj/item/alch/sinew, null,
+		null, null, /obj/item/alch/sinew
+
+	)
+
+/datum/alch_grid_recipe/sunflower
+	name = "Семя подсолнуха"
+	result_type = /obj/item/seeds/sunflower
+	result_icon = 'icons/obj/hydroponics/seeds.dmi'
+	result_icon_state = "seed"
+	grid = list(
+		null, /obj/item/alch/firedust, null,
+		null, /obj/item/alch/rosa, null,
+		null, /obj/item/alch/firedust, null
+	)
