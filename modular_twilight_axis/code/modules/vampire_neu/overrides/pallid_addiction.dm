@@ -62,11 +62,11 @@
 	var/mob/living/carbon/human/owner = parent
 
 	var/list/candidates = list()
-	if(owner.STASTR < 14)
+	if(owner.STASTR < 15)
 		candidates += /datum/status_effect/buff/pallid_blood/str
-	if(owner.STASPD < 14)
+	if(owner.STASPD < 15)
 		candidates += /datum/status_effect/buff/pallid_blood/spd
-	if(owner.STAINT < 16)
+	if(owner.STAINT < 17)
 		candidates += /datum/status_effect/buff/pallid_blood/int
 	if(length(candidates))
 		buff_path = pick(candidates)
