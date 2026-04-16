@@ -39,13 +39,9 @@
 	if(QDELETED(user))
 		return
 
-	if(is_transfix_mouth_blocked(user))
-		show_transfix_speech_failure(user)
-		revert_cast(user)
-		return
 
 	if(!user.can_speak())
-		show_transfix_speech_failure(user)
+		to_chat(user, span_warning("Вы не можете говорить!"))
 		revert_cast(user)
 		return
 	transfix_msg = tgui_input_text(user, "Произнесите фразу вслух. Нужно минимум [min_transfix_msg_length] символов; счетчик снизу.", "Заворожить", max_length = MAX_MESSAGE_LEN, encode = FALSE)
@@ -57,13 +53,8 @@
 		revert_cast(user)
 		return
 
-	if(is_transfix_mouth_blocked(user))
-		show_transfix_speech_failure(user)
-		revert_cast(user)
-		return
-
 	if(!user.can_speak())
-		show_transfix_speech_failure(user)
+		to_chat(user, span_warning("Вы не можете говорить!"))
 		revert_cast(user)
 		return
 
@@ -139,27 +130,6 @@
 
 		to_chat(user, span_userdanger("Мне не удалось опутать разум [target]!"))
 		to_chat(target, span_userdanger("Что-то не так в этом месте. Я чувствую, что моя жизнь под угрозой!"))
-
-/obj/effect/proc_holder/spell/targeted/TA_transfix_neu/proc/show_transfix_speech_failure(mob/user)
-	if(is_transfix_mouth_blocked(user))
-		to_chat(user, span_warning("Мой рот закрыт. Я не могу произнести фразу для ворожбы."))
-		return
-
-	to_chat(user, span_warning("Вы не можете говорить!"))
-
-/obj/effect/proc_holder/spell/targeted/TA_transfix_neu/proc/is_transfix_mouth_blocked(mob/user)
-	if(!iscarbon(user))
-		return FALSE
-
-	var/mob/living/carbon/carbon_user = user
-	if(carbon_user.is_muzzled() || carbon_user.is_mouth_covered())
-		return TRUE
-	if(carbon_user.mouth?.muteinmouth)
-		return TRUE
-	for(var/obj/item/grabbing/grab in carbon_user.grabbedby)
-		if(grab.sublimb_grabbed == BODY_ZONE_PRECISE_MOUTH)
-			return TRUE
-	return FALSE
 
 /obj/effect/proc_holder/spell/targeted/TA_transfix_neu/proc/force_close_eyes(mob/living/carbon/human/target)
 	target.eyesclosed = TRUE
