@@ -431,9 +431,7 @@
 /obj/structure/stairs/stone{
 	dir = 8
 	},
-/obj/structure/fluff/walldeco/stone{
-	pixel_y = 32
-	},
+/obj/structure/roguemachine/withdraw,
 /turf/open/floor/rogue/blocks,
 /area/rogue/indoors/wretchcamp)
 "ce" = (
