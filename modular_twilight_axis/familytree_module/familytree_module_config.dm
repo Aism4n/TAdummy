@@ -18,6 +18,7 @@
 // familytree_graph_support.dm       - graph: edges, nodes, cache, validation, debug
 // familytree_graph_api.dm           - graph: SSfamilytree graph facade + hooks + relation cache
 // familytree_debug.dm               - debug verbs
+// familytree_debug_populate.dm      - "populate my house" debug panel with granular logs
 //
 // TGUI: tgui/packages/tgui/interfaces/FamilySettingsPanel.tsx
 //       tgui/packages/tgui/interfaces/FamilyDisplayPanel/*.tsx
@@ -64,6 +65,39 @@
 #define RELATIVE_UNCLE_AUNT 4
 #define RELATIVE_SPOUSE 5
 
+// --- Reject-reason bitmasks for subsystem matching diagnostics ---
+// AssignToHouse / HasSuitableHouseForRelative
+#define FTREJ_H_CLOSED       (1<<0)
+#define FTREJ_H_NONAME       (1<<1)
+#define FTREJ_H_RELATIVES    (1<<2)
+#define FTREJ_H_RACE         (1<<3)
+#define FTREJ_H_AGE          (1<<4)
+#define FTREJ_H_EMPTY        (1<<5)
+#define FTREJ_H_OFFLINE      (1<<6)
+
+// FindNewlyWedMatch
+#define FTREJ_N_POLY         (1<<0)
+#define FTREJ_N_OPTOUT       (1<<1)
+#define FTREJ_N_BLOCK        (1<<2)
+#define FTREJ_N_PRONOUNS     (1<<3)
+#define FTREJ_N_SPECIES      (1<<4)
+#define FTREJ_N_ESTATE       (1<<5)
+#define FTREJ_N_TIER         (1<<6)
+#define FTREJ_N_SETSPOUSE    (1<<7)
+
+// FindFamilyMatch
+#define FTREJ_F_CLOSED       (1<<0)
+#define FTREJ_F_RACE         (1<<1)
+#define FTREJ_F_POLY         (1<<2)
+#define FTREJ_F_OFFLINE      (1<<3)
+#define FTREJ_F_SETSPOUSE    (1<<4)
+#define FTREJ_F_PRONOUNS     (1<<5)
+#define FTREJ_F_SPECIES      (1<<6)
+#define FTREJ_F_ESTATE       (1<<7)
+#define FTREJ_F_TIER         (1<<8)
+#define FTREJ_F_PARTIAL      (1<<9)
+#define FTREJ_F_OPTOUT       (1<<10)
+
 #include "familytree_prefs_ui.dm"
 #include "familytree_mob_procs.dm"
 #include "familytree_heritage_core.dm"
@@ -80,3 +114,4 @@
 #include "familytree_graph_support.dm"
 #include "familytree_graph_api.dm"
 #include "familytree_debug.dm"
+#include "familytree_debug_populate.dm"

@@ -50,6 +50,7 @@
 	node_b.bump_revision()
 	mark_family_dirty(node_a, node_b, house)
 #ifdef FAMILYTREE_DEBUG_LOGGING
+	ftlog("GRAPH +edge [relation_type] [node_a.person?.real_name || "phantom"] -> [node_b.person?.real_name || "phantom"] house='[house?.housename || "none"]' source=[source] directed=[directed]", FTLOG_DEBUG)
 	graph_validate_after_mutation(node_a, node_b)
 #endif
 	return edge
@@ -68,10 +69,11 @@
 		node_b.edges -= edge
 		node_b.bump_revision()
 	mark_family_dirty(node_a, node_b, edge_house)
-	qdel(edge)
 #ifdef FAMILYTREE_DEBUG_LOGGING
+	ftlog("GRAPH -edge [edge.relation_type] [node_a?.person?.real_name || "phantom"] -> [node_b?.person?.real_name || "phantom"] source=[source]", FTLOG_DEBUG)
 	graph_validate_after_mutation(node_a, node_b)
 #endif
+	qdel(edge)
 	return TRUE
 
 /datum/controller/subsystem/familytree/proc/find_family_edge(datum/family_node/node_a, datum/family_node/node_b, relation_type, directed = FALSE)
