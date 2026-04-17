@@ -28,7 +28,7 @@ force_puke(), should_puke_*
 build_blood_handle(), consume_vitae()
 	Blood preference flags and vitae processing.
 
-handle_diablerie(), process_vampire_blood()
+has_vampire_soul_left_body(), attempt_diablerie(), handle_diablerie(), process_vampire_blood()
 	Diablerie resolution and blood mechanics.
 
 get_conversion_costs(), can_pay_conversion_cost(), apply_conversion_cost()
@@ -98,6 +98,15 @@ drinksomeblood()
 
 /mob/living/carbon/human/proc/get_vampire_victim(mob/living/carbon/victim)
 	return victim.mind?.has_antag_datum(/datum/antagonist/vampire)
+
+/mob/living/carbon/human/proc/has_vampire_soul_left_body(mob/living/carbon/victim)
+	if(!istype(victim))
+		return FALSE
+
+	var/datum/mind/victim_mind = victim.mind
+	if(victim_mind?.current && victim_mind.current != victim)
+		return TRUE
+	return !victim.key
 
 /// INITIAL ACTION
 /mob/living/carbon/human/proc/perform_initial_blooddrink(mob/living/carbon/victim, sublimb_grabbed)
@@ -237,16 +246,38 @@ drinksomeblood()
 
 	return FALSE
 
+/mob/living/carbon/human/proc/attempt_diablerie(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
+	if(!istype(victim) || !istype(VDrinker) || !istype(VVictim))
+		return FALSE
+
+	to_chat(src, span_userdanger("<b>Я ПЫТАЮСЬ ПОГЛОТИТЬ ДУШУ [victim].</b>"))
+	visible_message(span_danger("[src] впивается в [victim], пытаясь поглотить душу!"))
+	if(!do_mob(src, victim, TA_VAMP_DIABLERIE_DELAY, double_progress = TRUE, can_move = FALSE))
+		to_chat(src, span_warning("Мне не удалось завершить диаблерию."))
+		return FALSE
+	if(QDELETED(src) || QDELETED(victim))
+		return TRUE
+
+	VDrinker = get_vampire_drinker()
+	VVictim = get_vampire_victim(victim)
+	if(!istype(VDrinker) || !istype(VVictim))
+		return FALSE
+
+	return handle_diablerie(victim, VDrinker, VVictim)
+
 /mob/living/carbon/human/proc/process_vampire_blood(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
 	var/blood_handle = build_blood_handle(victim, VVictim)
 	clan.handle_bloodsuck(src, blood_handle)
+
+	if(VVictim && has_vampire_soul_left_body(victim))
+		return attempt_diablerie(victim, VDrinker, VVictim)
 
 	if(victim.bloodpool > 0)
 		consume_vitae(victim)
 		return FALSE
 
 	if(VVictim)
-		to_chat(src, span_userdanger("<b>Я ПЫТАЮСЬ ПОГЛОТИТЬ ДУШУ [victim].</b>"))
+		return attempt_diablerie(victim, VDrinker, VVictim)
 
 	if(handle_diablerie(victim, VDrinker, VVictim))
 		return TRUE
@@ -641,7 +672,9 @@ drinksomeblood()
 		return
 
 	// Clientless victims (NPCs) — only drain blood, no diablerie or conversion
-	if(!victim.client)
+	var/datum/antagonist/vampire/VVictim = get_vampire_victim(victim)
+
+	if(!victim.client && !VVictim)
 		var/blood_handle = build_blood_handle(victim, null)
 		clan.handle_bloodsuck(src, blood_handle)
 		if(victim.bloodpool > 0)
@@ -657,8 +690,6 @@ drinksomeblood()
 			if(victim.bloodpool > 0)
 				consume_vitae(victim)
 			return
-
-	var/datum/antagonist/vampire/VVictim = get_vampire_victim(victim)
 
 	if(process_vampire_blood(victim, VDrinker, VVictim))
 		return
@@ -696,7 +727,9 @@ drinksomeblood()
 		to_chat(src, span_warning("Увы. Нет крови."))
 		return
 
-	if(victim.blood_volume <= 0)
+	var/datum/antagonist/vampire/VDrinker = get_vampire_drinker()
+	var/datum/antagonist/vampire/VVictim = get_vampire_victim(victim)
+	if(victim.blood_volume <= 0 && !(VDrinker && VVictim))
 		to_chat(src, span_warning("Увы. Нет крови."))
 		return
 
