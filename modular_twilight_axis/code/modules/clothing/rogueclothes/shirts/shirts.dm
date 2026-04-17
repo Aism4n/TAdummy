@@ -639,7 +639,7 @@
 
 /obj/item/clothing/suit/roguetown/shirt/undershirt/etrdoublet
 	name = "doublet"
-	desc = "Ф comfortable doublet suitable for receptions rather than for hiking."
+	desc = "A comfortable doublet suitable for receptions rather than for hiking."
 	slot_flags = ITEM_SLOT_SHIRT|ITEM_SLOT_ARMOR
 	r_sleeve_status = SLEEVE_NORMAL
 	l_sleeve_status = SLEEVE_NORMAL

@@ -26,7 +26,6 @@
 	break_sound = 'sound/foley/cloth_rip.ogg'
 	drop_sound = 'sound/foley/dropsound/cloth_drop.ogg'
 	sewrepair = TRUE
-	detail_color = "#FFFFFF"
 	detail_tag = "_detail"
 	detail_color = CLOTHING_WHITE
 /obj/item/clothing/suit/roguetown/shirt/padedetrshirt/update_icon()

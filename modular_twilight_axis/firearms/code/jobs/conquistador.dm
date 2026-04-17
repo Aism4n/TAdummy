@@ -25,7 +25,7 @@
 	traits_applied = list(TRAIT_NOBLE)
 	classes = list("Tercio" = "Волею судьбы ваш путь лежал в авангарде, вместе с вашей верной алебардой.",
 					"Hidalgo" = "Волею судьбы ваш путь связан с порохом и дестрезой.")
-	extra_context = "Класс не имеет изначальных характеристик поскольку все его характеристики выдаются после выбора сабкласса. Саблкласс Tercio - это сабкласс имеющий Medium Armor и алебарду; Сабкласс Hidalgo - это класс имеющий Dodge Expert и пистоль с рапирой."
+	extra_context = "Класс не имеет изначальных характеристик поскольку все его характеристики выдаются после выбора сабкласса. Сабкласс Tercio - это сабкласс имеющий Medium Armor и алебарду; Сабкласс Hidalgo - это класс имеющий Dodge Expert и пистоль с рапирой."
 	subclass_skills = list(
 		/datum/skill/combat/swords = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/knives = SKILL_LEVEL_APPRENTICE,
@@ -77,6 +77,7 @@
 			backl = /obj/item/storage/backpack/rogue/satchel/black
 			backpack_contents = list(/obj/item/roguekey/mercenary = 1, /obj/item/rogueweapon/huntingknife/idagger/navaja = 1, /obj/item/storage/belt/rogue/pouch/coins/poor = 1, /obj/item/clothing/head/roguetown/duelhat/etrusca = 1, /obj/item/lockpickring/mundane = 1)
 			H.set_blindness(0)
+		if("Hidalgo (Light Armor & Rapier + Pistol)")
 			to_chat(H, span_warning("Волею судьбы ваш путь связан с порохом и дестрезой."))
 			H.adjust_skillrank(/datum/skill/combat/swords, 4, TRUE)
 			H.adjust_skillrank(/datum/skill/combat/twilight_firearms, 5, TRUE)
