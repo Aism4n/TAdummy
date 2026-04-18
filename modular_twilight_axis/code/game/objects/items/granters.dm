@@ -78,7 +78,6 @@
 	oneuse = FALSE
 	var/owner_character_key
 	var/owner_name
-	var/owner_age_label
 	var/owner_status_label
 	var/expiry_date
 	var/issued_place
@@ -206,20 +205,9 @@
 		return
 	owner_character_key = get_detection_character_key(target)
 	owner_name = target.real_name
-	owner_age_label = age_to_label(target.age)
 	owner_status_label = status_label_for(target)
 	is_bound = TRUE
 	name = "Подорожная грамота"
-
-/obj/item/book/granter/residentcardvirtue/proc/age_to_label(age_val)
-	switch(age_val)
-		if(AGE_ADULT)
-			return "Взрослый"
-		if(AGE_MIDDLEAGED)
-			return "Средних лет"
-		if(AGE_OLD)
-			return "Пожилой"
-	return "Неизвестен"
 
 /obj/item/book/granter/residentcardvirtue/proc/status_label_for(mob/living/carbon/human/target)
 	if(HAS_TRAIT(target, TRAIT_NOBLE))
@@ -243,7 +231,6 @@
 		detection_key = get_detection_character_key(human_user)
 	var/is_owner_viewing = (detection_key && owner_character_key && detection_key == owner_character_key)
 	data["owner_name"] = owner_name || "Неизвестно"
-	data["owner_age"] = owner_age_label || "—"
 	data["owner_status"] = owner_status_label || "—"
 	data["expiry_date"] = expiry_date || "—"
 	data["issued_place"] = issued_place || "—"

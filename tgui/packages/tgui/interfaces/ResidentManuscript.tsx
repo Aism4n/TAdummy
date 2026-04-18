@@ -11,7 +11,6 @@ type SealData = {
 
 type Data = {
   owner_name: string;
-  owner_age: string;
   owner_status: string;
   expiry_date: string;
   issued_place: string;
@@ -202,7 +201,6 @@ export const ResidentManuscript = (props) => {
   const { act, data } = useBackend<Data>();
   const {
     owner_name,
-    owner_age,
     owner_status,
     expiry_date,
     issued_place,
@@ -240,10 +238,6 @@ export const ResidentManuscript = (props) => {
             <Box style={fieldRow}>
               <Box style={fieldLabel}>Имя</Box>
               <Box style={fieldValue}>{owner_name || '—'}</Box>
-            </Box>
-            <Box style={fieldRow}>
-              <Box style={fieldLabel}>Возраст</Box>
-              <Box style={fieldValue}>{owner_age || '—'}</Box>
             </Box>
             <Box style={fieldRow}>
               <Box style={fieldLabel}>Сословие</Box>
