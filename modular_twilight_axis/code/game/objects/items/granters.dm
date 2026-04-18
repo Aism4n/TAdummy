@@ -78,7 +78,6 @@
 	var/expiry_date
 	var/issued_place
 	var/description
-	var/portrait_data
 	var/is_bound = FALSE
 	var/is_fake = FALSE
 	var/defect_note
@@ -91,8 +90,7 @@
 	. = ..()
 	issued_place = get_map_display_name()
 	description = pick(MANUSCRIPT_DESCRIPTIONS)
-	var/game_year = text2num(GLOB.year) || 2026
-	expiry_date = "[pick("бессрочно","до смерти владельца","[game_year + 5] г.")]"
+	expiry_date = compute_expiry_date()
 	seals = list(
 		"chancellor" = null,
 		"elder" = null,
@@ -112,6 +110,24 @@
 		if("Rockhill")
 			return "Рокхилл"
 	return raw || "Азурный Пик"
+
+/obj/item/book/granter/residentcardvirtue/proc/compute_expiry_date()
+	var/round_id = text2num(GLOB.round_id) || 0
+	var/days_since_epoch = (round_id) * CALENDAR_DAYS_IN_WEEK + (GLOB.dayspassed - 1)
+	if(GLOB.date_override_enabled)
+		days_since_epoch += GLOB.date_override_offset
+	var/day_of_year = MODULUS(days_since_epoch, CALENDAR_DAYS_IN_YEAR) + 1
+	var/current_month = FLOOR((day_of_year - 1) / CALENDAR_DAYS_IN_MONTH, 1) + 1
+	var/current_day = MODULUS((day_of_year - 1), CALENDAR_DAYS_IN_MONTH) + 1
+	var/offset = rand(10, 20)
+	var/new_day = current_day + offset
+	var/new_month = current_month
+	while(new_day > CALENDAR_DAYS_IN_MONTH)
+		new_day -= CALENDAR_DAYS_IN_MONTH
+		new_month += 1
+	if(new_month > CALENDAR_MONTHS_PER_YEAR)
+		new_month = ((new_month - 1) % CALENDAR_MONTHS_PER_YEAR) + 1
+	return "[new_day] [get_month_number_to_text(new_month)] [CALENDAR_EPOCH_YEAR]"
 
 /obj/item/book/granter/residentcardvirtue/proc/stamp_all_seals()
 	seals["chancellor"] = list("stamper" = "Канцлер", "time" = world.time)
@@ -146,10 +162,21 @@
 
 /obj/item/book/granter/residentcardvirtue/examine(mob/user)
 	. = ..()
+	. += "Поверхность этого плотного свитка имеет благородный оттенок слоновой кости с мягким жемчужным отливом и лишена каких-либо прожилок или дефектов даже при осмотре на просвет. На ощупь материал абсолютно гладкий, прохладный и слегка маслянистый, полностью лишенный ворсистости. При разворачивании полотно проявляет высокую эластичность, стремясь вернуть исходную форму и издавая при этом сухой тихий хруст. Идеально ровные края свитка покрыты слоем сусального золота, которое дает четкий непрерывный блик при движении. Текст выведен глубокими иссиня-черными чернилами, которые плотно въелись в структуру материала, а заглавные буквы выделены яркими пигментами лазурита и киновари. От предмета исходит ровный аромат высушенных трав, пчелиного воска и легкий животный подтон качественной выделки."
+	if(has_any_seal())
+		. += "В нижней части документа на плетеном шнуре из шелковых и золотых нитей закреплена тяжелая печать из красного сургуча с детализированным оттиском герба."
 	if(is_bound && owner_name)
 		. += span_info("Грамота выдана на имя: [owner_name].")
 	else
 		. += span_info("Грамота ещё не скреплена с владельцем.")
+
+/obj/item/book/granter/residentcardvirtue/proc/has_any_seal()
+	if(!seals)
+		return FALSE
+	for(var/key in seals)
+		if(seals[key])
+			return TRUE
+	return FALSE
 
 /obj/item/book/granter/residentcardvirtue/attack_self(mob/living/user)
 	ui_interact(user)
@@ -171,7 +198,6 @@
 	owner_name = target.real_name
 	owner_age_label = age_to_label(target.age)
 	owner_status_label = status_label_for(target)
-	capture_portrait(target)
 	is_bound = TRUE
 	name = "[owner_name] — грамота личности"
 
@@ -189,25 +215,6 @@
 	if(HAS_TRAIT(target, TRAIT_NOBLE))
 		return "Благородный"
 	return "Простолюдин"
-
-/obj/item/book/granter/residentcardvirtue/proc/capture_portrait(mob/living/carbon/human/target)
-	if(!target || !istype(target))
-		return
-	target.update_inv_hands()
-	target.update_inv_belt()
-	target.update_inv_back()
-	target.update_inv_head()
-	var/image/dummy = image(target.icon, target, target.icon_state, target.layer, target.dir)
-	dummy.appearance = target.appearance
-	dummy.dir = SOUTH
-	target.update_inv_hands()
-	target.update_inv_belt()
-	target.update_inv_back()
-	target.update_inv_head()
-	var/icon/headshot = getFlatIcon(dummy, SOUTH, no_anim = TRUE)
-	headshot.Scale(64, 64)
-	headshot.Crop(1, 33, 64, 64)
-	portrait_data = icon2base64(headshot)
 
 /obj/item/book/granter/residentcardvirtue/ui_state(mob/user)
 	return GLOB.hands_state
@@ -227,7 +234,6 @@
 	data["expiry_date"] = expiry_date || "—"
 	data["issued_place"] = issued_place || "—"
 	data["description"] = description || ""
-	data["portrait_data"] = portrait_data || ""
 	data["is_owner"] = is_owner_viewing
 	data["is_bound"] = is_bound
 	data["seal_chancellor"] = seal_entry("chancellor", "Канцлер")
@@ -351,8 +357,6 @@
 		if(!ishuman(user))
 			return
 		bind_to_holder(user)
-		if(prob(30))
-			portrait_data = ""
 		to_chat(user, span_notice("Вы скрепляете свиток со своим ликом."))
 		playsound(user, 'sound/items/write.ogg', 40, TRUE, -2)
 		ui_interact(user)

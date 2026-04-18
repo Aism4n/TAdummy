@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  Divider,
-  LabeledList,
-  Section,
-  Stack,
-} from 'tgui-core/components';
+import { Box, Button, Divider, Stack } from 'tgui-core/components';
 
 import { useBackend } from '../backend';
 import { Window } from '../layouts';
@@ -23,7 +16,6 @@ type Data = {
   expiry_date: string;
   issued_place: string;
   description: string;
-  portrait_data: string;
   seal_chancellor: SealData;
   seal_elder: SealData;
   seal_duke: SealData;
@@ -36,90 +28,100 @@ type Data = {
   defect_note: string;
 };
 
-const GOLD = '#d4b477';
-const GOLD_FAINT = '#8f7a54';
-const GOLD_DIM = 'rgba(170, 130, 70, 0.35)';
-const STONE_DARK = '#12100c';
-const STONE_MID = '#1f1a14';
-const INK_RED = '#8a1a1a';
+const IVORY = '#f3e8cc';
+const IVORY_LIGHT = '#faf2dc';
+const IVORY_DARK = '#e2d3ae';
+const PARCHMENT_SHADOW = '#d8c89c';
+const GOLD_LEAF = '#b59440';
+const GOLD_LEAF_DARK = '#7c5e1a';
+const GOLD_FAINT = 'rgba(124, 94, 26, 0.3)';
+const INK = '#1a1a30';
+const INK_FAINT = 'rgba(26, 26, 48, 0.55)';
+const LAZURITE = '#1e3a8a';
+const CINNABAR = '#8b1a1a';
+const CINNABAR_DEEP = '#6e1414';
 
 const shellStyle: React.CSSProperties = {
   width: '100%',
   height: '100%',
-  padding: '12px',
-  background: `linear-gradient(160deg, ${STONE_MID} 0%, ${STONE_DARK} 100%)`,
-  color: GOLD,
-  fontFamily: 'Georgia, "Palatino Linotype", Palatino, serif',
+  padding: '18px 22px',
+  background: `
+    radial-gradient(ellipse at 15% 10%, ${IVORY_LIGHT} 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 90%, ${PARCHMENT_SHADOW} 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 50%, ${IVORY} 0%, ${IVORY_DARK} 100%)
+  `,
+  color: INK,
+  fontFamily: '"Palatino Linotype", Palatino, "Times New Roman", Georgia, serif',
   display: 'flex',
   flexDirection: 'column',
   gap: '10px',
+  boxShadow: `inset 0 0 100px rgba(124, 94, 26, 0.25), inset 0 0 6px ${GOLD_LEAF_DARK}`,
+  border: `3px double ${GOLD_LEAF_DARK}`,
+  outline: `1px solid ${GOLD_LEAF}`,
+  outlineOffset: '-6px',
 };
 
 const titleStyle: React.CSSProperties = {
   textAlign: 'center',
-  fontSize: '20px',
-  letterSpacing: '5px',
+  fontSize: '26px',
+  letterSpacing: '8px',
   fontVariant: 'small-caps',
   fontWeight: 'bold',
-  color: GOLD,
+  color: CINNABAR_DEEP,
   paddingBottom: '6px',
-  borderBottom: `1px solid ${GOLD_DIM}`,
-  textShadow: '0 0 6px rgba(212, 180, 119, 0.3)',
+  borderBottom: `1px solid ${GOLD_LEAF_DARK}`,
+  fontFamily: '"Palatino Linotype", "Times New Roman", serif',
+  textShadow: '0 1px 0 rgba(180, 148, 64, 0.25)',
 };
 
 const subtitleStyle: React.CSSProperties = {
   textAlign: 'center',
-  fontSize: '10px',
-  letterSpacing: '3px',
+  fontSize: '11px',
+  letterSpacing: '4px',
   fontVariant: 'small-caps',
-  color: GOLD_FAINT,
-  marginTop: '-2px',
-};
-
-const portraitFrame: React.CSSProperties = {
-  width: '96px',
-  height: '96px',
-  border: `2px solid ${GOLD_DIM}`,
-  background: '#0a0806',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  boxShadow: `inset 0 0 12px rgba(0,0,0,0.7), 0 0 4px ${GOLD_DIM}`,
-};
-
-const portraitImage: React.CSSProperties = {
-  width: '88px',
-  height: '88px',
-  imageRendering: 'pixelated',
-  objectFit: 'cover',
-  objectPosition: 'top',
-};
-
-const portraitEmpty: React.CSSProperties = {
-  fontSize: '10px',
-  color: GOLD_FAINT,
+  color: LAZURITE,
+  marginTop: '4px',
   fontStyle: 'italic',
-  letterSpacing: '1px',
-  textAlign: 'center',
-  padding: '6px',
+};
+
+const fieldRow: React.CSSProperties = {
+  display: 'flex',
+  padding: '5px 0',
+  borderBottom: `1px dashed ${GOLD_FAINT}`,
+  fontSize: '13px',
+};
+
+const fieldLabel: React.CSSProperties = {
+  flex: '0 0 110px',
+  fontVariant: 'small-caps',
+  letterSpacing: '2px',
+  color: GOLD_LEAF_DARK,
+  fontStyle: 'italic',
+};
+
+const fieldValue: React.CSSProperties = {
+  color: INK,
+  flex: 1,
+  fontWeight: 'bold',
 };
 
 const descriptionStyle: React.CSSProperties = {
   fontSize: '12px',
-  lineHeight: '1.6em',
-  color: '#c9b188',
+  lineHeight: '1.85em',
+  color: INK,
   textAlign: 'justify',
-  padding: '8px 10px',
-  border: `1px solid ${GOLD_DIM}`,
-  background: 'rgba(40, 32, 22, 0.5)',
+  padding: '12px 16px',
+  border: `1px solid ${GOLD_FAINT}`,
+  background: 'rgba(255, 248, 215, 0.35)',
   fontStyle: 'italic',
+  textIndent: '1.8em',
 };
 
 const sealCell: React.CSSProperties = {
-  border: `1px solid ${GOLD_DIM}`,
+  border: `1px solid ${GOLD_FAINT}`,
   padding: '6px 4px',
   textAlign: 'center',
-  background: 'rgba(30, 24, 16, 0.6)',
+  background: 'rgba(255, 248, 215, 0.45)',
   minHeight: '74px',
   display: 'flex',
   flexDirection: 'column',
@@ -130,29 +132,31 @@ const sealLabel: React.CSSProperties = {
   fontSize: '10px',
   letterSpacing: '2px',
   fontVariant: 'small-caps',
-  color: GOLD_FAINT,
+  color: GOLD_LEAF_DARK,
 };
 
 const sealStamp: React.CSSProperties = {
-  color: INK_RED,
+  color: CINNABAR,
   fontSize: '11px',
   fontVariant: 'small-caps',
   letterSpacing: '1px',
   fontWeight: 'bold',
-  border: `2px double ${INK_RED}`,
+  border: `2px double ${CINNABAR}`,
   borderRadius: '50%',
-  width: '40px',
-  height: '40px',
+  width: '42px',
+  height: '42px',
   margin: '4px auto',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   transform: 'rotate(-8deg)',
-  textShadow: '0 0 2px rgba(138, 26, 26, 0.4)',
+  textShadow: '0 0 2px rgba(139, 26, 26, 0.3)',
+  background: 'rgba(139, 26, 26, 0.1)',
+  boxShadow: '0 0 4px rgba(139, 26, 26, 0.15)',
 };
 
 const sealMissing: React.CSSProperties = {
-  color: GOLD_FAINT,
+  color: INK_FAINT,
   fontSize: '9px',
   fontStyle: 'italic',
   margin: '8px 0',
@@ -160,19 +164,19 @@ const sealMissing: React.CSSProperties = {
 
 const sealStamperLabel: React.CSSProperties = {
   fontSize: '8px',
-  color: GOLD_FAINT,
+  color: GOLD_LEAF_DARK,
   letterSpacing: '0.5px',
 };
 
 const footerBox: React.CSSProperties = {
   fontSize: '10px',
-  color: GOLD_FAINT,
+  color: INK_FAINT,
   fontStyle: 'italic',
   textAlign: 'center',
 };
 
 const defectNote: React.CSSProperties = {
-  color: '#c06060',
+  color: '#8a1a1a',
   fontSize: '10px',
   fontStyle: 'italic',
   textAlign: 'center',
@@ -202,7 +206,6 @@ export const ResidentManuscript = (props) => {
     expiry_date,
     issued_place,
     description,
-    portrait_data,
     seal_chancellor,
     seal_elder,
     seal_duke,
@@ -227,47 +230,28 @@ export const ResidentManuscript = (props) => {
           <Box>
             <Box style={titleStyle}>Грамота Личности</Box>
             <Box style={subtitleStyle}>
-              — Под Рукой Короны — {issued_place} —
+              ~ Под Рукой Короны ~ {issued_place} ~
             </Box>
           </Box>
 
-          <Stack>
-            <Stack.Item>
-              <Box style={portraitFrame}>
-                {portrait_data ? (
-                  <img
-                    src={`data:image/png;base64,${portrait_data}`}
-                    style={portraitImage}
-                    alt="portrait"
-                  />
-                ) : (
-                  <Box style={portraitEmpty}>
-                    Образ
-                    <br />
-                    не запечатлён
-                  </Box>
-                )}
-              </Box>
-            </Stack.Item>
-            <Stack.Item grow>
-              <Section fill>
-                <LabeledList>
-                  <LabeledList.Item label="Имя">
-                    {owner_name || '—'}
-                  </LabeledList.Item>
-                  <LabeledList.Item label="Возраст">
-                    {owner_age || '—'}
-                  </LabeledList.Item>
-                  <LabeledList.Item label="Сословие">
-                    {owner_status || '—'}
-                  </LabeledList.Item>
-                  <LabeledList.Item label="Истекает">
-                    {expiry_date || '—'}
-                  </LabeledList.Item>
-                </LabeledList>
-              </Section>
-            </Stack.Item>
-          </Stack>
+          <Box>
+            <Box style={fieldRow}>
+              <Box style={fieldLabel}>Имя</Box>
+              <Box style={fieldValue}>{owner_name || '—'}</Box>
+            </Box>
+            <Box style={fieldRow}>
+              <Box style={fieldLabel}>Возраст</Box>
+              <Box style={fieldValue}>{owner_age || '—'}</Box>
+            </Box>
+            <Box style={fieldRow}>
+              <Box style={fieldLabel}>Сословие</Box>
+              <Box style={fieldValue}>{owner_status || '—'}</Box>
+            </Box>
+            <Box style={fieldRow}>
+              <Box style={fieldLabel}>Истекает</Box>
+              <Box style={fieldValue}>{expiry_date || '—'}</Box>
+            </Box>
+          </Box>
 
           <Box style={descriptionStyle}>{description}</Box>
 
@@ -301,7 +285,7 @@ export const ResidentManuscript = (props) => {
                   style={{
                     ...footerBox,
                     color:
-                      detection_result === 'fake' ? '#c06060' : '#90b070',
+                      detection_result === 'fake' ? '#8a1a1a' : '#2d5a3d',
                     marginTop: '2px',
                     fontWeight: 'bold',
                   }}
