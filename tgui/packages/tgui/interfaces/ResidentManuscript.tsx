@@ -20,7 +20,6 @@ type Data = {
   owner_name: string;
   owner_age: string;
   owner_status: string;
-  issue_date: string;
   expiry_date: string;
   issued_place: string;
   description: string;
@@ -200,7 +199,6 @@ export const ResidentManuscript = (props) => {
     owner_name,
     owner_age,
     owner_status,
-    issue_date,
     expiry_date,
     issued_place,
     description,
@@ -262,9 +260,6 @@ export const ResidentManuscript = (props) => {
                   </LabeledList.Item>
                   <LabeledList.Item label="Сословие">
                     {owner_status || '—'}
-                  </LabeledList.Item>
-                  <LabeledList.Item label="Выдана">
-                    {issue_date || '—'}
                   </LabeledList.Item>
                   <LabeledList.Item label="Истекает">
                     {expiry_date || '—'}

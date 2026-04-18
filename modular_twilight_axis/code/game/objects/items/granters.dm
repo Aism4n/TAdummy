@@ -75,7 +75,6 @@
 	var/owner_name
 	var/owner_age_label
 	var/owner_status_label
-	var/issue_date
 	var/expiry_date
 	var/issued_place
 	var/description
@@ -86,13 +85,13 @@
 	var/list/seals
 	var/list/detection_attempts
 	var/list/detection_results
+	var/auto_stamp_seals = TRUE
 
 /obj/item/book/granter/residentcardvirtue/Initialize()
 	. = ..()
-	issued_place = SSmapping.config?.map_name || "Азурный Пик"
+	issued_place = get_map_display_name()
 	description = pick(MANUSCRIPT_DESCRIPTIONS)
 	var/game_year = text2num(GLOB.year) || 2026
-	issue_date = "[rand(1,28)] [pick("Ясеня","Грома","Ливня","Мороза","Листопада","Златозара")], [game_year] г."
 	expiry_date = "[pick("бессрочно","до смерти владельца","[game_year + 5] г.")]"
 	seals = list(
 		"chancellor" = null,
@@ -102,6 +101,48 @@
 	)
 	detection_attempts = list()
 	detection_results = list()
+	if(auto_stamp_seals)
+		stamp_all_seals()
+
+/obj/item/book/granter/residentcardvirtue/proc/get_map_display_name()
+	var/raw = SSmapping.config?.map_name
+	switch(raw)
+		if("Dun World")
+			return "Герцогство Азурия"
+		if("Rockhill")
+			return "Рокхилл"
+	return raw || "Азурный Пик"
+
+/obj/item/book/granter/residentcardvirtue/proc/stamp_all_seals()
+	seals["chancellor"] = list("stamper" = "Канцлер", "time" = world.time)
+	seals["elder"] = list("stamper" = "Старейшина", "time" = world.time)
+	seals["duke"] = list("stamper" = "Герцог", "time" = world.time)
+	seals["hand"] = list("stamper" = "Длань", "time" = world.time)
+
+/obj/item/book/granter/residentcardvirtue/proc/get_seal_key_for_job(datum/job/J)
+	if(!J)
+		return null
+	if(istype(J, /datum/job/roguetown/seneschal))
+		return "chancellor"
+	if(istype(J, /datum/job/roguetown/priest))
+		return "elder"
+	if(istype(J, /datum/job/roguetown/lord))
+		return "duke"
+	if(istype(J, /datum/job/roguetown/hand))
+		return "hand"
+	return null
+
+/obj/item/book/granter/residentcardvirtue/proc/seal_title_for_key(key)
+	switch(key)
+		if("chancellor")
+			return "Канцлер"
+		if("elder")
+			return "Старейшина"
+		if("duke")
+			return "Герцог"
+		if("hand")
+			return "Длань"
+	return ""
 
 /obj/item/book/granter/residentcardvirtue/examine(mob/user)
 	. = ..()
@@ -111,13 +152,6 @@
 		. += span_info("Грамота ещё не скреплена с владельцем.")
 
 /obj/item/book/granter/residentcardvirtue/attack_self(mob/living/user)
-	if(!is_bound)
-		if(!ishuman(user))
-			to_chat(user, span_warning("Грамота не признаёт вас."))
-			return
-		bind_to_holder(user)
-		to_chat(user, span_notice("Грамота скреплена с вашим ликом."))
-		playsound(user, 'sound/items/write.ogg', 40, TRUE, -2)
 	ui_interact(user)
 
 /obj/item/book/granter/residentcardvirtue/equipped(mob/living/user, slot)
@@ -125,6 +159,8 @@
 	if(is_bound || !ishuman(user))
 		return
 	if(istype(src, /obj/item/book/granter/residentcardvirtue/fake))
+		return
+	if(istype(src, /obj/item/book/granter/residentcardvirtue/base))
 		return
 	bind_to_holder(user)
 
@@ -155,13 +191,19 @@
 	return "Простолюдин"
 
 /obj/item/book/granter/residentcardvirtue/proc/capture_portrait(mob/living/carbon/human/target)
-	if(!target)
+	if(!target || !istype(target))
 		return
 	target.update_inv_hands()
+	target.update_inv_belt()
+	target.update_inv_back()
 	target.update_inv_head()
-	var/image/dummy = image(target.icon, target, target.icon_state, target.layer, SOUTH)
+	var/image/dummy = image(target.icon, target, target.icon_state, target.layer, target.dir)
 	dummy.appearance = target.appearance
 	dummy.dir = SOUTH
+	target.update_inv_hands()
+	target.update_inv_belt()
+	target.update_inv_back()
+	target.update_inv_head()
 	var/icon/headshot = getFlatIcon(dummy, SOUTH, no_anim = TRUE)
 	headshot.Scale(64, 64)
 	headshot.Crop(1, 33, 64, 64)
@@ -182,7 +224,6 @@
 	data["owner_name"] = owner_name || "Неизвестно"
 	data["owner_age"] = owner_age_label || "—"
 	data["owner_status"] = owner_status_label || "—"
-	data["issue_date"] = issue_date || "—"
 	data["expiry_date"] = expiry_date || "—"
 	data["issued_place"] = issued_place || "—"
 	data["description"] = description || ""
@@ -235,11 +276,6 @@
 			handle_detection(user)
 			return TRUE
 		if("bind")
-			if(is_bound)
-				return TRUE
-			if(ishuman(user))
-				bind_to_holder(user)
-				to_chat(user, span_notice("Грамота скреплена с вашим ликом."))
 			return TRUE
 
 /obj/item/book/granter/residentcardvirtue/proc/handle_detection(mob/living/carbon/human/user)
@@ -262,11 +298,31 @@
 		LAZYSET(detection_results, user.ckey, "unknown")
 
 /obj/item/book/granter/residentcardvirtue/attackby(obj/item/I, mob/living/user, params)
-	if(istype(I, /obj/item/manuscript_seal))
-		var/obj/item/manuscript_seal/S = I
-		S.apply_to_manuscript(src, user)
-		return
+	if(istype(I, /obj/item/natural/feather) && ishuman(user))
+		if(handle_feather_use(user))
+			return
 	return ..()
+
+/obj/item/book/granter/residentcardvirtue/proc/handle_feather_use(mob/living/carbon/human/user)
+	if(!is_bound)
+		bind_to_holder(user)
+		icon_state = "contractsigned"
+		to_chat(user, span_notice("Вы вписываете своё имя и образ в грамоту."))
+		playsound(user, 'sound/items/write.ogg', 40, TRUE, -2)
+		return TRUE
+	var/datum/job/J = SSjob.GetJob(user.mind?.assigned_role)
+	var/seal_key = get_seal_key_for_job(J)
+	if(!seal_key)
+		to_chat(user, span_warning("Вы не имеете права ставить печать на этой грамоте."))
+		return TRUE
+	if(seals[seal_key])
+		to_chat(user, span_warning("Ваша печать уже поставлена."))
+		return TRUE
+	var/title = seal_title_for_key(seal_key)
+	stamp_seal(seal_key, title)
+	to_chat(user, span_notice("Вы ставите печать [title] на грамоту."))
+	playsound(user, 'sound/items/write.ogg', 50, TRUE, -2)
+	return TRUE
 
 /obj/item/book/granter/residentcardvirtue/proc/stamp_seal(seal_key, stamper_name)
 	if(!seals || !(seal_key in seals))
@@ -280,25 +336,23 @@
 	name = "Resident Manuscript"
 	desc = "Свиток, выдаваемый за грамоту личности."
 	is_fake = TRUE
+	auto_stamp_seals = FALSE
 
 /obj/item/book/granter/residentcardvirtue/fake/Initialize()
 	. = ..()
 	if(prob(FAKE_DEFECT_CHANCE))
 		defect_note = pick(MANUSCRIPT_DEFECT_NOTES)
-	if(prob(30))
-		portrait_data = ""
 	for(var/seal_key in list("chancellor","elder","duke","hand"))
-		if(prob(70))
+		if(prob(75))
 			seals[seal_key] = list("stamper" = pick("неразборчиво","смазано","—"), "time" = 0)
-
-/obj/item/book/granter/residentcardvirtue/fake/equipped(mob/living/user, slot)
-	return
 
 /obj/item/book/granter/residentcardvirtue/fake/attack_self(mob/living/user)
 	if(!is_bound)
 		if(!ishuman(user))
 			return
 		bind_to_holder(user)
+		if(prob(30))
+			portrait_data = ""
 		to_chat(user, span_notice("Вы скрепляете свиток со своим ликом."))
 		playsound(user, 'sound/items/write.ogg', 40, TRUE, -2)
 		ui_interact(user)
@@ -308,77 +362,21 @@
 		return
 	ui_interact(user)
 
-/obj/item/manuscript_seal
-	name = "Seal"
-	desc = "Печать для заверения грамот."
-	icon = 'icons/roguetown/items/misc.dmi'
-	icon_state = "contractsigned"
-	w_class = WEIGHT_CLASS_TINY
-	drop_sound = 'sound/foley/dropsound/gen_drop.ogg'
-	var/seal_key = ""
-	var/seal_label = ""
-	var/list/allowed_jobs = list()
-	var/stamper_title = ""
+/obj/item/book/granter/residentcardvirtue/base
+	name = "Blank Resident Manuscript"
+	desc = "Пустой бланк грамоты личности. Возьмите перо и впишите своё имя, затем отправьте к уполномоченным лицам для скрепления печатями."
+	icon_state = "contractunsigned"
+	auto_stamp_seals = FALSE
 
-/obj/item/manuscript_seal/proc/apply_to_manuscript(obj/item/book/granter/residentcardvirtue/M, mob/living/user)
-	if(!istype(M))
-		return
-	if(!M.is_bound)
-		to_chat(user, span_warning("Грамота не скреплена с владельцем — печать ставить рано."))
-		return
-	if(!is_allowed_user(user))
-		to_chat(user, span_warning("Сия печать не принадлежит вам по праву."))
-		return
-	if(M.seals[seal_key])
-		to_chat(user, span_warning("[seal_label] уже поставлена."))
-		return
-	var/stamper_name = stamper_title || capitalize(user.job || "Official")
-	if(!M.stamp_seal(seal_key, stamper_name))
-		return
-	to_chat(user, span_notice("Вы прикладываете [seal_label] к грамоте."))
-	playsound(user, 'sound/items/write.ogg', 40, TRUE, -2)
-
-/obj/item/manuscript_seal/proc/is_allowed_user(mob/living/user)
-	if(!length(allowed_jobs))
-		return TRUE
-	return user?.job in allowed_jobs
-
-/obj/item/manuscript_seal/chancellor
-	name = "Chancellor's Seal"
-	desc = "Печать канцлера — заверяет волю Короны."
-	seal_key = "chancellor"
-	seal_label = "Печать Канцлера"
-	allowed_jobs = list("Hand", "Consort", "Bishop", "Grand Duke")
-	stamper_title = "Канцлер"
-
-/obj/item/manuscript_seal/elder
-	name = "Elder's Seal"
-	desc = "Печать старейшины — знак мудрости и опыта."
-	seal_key = "elder"
-	seal_label = "Печать Старейшины"
-	allowed_jobs = list("Bishop", "Priest", "Consort Dowager", "Inquisitor")
-	stamper_title = "Старейшина"
-
-/obj/item/manuscript_seal/duke
-	name = "Duke's Seal"
-	desc = "Печать герцога — знак высшей знати."
-	seal_key = "duke"
-	seal_label = "Печать Герцога"
-	allowed_jobs = list("Grand Duke", "Consort")
-	stamper_title = "Герцог"
-
-/obj/item/manuscript_seal/hand
-	name = "Hand's Seal"
-	desc = "Печать Длани — десницы Короны."
-	seal_key = "hand"
-	seal_label = "Печать Длани"
-	allowed_jobs = list("Hand", "Grand Duke")
-	stamper_title = "Длань"
-
-/datum/supply_pack/rogue/adventure_supplies/fake_manuscript
+/datum/supply_pack/rogue/drugs/fake_manuscript
 	name = "Подозрительный свиток"
 	cost = 200
 	contains = list(/obj/item/book/granter/residentcardvirtue/fake)
+
+/datum/supply_pack/rogue/luxury/manuscript_base
+	name = "Бланк грамоты личности"
+	cost = 120
+	contains = list(/obj/item/book/granter/residentcardvirtue/base)
 
 #undef MANUSCRIPT_DESCRIPTIONS
 #undef MANUSCRIPT_DEFECT_NOTES
