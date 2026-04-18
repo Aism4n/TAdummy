@@ -92,7 +92,7 @@ const fieldRow: React.CSSProperties = {
 };
 
 const fieldLabel: React.CSSProperties = {
-  flex: '0 0 110px',
+  flex: '0 0 145px',
   fontVariant: 'small-caps',
   letterSpacing: '2px',
   color: GOLD_LEAF_DARK,
@@ -222,13 +222,13 @@ export const ResidentManuscript = (props) => {
     <Window
       width={560}
       height={620}
-      title="Грамота Личности"
+      title="Подорожная грамота"
       theme="blackstone"
     >
       <Window.Content>
         <Box style={shellStyle}>
           <Box>
-            <Box style={titleStyle}>Грамота Личности</Box>
+            <Box style={titleStyle}>Подорожная грамота</Box>
             <Box style={subtitleStyle}>
               ~ Под Рукой Короны ~ {issued_place} ~
             </Box>
@@ -248,7 +248,7 @@ export const ResidentManuscript = (props) => {
               <Box style={fieldValue}>{owner_status || '—'}</Box>
             </Box>
             <Box style={fieldRow}>
-              <Box style={fieldLabel}>Истекает</Box>
+              <Box style={fieldLabel}>Дана впредь до..</Box>
               <Box style={fieldValue}>{expiry_date || '—'}</Box>
             </Box>
           </Box>

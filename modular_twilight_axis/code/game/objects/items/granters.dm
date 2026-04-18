@@ -45,12 +45,9 @@
 		desc = "A scroll confirming citizenship with the owner's signature."
 		icon_state = "contractsigned"
 
-#define MANUSCRIPT_DESCRIPTIONS list(\
-	"Сим удостоверяется, что предъявитель сего манускрипта — законный житель города и подданный Короны, коему надлежит воздавать почести и права, подобающие его сословию. Грамота скреплена печатями уполномоченных лиц и не подлежит оспариванию иначе как через судебное разбирательство.",\
-	"По велению и благословению Короны, а равно под надзором Канцелярии и Совета Старейшин, объявляется: носитель сего свитка принят под сень Закона как полноправный житель, и ко вреду его всякий посягнувший ответит пред Судом.",\
-	"В лето текущее от Восхождения, сия грамота выдана на имя означенного жителя в знак признания прав его, имущества его и благополучия его пред лицом Короны и народа. Да не скроет её никто под сенью ночи, да не подделает пером своим.",\
-	"Печатью и словом уполномоченных мужей закреплено право сего подданного на хлеб, кров и защиту закона в пределах сих стен. Всякий, кто воспрепятствует, да будет признан отступником.",\
-)
+#define MANUSCRIPT_ITEM_DESCRIPTION "Этот эластичный свиток цвета слоновой кости идеально гладок, прохладен и на просвет лишен дефектов. Его золоченые края мерцают при разворачивании, издавая сухой хруст. Текст выведен въевшимися иссиня-черными чернилами с лазуритными инициалами, а снизу на шелково-золотом шнуре закреплена детальная сургучная печать. Документ пахнет воском, травами и дорогой кожей."
+
+#define MANUSCRIPT_DESCRIPTION "Сим объявляется во всеуслышание: по воле Короны и надзором Совета, предъявитель сего документа признан законным обитателем земель сих и пребывает под сенью общего права. Всякому чину и званию вменяется в долг признавать в лице помянутом верного подданного, не чиня ему препятствий в делах и путях его. Всякий же, кто делом или умыслом нанесет вред носителю сей грамоты, ответит пред законом по всей строгости уложений, ибо посягает на порядок, престолом установленный"
 
 #define MANUSCRIPT_DEFECT_NOTES list(\
 	"На бумаге видна едва заметная клякса в углу.",\
@@ -64,8 +61,8 @@
 #define FAKE_DEFECT_CHANCE 65
 
 /obj/item/book/granter/residentcardvirtue
-	name = "Resident Manuscript"
-	desc = "Скреплённый печатями свиток, удостоверяющий гражданство."
+	name = "Подорожная грамота"
+	desc = MANUSCRIPT_ITEM_DESCRIPTION
 	icon_state = "contractsigned"
 	icon = 'icons/roguetown/items/misc.dmi'
 	drop_sound = 'sound/foley/dropsound/paper_drop.ogg'
@@ -89,7 +86,7 @@
 /obj/item/book/granter/residentcardvirtue/Initialize()
 	. = ..()
 	issued_place = get_map_display_name()
-	description = pick(MANUSCRIPT_DESCRIPTIONS)
+	description = MANUSCRIPT_DESCRIPTION
 	expiry_date = compute_expiry_date()
 	seals = list(
 		"chancellor" = null,
@@ -129,10 +126,15 @@
 		new_month = ((new_month - 1) % CALENDAR_MONTHS_PER_YEAR) + 1
 	return "[new_day] [get_month_number_to_text(new_month)] [CALENDAR_EPOCH_YEAR]"
 
+/obj/item/book/granter/residentcardvirtue/proc/get_ruler_seal_title()
+	if(SSmapping.config?.map_name == "Rockhill")
+		return "Король"
+	return "Герцог"
+
 /obj/item/book/granter/residentcardvirtue/proc/stamp_all_seals()
 	seals["chancellor"] = list("stamper" = "Канцлер", "time" = world.time)
 	seals["elder"] = list("stamper" = "Старейшина", "time" = world.time)
-	seals["duke"] = list("stamper" = "Герцог", "time" = world.time)
+	seals["duke"] = list("stamper" = get_ruler_seal_title(), "time" = world.time)
 	seals["hand"] = list("stamper" = "Длань", "time" = world.time)
 
 /obj/item/book/granter/residentcardvirtue/proc/get_seal_key_for_job(datum/job/J)
@@ -155,28 +157,17 @@
 		if("elder")
 			return "Старейшина"
 		if("duke")
-			return "Герцог"
+			return get_ruler_seal_title()
 		if("hand")
 			return "Длань"
 	return ""
 
 /obj/item/book/granter/residentcardvirtue/examine(mob/user)
 	. = ..()
-	. += "Поверхность этого плотного свитка имеет благородный оттенок слоновой кости с мягким жемчужным отливом и лишена каких-либо прожилок или дефектов даже при осмотре на просвет. На ощупь материал абсолютно гладкий, прохладный и слегка маслянистый, полностью лишенный ворсистости. При разворачивании полотно проявляет высокую эластичность, стремясь вернуть исходную форму и издавая при этом сухой тихий хруст. Идеально ровные края свитка покрыты слоем сусального золота, которое дает четкий непрерывный блик при движении. Текст выведен глубокими иссиня-черными чернилами, которые плотно въелись в структуру материала, а заглавные буквы выделены яркими пигментами лазурита и киновари. От предмета исходит ровный аромат высушенных трав, пчелиного воска и легкий животный подтон качественной выделки."
-	if(has_any_seal())
-		. += "В нижней части документа на плетеном шнуре из шелковых и золотых нитей закреплена тяжелая печать из красного сургуча с детализированным оттиском герба."
 	if(is_bound && owner_name)
 		. += span_info("Грамота выдана на имя: [owner_name].")
 	else
 		. += span_info("Грамота ещё не скреплена с владельцем.")
-
-/obj/item/book/granter/residentcardvirtue/proc/has_any_seal()
-	if(!seals)
-		return FALSE
-	for(var/key in seals)
-		if(seals[key])
-			return TRUE
-	return FALSE
 
 /obj/item/book/granter/residentcardvirtue/attack_self(mob/living/user)
 	ui_interact(user)
@@ -199,7 +190,7 @@
 	owner_age_label = age_to_label(target.age)
 	owner_status_label = status_label_for(target)
 	is_bound = TRUE
-	name = "[owner_name] — грамота личности"
+	name = "[owner_name] — подорожная грамота"
 
 /obj/item/book/granter/residentcardvirtue/proc/age_to_label(age_val)
 	switch(age_val)
@@ -213,8 +204,8 @@
 
 /obj/item/book/granter/residentcardvirtue/proc/status_label_for(mob/living/carbon/human/target)
 	if(HAS_TRAIT(target, TRAIT_NOBLE))
-		return "Благородный"
-	return "Простолюдин"
+		return "Под милостью Астраты"
+	return "Свободный человек"
 
 /obj/item/book/granter/residentcardvirtue/ui_state(mob/user)
 	return GLOB.hands_state
@@ -238,7 +229,7 @@
 	data["is_bound"] = is_bound
 	data["seal_chancellor"] = seal_entry("chancellor", "Канцлер")
 	data["seal_elder"] = seal_entry("elder", "Старейшина")
-	data["seal_duke"] = seal_entry("duke", "Герцог")
+	data["seal_duke"] = seal_entry("duke", get_ruler_seal_title())
 	data["seal_hand"] = seal_entry("hand", "Длань")
 
 	data["can_detect"] = FALSE
@@ -339,8 +330,8 @@
 	return TRUE
 
 /obj/item/book/granter/residentcardvirtue/fake
-	name = "Resident Manuscript"
-	desc = "Свиток, выдаваемый за грамоту личности."
+	name = "Подорожная грамота"
+	desc = MANUSCRIPT_ITEM_DESCRIPTION
 	is_fake = TRUE
 	auto_stamp_seals = FALSE
 
@@ -367,8 +358,8 @@
 	ui_interact(user)
 
 /obj/item/book/granter/residentcardvirtue/base
-	name = "Blank Resident Manuscript"
-	desc = "Пустой бланк грамоты личности. Возьмите перо и впишите своё имя, затем отправьте к уполномоченным лицам для скрепления печатями."
+	name = "Бланк подорожной грамоты"
+	desc = "Пустой бланк подорожной грамоты. Возьмите перо и впишите своё имя, затем отправьте к уполномоченным лицам для скрепления печатями."
 	icon_state = "contractunsigned"
 	auto_stamp_seals = FALSE
 
@@ -378,10 +369,11 @@
 	contains = list(/obj/item/book/granter/residentcardvirtue/fake)
 
 /datum/supply_pack/rogue/luxury/manuscript_base
-	name = "Бланк грамоты личности"
+	name = "Бланк подорожной грамоты"
 	cost = 120
 	contains = list(/obj/item/book/granter/residentcardvirtue/base)
 
-#undef MANUSCRIPT_DESCRIPTIONS
+#undef MANUSCRIPT_ITEM_DESCRIPTION
+#undef MANUSCRIPT_DESCRIPTION
 #undef MANUSCRIPT_DEFECT_NOTES
 #undef FAKE_DEFECT_CHANCE
