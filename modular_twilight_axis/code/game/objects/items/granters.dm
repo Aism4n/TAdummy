@@ -46,22 +46,42 @@
 		icon_state = "contractsigned"
 	
 /obj/item/book/granter/residentcardvirtue
-	name = "Resident manuscript"
-	icon_state = "scrollwrite"
+	name = "Resident Manuscript"
+	desc = "A sealed scroll confirming citizenship, flourished with an ornate signature."
+	icon_state = "contractsigned"
 	icon = 'icons/roguetown/items/misc.dmi'
 	drop_sound = 'sound/foley/dropsound/paper_drop.ogg'
 	pickup_sound = 'sound/blank.ogg'
+	var/owner_name
+	var/issued_place
 
-/obj/item/book/granter/residentcardvirtue/attack_self(mob/living/user)
-		to_chat(user, span_info("A scroll confirming citizenship with the owner's signature."))
+/obj/item/book/granter/residentcardvirtue/Initialize()
+	. = ..()
+	issued_place = SSmapping.config?.map_name || "Azure Peak"
 
 /obj/item/book/granter/residentcardvirtue/equipped(mob/living/user, slot)
 	. = ..()
-	if(icon_state == "contractsigned")
-		return FALSE
-	else
-		name = "[user.real_name] - resident manuscript"
-		desc = "A scroll confirming citizenship with the owner's signature."
-		icon_state = "contractsigned"
-		onlearned(user)
-		return FALSE
+	if(owner_name || !ishuman(user))
+		return
+	owner_name = user.real_name
+	name = "[owner_name] - resident manuscript"
+	onlearned(user)
+
+/obj/item/book/granter/residentcardvirtue/attack_self(mob/living/user)
+	ui_interact(user)
+
+/obj/item/book/granter/residentcardvirtue/ui_state(mob/user)
+	return GLOB.hands_state
+
+/obj/item/book/granter/residentcardvirtue/ui_interact(mob/user, datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "ResidentManuscript", name)
+		ui.open()
+
+/obj/item/book/granter/residentcardvirtue/ui_data(mob/user)
+	return list(
+		"owner_name" = owner_name || "Unnamed",
+		"issued_place" = issued_place || "Azure Peak",
+		"is_resident" = HAS_TRAIT(user, TRAIT_RESIDENT),
+	)
