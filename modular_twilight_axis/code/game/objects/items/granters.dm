@@ -212,7 +212,7 @@
 /obj/item/book/granter/residentcardvirtue/proc/status_label_for(mob/living/carbon/human/target)
 	if(HAS_TRAIT(target, TRAIT_NOBLE))
 		return "Под милостью Астраты"
-	return "Свободный человек"
+	return "Безызвестное"
 
 /obj/item/book/granter/residentcardvirtue/ui_state(mob/user)
 	return GLOB.hands_state
