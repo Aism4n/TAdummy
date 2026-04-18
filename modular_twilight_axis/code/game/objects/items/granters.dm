@@ -58,6 +58,14 @@
 	"Пергамент отдаёт несвежим запахом.",\
 )
 
+#define MANUSCRIPT_VALIDATION_NOTES list(\
+	"Печати сидят ровно, чернила легли уверенно, а шнур не несёт следов повторного крепления.",\
+	"Водяные знаки проступают чисто: перед вами грамота должного образца.",\
+	"Почерк, печати и золочёный край согласуются между собой. Повода сомневаться в грамоте не видно.",\
+	"Сургуч принял оттиск глубоко и без разрывов, а строки не выдают чужой руки.",\
+	"Документ выглядит составленным по всем правилам канцелярского обряда.",\
+)
+
 #define FAKE_DEFECT_CHANCE 65
 
 /obj/item/book/granter/residentcardvirtue
@@ -68,7 +76,7 @@
 	drop_sound = 'sound/foley/dropsound/paper_drop.ogg'
 	pickup_sound = 'sound/blank.ogg'
 	oneuse = FALSE
-	var/owner_ckey
+	var/owner_character_key
 	var/owner_name
 	var/owner_age_label
 	var/owner_status_label
@@ -81,6 +89,7 @@
 	var/list/seals
 	var/list/detection_attempts
 	var/list/detection_results
+	var/list/detection_notes
 	var/auto_stamp_seals = TRUE
 
 /obj/item/book/granter/residentcardvirtue/Initialize()
@@ -96,6 +105,7 @@
 	)
 	detection_attempts = list()
 	detection_results = list()
+	detection_notes = list()
 	if(auto_stamp_seals)
 		stamp_all_seals()
 
@@ -137,12 +147,14 @@
 	seals["duke"] = list("stamper" = get_ruler_seal_title(), "time" = world.time)
 	seals["hand"] = list("stamper" = "Длань", "time" = world.time)
 
-/obj/item/book/granter/residentcardvirtue/proc/get_seal_key_for_job(datum/job/J)
-	if(!J)
+/obj/item/book/granter/residentcardvirtue/proc/get_seal_key_for_user(mob/living/carbon/human/user)
+	if(!user)
 		return null
-	if(istype(J, /datum/job/roguetown/seneschal))
+	var/datum/job/J = SSjob.GetJob(user.mind?.assigned_role)
+	if(istype(J, /datum/job/roguetown/councillor))
 		return "chancellor"
-	if(istype(J, /datum/job/roguetown/priest))
+	var/datum/advclass/advclass = SSrole_class_handler.get_advclass_by_name(user.advjob)
+	if(istype(advclass, /datum/advclass/elder))
 		return "elder"
 	if(istype(J, /datum/job/roguetown/lord))
 		return "duke"
@@ -161,6 +173,13 @@
 		if("hand")
 			return "Длань"
 	return ""
+
+/obj/item/book/granter/residentcardvirtue/proc/get_detection_character_key(mob/living/carbon/human/user)
+	if(!user)
+		return null
+	if(user.mobid)
+		return "[user.mobid]"
+	return user.real_name || user.name
 
 /obj/item/book/granter/residentcardvirtue/examine(mob/user)
 	. = ..()
@@ -185,12 +204,12 @@
 /obj/item/book/granter/residentcardvirtue/proc/bind_to_holder(mob/living/carbon/human/target)
 	if(is_bound || !ishuman(target))
 		return
-	owner_ckey = target.ckey
+	owner_character_key = get_detection_character_key(target)
 	owner_name = target.real_name
 	owner_age_label = age_to_label(target.age)
 	owner_status_label = status_label_for(target)
 	is_bound = TRUE
-	name = "[owner_name] — подорожная грамота"
+	name = "Подорожная грамота"
 
 /obj/item/book/granter/residentcardvirtue/proc/age_to_label(age_val)
 	switch(age_val)
@@ -218,7 +237,11 @@
 
 /obj/item/book/granter/residentcardvirtue/ui_data(mob/user)
 	var/list/data = list()
-	var/is_owner_viewing = (user?.ckey == owner_ckey)
+	var/detection_key
+	if(ishuman(user))
+		var/mob/living/carbon/human/human_user = user
+		detection_key = get_detection_character_key(human_user)
+	var/is_owner_viewing = (detection_key && owner_character_key && detection_key == owner_character_key)
 	data["owner_name"] = owner_name || "Неизвестно"
 	data["owner_age"] = owner_age_label || "—"
 	data["owner_status"] = owner_status_label || "—"
@@ -235,12 +258,14 @@
 	data["can_detect"] = FALSE
 	data["detection_done"] = FALSE
 	data["detection_result"] = ""
+	data["detection_note"] = ""
 	data["defect_note"] = ""
 
-	if(is_bound && user?.ckey && user.ckey != owner_ckey)
-		if(LAZYACCESS(detection_attempts, user.ckey))
+	if(is_bound && detection_key && !is_owner_viewing)
+		if(LAZYACCESS(detection_attempts, detection_key))
 			data["detection_done"] = TRUE
-			data["detection_result"] = LAZYACCESS(detection_results, user.ckey) || "unknown"
+			data["detection_result"] = LAZYACCESS(detection_results, detection_key) || "unknown"
+			data["detection_note"] = LAZYACCESS(detection_notes, detection_key) || ""
 			if(data["detection_result"] == "fake")
 				data["defect_note"] = defect_note || ""
 		else
@@ -276,23 +301,34 @@
 			return TRUE
 
 /obj/item/book/granter/residentcardvirtue/proc/handle_detection(mob/living/carbon/human/user)
-	if(!ishuman(user) || !user.ckey)
+	if(!ishuman(user))
 		return
-	if(LAZYACCESS(detection_attempts, user.ckey))
+	var/detection_key = get_detection_character_key(user)
+	if(!detection_key)
 		return
-	LAZYSET(detection_attempts, user.ckey, TRUE)
+	if(owner_character_key && detection_key == owner_character_key)
+		return
+	if(LAZYACCESS(detection_attempts, detection_key))
+		return
+	LAZYSET(detection_attempts, detection_key, TRUE)
 	var/chance = 5
-	if(user.STAINT > 10)
+	var/base_int = user.get_true_stat(STATKEY_INT)
+	var/base_per = user.get_true_stat(STATKEY_PER)
+	if(base_int > 10)
 		chance += 5
-	if(user.STAPER > 10 && user.STAPER <= 12)
+	if(base_per > 10 && base_per <= 12)
 		chance += 5
 	var/reading = user.get_skill_level(/datum/skill/misc/reading)
 	if(reading > 0)
-		chance += 5 * reading
+		chance += 10 * reading
+	var/result = "unknown"
 	if(prob(chance))
-		LAZYSET(detection_results, user.ckey, is_fake ? "fake" : "real")
-	else
-		LAZYSET(detection_results, user.ckey, "unknown")
+		if(is_fake && !defect_note)
+			defect_note = pick(MANUSCRIPT_DEFECT_NOTES)
+		result = is_fake ? "fake" : "real"
+	LAZYSET(detection_results, detection_key, result)
+	if(result != "fake")
+		LAZYSET(detection_notes, detection_key, pick(MANUSCRIPT_VALIDATION_NOTES))
 
 /obj/item/book/granter/residentcardvirtue/attackby(obj/item/I, mob/living/user, params)
 	if(istype(I, /obj/item/natural/feather) && ishuman(user))
@@ -307,8 +343,7 @@
 		to_chat(user, span_notice("Вы вписываете своё имя и образ в грамоту."))
 		playsound(user, 'sound/items/write.ogg', 40, TRUE, -2)
 		return TRUE
-	var/datum/job/J = SSjob.GetJob(user.mind?.assigned_role)
-	var/seal_key = get_seal_key_for_job(J)
+	var/seal_key = get_seal_key_for_user(user)
 	if(!seal_key)
 		to_chat(user, span_warning("Вы не имеете права ставить печать на этой грамоте."))
 		return TRUE
@@ -352,9 +387,6 @@
 		playsound(user, 'sound/items/write.ogg', 40, TRUE, -2)
 		ui_interact(user)
 		return
-	if(user.ckey != owner_ckey)
-		to_chat(user, span_warning("Свиток не желает раскрываться чужаку."))
-		return
 	ui_interact(user)
 
 /obj/item/book/granter/residentcardvirtue/base
@@ -376,4 +408,5 @@
 #undef MANUSCRIPT_ITEM_DESCRIPTION
 #undef MANUSCRIPT_DESCRIPTION
 #undef MANUSCRIPT_DEFECT_NOTES
+#undef MANUSCRIPT_VALIDATION_NOTES
 #undef FAKE_DEFECT_CHANCE

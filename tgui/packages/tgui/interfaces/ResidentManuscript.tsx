@@ -25,6 +25,7 @@ type Data = {
   can_detect: boolean;
   detection_done: boolean;
   detection_result: string;
+  detection_note: string;
   defect_note: string;
 };
 
@@ -215,6 +216,7 @@ export const ResidentManuscript = (props) => {
     can_detect,
     detection_done,
     detection_result,
+    detection_note,
     defect_note,
   } = data;
 
@@ -293,8 +295,9 @@ export const ResidentManuscript = (props) => {
                   {detection_result === 'fake'
                     ? 'Сдаётся вам, что грамота поддельна.'
                     : detection_result === 'real'
-                      ? 'На ваш взгляд грамота подлинна.'
-                      : 'Вы не можете распознать подделку.'}
+                      ? detection_note || 'На ваш взгляд грамота подлинна.'
+                      : detection_note ||
+                        'На ваш взгляд грамота не вызывает подозрений.'}
                 </Box>
               )}
             </Stack.Item>
