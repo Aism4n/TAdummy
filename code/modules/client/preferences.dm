@@ -11,6 +11,8 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	var/loaded_slot = 1
 
 	var/max_save_slots = 20
+
+
 	var/list/job_characters = list() //TA EDIT
 	var/tmp/list/loaded_job_slots = list()  //TA EDIT
 
@@ -746,10 +748,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 			dat+= "<a href='?_src_=prefs;preference=clear_nsfw_gallery;task=input'>Clear NSFW Gallery</a>"
 			dat += "<br><a href='?_src_=prefs;preference=ooc_preview;task=input'><b>Preview Examine</b></a>"
 
-
-
 			dat += "<br><b>Family Preferences:</b> <a href='?_src_=prefs;preference=family_options;task=input'>Change</a>" // TA EDIT
-
 			dat += "<br><b>Loadout Items:</b> <a href='?_src_=prefs;preference=loadout_item;task=input'>Change</a>"
 
 			dat += "</td>"
