@@ -109,7 +109,7 @@ GLOBAL_DATUM_INIT(html_tags, /regex, regex(@"<.*?>", "g"))
 	max_blade_int = 200
 	max_integrity = 400
 	possible_item_intents = list(/datum/intent/spear/cut/oneh)
-	gripped_intents = list(/datum/intent/spear/cut/bardiche, /datum/intent/whip, /datum/intent/shoot/neant)
+	gripped_intents = list(/datum/intent/spear/cut/bardiche/cult, /datum/intent/spear/cut/bardiche/cleave, /datum/intent/whip, /datum/intent/shoot/neant)
 	thrown_bclass = BCLASS_CUT
 	blade_dulling = DULLING_BASHCHOP
 	wdefense = 8
@@ -120,8 +120,15 @@ GLOBAL_DATUM_INIT(html_tags, /regex, regex(@"<.*?>", "g"))
 	sellprice = 0
 	wbalance = WBALANCE_HEAVY
 	associated_skill = /datum/skill/combat/polearms
+	wlength = WLENGTH_GREAT
 
 	COOLDOWN_DECLARE(fire_projectile)
+
+/datum/intent/spear/cut/bardiche/cult
+	penfactor = PEN_MEDIUM
+
+/datum/intent/spear/cut/bardiche/cleave/cult
+	penfactor = PEN_MEDIUM
 
 /obj/item/rogueweapon/zizo/neant/getonmobprop(tag)
 	. = ..()
@@ -285,13 +292,13 @@ GLOBAL_DATUM_INIT(html_tags, /regex, regex(@"<.*?>", "g"))
 	max_blade_int = 350
 	max_integrity = 300
 	possible_item_intents = list(/datum/intent/axe/cut, /datum/intent/axe/chop)
-	gripped_intents = list(/datum/intent/axe/cut/cult, /datum/intent/axe/chop/cult, /datum/intent/axe/bash/battle)
+	gripped_intents = list(/datum/intent/axe/cut/cult, /datum/intent/axe/chop/cult, /datum/intent/axe/chop/heavy, /datum/intent/axe/bash/battle)
 	smeltresult = /obj/item/ingot/steel/zizo
 
 /datum/intent/axe/chop/cult
-	intent_intdamage_factor = 1.2
+	intent_intdamage_factor = 1.3
 	demolition_mod = 6
-	swingdelay = 7
+	swingdelay = 5
 	damfactor = 1.6
 
 /datum/intent/axe/cut/cult
