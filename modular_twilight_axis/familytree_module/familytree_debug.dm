@@ -363,7 +363,7 @@ GLOBAL_LIST_INIT(ftdebug_age_pool, list(
 	child.familytree_pref = FAMILY_PARTIAL
 	child.desired_relative_role = RELATIVE_CHILD
 	AssignWithDesiredRole(child)
-	var/has_parents = child.family_member_datum ? child.family_member_datum.parents.len : 0
+	var/has_parents = child.family_member_datum ? child.family_member_datum.get_parent_members().len : 0
 	results += "2. CHILD: [ftdebug_result_string(child)] parents=[has_parents]"
 
 	var/mob/living/carbon/human/parent = ftdebug_spawn_entity(spawn_loc)
@@ -737,17 +737,7 @@ GLOBAL_LIST_INIT(ftdebug_age_pool, list(
 			continue
 		if(H.family_datum)
 			var/datum/heritage/house = H.family_datum
-			var/datum/family_member/member = house.GetFamilyMember(H)
-			if(member)
-				for(var/datum/family_member/spouse as anything in member.spouses)
-					spouse.RemoveSpouse(member)
-				for(var/datum/family_member/parent as anything in member.parents)
-					parent.children -= member
-				for(var/datum/family_member/child as anything in member.children)
-					child.parents -= member
-				house.members -= member
-			H.family_datum = null
-			H.family_member_datum = null
+			house.RemovePersonFromFamily(H, TRUE)
 		if(H.spouse_mob)
 			var/mob/living/carbon/human/spouse = H.spouse_mob
 			if(!QDELETED(spouse))

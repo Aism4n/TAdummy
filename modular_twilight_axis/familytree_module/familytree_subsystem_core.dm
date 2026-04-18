@@ -80,15 +80,24 @@ SUBSYSTEM_DEF(familytree)
 			bound_count++
 	ftlog("[tag] players: assigned=[assigned_count] pending=[pending_count] signal_bound=[bound_count]", FTLOG_INFO)
 	for(var/datum/heritage/house as anything in families)
-		if(!house.members.len)
+		if(!house.member_nodes.len)
 			continue
 		var/list/names = list()
-		for(var/datum/family_member/member as anything in house.members)
-			if(member.person)
-				names += "[member.person.real_name]([member.person.ckey || "NPC"])"
-		ftlog("[tag] HOUSE '[house.housename]' race=[house.dominant_race] members=[house.members.len]: [names.Join(", ")]", FTLOG_DEBUG)
+		for(var/datum/family_node/node as anything in house.member_nodes)
+			if(node.person)
+				names += "[node.person.real_name]([node.person.ckey || "NPC"])"
+		ftlog("[tag] HOUSE '[house.housename]' race=[house.dominant_race] members=[house.member_nodes.len]: [names.Join(", ")]", FTLOG_DEBUG)
 	ftlog("=== /[tag] ===", FTLOG_INFO)
 #endif
+
+/datum/controller/subsystem/familytree/proc/register_family(datum/heritage/house)
+	if(!house)
+		return FALSE
+	if(house == ruling_family)
+		return TRUE
+	if(!(house in families))
+		families += house
+	return TRUE
 
 /datum/controller/subsystem/familytree/Initialize()
 	ftlog("Initialize() START")
@@ -189,16 +198,14 @@ SUBSYSTEM_DEF(familytree)
 	if(!H || QDELETED(H) || !H.ckey || !H.mind)
 		ftlog("try_grant_holy SKIP: [H?.real_name] null/qdel/nockey/nomind")
 		return FALSE
-	var/holy_level = H.get_skill_level(/datum/skill/magic/holy)
-	ftlog("try_grant_holy: [H.real_name] ([H.ckey]) holy=[holy_level] job=[H.mind?.assigned_role || H.job]")
-	if(holy_level < SKILL_LEVEL_JOURNEYMAN)
-		ftlog("try_grant_holy: [H.real_name] holy [holy_level] < 3, no spells")
+	if(!H.devotion)
+		ftlog("try_grant_holy SKIP: [H.real_name] no devotion (not a cleric)")
 		return FALSE
-	ftlog("try_grant_holy: [H.real_name] GRANTING establish_bond (holy=[holy_level])")
-	H.mind.AddSpell(new /obj/effect/proc_holder/spell/self/establish_bond)
-	if(holy_level >= SKILL_LEVEL_MASTER)
-		ftlog("try_grant_holy: [H.real_name] GRANTING dissolve_marriage (holy=[holy_level])")
-		H.mind.AddSpell(new /obj/effect/proc_holder/spell/self/dissolve_marriage)
+	ftlog("try_grant_holy: [H.real_name] GRANTING familytree_establish_bond + familytree_dissolve_marriage (devotion present)")
+	H.verbs |= list(
+		/mob/living/carbon/human/proc/familytree_establish_bond,
+		/mob/living/carbon/human/proc/familytree_dissolve_marriage,
+	)
 	return TRUE
 
 /datum/controller/subsystem/familytree/proc/register_human(mob/living/carbon/human/H)
@@ -263,6 +270,7 @@ SUBSYSTEM_DEF(familytree)
 	SIGNAL_HANDLER
 	ftlog("on_human_job_received: [H?.real_name] ([H?.ckey]) rank=[rank]")
 	try_queue_assignment(H)
+	addtimer(CALLBACK(src, PROC_REF(try_grant_holy_spells), H), 2 SECONDS)
 
 /datum/controller/subsystem/familytree/proc/on_human_climax(mob/living/carbon/human/H)
 	SIGNAL_HANDLER
@@ -317,6 +325,7 @@ SUBSYSTEM_DEF(familytree)
 	H.polygamy_mode = P.polygamy_mode
 	H.desired_relative_role = P.desired_relative_role
 	H.allow_low_status_marriage = P.allow_low_status_marriage
+	H.allow_relatives_in_family = P.allow_relatives_in_family
 	ftlog("try_queue: [H.real_name] pref=[H.familytree_pref] setspouse=[H.setspouse] role=[H.desired_relative_role]")
 	if(is_royal_suitor_job(job))
 		ftlog("try_queue STOP: [H.real_name] royal suitor job")

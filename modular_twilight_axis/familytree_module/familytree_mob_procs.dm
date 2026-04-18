@@ -52,9 +52,14 @@
 		primary_family = new /datum/heritage(src, new_family_name)
 		primary_member = primary_family.founder
 		secondary_member = primary_family.CreateFamilyMember(spouse)
+		if(primary_family.founder && !primary_family.house_leader)
+			primary_family.house_leader = primary_family.founder
 
 	if(primary_member && secondary_member && primary_family)
 		primary_family.MarryMembers(primary_member, secondary_member)
+
+	if(primary_family)
+		SSfamilytree.register_family(primary_family)
 
 	if(SSfamilytree.xylix_roulette_active)
 		var/xylix_msg = span_danger("<font size='2'>Ксайликс пошутил над вашей судьбой, подтасовав карты.</font>")
@@ -112,7 +117,7 @@
 	if(!viewer_member || !known_member)
 		return null
 
-	return viewer_member.GetRelationshipTo(known_member)
+	return SSfamilytree.get_cached_relation(viewer.family_datum, viewer_member, known_member)
 
 /datum/mind/proc/familytree_display_known_families(mob/living/carbon/human/user)
 	if(!user)
@@ -229,24 +234,87 @@
 	updateappearance()
 	return TRUE
 
+/mob/living/carbon/human/proc/familytree_build_bond_display_entry(mob/living/carbon/human/bonded_person, relation_text = "spouse")
+	if(!bonded_person || QDELETED(bonded_person))
+		return null
+
+	var/list/details = list()
+	if(bonded_person.dna?.species?.name)
+		details += bonded_person.dna.species.name
+
+	var/role = bonded_person.mind?.assigned_role
+	if(!role)
+		role = bonded_person.job
+	var/title = role
+	if(istype(role, /datum/job))
+		var/datum/job/J = role
+		title = J.get_informed_title(bonded_person)
+	if(title)
+		details += "[title]"
+
+	return list(
+		"name" = bonded_person.real_name,
+		"label" = uppertext(relation_text),
+		"details" = details,
+		"accentColor" = "#FF69B4",
+	)
+
+/mob/living/carbon/human/proc/familytree_build_bond_display_entries()
+	var/list/entries = list()
+	var/list/seen = list()
+
+	if(family_member_datum)
+		for(var/datum/family_member/spouse_member as anything in family_member_datum.get_spouse_members())
+			var/mob/living/carbon/human/spouse = spouse_member?.person
+			if(!spouse || QDELETED(spouse) || seen[spouse])
+				continue
+			var/list/spouse_entry = familytree_build_bond_display_entry(spouse, spouse_member.GetSpouseTerm())
+			if(spouse_entry)
+				entries += list(spouse_entry)
+				seen[spouse] = TRUE
+
+	if(ishuman(spouse_mob))
+		var/mob/living/carbon/human/legacy_spouse = spouse_mob
+		if(!QDELETED(legacy_spouse) && !seen[legacy_spouse])
+			var/list/legacy_entry = familytree_build_bond_display_entry(legacy_spouse, "spouse")
+			if(legacy_entry)
+				entries += list(legacy_entry)
+	else if(spouse_mob && QDELETED(spouse_mob))
+		spouse_mob = null
+
+	return entries
+
+/mob/living/carbon/human/proc/familytree_open_family_panel(panel_title = "My Family")
+	var/panel_subtitle = family_datum ? family_datum.GetDisplayHouseTitle() : ""
+	var/panel_empty_message = family_datum ? "No family members found." : "You're not part of any notable family."
+	var/datum/familytree_display_panel/panel = new(
+		src,
+		panel_title,
+		panel_subtitle,
+		panel_empty_message,
+	)
+
+	var/list/bond_entries = familytree_build_bond_display_entries()
+	if(bond_entries.len)
+		panel.add_section("Current Bonds", bond_entries)
+
+	if(family_datum)
+		panel.set_tree_data(SSfamilytree.get_display_tree_for(family_datum, src))
+
+	panel.ui_interact(src)
+	return TRUE
+
+/mob/living/carbon/human/verb/my_family()
+	set name = "My Family"
+	set category = "IC"
+
+	familytree_open_family_panel("My Family")
+
 /mob/living/carbon/human/verb/ReturnFamilyList()
 	set name = "List Family"
 	set category = "IC"
-	if(spouse_mob)
-		if(QDELETED(spouse_mob) || !spouse_mob.dna?.species)
-			to_chat(src, span_info("Your lover is no longer among the living."))
-			spouse_mob = null
-		else
-			var/role = spouse_mob.mind?.assigned_role
-			var/title = role
-			if(istype(role, /datum/job))
-				var/datum/job/J = role
-				title = J.get_informed_title(spouse_mob)
-			to_chat(src, span_info("[spouse_mob.real_name] the [spouse_mob.dna.species.name] [title] is your lover."))
-	if(family_datum)
-		family_datum.ListFamily(src)
-	else
-		to_chat(src, "You're not part of any notable family.")
+
+	familytree_open_family_panel("List Family")
 
 /mob/living/carbon/human/verb/ToggleFamilyUI()
 	set name = "Family UI"

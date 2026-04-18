@@ -25,11 +25,11 @@
 	var/zizo_bonus = 0
 
 	for(var/datum/heritage/house as anything in families)
-		if(!house.members.len)
+		if(!house.member_nodes.len)
 			continue
 
 		if(check_house_all_wildkin(house))
-			dendor_bonus += house.members.len
+			dendor_bonus += house.member_nodes.len
 
 		var/list/married_pairs = get_married_pairs(house)
 		if(!married_pairs.len)
@@ -136,14 +136,20 @@
 	var/list/pairs = list()
 	var/list/processed = list()
 
-	for(var/datum/family_member/member as anything in house.members)
-		if(member in processed)
+	for(var/datum/family_node/node as anything in house.member_nodes)
+		if(!node.person || (node in processed))
+			processed += node
 			continue
-		for(var/datum/family_member/spouse as anything in member.spouses)
-			if(spouse in processed)
+		for(var/datum/family_edge/edge as anything in node.get_edges_of_type("spouse"))
+			var/datum/family_node/other = edge.other_end(node)
+			if(!other?.person || (other in processed))
 				continue
-			pairs += list(list(member, spouse))
-		processed += member
+			var/datum/family_member/member_a = node.person.family_member_datum
+			var/datum/family_member/member_b = other.person.family_member_datum
+			if(!member_a || !member_b)
+				continue
+			pairs += list(list(member_a, member_b))
+		processed += node
 
 	return pairs
 
@@ -202,7 +208,7 @@
 	var/zizo_delta = 0
 
 	if(check_house_all_wildkin(house))
-		dendor_delta += house.members.len
+		dendor_delta += house.member_nodes.len
 
 	for(var/list/pair in married_pairs)
 		var/datum/family_member/spouse_a = pair[1]
@@ -297,15 +303,21 @@
 	if(!H || !H.family_datum)
 		return
 
-	var/datum/family_member/member = H.family_member_datum
-	if(!member || !member.spouses.len)
+	var/datum/family_node/node = get_family_node(H)
+	if(!node)
 		return
 
-	for(var/datum/family_member/spouse as anything in member.spouses)
-		if(!spouse?.person || spouse.person == H)
+	var/list/spouse_edges = node.get_edges_of_type("spouse")
+	if(!spouse_edges.len)
+		return
+
+	for(var/datum/family_edge/edge as anything in spouse_edges)
+		var/datum/family_node/other = edge.other_end(node)
+		var/mob/living/carbon/human/spouse_person = other?.person
+		if(!spouse_person || spouse_person == H)
 			continue
 
-		var/pair_key = make_intimacy_key(H, spouse.person)
+		var/pair_key = make_intimacy_key(H, spouse_person)
 		if(intimacy_pairs[pair_key])
 			continue
 
@@ -403,11 +415,11 @@
 	return is_human_job_in_list(H, list("Fisher"))
 
 /datum/controller/subsystem/familytree/proc/check_house_all_wildkin(datum/heritage/house)
-	if(!house || !house.members.len)
+	if(!house || !house.member_nodes.len)
 		return FALSE
-	for(var/datum/family_member/member as anything in house.members)
-		if(!member.person)
+	for(var/datum/family_node/node as anything in house.member_nodes)
+		if(!node.person)
 			continue
-		if(!istype(member.person.dna?.species, /datum/species/demihuman))
+		if(!istype(node.person.dna?.species, /datum/species/demihuman))
 			return FALSE
 	return TRUE

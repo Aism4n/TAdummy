@@ -1,3 +1,60 @@
+#define ESTATE_NONE 0
+#define ESTATE_NOBLE 1
+#define ESTATE_COMMONER 2
+
+/proc/familytree_get_estate(mob/living/carbon/human/H)
+	if(!H)
+		return ESTATE_NONE
+
+	var/datum/job/job = SSfamilytree.get_familytree_job(H)
+	if(!job)
+		return ESTATE_NONE
+
+	if(SSfamilytree.is_noble_job(job))
+		return ESTATE_NOBLE
+
+	return ESTATE_COMMONER
+
+/datum/controller/subsystem/familytree/proc/is_noble_job(datum/job/job)
+	if(!job)
+		return FALSE
+	if(istype(job, /datum/job/roguetown/lord))
+		return TRUE
+	if(istype(job, /datum/job/roguetown/lady))
+		return TRUE
+	if(istype(job, /datum/job/roguetown/prince))
+		return TRUE
+	if(istype(job, /datum/job/roguetown/hand))
+		return TRUE
+	if(istype(job, /datum/job/roguetown/suitor))
+		return TRUE
+	if(istype(job, /datum/job/roguetown/seneschal))
+		return TRUE
+	if(istype(job, /datum/job/roguetown/councillor))
+		return TRUE
+	if(istype(job, /datum/job/roguetown/magician))
+		return TRUE
+	if(istype(job, /datum/job/roguetown/steward))
+		return TRUE
+	if(istype(job, /datum/job/roguetown/archivist))
+		return TRUE
+	if(istype(job, /datum/job/roguetown/knight))
+		return TRUE
+	if(istype(job, /datum/job/roguetown/marshal))
+		return TRUE
+	return FALSE
+
+/proc/familytree_estates_compatible(mob/living/carbon/human/A, mob/living/carbon/human/B)
+	if(SSfamilytree.xylix_roulette_active)
+		return TRUE
+
+	var/estate_a = familytree_get_estate(A)
+	var/estate_b = familytree_get_estate(B)
+
+	if(estate_a == ESTATE_NONE || estate_b == ESTATE_NONE)
+		return TRUE
+
+	return estate_a == estate_b
 #define ROLE_TIER_NONE 0
 #define ROLE_TIER_HIGH 1
 #define ROLE_TIER_LOW 2
@@ -126,4 +183,77 @@
 			high_count++
 			if(high_count >= 2)
 				return TRUE
+	return FALSE
+
+/datum/preferences
+	var/polygamy_mode = POLYGAMY_DISABLED
+
+/mob/living/carbon/human
+	var/polygamy_mode = POLYGAMY_DISABLED
+
+/proc/familytree_can_have_multiple_spouses(mob/living/carbon/human/H)
+	if(!H)
+		return FALSE
+
+	if(H.polygamy_mode & POLYGAMY_ALLOW_MULTIPLE)
+		return TRUE
+
+	if(familytree_lore_allows_polygyny(H))
+		return TRUE
+	if(familytree_lore_allows_polyandry(H))
+		return TRUE
+
+	return FALSE
+
+/proc/familytree_can_be_additional_spouse(mob/living/carbon/human/H)
+	if(!H)
+		return FALSE
+
+	if(H.polygamy_mode & POLYGAMY_ALLOW_BE_SECOND)
+		return TRUE
+
+	return FALSE
+
+/proc/familytree_lore_allows_polygyny(mob/living/carbon/human/H)
+	if(!H)
+		return FALSE
+	var/datum/patron/P = H.patron
+	if(istype(P, /datum/patron/inhumen/baotha))
+		return TRUE
+	return FALSE
+
+/proc/familytree_lore_allows_polyandry(mob/living/carbon/human/H)
+	if(!H)
+		return FALSE
+	if(isdarkelf(H))
+		return TRUE
+	return FALSE
+
+/proc/familytree_polygamy_compatible(mob/living/carbon/human/seeker, mob/living/carbon/human/target)
+	if(!seeker || !target)
+		return FALSE
+
+	var/seeker_has_spouse = seeker.spouse_mob || (seeker.family_member_datum && seeker.family_member_datum.get_spouse_members().len)
+	var/target_has_spouse = target.spouse_mob || (target.family_member_datum && target.family_member_datum.get_spouse_members().len)
+
+	if(!seeker_has_spouse && !target_has_spouse)
+		return TRUE
+
+	if(seeker_has_spouse && target_has_spouse)
+		return FALSE
+
+	if(seeker_has_spouse)
+		if(!familytree_can_have_multiple_spouses(seeker))
+			return FALSE
+		if(!familytree_can_be_additional_spouse(target))
+			return FALSE
+		return TRUE
+
+	if(target_has_spouse)
+		if(!familytree_can_have_multiple_spouses(target))
+			return FALSE
+		if(!familytree_can_be_additional_spouse(seeker))
+			return FALSE
+		return TRUE
+
 	return FALSE

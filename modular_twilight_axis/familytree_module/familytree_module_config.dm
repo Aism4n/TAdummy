@@ -2,36 +2,26 @@
 // #include "modular_twilight_axis\familytree_module\familytree_module_config.dm"
 //
 // --- FILE MAP ---
-// familytree_vars.dm              - var declarations (preferences, mob, human)
-// familytree_prefs.dm             - savefile load/save/sanitize, species lists
-// familytree_mob_procs.dm         - MarryTo, verbs, known families, UI toggles
-// familytree_royal_job_hooks.dm   - special_check_latejoin for lady/suitor
-// familytree_display.dm           - TGUI display panel datum
-// familytree_curses.dm            - family_curse datum, status effects
-// familytree_member.dm            - family_member: parents/children/spouses, traversal
-// familytree_member_terms.dm      - gendered terms (father/mother/son/daughter...)
-// familytree_member_relations.dm  - GetRelationshipTo, siblings, cousins, in-laws
-// familytree_heritage_core.dm     - heritage datum: house, members, marriage, species calc, UI
-// familytree_family_options.dm    - TGUI settings panel backend (ui_data/ui_act)
-// familytree_subsystem_compat.dm  - pronouns/species/anatomy compatibility checks
-// familytree_subsystem_jobs.dm    - job helpers, age checks, validation
-// familytree_subsystem_core.dm    - SSfamilytree: init, signals, lifecycle, queue
-// familytree_subsystem_royal.dm   - royal partner jobs, lineage generation
-// familytree_subsystem_matching.dm- AssignToHouse/Family/NewlyWed matching
-// familytree_estates.dm           - estates (noble/commoner), compatibility filter
-// familytree_role_tiers.dm        - social role tiers (high/low), overlap filter
-// familytree_storytellers.dm      - storyteller influence (Astrata/Eora/Baotha/Psydon/Ravox/Noc/Dendor), karma
-// familytree_polygamy.dm          - polygamy: flags, lore checks (Baotha/drow)
-// familytree_rituals.dm           - priest wedding, adoption, vampire binding
-// familytree_holy_verbs.dm        - holy skill spells: establish bond (3+), divorce (5+), bypass (6), divine wrath
-// familytree_relative_search.dm   - desired family role (sibling/parent/child/uncle/spouse)
-// familytree_confirmation.dm   - family assignment confirmation + setspouse timeout
-// familytree_notifications.dm  - family head departure notifications
-// familytree_noble_dynasty.dm  - nobles in ruling family (TRAIT_NOBLE)
-// familytree_enigma.dm        - DLC: enigma roles integration into tier system
+// familytree_prefs_ui.dm            - vars, savefile prefs, display panel datum, family_options TGUI backend
+// familytree_mob_procs.dm           - MarryTo, verbs, known families, UI toggles
+// familytree_heritage_core.dm       - heritage datum: house, members, marriage, species calc, UI
+// familytree_member.dm              - family_member traversal, gendered terms, GetRelationshipTo
+// familytree_social.dm              - estates, role tiers, polygamy
+// familytree_storytellers.dm        - storyteller influence, karma
+// familytree_rituals.dm             - rituals, relative search, family_curse datum
+// familytree_holy_verbs.dm          - holy skill spells
+// familytree_lifecycle.dm           - royal job hooks, enigma, noble dynasty, notifications, confirmation
+// familytree_subsystem_core.dm      - SSfamilytree: init, signals, lifecycle, queue
+// familytree_subsystem_helpers.dm   - pronouns/species/anatomy compat, job helpers, age checks
+// familytree_subsystem_matching.dm  - AssignToHouse/Family/NewlyWed matching
+// familytree_subsystem_royal.dm     - royal partner jobs, lineage generation
+// familytree_graph_support.dm       - graph: edges, nodes, cache, validation, debug
+// familytree_graph_api.dm           - graph: SSfamilytree graph facade + hooks + relation cache
+// familytree_debug.dm               - debug verbs
+// familytree_debug_populate.dm      - "populate my house" debug panel with granular logs
 //
 // TGUI: tgui/packages/tgui/interfaces/FamilySettingsPanel.tsx
-//       tgui/packages/tgui/interfaces/FamilyDisplayPanel.tsx
+//       tgui/packages/tgui/interfaces/FamilyDisplayPanel/*.tsx
 // Assets: relations.dmi
 
 //#define FAMILYTREE_DEBUG_LOGGING //UNDEFINE IT FOR THE LOCAL TESTING
@@ -75,31 +65,53 @@
 #define RELATIVE_UNCLE_AUNT 4
 #define RELATIVE_SPOUSE 5
 
-#include "familytree_vars.dm"
-#include "familytree_prefs.dm"
+// --- Reject-reason bitmasks for subsystem matching diagnostics ---
+// AssignToHouse / HasSuitableHouseForRelative
+#define FTREJ_H_CLOSED       (1<<0)
+#define FTREJ_H_NONAME       (1<<1)
+#define FTREJ_H_RELATIVES    (1<<2)
+#define FTREJ_H_RACE         (1<<3)
+#define FTREJ_H_AGE          (1<<4)
+#define FTREJ_H_EMPTY        (1<<5)
+#define FTREJ_H_OFFLINE      (1<<6)
+
+// FindNewlyWedMatch
+#define FTREJ_N_POLY         (1<<0)
+#define FTREJ_N_OPTOUT       (1<<1)
+#define FTREJ_N_BLOCK        (1<<2)
+#define FTREJ_N_PRONOUNS     (1<<3)
+#define FTREJ_N_SPECIES      (1<<4)
+#define FTREJ_N_ESTATE       (1<<5)
+#define FTREJ_N_TIER         (1<<6)
+#define FTREJ_N_SETSPOUSE    (1<<7)
+
+// FindFamilyMatch
+#define FTREJ_F_CLOSED       (1<<0)
+#define FTREJ_F_RACE         (1<<1)
+#define FTREJ_F_POLY         (1<<2)
+#define FTREJ_F_OFFLINE      (1<<3)
+#define FTREJ_F_SETSPOUSE    (1<<4)
+#define FTREJ_F_PRONOUNS     (1<<5)
+#define FTREJ_F_SPECIES      (1<<6)
+#define FTREJ_F_ESTATE       (1<<7)
+#define FTREJ_F_TIER         (1<<8)
+#define FTREJ_F_PARTIAL      (1<<9)
+#define FTREJ_F_OPTOUT       (1<<10)
+
+#include "familytree_prefs_ui.dm"
 #include "familytree_mob_procs.dm"
-#include "familytree_royal_job_hooks.dm"
-#include "familytree_display.dm"
-#include "familytree_curses.dm"
-#include "familytree_member.dm"
-#include "familytree_member_terms.dm"
-#include "familytree_member_relations.dm"
 #include "familytree_heritage_core.dm"
-#include "familytree_family_options.dm"
-#include "familytree_subsystem_compat.dm"
-#include "familytree_subsystem_jobs.dm"
-#include "familytree_subsystem_core.dm"
-#include "familytree_subsystem_royal.dm"
-#include "familytree_subsystem_matching.dm"
-#include "familytree_estates.dm"
-#include "familytree_role_tiers.dm"
+#include "familytree_member.dm"
+#include "familytree_social.dm"
 #include "familytree_storytellers.dm"
-#include "familytree_polygamy.dm"
 #include "familytree_rituals.dm"
 #include "familytree_holy_verbs.dm"
-#include "familytree_relative_search.dm"
-#include "familytree_enigma.dm"
-#include "familytree_confirmation.dm"
-#include "familytree_notifications.dm"
-#include "familytree_noble_dynasty.dm"
+#include "familytree_lifecycle.dm"
+#include "familytree_subsystem_core.dm"
+#include "familytree_subsystem_helpers.dm"
+#include "familytree_subsystem_matching.dm"
+#include "familytree_subsystem_royal.dm"
+#include "familytree_graph_support.dm"
+#include "familytree_graph_api.dm"
 #include "familytree_debug.dm"
+#include "familytree_debug_populate.dm"

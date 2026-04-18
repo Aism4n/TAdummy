@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 
-import { useBackend } from '../backend';
+import { Icon } from 'tgui-core/components';
+
+import { backendSuspendStart, globalStore, useBackend } from '../backend';
 import { Window } from '../layouts';
-import { Box, Button, Dropdown, Input, Stack } from 'tgui-core/components';
 
 type FamilyType = 'none' | 'member' | 'parent' | 'couple';
 type SpeciesMode = 'ANY' | 'SAME_TYPE' | 'SPECIFIC_TYPE';
@@ -11,9 +13,10 @@ type AnatomyPref = 0 | 1 | 2;
 type PolygamyMode = 0 | 1 | 2 | 3;
 type RelativeRole = 0 | 1 | 2 | 3 | 4 | 5;
 
-type DropdownOption<T extends string | number> = {
+type Option<T extends string | number> = {
   value: T;
-  displayText: string;
+  label: string;
+  icon?: string;
 };
 
 type FamilySettingsData = {
@@ -35,41 +38,283 @@ type BackendData = {
   availableSpecies?: string[];
 };
 
+type FamilyTypeCard = {
+  value: FamilyType;
+  title: string;
+  desc: string;
+  icon: string;
+};
+
+const FAMILY_TYPE_CARDS: FamilyTypeCard[] = [
+  {
+    value: 'none',
+    title: 'Без семьи',
+    desc: 'Одиночка',
+    icon: 'ban',
+  },
+  {
+    value: 'member',
+    title: 'Член семьи',
+    desc: 'Присоединиться к существующему дому',
+    icon: 'user-group',
+  },
+  {
+    value: 'couple',
+    title: 'Новобрачные',
+    desc: 'Поиск супруга',
+    icon: 'heart',
+  },
+  {
+    value: 'parent',
+    title: 'Родитель',
+    desc: 'Создать/присоединиться как родитель',
+    icon: 'baby',
+  },
+];
+
+const GENDER_OPTIONS: Option<GenderPref>[] = [
+  { value: 'any', label: 'Любой пол' },
+  { value: 'same', label: 'Тот же пол' },
+  { value: 'opposite', label: 'Противоположный' },
+];
+
+const SPECIES_OPTIONS: Option<SpeciesMode>[] = [
+  { value: 'ANY', label: 'Любые виды' },
+  { value: 'SAME_TYPE', label: 'Тот же вид' },
+  { value: 'SPECIFIC_TYPE', label: 'Определённые виды' },
+];
+
+const ANATOMY_OPTIONS: Option<AnatomyPref>[] = [
+  { value: 0, label: 'Любая' },
+  { value: 1, label: 'Мужская' },
+  { value: 2, label: 'Женская' },
+];
+
+const POLYGAMY_OPTIONS: Option<PolygamyMode>[] = [
+  { value: 0, label: 'Моногамия' },
+  { value: 1, label: 'Несколько супругов' },
+  { value: 2, label: 'Быть вторым супругом' },
+  { value: 3, label: 'Обе опции' },
+];
+
+const RELATIVE_ROLE_OPTIONS: Option<RelativeRole>[] = [
+  { value: 0, label: 'Автоопределение' },
+  { value: 1, label: 'Брат / сестра' },
+  { value: 2, label: 'Родитель' },
+  { value: 3, label: 'Ребёнок' },
+  { value: 4, label: 'Дядя / тётя' },
+  { value: 5, label: 'Супруг' },
+];
+
+function findLabel<T extends string | number>(
+  opts: Option<T>[],
+  value: T | undefined,
+): string {
+  const opt = opts.find((o) => o.value === value);
+  return opt ? opt.label : '';
+}
+
+type SelectFieldProps<T extends string | number> = {
+  label: string;
+  icon: string;
+  value: T;
+  options: Option<T>[];
+  onChange: Dispatch<SetStateAction<T>>;
+  disabled?: boolean;
+};
+
+function SelectField<T extends string | number>(props: SelectFieldProps<T>) {
+  const { label, icon, value, options, onChange, disabled } = props;
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (!wrapRef.current) return;
+      if (!wrapRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [open]);
+
+  const selectedLabel = findLabel(options, value);
+  const cls =
+    'FamilySettingsPanel__select' +
+    (open ? ' FamilySettingsPanel__select--open' : '') +
+    (disabled ? ' FamilySettingsPanel__select--disabled' : '');
+
+  return (
+    <div className="FamilySettingsPanel__field">
+      <div className="FamilySettingsPanel__field-label">{label}</div>
+      <div ref={wrapRef} className={cls}>
+        <div
+          className="FamilySettingsPanel__select-control"
+          role="button"
+          tabIndex={disabled ? -1 : 0}
+          onClick={() => !disabled && setOpen((v) => !v)}>
+          <span className="FamilySettingsPanel__field-icon">
+            <Icon name={icon} />
+          </span>
+          <span className="FamilySettingsPanel__select-value">
+            {selectedLabel}
+          </span>
+          <span className="FamilySettingsPanel__select-arrow">
+            <Icon name={open ? 'chevron-up' : 'chevron-down'} />
+          </span>
+        </div>
+        {open && !disabled && (
+          <div className="FamilySettingsPanel__select-menu">
+            {options.map((opt) => {
+              const selected = opt.value === value;
+              const optCls =
+                'FamilySettingsPanel__select-option' +
+                (selected ? ' FamilySettingsPanel__select-option--selected' : '');
+              return (
+                <div
+                  key={String(opt.value)}
+                  className={optCls}
+                  onClick={() => {
+                    onChange(opt.value);
+                    setOpen(false);
+                  }}>
+                  {opt.label}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+type CheckboxRowProps = {
+  icon: string;
+  label: string;
+  checked: boolean;
+  onToggle: () => void;
+};
+
+const CheckboxRow = memo(function CheckboxRow(props: CheckboxRowProps) {
+  const { icon, label, checked, onToggle } = props;
+  return (
+    <div className="FamilySettingsPanel__checkbox-row" onClick={onToggle}>
+      <div className="FamilySettingsPanel__checkbox-icon">
+        <Icon name={icon} />
+      </div>
+      <div className="FamilySettingsPanel__checkbox-label">{label}</div>
+      <div
+        className={`FamilySettingsPanel__checkbox-box${
+          checked ? ' FamilySettingsPanel__checkbox-box--checked' : ''
+        }`}>
+        {checked && <Icon name="check" />}
+      </div>
+    </div>
+  );
+});
+
+type FamilyTypeCardViewProps = {
+  card: FamilyTypeCard;
+  active: boolean;
+  disabled: boolean;
+  onClick: () => void;
+};
+
+const FamilyTypeCardView = memo(function FamilyTypeCardView(
+  props: FamilyTypeCardViewProps,
+) {
+  const { card, active, disabled, onClick } = props;
+  const cls = [
+    'FamilySettingsPanel__card',
+    `FamilySettingsPanel__card--${card.value}`,
+    active ? 'FamilySettingsPanel__card--active' : '',
+    disabled ? 'FamilySettingsPanel__card--disabled' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+  return (
+    <div className={cls} onClick={disabled ? undefined : onClick}>
+      <div className="FamilySettingsPanel__card-icon">
+        <Icon name={card.icon} />
+      </div>
+      <div className="FamilySettingsPanel__card-title">{card.title}</div>
+      <div className="FamilySettingsPanel__card-desc">{card.desc}</div>
+    </div>
+  );
+});
+
+function closeFamilyWindow() {
+  if (globalStore) {
+    globalStore.dispatch(backendSuspendStart());
+  }
+}
+
 export const FamilySettingsPanel = () => {
   const { act, data } = useBackend<BackendData>();
 
   const settings = data.familySettings;
-  const speciesList = data.availableSpecies || [];
+  const availableSpecies = data.availableSpecies || [];
   const isAdult = settings?.age === 'Adult';
 
-  const [familyType, setFamilyType] = useState<FamilyType>('none');
-  const [speciesPreferenceMode, setSpeciesPreferenceMode] =
-    useState<SpeciesMode>('ANY');
+  const [familyType, setFamilyType] = useState<FamilyType>(
+    () => settings?.familyType ?? 'none',
+  );
+  const [speciesPreferenceMode, setSpeciesPreferenceMode] = useState<SpeciesMode>(
+    () => settings?.speciesPreferenceMode ?? 'ANY',
+  );
   const [preferredSpeciesTypes, setPreferredSpeciesTypes] = useState<string[]>(
-    []
+    () =>
+      Array.isArray(settings?.preferredSpeciesTypes)
+        ? (settings!.preferredSpeciesTypes as string[])
+        : [],
   );
   const [preferredSpeciesAnatomy, setPreferredSpeciesAnatomy] =
-    useState<AnatomyPref>(0);
-  const [genderPreference, setGenderPreference] = useState<GenderPref>('any');
-  const [favoriteName, setFavoriteName] = useState('');
-  const [polygamyMode, setPolygamyMode] = useState<PolygamyMode>(0);
-  const [desiredRelativeRole, setDesiredRelativeRole] =
-    useState<RelativeRole>(0);
-  const [allowLowStatusMarriage, setAllowLowStatusMarriage] = useState(0);
-  const [allowRelativesInFamily, setAllowRelativesInFamily] = useState(1);
-  const [initialized, setInitialized] = useState(false);
+    useState<AnatomyPref>(() => settings?.preferredSpeciesAnatomy ?? 0);
+  const [genderPreference, setGenderPreference] = useState<GenderPref>(
+    () => settings?.genderPreference ?? 'any',
+  );
+  const [favoriteName, setFavoriteName] = useState<string>(
+    () => settings?.favoriteName ?? '',
+  );
+  const [polygamyMode, setPolygamyMode] = useState<PolygamyMode>(
+    () => settings?.polygamyMode ?? 0,
+  );
+  const [desiredRelativeRole, setDesiredRelativeRole] = useState<RelativeRole>(
+    () => settings?.desiredRelativeRole ?? 0,
+  );
+  const [allowLowStatusMarriage, setAllowLowStatusMarriage] = useState<number>(
+    () => settings?.allowLowStatusMarriage ?? 0,
+  );
+  const [allowRelativesInFamily, setAllowRelativesInFamily] = useState<number>(
+    () => settings?.allowRelativesInFamily ?? 1,
+  );
+  const [speciesPickerOpen, setSpeciesPickerOpen] = useState(false);
+  const speciesPickerRef = useRef<HTMLDivElement | null>(null);
+  const didInitFromBackendRef = useRef<boolean>(!!settings);
 
   useEffect(() => {
-    if (!settings || initialized) {
-      return;
-    }
+    if (!speciesPickerOpen) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (!speciesPickerRef.current) return;
+      if (!speciesPickerRef.current.contains(e.target as Node)) {
+        setSpeciesPickerOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [speciesPickerOpen]);
 
+  useEffect(() => {
+    if (!settings || didInitFromBackendRef.current) return;
     setFamilyType(settings.familyType ?? 'none');
     setSpeciesPreferenceMode(settings.speciesPreferenceMode ?? 'ANY');
     setPreferredSpeciesTypes(
       Array.isArray(settings.preferredSpeciesTypes)
         ? settings.preferredSpeciesTypes
-        : []
+        : [],
     );
     setPreferredSpeciesAnatomy(settings.preferredSpeciesAnatomy ?? 0);
     setGenderPreference(settings.genderPreference ?? 'any');
@@ -78,390 +323,361 @@ export const FamilySettingsPanel = () => {
     setDesiredRelativeRole(settings.desiredRelativeRole ?? 0);
     setAllowLowStatusMarriage(settings.allowLowStatusMarriage ?? 0);
     setAllowRelativesInFamily(settings.allowRelativesInFamily ?? 1);
-    setInitialized(true);
-  }, [settings, initialized]);
+    didInitFromBackendRef.current = true;
+  }, [settings]);
 
   useEffect(() => {
-    if (isAdult) {
-      if (familyType === 'parent') {
-        setFamilyType('member');
-      }
-      if (desiredRelativeRole === 2) {
-        setDesiredRelativeRole(0);
-      }
-    }
+    if (!isAdult) return;
+    if (familyType === 'parent') setFamilyType('member');
+    if (desiredRelativeRole === 2) setDesiredRelativeRole(0);
   }, [isAdult, familyType, desiredRelativeRole]);
-
-  const hintStyle = {
-    padding: '6px 8px',
-    fontSize: '12px',
-    color: '#c9a04e',
-    fontStyle: 'italic' as const,
-    border: '1px solid #6b5a2e',
-    marginTop: '6px',
-  };
-
-  const tooltips: Record<FamilyType, string> = {
-    none: 'Персонаж не участвует в семейной системе.',
-    member:
-      'Вы попадёте в существующую семью как родственник: ребёнок, брат/сестра, родитель или дядя/тётя. Роль определяется возрастом. Супруг НЕ подбирается.',
-    parent:
-      'Система ищет вам супруга среди одиноких членов существующих семей. Если никого нет — вы основываете новый дом. Требуется совместимость по расе, полу и сословию.',
-    couple:
-      'Вы попадаете в очередь ожидания. Система подберёт партнёра среди других игроков с таким же режимом. Проверяются все параметры совместимости.',
-  };
-
-  const familyTypeOptions: DropdownOption<FamilyType>[] = isAdult
-    ? [
-        { value: 'none', displayText: 'Нет' },
-        { value: 'member', displayText: 'Родственник' },
-        { value: 'couple', displayText: 'Супружеская пара' },
-      ]
-    : [
-        { value: 'none', displayText: 'Нет' },
-        { value: 'member', displayText: 'Родственник' },
-        { value: 'parent', displayText: 'Родитель / супруг' },
-        { value: 'couple', displayText: 'Супружеская пара' },
-      ];
-
-  const speciesOptions: DropdownOption<SpeciesMode>[] = [
-    { value: 'ANY', displayText: 'Любая' },
-    { value: 'SAME_TYPE', displayText: 'Тот же тип' },
-    { value: 'SPECIFIC_TYPE', displayText: 'Определенные расы' },
-  ];
-
-  const genderOptions: DropdownOption<GenderPref>[] = [
-    { value: 'any', displayText: 'Любой' },
-    { value: 'same', displayText: 'Тот же пол' },
-    { value: 'opposite', displayText: 'Противоположный' },
-  ];
-
-  const anatomyOptions: DropdownOption<AnatomyPref>[] = [
-    { value: 0, displayText: 'Без разницы' },
-    { value: 1, displayText: 'Мужская анатомия' },
-    { value: 2, displayText: 'Женская анатомия' },
-  ];
-
-  const polygamyOptions: DropdownOption<PolygamyMode>[] = [
-    { value: 0, displayText: 'Отключено' },
-    { value: 1, displayText: 'Несколько супругов' },
-    { value: 2, displayText: 'Быть вторым супругом' },
-    { value: 3, displayText: 'Обе опции' },
-  ];
-
-  const allRelativeRoleOptions: DropdownOption<RelativeRole>[] = [
-    { value: 0, displayText: 'Любая роль' },
-    { value: 1, displayText: 'Брат / сестра' },
-    { value: 2, displayText: 'Родитель' },
-    { value: 3, displayText: 'Ребёнок' },
-    { value: 4, displayText: 'Дядя / тётя' },
-  ];
-
-  const relativeRoleOptions = isAdult
-    ? allRelativeRoleOptions.filter((opt) => opt.value !== 2)
-    : allRelativeRoleOptions;
-
-  const getDisplayText = <T extends string | number>(
-    options: DropdownOption<T>[],
-    value: T | null | undefined
-  ) => options.find((opt) => opt.value === value)?.displayText || '';
 
   const toggleSpecies = (species: string) => {
     setPreferredSpeciesTypes((prev) =>
       prev.includes(species)
-        ? prev.filter((item) => item !== species)
-        : [...prev, species]
+        ? prev.filter((s) => s !== species)
+        : [...prev, species],
     );
   };
 
+  const relativeRoleOptions = useMemo(
+    () =>
+      isAdult
+        ? RELATIVE_ROLE_OPTIONS.filter((o) => o.value !== 2)
+        : RELATIVE_ROLE_OPTIONS,
+    [isAdult],
+  );
+
+  const showPreferences = familyType !== 'none';
   const isLeaderMode = familyType === 'couple' || familyType === 'parent';
+  const isMemberMode = familyType === 'member';
+
+  const handleResetToDefaults = () => {
+    setFamilyType('none');
+    setSpeciesPreferenceMode('ANY');
+    setPreferredSpeciesTypes([]);
+    setPreferredSpeciesAnatomy(0);
+    setGenderPreference('any');
+    setFavoriteName('');
+    setPolygamyMode(0);
+    setDesiredRelativeRole(0);
+    setAllowLowStatusMarriage(0);
+    setAllowRelativesInFamily(1);
+  };
+
+  const handleCancel = () => {
+    if (!settings) return;
+    setFamilyType(settings.familyType ?? 'none');
+    setSpeciesPreferenceMode(settings.speciesPreferenceMode ?? 'ANY');
+    setPreferredSpeciesTypes(
+      Array.isArray(settings.preferredSpeciesTypes)
+        ? [...settings.preferredSpeciesTypes]
+        : [],
+    );
+    setPreferredSpeciesAnatomy(settings.preferredSpeciesAnatomy ?? 0);
+    setGenderPreference(settings.genderPreference ?? 'any');
+    setFavoriteName(settings.favoriteName ?? '');
+    setPolygamyMode(settings.polygamyMode ?? 0);
+    setDesiredRelativeRole(settings.desiredRelativeRole ?? 0);
+    setAllowLowStatusMarriage(settings.allowLowStatusMarriage ?? 0);
+    setAllowRelativesInFamily(settings.allowRelativesInFamily ?? 1);
+  };
+
+  const handleSave = () => {
+    act('save', {
+      familyType,
+      speciesPreferenceMode,
+      preferredSpeciesTypes: [...preferredSpeciesTypes],
+      preferredSpeciesAnatomy,
+      genderPreference,
+      favoriteName,
+      polygamyMode,
+      desiredRelativeRole,
+      allowLowStatusMarriage,
+      allowRelativesInFamily,
+    });
+  };
 
   return (
-    <Window title="Настройка семьи" width={600} height={940}>
-      <Window.Content scrollable>
-        <Stack vertical fill>
-          <Stack.Item>
-            <h2 style={{ textAlign: 'center' }}>
-              Настройка семейных отношений
-            </h2>
-          </Stack.Item>
+    <Window title="Настройки семьи" width={1040} height={720}>
+      <Window.Content>
+        <div className="FamilySettingsPanel">
+          <div className="FamilySettingsPanel__header">
+            <div className="FamilySettingsPanel__header-left">
+              <div className="FamilySettingsPanel__header-icon">
+                <Icon name="house-chimney-user" />
+              </div>
+              <div className="FamilySettingsPanel__header-titles">
+                <h2 className="FamilySettingsPanel__title">Настройки семьи</h2>
+                <div className="FamilySettingsPanel__subtitle">
+                  Выберите тип семьи и настройки предпочтений
+                </div>
+              </div>
+            </div>
+            <div
+              className="FamilySettingsPanel__close"
+              role="button"
+              tabIndex={0}
+              title="Закрыть"
+              onClick={closeFamilyWindow}>
+              <Icon name="xmark" />
+            </div>
+          </div>
 
-          <Stack.Item>
-            <Box style={{ marginBottom: '4px', fontWeight: 'bold' }}>
-              Семейная роль:
-            </Box>
+          <div className="FamilySettingsPanel__body">
+            {/* LEFT PANE — TYPE CARDS */}
+            <div className="FamilySettingsPanel__pane FamilySettingsPanel__pane-left">
+              <h3 className="FamilySettingsPanel__pane-title">Тип семьи</h3>
+              <div className="FamilySettingsPanel__type-grid">
+                {FAMILY_TYPE_CARDS.map((card) => {
+                  const disabled = card.value === 'parent' && isAdult;
+                  const active = card.value === familyType;
+                  return (
+                    <FamilyTypeCardView
+                      key={card.value}
+                      card={card}
+                      active={active}
+                      disabled={disabled}
+                      onClick={() => setFamilyType(card.value)}
+                    />
+                  );
+                })}
+              </div>
+            </div>
 
-            <Dropdown
-              options={familyTypeOptions.map((opt) => opt.displayText)}
-              selected={getDisplayText(familyTypeOptions, familyType)}
-              onSelected={(selectedText) => {
-                const selectedOption = familyTypeOptions.find(
-                  (opt) => opt.displayText === selectedText
-                );
-                if (selectedOption) {
-                  setFamilyType(selectedOption.value);
-                }
-              }}
-              width="100%"
-            />
+            {/* RIGHT PANE — PREFERENCES */}
+            <div className="FamilySettingsPanel__pane FamilySettingsPanel__pane-right">
+              <h3 className="FamilySettingsPanel__pane-title">
+                <span className="FamilySettingsPanel__pane-title-icon">
+                  <Icon name="gear" />
+                </span>
+                Предпочтения
+              </h3>
 
-            <Box style={hintStyle}>{tooltips[familyType]}</Box>
-          </Stack.Item>
-
-          {familyType !== 'none' && (
-            <>
-              <Stack.Divider />
-
-              <Stack.Item>
-                <Box style={{ marginBottom: '4px' }}>
-                  Предпочтение по расе:
-                </Box>
-
-                <Dropdown
-                  options={speciesOptions.map((opt) => opt.displayText)}
-                  selected={getDisplayText(
-                    speciesOptions,
-                    speciesPreferenceMode
-                  )}
-                  onSelected={(selectedText) => {
-                    const selectedOption = speciesOptions.find(
-                      (opt) => opt.displayText === selectedText
-                    );
-                    if (selectedOption) {
-                      setSpeciesPreferenceMode(selectedOption.value);
-                    }
-                  }}
-                  width="100%"
-                />
-              </Stack.Item>
-
-              {speciesPreferenceMode === 'SPECIFIC_TYPE' && (
-                <Stack.Item>
-                  <Box style={{ marginBottom: '6px' }}>
-                    Выберите одну или несколько рас:
-                  </Box>
-
-                  <Box
-                    style={{
-                      border: '1px solid #555',
-                      padding: '6px',
-                      maxHeight: '220px',
-                      overflowY: 'auto',
-                    }}>
-                    <Stack vertical>
-                      {speciesList.map((species) => {
-                        const selected =
-                          preferredSpeciesTypes.includes(species);
-
-                        return (
-                          <Stack.Item key={species}>
-                            <Button
-                              fluid
-                              selected={selected}
-                              color={selected ? 'good' : undefined}
-                              onClick={() => toggleSpecies(species)}>
-                              {selected ? `✓ ${species}` : species}
-                            </Button>
-                          </Stack.Item>
-                        );
-                      })}
-                    </Stack>
-                  </Box>
-
-                  <Box
-                    style={{
-                      marginTop: '6px',
-                      fontSize: '12px',
-                      color: '#aaa',
-                    }}>
-                    Выбрано:{' '}
-                    {preferredSpeciesTypes.length > 0
-                      ? preferredSpeciesTypes.join(', ')
-                      : 'ничего'}
-                  </Box>
-                </Stack.Item>
+              {!showPreferences && (
+                <div
+                  className="FamilySettingsPanel__hint"
+                  style={{ gridColumn: 'unset' }}>
+                  Персонаж не участвует в семейной системе. Выберите другой тип
+                  семьи, чтобы открыть настройки предпочтений.
+                </div>
               )}
 
-              <Stack.Item>
-                <Box style={{ marginBottom: '4px' }}>
-                  Предпочтительная анатомия:
-                </Box>
-
-                <Dropdown
-                  options={anatomyOptions.map((opt) => opt.displayText)}
-                  selected={getDisplayText(
-                    anatomyOptions,
-                    preferredSpeciesAnatomy
-                  )}
-                  onSelected={(selectedText) => {
-                    const selectedOption = anatomyOptions.find(
-                      (opt) => opt.displayText === selectedText
-                    );
-                    if (selectedOption) {
-                      setPreferredSpeciesAnatomy(selectedOption.value);
-                    }
-                  }}
-                  width="100%"
-                />
-              </Stack.Item>
-
-              <Stack.Item>
-                <Box style={{ marginBottom: '4px' }}>
-                  Предпочтение по полу:
-                </Box>
-
-                <Dropdown
-                  options={genderOptions.map((opt) => opt.displayText)}
-                  selected={getDisplayText(genderOptions, genderPreference)}
-                  onSelected={(selectedText) => {
-                    const selectedOption = genderOptions.find(
-                      (opt) => opt.displayText === selectedText
-                    );
-                    if (selectedOption) {
-                      setGenderPreference(selectedOption.value);
-                    }
-                  }}
-                  width="100%"
-                />
-              </Stack.Item>
-
-              {familyType === 'member' && (
-                <Stack.Item>
-                  <Box style={{ marginBottom: '4px' }}>
-                    Желаемая роль в семье:
-                  </Box>
-
-                  <Dropdown
-                    options={relativeRoleOptions.map((opt) => opt.displayText)}
-                    selected={getDisplayText(
-                      relativeRoleOptions,
-                      desiredRelativeRole
-                    )}
-                    onSelected={(selectedText) => {
-                      const selectedOption = relativeRoleOptions.find(
-                        (opt) => opt.displayText === selectedText
-                      );
-                      if (selectedOption) {
-                        setDesiredRelativeRole(selectedOption.value);
-                      }
-                    }}
-                    width="100%"
+              {showPreferences && (
+                <div className="FamilySettingsPanel__form">
+                  <SelectField
+                    label="Гендерные предпочтения"
+                    icon="venus-mars"
+                    value={genderPreference}
+                    options={GENDER_OPTIONS}
+                    onChange={setGenderPreference}
                   />
 
-                  <Box style={hintStyle}>
-                    Система попытается подобрать именно эту роль. Если не
-                    получится — роль определяется по возрасту.
-                  </Box>
-                </Stack.Item>
-              )}
-
-              {(familyType === 'couple' || familyType === 'parent') && (
-                <Stack.Item>
-                  <Box style={{ marginBottom: '4px' }}>Многобрачие:</Box>
-
-                  <Dropdown
-                    options={polygamyOptions.map((opt) => opt.displayText)}
-                    selected={getDisplayText(polygamyOptions, polygamyMode)}
-                    onSelected={(selectedText) => {
-                      const selectedOption = polygamyOptions.find(
-                        (opt) => opt.displayText === selectedText
-                      );
-                      if (selectedOption) {
-                        setPolygamyMode(selectedOption.value);
-                      }
-                    }}
-                    width="100%"
+                  <SelectField
+                    label="Режим вида/расы"
+                    icon="paw"
+                    value={speciesPreferenceMode}
+                    options={SPECIES_OPTIONS}
+                    onChange={setSpeciesPreferenceMode}
                   />
-                </Stack.Item>
+
+                  {/* Preferred species types chip field — only when SPECIFIC_TYPE */}
+                  {speciesPreferenceMode === 'SPECIFIC_TYPE' ? (
+                    <div
+                      ref={speciesPickerRef}
+                      className="FamilySettingsPanel__field FamilySettingsPanel__field--species">
+                      <div className="FamilySettingsPanel__field-label">
+                        Предпочтительные типы видов
+                      </div>
+                      <div className="FamilySettingsPanel__field-input">
+                        <span className="FamilySettingsPanel__field-icon">
+                          <Icon name="dna" />
+                        </span>
+                        <div
+                          className="FamilySettingsPanel__chips"
+                          onClick={() => setSpeciesPickerOpen((v) => !v)}>
+                          {preferredSpeciesTypes.length === 0 ? (
+                            <span className="FamilySettingsPanel__chip-placeholder">
+                              Выберите виды...
+                            </span>
+                          ) : (
+                            preferredSpeciesTypes.map((sp) => (
+                              <span
+                                className="FamilySettingsPanel__chip"
+                                key={sp}>
+                                {sp}
+                                <span
+                                  className="close-x"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleSpecies(sp);
+                                  }}>
+                                  <Icon name="xmark" />
+                                </span>
+                              </span>
+                            ))
+                          )}
+                        </div>
+                        <span className="FamilySettingsPanel__chips-arrow">
+                          <Icon
+                            name={
+                              speciesPickerOpen ? 'chevron-up' : 'chevron-down'
+                            }
+                          />
+                        </span>
+                      </div>
+                      {speciesPickerOpen && (
+                        <div className="FamilySettingsPanel__species-picker">
+                          {availableSpecies.map((sp) => {
+                            const selected = preferredSpeciesTypes.includes(sp);
+                            return (
+                              <div
+                                key={sp}
+                                className={
+                                  'FamilySettingsPanel__species-option' +
+                                  (selected
+                                    ? ' FamilySettingsPanel__species-option--selected'
+                                    : '')
+                                }
+                                onClick={() => toggleSpecies(sp)}>
+                                <Icon
+                                  name={selected ? 'square-check' : 'square'}
+                                />
+                                <span>{sp}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="FamilySettingsPanel__field">
+                      <div className="FamilySettingsPanel__field-label">
+                        Предпочтительные типы видов
+                      </div>
+                      <div
+                        className="FamilySettingsPanel__field-input"
+                        style={{ opacity: 0.5 }}>
+                        <span className="FamilySettingsPanel__field-icon">
+                          <Icon name="dna" />
+                        </span>
+                        <div
+                          style={{
+                            padding: '9px 34px 9px 38px',
+                            color: '#5f6578',
+                            fontSize: 13,
+                          }}>
+                          Включите режим «Определённые виды»
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <SelectField
+                    label="Предпочтительная анатомия"
+                    icon="person"
+                    value={preferredSpeciesAnatomy}
+                    options={ANATOMY_OPTIONS}
+                    onChange={setPreferredSpeciesAnatomy}
+                  />
+
+                  <div className="FamilySettingsPanel__field">
+                    <div className="FamilySettingsPanel__field-label">
+                      Любимое имя (для супруга)
+                    </div>
+                    <div
+                      className="FamilySettingsPanel__field-input"
+                      style={{ position: 'relative' }}>
+                      <span className="FamilySettingsPanel__field-icon">
+                        <Icon name="heart" />
+                      </span>
+                      <input
+                        type="text"
+                        placeholder="Введите имя..."
+                        value={favoriteName}
+                        onChange={(e) => setFavoriteName(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <SelectField
+                    label="Режим полигамии"
+                    icon="heart-crack"
+                    value={polygamyMode}
+                    options={POLYGAMY_OPTIONS}
+                    onChange={setPolygamyMode}
+                    disabled={!isLeaderMode}
+                  />
+
+                  <SelectField
+                    label="Желаемая роль родственника"
+                    icon="user"
+                    value={desiredRelativeRole}
+                    options={relativeRoleOptions}
+                    onChange={setDesiredRelativeRole}
+                    disabled={!isMemberMode}
+                  />
+
+                  <div className="FamilySettingsPanel__field">
+                    <div className="FamilySettingsPanel__field-label">
+                      Дополнительные опции
+                    </div>
+                    <div className="FamilySettingsPanel__checkbox-group">
+                      <CheckboxRow
+                        icon="ring"
+                        label="Разрешить браки с низким статусом"
+                        checked={allowLowStatusMarriage === 1}
+                        onToggle={() =>
+                          setAllowLowStatusMarriage(
+                            allowLowStatusMarriage === 1 ? 0 : 1,
+                          )
+                        }
+                      />
+                      <CheckboxRow
+                        icon="people-roof"
+                        label="Разрешить родственников в семье"
+                        checked={allowRelativesInFamily === 1}
+                        onToggle={() =>
+                          setAllowRelativesInFamily(
+                            allowRelativesInFamily === 1 ? 0 : 1,
+                          )
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
               )}
+            </div>
+          </div>
 
-              <Stack.Item>
-                <Button
-                  fluid
-                  selected={allowLowStatusMarriage === 1}
-                  color={allowLowStatusMarriage === 1 ? 'average' : undefined}
-                  onClick={() =>
-                    setAllowLowStatusMarriage(
-                      allowLowStatusMarriage === 1 ? 0 : 1
-                    )
-                  }>
-                  {allowLowStatusMarriage === 1
-                    ? 'Брак с низким статусом: разрешён'
-                    : 'Брак с низким статусом: запрещён'}
-                </Button>
-
-                <Box style={hintStyle}>
-                  Высокий статус + низкий статус = запрещено всегда. Остальные
-                  могут снять защиту вручную.
-                </Box>
-              </Stack.Item>
-
-              <Stack.Item>
-                <Input
-                  placeholder="Имя фаворита"
-                  value={favoriteName}
-                  onChange={(value) => setFavoriteName(String(value))}
-                  fluid
-                />
-                <Box style={hintStyle}>
-                  Если указан фаворит — система ищет его первым, игнорируя все
-                  ограничения. Ожидание бессрочное.
-                </Box>
-              </Stack.Item>
-
-              {isLeaderMode && (
-                <Stack.Item>
-                  <Button
-                    fluid
-                    selected={allowRelativesInFamily === 1}
-                    color={allowRelativesInFamily === 1 ? 'good' : undefined}
-                    onClick={() =>
-                      setAllowRelativesInFamily(
-                        allowRelativesInFamily === 1 ? 0 : 1
-                      )
-                    }>
-                    {allowRelativesInFamily === 1
-                      ? 'Разрешать впускать в семью родственников: ДА'
-                      : 'Разрешать впускать в семью родственников: НЕТ'}
-                  </Button>
-                  <Box style={hintStyle}>
-                    Если вы станете главой семьи — эта настройка определит,
-                    смогут ли к вам присоединяться родственники.
-                  </Box>
-                </Stack.Item>
-              )}
-            </>
-          )}
-
-          <Stack.Item>
-            <Box style={{ ...hintStyle, textAlign: 'center' as const }}>
-              При сторителлере Ксайликс все ограничения (кроме пола) могут быть
-              сняты. Семейная рулетка непредсказуема.
-            </Box>
-          </Stack.Item>
-
-          <Stack.Item mt={2}>
-            <Button
-              fluid
-              color="good"
-              onClick={() => {
-                act('save', {
-                  familyType,
-                  speciesPreferenceMode,
-                  preferredSpeciesTypes: [...preferredSpeciesTypes],
-                  preferredSpeciesAnatomy,
-                  genderPreference,
-                  favoriteName,
-                  polygamyMode,
-                  desiredRelativeRole,
-                  allowLowStatusMarriage,
-                  allowRelativesInFamily,
-                });
-              }}>
-              Сохранить настройки
-            </Button>
-          </Stack.Item>
-        </Stack>
+          <div className="FamilySettingsPanel__footer">
+            <div className="FamilySettingsPanel__footer-left">
+              <button
+                type="button"
+                className="FamilySettingsPanel__btn FamilySettingsPanel__btn--icon-only"
+                title="Сбросить к значениям по умолчанию"
+                onClick={handleResetToDefaults}>
+                <Icon name="arrows-rotate" />
+              </button>
+            </div>
+            <div className="FamilySettingsPanel__footer-right">
+              <button
+                type="button"
+                className="FamilySettingsPanel__btn FamilySettingsPanel__btn--secondary"
+                onClick={handleCancel}>
+                <Icon name="xmark" />
+                <span>Отмена</span>
+              </button>
+              <button
+                type="button"
+                className="FamilySettingsPanel__btn FamilySettingsPanel__btn--primary"
+                onClick={handleSave}>
+                <Icon name="floppy-disk" />
+                <span>Сохранить</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </Window.Content>
     </Window>
   );

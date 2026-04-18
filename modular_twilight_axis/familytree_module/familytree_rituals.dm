@@ -71,7 +71,184 @@
 	if(!sire.family_datum)
 		var/datum/heritage/new_family = new /datum/heritage(sire, null)
 		sire.family_datum = new_family
-		SSfamilytree.families += new_family
+		SSfamilytree.register_family(new_family)
 
 	sire.family_datum.AddToFamily(progeny, sire.family_member_datum, null, TRUE)
 	return TRUE
+
+/datum/controller/subsystem/familytree/proc/AssignWithDesiredRole(mob/living/carbon/human/H)
+	if(!H)
+		return
+
+	var/desired = H.desired_relative_role
+
+	switch(desired)
+		if(RELATIVE_SIBLING)
+			AssignAsSibling(H)
+		if(RELATIVE_PARENT)
+			AssignAsParent(H)
+		if(RELATIVE_CHILD)
+			AssignToHouse(H)
+		if(RELATIVE_UNCLE_AUNT)
+			AssignAuntUncle(H)
+		if(RELATIVE_SPOUSE)
+			if(H.familytree_pref == FAMILY_NEWLYWED)
+				AssignNewlyWed(H)
+			else
+				AssignToFamily(H)
+		else
+			AssignToHouse(H)
+
+/datum/controller/subsystem/familytree/proc/AssignAsSibling(mob/living/carbon/human/H)
+	if(!H)
+		return
+
+	var/our_race = H.dna.species.name
+	var/our_isolated = is_isolated(H)
+
+	for(var/datum/heritage/house as anything in families)
+		if(!house.housename || !house.member_nodes.len)
+			continue
+		if(!house_race_compatible(house, our_race, our_isolated))
+			continue
+
+		for(var/datum/family_member/member as anything in house.members)
+			if(!member.person || !member.person.client)
+				continue
+			if(!CanBeSiblings(member.person.age, H.age))
+				continue
+			if(GetSpeciesCompatibilityFailureReason(H, member.person))
+				continue
+			if(!familytree_estates_compatible(H, member.person))
+				continue
+			if(!familytree_role_tiers_compatible(H, member.person))
+				continue
+
+			var/list/member_parents = member.get_parent_members()
+			var/datum/family_member/parent1 = member_parents.len > 0 ? member_parents[1] : null
+			var/datum/family_member/parent2 = member_parents.len > 1 ? member_parents[2] : null
+			house.AddToFamily(H, parent1, parent2, FALSE)
+			return
+
+	ftlog("AssignAsSibling: [H.real_name] → NO suitable sibling house found")
+
+/datum/controller/subsystem/familytree/proc/AssignAsParent(mob/living/carbon/human/H)
+	if(!H)
+		return
+
+	var/our_race = H.dna.species.name
+	var/our_isolated = is_isolated(H)
+
+	for(var/datum/heritage/house as anything in families)
+		if(!house.housename || !house.member_nodes.len)
+			continue
+		if(!house_race_compatible(house, our_race, our_isolated))
+			continue
+
+		for(var/datum/family_member/member as anything in house.members)
+			if(!member.person || !member.person.client)
+				continue
+			if(!CanBeParentOf(H, member.person))
+				continue
+			if(member.get_parent_members().len >= 2)
+				continue
+			if(GetSpeciesCompatibilityFailureReason(H, member.person))
+				continue
+
+			var/datum/family_member/new_member = house.CreateFamilyMember(H)
+			if(new_member)
+				member.AddParent(new_member)
+				return
+
+	var/datum/heritage/empty_house
+	for(var/datum/heritage/house as anything in families)
+		if(!house.housename && house_race_compatible(house, our_race, our_isolated))
+			empty_house = house
+			break
+
+	if(empty_house)
+		var/datum/family_member/new_member = empty_house.CreateFamilyMember(H)
+		if(new_member)
+			empty_house.founder = new_member
+			new_member.generation = 0
+			empty_house.housename = empty_house.SurnameFormatting(H)
+
+/datum/family_curse
+	var/name
+	var/description
+	var/curse_type
+	var/severity = 1
+	var/inherited = TRUE
+	var/tmp/datum/weakref/cursed_by
+	var/when_cursed
+	var/blessing = FALSE
+
+	var/list/curse_effects = list()
+
+
+/datum/family_curse/misfortune
+	name = "Family Misfortune"
+	description = "Bad luck follows this bloodline"
+	curse_effects = list(/datum/status_effect/misfortune)
+
+/datum/status_effect/misfortune
+	id = "family_misfortune"
+	duration = -1
+	alert_type = /atom/movable/screen/alert/status_effect/family_curse/misfortune
+	effectedstats = list(STATKEY_LCK = -2)
+
+/atom/movable/screen/alert/status_effect/family_curse/misfortune
+	name = "Family Misfortune"
+	desc = "Your family's curse brings ill fortune to your steps."
+	icon_state = "debuff"
+
+	var/static/list/misfortune_tips = list(
+		"Dark clouds seem to follow you wherever you go...",
+		"You feel the weight of your family's curse.",
+		"Even simple tasks seem to go wrong more often.",
+		"The fates seem to conspire against you.",
+		"Your ancestors' misdeeds continue to haunt you."
+	)
+
+/atom/movable/screen/alert/status_effect/family_curse/misfortune/Initialize(mapload, datum/hud/hud_owner)
+	. = ..()
+	if(desc == initial(desc))
+		desc = "[initial(desc)] [pick(misfortune_tips)]"
+
+
+/datum/family_curse/hunger
+	name = "Insatiable Appetite"
+	description = "This bloodline is voracious in its hunger."
+	curse_effects = list(/datum/status_effect/hunger)
+
+/datum/status_effect/hunger
+	id = "family_hunger"
+	duration = -1
+	alert_type = /atom/movable/screen/alert/status_effect/family_curse/hunger
+
+/atom/movable/screen/alert/status_effect/family_curse/hunger
+	name = "Insatiable Appetite"
+	desc = "Your family is cursed with a hunger that is rarely sated."
+	icon_state = "debuff"
+
+	var/static/list/hunger_tips = list(
+		"Your stomach growls like a caged volf...",
+		"You feel the weight of your family's curse.",
+		"Even the grandest feast was never enough."
+	)
+
+/atom/movable/screen/alert/status_effect/family_curse/hunger/Initialize(mapload, datum/hud/hud_owner)
+	. = ..()
+	if(desc == initial(desc))
+		desc = "[initial(desc)] [pick(hunger_tips)]"
+
+
+/atom/movable/screen/alert/status_effect/family_curse/Click(location, control, params)
+	. = ..()
+	if(!ishuman(usr))
+		return
+	var/mob/living/carbon/human/user = usr
+	if(!user.client || !user.family_datum)
+		return
+
+	user.family_datum.OpenCursePanel(user)

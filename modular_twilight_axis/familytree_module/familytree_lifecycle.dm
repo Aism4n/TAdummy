@@ -1,3 +1,132 @@
+/datum/job/roguetown/lady/special_check_latejoin(client/C)
+	return SSfamilytree.royal_partner_candidate_allowed(C, src)
+
+/datum/job/roguetown/suitor/special_check_latejoin(client/C)
+	return SSfamilytree.royal_partner_candidate_allowed(C, src)
+// DLC: Enigma roles integration for familytree tier system.
+// Appends enigma job types to existing tier lists at runtime.
+
+/datum/controller/subsystem/familytree/proc/load_enigma_roles()
+	// Garrison (military)
+	high_tier_military_types |= list(
+		/datum/job/roguetown/sheriff,
+		/datum/job/roguetown/royal_sergeant,
+		/datum/job/roguetown/royal_guard,
+		/datum/job/roguetown/town_watch,
+		/datum/job/roguetown/vanguard,
+		/datum/job/roguetown/overseer,
+		/datum/job/roguetown/dungeoneer,
+	)
+
+	// Retinue (military)
+	high_tier_military_types |= list(
+		/datum/job/roguetown/knight_enigma,
+	)
+
+	// Town administration
+	high_tier_town_types |= list(
+		/datum/job/roguetown/mayor,
+		/datum/job/roguetown/bailiff,
+		/datum/job/roguetown/courtphysician,
+	)
+
+/datum/controller/subsystem/familytree/proc/ask_monarch_noble_permission(mob/living/carbon/human/monarch)
+	if(!monarch?.client)
+		return
+	INVOKE_ASYNC(src, PROC_REF(do_ask_monarch_noble_permission), monarch)
+
+/datum/controller/subsystem/familytree/proc/do_ask_monarch_noble_permission(mob/living/carbon/human/monarch)
+	if(!monarch?.client)
+		return
+	var/result = tgui_alert(monarch, "Могут ли другие дворяне (рыцари, советники и прочие с благородной кровью) быть частью вашей семьи?", "Герцогская семья", list("Да", "Нет"))
+
+	if(!monarch || QDELETED(monarch))
+		return
+
+	if(result == "Да")
+		allow_nobles_in_ruling_family = TRUE
+		ftlog("NOBLE DYNASTY: [monarch.real_name] allowed nobles in ruling family")
+		to_chat(monarch, span_notice("Дворяне с благородной кровью теперь могут стать частью вашей семьи."))
+		if(monarch?.client?.prefs)
+			current_royal_partner_owner = null
+			current_royal_partner_snapshot = list()
+			refresh_royal_partner_jobs(monarch, monarch.client.prefs)
+	else
+		ftlog("NOBLE DYNASTY: [monarch.real_name] denied nobles in ruling family")
+
+/datum/controller/subsystem/familytree/proc/try_assign_noble_to_dynasty(mob/living/carbon/human/H)
+	if(!allow_nobles_in_ruling_family)
+		return FALSE
+	if(!ruling_family)
+		return FALSE
+	if(!H || H.family_datum)
+		return FALSE
+	if(!HAS_TRAIT(H, TRAIT_NOBLE))
+		return FALSE
+
+	var/block = get_familytree_runtime_block_reason(H)
+	if(block)
+		return FALSE
+
+	if(familytree_get_role_tier(H) == ROLE_TIER_LOW)
+		ftlog("NOBLE DYNASTY: [H.real_name] blocked - low status role not allowed in ruling family")
+		return FALSE
+	if(familytree_get_role_tier(H) == ROLE_TIER_NONE && !is_royal_hand_job(get_familytree_job(H)))
+		ftlog("NOBLE DYNASTY: [H.real_name] blocked - no tier role")
+		return FALSE
+	ftlog("NOBLE DYNASTY: [H.real_name] eligible for ruling family (noble dynasty entry)")
+	request_family_confirmation(H, CALLBACK(src, PROC_REF(do_assign_noble_to_dynasty), H), "dynasty")
+	return TRUE
+
+/datum/controller/subsystem/familytree/proc/do_assign_noble_to_dynasty(mob/living/carbon/human/H)
+	if(!H || QDELETED(H) || H.family_datum)
+		return
+	if(!ruling_family)
+		return
+
+	var/datum/family_member/new_member = ruling_family.CreateFamilyMember(H)
+	if(!new_member)
+		return
+
+	var/datum/family_member/monarch = GetCurrentMonarch()
+	if(monarch)
+		if(CanBeSiblings(H.age, monarch.person?.age))
+			var/list/monarch_parents = monarch.get_parent_members()
+			if(monarch_parents.len)
+				new_member.AddParent(monarch_parents[1])
+				if(monarch_parents.len > 1)
+					new_member.AddParent(monarch_parents[2])
+			new_member.generation = monarch.generation
+		else
+			new_member.generation = monarch.generation
+
+	ftlog("NOBLE DYNASTY: [H.real_name] added to ruling family")
+	to_chat(H, span_love("Вы были приняты в герцогскую семью!"))
+	stop_tracking_human(H, "assigned to ruling family as noble")
+
+/datum/controller/subsystem/familytree/proc/notify_family_head_departure(mob/living/carbon/human/departed)
+	if(!departed?.family_datum)
+		return
+	var/datum/heritage/house = departed.family_datum
+	if(!house.founder?.person)
+		return
+	var/mob/living/carbon/human/head = house.founder.person
+	if(head == departed)
+		return
+	if(!head.client)
+		return
+
+	var/datum/family_member/departed_member = house.GetFamilyMember(departed)
+	if(!departed_member)
+		return
+
+	var/relation = head.family_member_datum?.GetRelationshipTo(departed_member)
+	if(!relation)
+		relation = "родственник"
+
+	to_chat(head, span_warning("Ваш [relation] [departed.real_name] покинул эти земли. Вы чувствуете тревогу."))
+	ftlog("NOTIFY: [head.real_name] notified about [departed.real_name] departure ([relation])")
+
 /datum/controller/subsystem/familytree/proc/offer_setspouse_reset(mob/living/carbon/human/H, status)
 	if(!H?.client)
 		return

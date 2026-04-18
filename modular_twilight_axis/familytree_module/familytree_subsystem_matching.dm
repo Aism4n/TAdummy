@@ -84,7 +84,9 @@
 		retry_local_assignment(H, "no suitable house found after confirm")
 
 /datum/controller/subsystem/familytree/proc/find_and_confirm_newlywed(mob/living/carbon/human/H)
-	if(!H || QDELETED(H) || H.spouse_mob)
+	if(!H || QDELETED(H))
+		return
+	if(H.spouse_mob && !familytree_can_have_multiple_spouses(H))
 		return
 	var/mob/living/carbon/human/spouse = FindNewlyWedMatch(H)
 	if(!spouse)
@@ -94,16 +96,22 @@
 	request_mutual_confirmation(H, spouse, CALLBACK(src, PROC_REF(do_execute_newlywed), H, spouse), "spouse")
 
 /datum/controller/subsystem/familytree/proc/do_execute_newlywed(mob/living/carbon/human/H, mob/living/carbon/human/spouse)
-	if(!H || QDELETED(H) || H.spouse_mob)
+	if(!H || QDELETED(H))
 		return
-	if(!spouse || QDELETED(spouse) || spouse.spouse_mob)
+	if(!spouse || QDELETED(spouse))
 		retry_local_assignment(H, "spouse unavailable after confirm")
+		return
+	if(!familytree_polygamy_compatible(H, spouse))
+		retry_local_assignment(H, "spouse already married")
 		return
 	ftlog("AddLocal: [H.real_name] + [spouse.real_name] -> MarryTo (both confirmed)")
 	viable_spouses -= H
 	viable_spouses -= spouse
-	H.MarryTo(spouse)
+	var/datum/heritage/family = H.MarryTo(spouse)
+	if(family)
+		on_family_formed(family)
 	introduce_pair(H, spouse)
+	bestow_wedding_rings(H, spouse)
 	stop_tracking_human(H, "newlywed flow matched spouse")
 	stop_tracking_human(spouse, "newlywed flow matched spouse")
 
@@ -114,7 +122,7 @@
 	if(!match)
 		ftlog("AddLocal: [H.real_name] family no match found, creating new house")
 		var/datum/heritage/new_house = new /datum/heritage(H, null)
-		families += new_house
+		register_family(new_house)
 		ftlog("AddLocal: [H.real_name] founded new house '[new_house.housename]'")
 		stop_tracking_human(H, "founded new house (no match)")
 		return
@@ -132,14 +140,16 @@
 	if(!house || !partner_member?.person)
 		retry_local_assignment(H, "partner lost")
 		return
-	if(partner_member.spouses.len)
+	if(!familytree_polygamy_compatible(H, partner_member.person))
 		retry_local_assignment(H, "partner already married")
 		return
 	ftlog("AddLocal: [H.real_name] -> AssignToFamily in house=[house.housename] (both confirmed)")
 	var/datum/family_member/new_member = house.CreateFamilyMember(H)
 	if(new_member)
 		house.MarryMembers(new_member, partner_member)
+		on_family_formed(house)
 		introduce_pair(H, partner_member.person)
+		bestow_wedding_rings(H, partner_member.person)
 	if(H.family_datum)
 		stop_tracking_human(H, "assigned to family")
 	else
@@ -173,23 +183,44 @@
 	if(favorite.family_datum)
 		var/datum/heritage/house = favorite.family_datum
 		if(status == FAMILY_NEWLYWED || status == FAMILY_FULL)
-			var/datum/family_member/new_member = house.CreateFamilyMember(H)
-			if(new_member && favorite.family_member_datum)
-				if(favorite.family_member_datum.spouses.len)
-					var/datum/family_member/old_dummy = favorite.family_member_datum.spouses[1]
-					if(old_dummy?.person && istype(old_dummy.person, /mob/living/carbon/human/dummy))
-						favorite.family_member_datum.RemoveSpouse(old_dummy)
-						house.members -= old_dummy
-						qdel(old_dummy.person)
-						qdel(old_dummy)
-				new_member.generation = favorite.family_member_datum.generation
-				house.MarryMembers(H.family_member_datum, favorite.family_member_datum)
+			var/favorite_has_dummy_spouse = FALSE
+			var/list/favorite_spouses = favorite.family_member_datum?.get_spouse_members()
+			if(favorite_spouses?.len)
+				var/datum/family_member/existing_spouse_member = favorite_spouses[1]
+				if(existing_spouse_member?.person && istype(existing_spouse_member.person, /mob/living/carbon/human/dummy))
+					favorite_has_dummy_spouse = TRUE
+			if(!favorite_has_dummy_spouse && !familytree_polygamy_compatible(H, favorite))
+				return "skip"
+			if(H.family_datum && H.family_datum != house)
+				var/datum/heritage/favorite_family = H.MarryTo(favorite)
+				if(favorite_family)
+					on_family_formed(favorite_family)
+			else
+				var/datum/family_member/new_member = house.CreateFamilyMember(H)
+				if(new_member && favorite.family_member_datum)
+					var/list/cur_favorite_spouses = favorite.family_member_datum.get_spouse_members()
+					if(cur_favorite_spouses.len)
+						var/datum/family_member/old_dummy = cur_favorite_spouses[1]
+						if(old_dummy?.person && istype(old_dummy.person, /mob/living/carbon/human/dummy))
+							favorite.family_member_datum.RemoveSpouse(old_dummy)
+							house.members -= old_dummy
+							qdel(old_dummy.person)
+							qdel(old_dummy)
+					new_member.generation = favorite.family_member_datum.generation
+					house.MarryMembers(H.family_member_datum, favorite.family_member_datum)
+					on_family_formed(house)
+					bestow_wedding_rings(H, favorite)
 		else
 			house.CreateFamilyMember(H)
 		return "assigned"
 
 	if(status == FAMILY_NEWLYWED || status == FAMILY_FULL)
-		H.MarryTo(favorite)
+		if(!familytree_polygamy_compatible(H, favorite))
+			return "skip"
+		var/datum/heritage/family = H.MarryTo(favorite)
+		if(family)
+			on_family_formed(family)
+			bestow_wedding_rings(H, favorite)
 		viable_spouses -= favorite
 		viable_spouses -= H
 		return "assigned"
@@ -201,9 +232,9 @@
 		return null
 
 	for(var/datum/heritage/house as anything in families)
-		for(var/datum/family_member/member as anything in house.members)
-			if(member.person && familytree_names_match(member.person.real_name, H.setspouse))
-				return member.person
+		for(var/datum/family_node/node as anything in house.member_nodes)
+			if(node.person && familytree_names_match(node.person.real_name, H.setspouse))
+				return node.person
 
 	for(var/mob/living/carbon/human/candidate as anything in viable_spouses)
 		if(candidate == H)
@@ -232,32 +263,42 @@
 	var/we_are_isolated = is_isolated(H)
 
 	var/list/candidates = list()
+	var/reject_mask = 0
 
 	for(var/datum/heritage/house as anything in families)
 		if(house.closed)
+			reject_mask |= FTREJ_H_CLOSED
 			continue
 		if(!house.housename || house.housename == "no name")
+			reject_mask |= FTREJ_H_NONAME
 			continue
 		if(!house_allows_relatives(house))
+			reject_mask |= FTREJ_H_RELATIVES
 			continue
 		if(!house_race_compatible(house, our_race, we_are_isolated))
+			reject_mask |= FTREJ_H_RACE
 			continue
 		if(WouldCreateAgeConflict(house, H))
+			reject_mask |= FTREJ_H_AGE
 			continue
-		if(house.members.len < 1)
+		if(house.member_nodes.len < 1)
+			reject_mask |= FTREJ_H_EMPTY
 			continue
 		if(!house_has_online_member(house))
+			reject_mask |= FTREJ_H_OFFLINE
 			continue
 
 		candidates += house
 
+	ftlog("AssignToHouse REJECTS [H.real_name]: mask=[reject_mask] ([ftreject_decode_house(reject_mask)]) -> candidates=[candidates.len]", FTLOG_DEBUG)
+
 	if(candidates.len)
 		var/datum/heritage/chosen_house = pick_weighted_house(candidates)
-		ftlog("AssignToHouse: [H.real_name] → JOINED existing house '[chosen_house.housename || "no name"]' (members=[chosen_house.members.len])")
+		ftlog("AssignToHouse: [H.real_name] → JOINED existing house '[chosen_house.housename || "no name"]' (members=[chosen_house.member_nodes.len])")
 		AddPersonToHouse(chosen_house, H, FALSE)
 		stop_tracking_human(H, "assigned to house")
 	else
-		ftlog("AssignToHouse: [H.real_name] → NO suitable existing house found. Staying without family.")
+		ftlog("AssignToHouse: [H.real_name] → NO suitable existing house found. Staying without family.", FTLOG_WARN)
 
 /datum/controller/subsystem/familytree/proc/AddPersonToHouse(datum/heritage/house, mob/living/carbon/human/person, adopted = FALSE)
 	var/role = DetermineAppropriateRole(house, person, adopted)
@@ -309,8 +350,9 @@
 		if("sibling")
 			for(var/datum/family_member/member as anything in house.members)
 				if(member.person && CanBeSiblings(member.person.age, person.age))
-					var/datum/family_member/parent1 = member.parents.len > 0 ? member.parents[1] : null
-					var/datum/family_member/parent2 = member.parents.len > 1 ? member.parents[2] : null
+					var/list/member_parents = member.get_parent_members()
+					var/datum/family_member/parent1 = member_parents.len > 0 ? member_parents[1] : null
+					var/datum/family_member/parent2 = member_parents.len > 1 ? member_parents[2] : null
 					house.AddToFamily(person, parent1, parent2, adopted)
 					break
 
@@ -338,7 +380,7 @@
 
 		var/has_single_adult = FALSE
 		for(var/datum/family_member/member as anything in house.members)
-			if(member.person && !member.spouses.len)
+			if(member.person && familytree_polygamy_compatible(H, member.person))
 				if(!member.person.client)
 					continue
 				if(!member.person.setspouse || familytree_names_match(member.person.setspouse, H.real_name))
@@ -363,13 +405,13 @@
 	if(!eligible_houses.len)
 		ftlog("AssignToFamily: [H.real_name] no eligible houses, creating new")
 		var/datum/heritage/new_house = new /datum/heritage(H, null)
-		families += new_house
+		register_family(new_house)
 		ftlog("AssignToFamily: [H.real_name] founded new house '[new_house.housename]'")
 		return
 
 	for(var/datum/heritage/house as anything in eligible_houses)
 		for(var/datum/family_member/member as anything in house.members)
-			if(member.person && !member.spouses.len)
+			if(member.person && familytree_polygamy_compatible(H, member.person))
 				if(!member.person.client)
 					continue
 				if(!member.person.setspouse || familytree_names_match(member.person.setspouse, H.real_name))
@@ -377,6 +419,7 @@
 						var/datum/family_member/new_member = house.CreateFamilyMember(H)
 						if(new_member)
 							house.MarryMembers(new_member, member)
+							on_family_formed(house)
 							return
 
 		if(!house.housename)
@@ -397,30 +440,43 @@
 	if(!(H in viable_spouses))
 		viable_spouses += H
 
+	var/reject_mask = 0
 	var/list/potential_matches = list()
 	for(var/mob/living/carbon/human/candidate as anything in viable_spouses)
-		if(!candidate || candidate == H || candidate.spouse_mob)
+		if(!candidate || candidate == H)
+			continue
+		if(!familytree_polygamy_compatible(H, candidate))
+			reject_mask |= FTREJ_N_POLY
 			continue
 		if(candidate.familytree_opted_out)
+			reject_mask |= FTREJ_N_OPTOUT
 			continue
 		var/cand_block = get_familytree_runtime_block_reason(candidate, TRUE)
 		if(cand_block)
+			reject_mask |= FTREJ_N_BLOCK
 			continue
 		if(!pronouns_compatible(H, candidate))
+			reject_mask |= FTREJ_N_PRONOUNS
 			continue
 		if(GetSpeciesCompatibilityFailureReason(H, candidate))
+			reject_mask |= FTREJ_N_SPECIES
 			continue
 		if(!familytree_estates_compatible(H, candidate))
+			reject_mask |= FTREJ_N_ESTATE
 			continue
 		if(!familytree_role_tiers_compatible(H, candidate))
+			reject_mask |= FTREJ_N_TIER
 			continue
 		if(candidate.setspouse && length(candidate.setspouse))
 			if(!familytree_names_match(candidate.setspouse, H.real_name))
+				reject_mask |= FTREJ_N_SETSPOUSE
 				continue
 		var/priority = 0
 		if(familytree_names_match(candidate.setspouse, H.real_name))
 			priority = 1
 		potential_matches += list(list(candidate, priority))
+
+	ftlog("FindNewlyWedMatch REJECTS [H.real_name] (pool=[viable_spouses.len]): mask=[reject_mask] ([ftreject_decode_newlywed(reject_mask)]) -> matches=[potential_matches.len]", FTLOG_DEBUG)
 
 	if(!potential_matches.len)
 		return null
@@ -444,30 +500,50 @@
 		return null
 	var/our_race = H.dna.species.name
 	var/our_isolated = is_isolated(H)
+	var/houses_scanned = 0
+	var/reject_mask = 0
 
 	for(var/datum/heritage/house as anything in families)
 		if(house.closed)
+			reject_mask |= FTREJ_F_CLOSED
 			continue
 		if(!house_race_compatible(house, our_race, our_isolated))
+			reject_mask |= FTREJ_F_RACE
 			continue
+		houses_scanned++
 		for(var/datum/family_member/member as anything in house.members)
-			if(member.person && !member.spouses.len)
-				if(!member.person.client)
-					continue
-				if(!member.person.setspouse || familytree_names_match(member.person.setspouse, H.real_name))
-					if(!pronouns_compatible(H, member.person))
-						continue
-					if(GetSpeciesCompatibilityFailureReason(H, member.person))
-						continue
-					if(!familytree_estates_compatible(H, member.person))
-						continue
-					if(!familytree_role_tiers_compatible(H, member.person))
-						continue
-					if(member.person.familytree_pref == FAMILY_PARTIAL)
-						continue
-					if(member.person.familytree_opted_out)
-						continue
-					return list(house, member)
+			if(!member.person)
+				continue
+			if(!familytree_polygamy_compatible(H, member.person))
+				reject_mask |= FTREJ_F_POLY
+				continue
+			if(!member.person.client)
+				reject_mask |= FTREJ_F_OFFLINE
+				continue
+			if(member.person.setspouse && !familytree_names_match(member.person.setspouse, H.real_name))
+				reject_mask |= FTREJ_F_SETSPOUSE
+				continue
+			if(!pronouns_compatible(H, member.person))
+				reject_mask |= FTREJ_F_PRONOUNS
+				continue
+			if(GetSpeciesCompatibilityFailureReason(H, member.person))
+				reject_mask |= FTREJ_F_SPECIES
+				continue
+			if(!familytree_estates_compatible(H, member.person))
+				reject_mask |= FTREJ_F_ESTATE
+				continue
+			if(!familytree_role_tiers_compatible(H, member.person))
+				reject_mask |= FTREJ_F_TIER
+				continue
+			if(member.person.familytree_pref == FAMILY_PARTIAL)
+				reject_mask |= FTREJ_F_PARTIAL
+				continue
+			if(member.person.familytree_opted_out)
+				reject_mask |= FTREJ_F_OPTOUT
+				continue
+			ftlog("FindFamilyMatch [H.real_name] -> [member.person.real_name] in '[house.housename]' (scanned=[houses_scanned]h)", FTLOG_DEBUG)
+			return list(house, member)
+	ftlog("FindFamilyMatch REJECTS [H.real_name] (houses=[families.len]): mask=[reject_mask] ([ftreject_decode_family(reject_mask)]) -> no_match", FTLOG_WARN)
 	return null
 
 /datum/controller/subsystem/familytree/proc/AssignNewlyWed(mob/living/carbon/human/H)
@@ -492,7 +568,7 @@
 	for(var/mob/living/carbon/human/potential_spouse as anything in viable_spouses)
 		if(!potential_spouse || potential_spouse == H)
 			continue
-		if(potential_spouse.spouse_mob)
+		if(!familytree_polygamy_compatible(H, potential_spouse))
 			continue
 		var/potential_block_reason = get_familytree_runtime_block_reason(potential_spouse, TRUE)
 		if(potential_block_reason == "dead")
@@ -540,7 +616,9 @@
 			ftlog("AssignNewlyWed: [H.real_name] MARRIED to [chosen_spouse.real_name]")
 			viable_spouses -= chosen_spouse
 			viable_spouses -= H
-			H.MarryTo(chosen_spouse)
+			var/datum/heritage/family = H.MarryTo(chosen_spouse)
+			if(family)
+				on_family_formed(family)
 	else
 		ftlog("AssignNewlyWed: [H.real_name] no matches, staying in viable_spouses")
 
@@ -554,12 +632,12 @@
 			continue
 		if(!house_race_compatible(house, base_species, base_isolated))
 			continue
-		if(!house.housename || house.members.len < 2)
+		if(!house.housename || house.member_nodes.len < 2)
 			continue
 
 		var/has_compatible_parent = FALSE
 		for(var/datum/family_member/member as anything in house.members)
-			if(member.children.len > 0 && member.person?.client)
+			if(member.get_child_members().len > 0 && member.person?.client)
 				if(!GetSpeciesCompatibilityFailureReason(H, member.person))
 					has_compatible_parent = TRUE
 					break
@@ -572,8 +650,8 @@
 		var/datum/family_member/new_member = chosen_house.CreateFamilyMember(H)
 		if(new_member)
 			for(var/datum/family_member/member as anything in chosen_house.members)
-				if(member.children.len > 0 && member.person && CanBeSiblings(H.age, member.person.age))
-					for(var/datum/family_member/grandparent as anything in member.parents)
+				if(member.get_child_members().len > 0 && member.person && CanBeSiblings(H.age, member.person.age))
+					for(var/datum/family_member/grandparent as anything in member.get_parent_members())
 						new_member.AddParent(grandparent)
 					break
 
@@ -586,7 +664,7 @@
 	var/datum/heritage/new_house = new /datum/heritage(initiator, null)
 	new_house.closed = TRUE
 	new_house.house_leader = new_house.founder
-	families += new_house
+	register_family(new_house)
 
 	var/datum/family_member/phantom_parent = new /datum/family_member(null, new_house)
 	phantom_parent.generation = -1
@@ -653,7 +731,7 @@
 			continue
 		if(WouldCreateAgeConflict(house, H))
 			continue
-		if(house.members.len >= 1 && house_has_online_member(house))
+		if(house.member_nodes.len >= 1 && house_has_online_member(house))
 			return TRUE
 
 	return FALSE
@@ -685,10 +763,19 @@
 /datum/controller/subsystem/familytree/proc/house_has_online_member(datum/heritage/house)
 	if(!house)
 		return FALSE
-	for(var/datum/family_member/member as anything in house.members)
-		if(member.person?.client)
+	for(var/datum/family_node/node as anything in house.member_nodes)
+		if(node.person?.client)
 			return TRUE
 	return FALSE
+
+/datum/controller/subsystem/familytree/proc/count_online_members(datum/heritage/house)
+	if(!house)
+		return 0
+	var/online_count = 0
+	for(var/datum/family_node/node as anything in house.member_nodes)
+		if(node.person?.client)
+			online_count++
+	return online_count
 
 /datum/controller/subsystem/familytree/proc/pick_weighted_house(list/candidates)
 	if(!candidates.len)
@@ -698,10 +785,7 @@
 	var/total_weight = 0
 	var/list/weights = list()
 	for(var/datum/heritage/house as anything in candidates)
-		var/online_count = 0
-		for(var/datum/family_member/member as anything in house.members)
-			if(member.person?.client)
-				online_count++
+		var/online_count = count_online_members(house)
 		var/weight = 1
 		if(online_count >= 2 && online_count < 4)
 			weight = 5
@@ -716,6 +800,29 @@
 		if(roll <= cumulative)
 			return house
 	return candidates[candidates.len]
+
+/datum/controller/subsystem/familytree/proc/bestow_wedding_rings(mob/living/carbon/human/A, mob/living/carbon/human/B)
+	give_wedding_ring(A)
+	give_wedding_ring(B)
+
+/datum/controller/subsystem/familytree/proc/give_wedding_ring(mob/living/carbon/human/H)
+	if(!H || QDELETED(H) || !ishuman(H))
+		return
+	if(istype(H, /mob/living/carbon/human/dummy))
+		return
+	var/obj/item/clothing/ring/silver/ring = new(H)
+	if(H.equip_to_slot_if_possible(ring, SLOT_RING, disable_warning = TRUE))
+		to_chat(H, span_love("Серебряное кольцо скрепляет ваш союз."))
+		return
+	if(H.put_in_hands(ring))
+		to_chat(H, span_love("Вам вручили серебряное кольцо в знак союза."))
+		return
+	var/obj/item/storage/backpack = H.get_item_by_slot(SLOT_BACK)
+	if(istype(backpack) && SEND_SIGNAL(backpack, COMSIG_TRY_STORAGE_INSERT, ring, H, TRUE, TRUE))
+		to_chat(H, span_love("Серебряное кольцо убрано в ваш рюкзак в знак союза."))
+		return
+	ring.forceMove(get_turf(H))
+	to_chat(H, span_love("Серебряное кольцо упало у ваших ног в знак союза."))
 
 /datum/controller/subsystem/familytree/proc/house_allows_relatives(datum/heritage/house)
 	if(!house)
@@ -763,3 +870,49 @@
 		return
 	if(LAZYLEN(known.mind.antag_datums))
 		info["FJOB"] = "Adventurer"
+
+// --- Reject-mask decoders (log-time only, not on hot path) ---
+
+/proc/ftreject_decode_house(mask)
+	if(!mask)
+		return "none"
+	var/list/parts = list()
+	if(mask & FTREJ_H_CLOSED)    parts += "closed"
+	if(mask & FTREJ_H_NONAME)    parts += "noname"
+	if(mask & FTREJ_H_RELATIVES) parts += "no_relatives"
+	if(mask & FTREJ_H_RACE)      parts += "race"
+	if(mask & FTREJ_H_AGE)       parts += "age"
+	if(mask & FTREJ_H_EMPTY)     parts += "empty"
+	if(mask & FTREJ_H_OFFLINE)   parts += "offline"
+	return parts.Join(",")
+
+/proc/ftreject_decode_newlywed(mask)
+	if(!mask)
+		return "none"
+	var/list/parts = list()
+	if(mask & FTREJ_N_POLY)      parts += "poly"
+	if(mask & FTREJ_N_OPTOUT)    parts += "optout"
+	if(mask & FTREJ_N_BLOCK)     parts += "block"
+	if(mask & FTREJ_N_PRONOUNS)  parts += "pronouns"
+	if(mask & FTREJ_N_SPECIES)   parts += "species"
+	if(mask & FTREJ_N_ESTATE)    parts += "estate"
+	if(mask & FTREJ_N_TIER)      parts += "tier"
+	if(mask & FTREJ_N_SETSPOUSE) parts += "setspouse"
+	return parts.Join(",")
+
+/proc/ftreject_decode_family(mask)
+	if(!mask)
+		return "none"
+	var/list/parts = list()
+	if(mask & FTREJ_F_CLOSED)    parts += "closed"
+	if(mask & FTREJ_F_RACE)      parts += "race"
+	if(mask & FTREJ_F_POLY)      parts += "poly"
+	if(mask & FTREJ_F_OFFLINE)   parts += "offline"
+	if(mask & FTREJ_F_SETSPOUSE) parts += "setspouse"
+	if(mask & FTREJ_F_PRONOUNS)  parts += "pronouns"
+	if(mask & FTREJ_F_SPECIES)   parts += "species"
+	if(mask & FTREJ_F_ESTATE)    parts += "estate"
+	if(mask & FTREJ_F_TIER)      parts += "tier"
+	if(mask & FTREJ_F_PARTIAL)   parts += "partial"
+	if(mask & FTREJ_F_OPTOUT)    parts += "optout"
+	return parts.Join(",")

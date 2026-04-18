@@ -46,31 +46,32 @@
 /proc/bond_type_is_sibling(bond_type)
 	return (bond_type == BOND_BROTHER || bond_type == BOND_SISTER)
 
-/obj/effect/proc_holder/spell/self/establish_bond
-	name = "Establish Bond"
-	desc = "Establish a family bond between two people. Requires Holy 3+."
-	overlay_state = "recruit_titlegrant"
-	antimagic_allowed = TRUE
-	recharge_time = 50
-	var/bond_range = 7
+#define FAMILYTREE_BOND_RANGE 7
 
-/obj/effect/proc_holder/spell/self/establish_bond/cast(list/targets, mob/user = usr)
-	. = ..()
-	var/mob/living/carbon/human/priest = user
-	if(!istype(priest) || !priest.mind || !priest.client)
+/mob/living/carbon/human/proc/familytree_establish_bond()
+	set name = "Establish Bond"
+	set category = "Cleric"
+	set desc = "Засвидетельствовать перед богами семейные узы двух присутствующих."
+
+	var/mob/living/carbon/human/priest = src
+	if(!priest.mind || !priest.client)
+		return
+
+	if(!priest.devotion)
+		to_chat(priest, span_warning("Лишь служитель богов может провести такой обряд."))
+		return
+
+	if(priest.stat != CONSCIOUS)
+		to_chat(priest, span_warning("Вы не в состоянии провести обряд."))
 		return
 
 	SSfamilytree.ftlog("ESTABLISH_BOND cast by [priest.real_name] ([priest.ckey])")
-	var/holy_level = priest.get_skill_level(/datum/skill/magic/holy)
-	SSfamilytree.ftlog("ESTABLISH_BOND: holy_level=[holy_level] need=[SKILL_LEVEL_JOURNEYMAN]")
-	if(holy_level < SKILL_LEVEL_JOURNEYMAN)
-		to_chat(priest, span_warning("Ваших сил недостаточно для проведения обряда."))
-		return
 
+	var/holy_level = priest.get_skill_level(/datum/skill/magic/holy)
 	var/can_bypass = (holy_level >= SKILL_LEVEL_LEGENDARY)
 
 	var/list/candidates = list()
-	for(var/mob/living/carbon/human/H in view(bond_range, priest))
+	for(var/mob/living/carbon/human/H in view(FAMILYTREE_BOND_RANGE, priest))
 		if(H == priest || H.stat == DEAD || !H.client || !H.ckey)
 			continue
 		candidates += H
@@ -80,7 +81,7 @@
 		return
 
 	var/mob/living/carbon/human/person1 = tgui_input_list(priest, "Кто готов засвидетельствовать свои отношения перед богами?", "Establish Bond", candidates)
-	if(!person1 || QDELETED(person1) || !(person1 in view(bond_range, priest)))
+	if(!person1 || QDELETED(person1) || !(person1 in view(FAMILYTREE_BOND_RANGE, priest)))
 		return
 
 	var/list/bond_options = list(
@@ -110,6 +111,8 @@
 				continue
 			if(!familytree_role_tiers_compatible(person1, candidate))
 				continue
+			if(!familytree_polygamy_compatible(person1, candidate))
+				continue
 		else
 			if(SSfamilytree.is_isolated(person1) || SSfamilytree.is_isolated(candidate))
 				if(person1.dna?.species?.type != candidate.dna?.species?.type)
@@ -121,11 +124,15 @@
 		return
 
 	var/mob/living/carbon/human/person2 = tgui_input_list(priest, "По отношению к кому?", "Establish Bond", valid_second)
-	if(!person2 || QDELETED(person2) || !(person2 in view(bond_range, priest)) || !(person1 in view(bond_range, priest)))
+	if(!person2 || QDELETED(person2) || !(person2 in view(FAMILYTREE_BOND_RANGE, priest)) || !(person1 in view(FAMILYTREE_BOND_RANGE, priest)))
 		return
 
 	if(bond_type_is_marriage(bond_type) && person1.spouse_mob == person2)
 		to_chat(priest, span_warning("Они уже состоят в браке."))
+		return
+
+	if(!can_bypass && bond_type_is_marriage(bond_type) && !familytree_polygamy_compatible(person1, person2))
+		to_chat(priest, span_warning("РЈС‡Р°СЃС‚РЅРёРєРё РЅРµ РіРѕС‚РѕРІС‹ Рє С‚Р°РєРѕРјСѓ Р±СЂР°РєСѓ."))
 		return
 
 	var/instr = bond_type_instrumental(bond_type)
@@ -134,7 +141,7 @@
 	if(priest_confirm != "Да")
 		return
 
-	if(!(person1 in view(bond_range, priest)) || !(person2 in view(bond_range, priest)))
+	if(!(person1 in view(FAMILYTREE_BOND_RANGE, priest)) || !(person2 in view(FAMILYTREE_BOND_RANGE, priest)))
 		to_chat(priest, span_warning("Участники разошлись."))
 		return
 
@@ -148,7 +155,7 @@
 		to_chat(priest, span_warning("[person2.real_name] отказался(ась)."))
 		return
 
-	if(!(person1 in view(bond_range, priest)) || !(person2 in view(bond_range, priest)))
+	if(!(person1 in view(FAMILYTREE_BOND_RANGE, priest)) || !(person2 in view(FAMILYTREE_BOND_RANGE, priest)))
 		to_chat(priest, span_warning("Участники разошлись."))
 		return
 
@@ -172,35 +179,35 @@
 		return
 
 	var/announcement = "[priest.real_name] провёл(а) обряд: [person1.real_name] теперь [instr] [person2.real_name]."
-	for(var/mob/living/carbon/human/M in view(bond_range, priest))
+	for(var/mob/living/carbon/human/M in view(FAMILYTREE_BOND_RANGE, priest))
 		to_chat(M, span_love(announcement))
 
-/obj/effect/proc_holder/spell/self/dissolve_marriage
-	name = "Dissolve Marriage"
-	desc = "Dissolve a marriage between two people. Requires Holy 5+."
-	overlay_state = "recruit_titlegrant"
-	antimagic_allowed = TRUE
-	recharge_time = 50
-	var/divorce_range = 7
+#define FAMILYTREE_DIVORCE_RANGE 7
 
-/obj/effect/proc_holder/spell/self/dissolve_marriage/cast(list/targets, mob/user = usr)
-	. = ..()
-	var/mob/living/carbon/human/priest = user
-	if(!istype(priest) || !priest.mind || !priest.client)
+/mob/living/carbon/human/proc/familytree_dissolve_marriage()
+	set name = "Dissolve Marriage"
+	set category = "Cleric"
+	set desc = "Расторгнуть брак двух присутствующих."
+
+	var/mob/living/carbon/human/priest = src
+	if(!priest.mind || !priest.client)
+		return
+
+	if(!priest.devotion)
+		to_chat(priest, span_warning("Лишь служитель богов может провести такой обряд."))
+		return
+
+	if(priest.stat != CONSCIOUS)
+		to_chat(priest, span_warning("Вы не в состоянии провести обряд."))
 		return
 
 	SSfamilytree.ftlog("DISSOLVE_MARRIAGE cast by [priest.real_name] ([priest.ckey])")
-	var/holy_level = priest.get_skill_level(/datum/skill/magic/holy)
-	SSfamilytree.ftlog("DISSOLVE_MARRIAGE: holy_level=[holy_level] need=[SKILL_LEVEL_MASTER]")
-	if(holy_level < SKILL_LEVEL_MASTER)
-		to_chat(priest, span_warning("Ваших сил недостаточно для расторжения брака."))
-		return
 
 	var/list/married_people = list()
-	for(var/mob/living/carbon/human/H in view(divorce_range, priest))
+	for(var/mob/living/carbon/human/H in view(FAMILYTREE_DIVORCE_RANGE, priest))
 		if(H == priest || H.stat == DEAD || !H.client || !H.ckey)
 			continue
-		if(H.spouse_mob && H.family_member_datum?.spouses?.len)
+		if(H.spouse_mob && H.family_member_datum?.get_spouse_members().len)
 			married_people += H
 
 	if(!married_people.len)
@@ -208,11 +215,11 @@
 		return
 
 	var/mob/living/carbon/human/person1 = tgui_input_list(priest, "Чей брак расторгнуть?", "Dissolve Marriage", married_people)
-	if(!person1 || QDELETED(person1) || !(person1 in view(divorce_range, priest)))
+	if(!person1 || QDELETED(person1) || !(person1 in view(FAMILYTREE_DIVORCE_RANGE, priest)))
 		return
 
 	var/mob/living/carbon/human/person2 = person1.spouse_mob
-	if(!person2 || QDELETED(person2) || !(person2 in view(divorce_range, priest)))
+	if(!person2 || QDELETED(person2) || !(person2 in view(FAMILYTREE_DIVORCE_RANGE, priest)))
 		to_chat(priest, span_warning("Супруг(а) должен(а) быть рядом."))
 		return
 
@@ -226,7 +233,7 @@
 		to_chat(priest, span_warning("[person2.real_name] не дал(а) согласие."))
 		return
 
-	if(!(person1 in view(divorce_range, priest)) || !(person2 in view(divorce_range, priest)))
+	if(!(person1 in view(FAMILYTREE_DIVORCE_RANGE, priest)) || !(person2 in view(FAMILYTREE_DIVORCE_RANGE, priest)))
 		to_chat(priest, span_warning("Участники разошлись."))
 		return
 
@@ -240,7 +247,7 @@
 	person2.spouse_mob = null
 
 	var/announcement = "[priest.real_name] расторг(ла) брак между [person1.real_name] и [person2.real_name]."
-	for(var/mob/living/carbon/human/M in view(divorce_range, priest))
+	for(var/mob/living/carbon/human/M in view(FAMILYTREE_DIVORCE_RANGE, priest))
 		to_chat(M, span_warning(announcement))
 
 /proc/familytree_holy_adopt(mob/living/carbon/human/child, mob/living/carbon/human/parent)
@@ -250,7 +257,7 @@
 	if(!parent.family_datum)
 		var/datum/heritage/new_family = new /datum/heritage(parent, null)
 		parent.family_datum = new_family
-		SSfamilytree.families += new_family
+		SSfamilytree.register_family(new_family)
 
 	var/datum/family_member/parent_member = parent.family_member_datum
 	if(!parent_member)
@@ -263,24 +270,36 @@
 	if(!person1 || !person2)
 		return FALSE
 
+	var/mob/living/carbon/human/new_sibling = person1
+	var/mob/living/carbon/human/anchor_person = person2
 	var/datum/heritage/target_house = person2.family_datum
-	if(!target_house)
+	if(!target_house && person1.family_datum)
 		target_house = person1.family_datum
+		new_sibling = person2
+		anchor_person = person1
 
 	if(!target_house)
 		target_house = new /datum/heritage(person2, null)
 		person2.family_datum = target_house
-		SSfamilytree.families += target_house
+		SSfamilytree.register_family(target_house)
 
-	var/datum/family_member/existing_member = person2.family_member_datum
+	var/datum/family_member/existing_member = anchor_person.family_member_datum
 	if(!existing_member)
 		return FALSE
 
-	var/datum/family_member/parent1 = existing_member.parents.len > 0 ? existing_member.parents[1] : null
-	var/datum/family_member/parent2 = existing_member.parents.len > 1 ? existing_member.parents[2] : null
+	var/list/existing_parents = existing_member.get_parent_members()
+	var/datum/family_member/parent1 = existing_parents.len > 0 ? existing_parents[1] : null
+	var/datum/family_member/parent2 = existing_parents.len > 1 ? existing_parents[2] : null
+	if(!parent1)
+		var/datum/family_member/phantom_parent = new /datum/family_member(null, target_house)
+		phantom_parent.generation = -1
+		phantom_parent.phantom = TRUE
+		target_house.members += phantom_parent
+		existing_member.AddParent(phantom_parent)
+		parent1 = phantom_parent
 
-	target_house.AddToFamily(person1, parent1, parent2, FALSE)
-	return (person1.family_datum != null)
+	target_house.AddToFamily(new_sibling, parent1, parent2, FALSE)
+	return (new_sibling.family_datum == target_house)
 
 /datum/controller/subsystem/familytree/proc/evaluate_pair_negative_influence(mob/living/carbon/human/A, mob/living/carbon/human/B)
 	var/list/harmed_patrons = list()
@@ -324,12 +343,23 @@
 	if(istype(priest.patron, /datum/patron/old_god))
 		return
 
+	if(!priest.patron)
+		return
+
 	var/list/harmed = evaluate_pair_negative_influence(person1, person2)
 	if(!harmed.len)
 		return
 
-	var/list/god_names = get_patron_names(harmed)
-	var/wrath_msg = span_danger("<font size='2'>Такой союз прогневил богов: [god_names.Join(", ")]. Проклятье пало на вас!</font>")
+	var/priest_patron_harmed = FALSE
+	for(var/patron_type in harmed)
+		if(istype(priest.patron, patron_type) || priest.patron.type == patron_type)
+			priest_patron_harmed = TRUE
+			break
+
+	if(!priest_patron_harmed)
+		return
+
+	var/wrath_msg = span_danger("<font size='2'>Такой союз прогневил вашего покровителя [priest.patron.name]. Проклятье пало на вас!</font>")
 	to_chat(priest, wrath_msg)
 
 	for(var/mob/living/carbon/human/M in view(7, priest))
