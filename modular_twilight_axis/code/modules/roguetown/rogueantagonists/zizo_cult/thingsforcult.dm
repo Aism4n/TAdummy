@@ -109,7 +109,7 @@ GLOBAL_DATUM_INIT(html_tags, /regex, regex(@"<.*?>", "g"))
 	max_blade_int = 200
 	max_integrity = 400
 	possible_item_intents = list(/datum/intent/spear/cut/oneh)
-	gripped_intents = list(/datum/intent/spear/cut/bardiche/cult, /datum/intent/spear/cut/bardiche/cleave, /datum/intent/whip, /datum/intent/shoot/neant)
+	gripped_intents = list(/datum/intent/spear/cut/bardiche/cult, /datum/intent/spear/cut/bardiche/cleave, /datum/intent/spear/bash, /datum/intent/shoot/neant)
 	thrown_bclass = BCLASS_CUT
 	blade_dulling = DULLING_BASHCHOP
 	wdefense = 8
@@ -270,10 +270,10 @@ GLOBAL_DATUM_INIT(html_tags, /regex, regex(@"<.*?>", "g"))
 /obj/item/rogueweapon/huntingknife/idagger/steel/zizo
 	name = "cursed dagger"
 	desc = "This is a dagger made of cursed steel... What's this smell?"
-	force = 25
+	force = 23
 	max_blade_int = 250
 	max_integrity = 200
-	wdefense = 8
+	wdefense = 6
 	icon = 'modular_twilight_axis/code/modules/roguetown/rogueantagonists/zizo_cult/sprites/zizo_weapone.dmi'
 	icon_state = "Zdagger"
 	smeltresult = /obj/item/ingot/steel/zizo
