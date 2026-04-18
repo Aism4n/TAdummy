@@ -1,176 +1,346 @@
-import { Box, Stack } from 'tgui-core/components';
+import {
+  Box,
+  Button,
+  Divider,
+  LabeledList,
+  Section,
+  Stack,
+} from 'tgui-core/components';
 
 import { useBackend } from '../backend';
 import { Window } from '../layouts';
 
+type SealData = {
+  label: string;
+  stamped: boolean;
+  stamper: string;
+};
+
 type Data = {
   owner_name: string;
+  owner_age: string;
+  owner_status: string;
+  issue_date: string;
+  expiry_date: string;
   issued_place: string;
-  is_resident: boolean;
+  description: string;
+  portrait_data: string;
+  seal_chancellor: SealData;
+  seal_elder: SealData;
+  seal_duke: SealData;
+  seal_hand: SealData;
+  is_owner: boolean;
+  is_bound: boolean;
+  can_detect: boolean;
+  detection_done: boolean;
+  detection_result: string;
+  defect_note: string;
 };
 
-const PARCHMENT_BG = '#f3e6c4';
-const PARCHMENT_DARK = '#e6d2a1';
-const INK = '#3c2a12';
-const INK_FAINT = '#6b4a21';
-const SEAL_RED = '#8a1a1a';
+const GOLD = '#d4b477';
+const GOLD_FAINT = '#8f7a54';
+const GOLD_DIM = 'rgba(170, 130, 70, 0.35)';
+const STONE_DARK = '#12100c';
+const STONE_MID = '#1f1a14';
+const INK_RED = '#8a1a1a';
 
-const parchmentShell: React.CSSProperties = {
+const shellStyle: React.CSSProperties = {
   width: '100%',
   height: '100%',
-  padding: '14px',
-  background: `radial-gradient(ellipse at center, ${PARCHMENT_BG} 0%, ${PARCHMENT_DARK} 100%)`,
-  borderRadius: '4px',
-  boxShadow:
-    'inset 0 0 40px rgba(90, 60, 20, 0.35), inset 0 0 4px rgba(60, 40, 10, 0.6)',
-  color: INK,
-  fontFamily: '"Times New Roman", Times, serif',
+  padding: '12px',
+  background: `linear-gradient(160deg, ${STONE_MID} 0%, ${STONE_DARK} 100%)`,
+  color: GOLD,
+  fontFamily: 'Georgia, "Palatino Linotype", Palatino, serif',
   display: 'flex',
   flexDirection: 'column',
+  gap: '10px',
 };
 
-const frameBorder: React.CSSProperties = {
-  flex: 1,
-  border: `2px double ${INK_FAINT}`,
-  padding: '18px 22px',
-  display: 'flex',
-  flexDirection: 'column',
-  position: 'relative',
-};
-
-const title: React.CSSProperties = {
+const titleStyle: React.CSSProperties = {
   textAlign: 'center',
-  fontSize: '22px',
-  letterSpacing: '2px',
+  fontSize: '20px',
+  letterSpacing: '5px',
   fontVariant: 'small-caps',
   fontWeight: 'bold',
-  marginBottom: '4px',
-  color: INK,
+  color: GOLD,
+  paddingBottom: '6px',
+  borderBottom: `1px solid ${GOLD_DIM}`,
+  textShadow: '0 0 6px rgba(212, 180, 119, 0.3)',
 };
 
-const subtitle: React.CSSProperties = {
+const subtitleStyle: React.CSSProperties = {
   textAlign: 'center',
-  fontSize: '11px',
-  letterSpacing: '4px',
+  fontSize: '10px',
+  letterSpacing: '3px',
   fontVariant: 'small-caps',
-  color: INK_FAINT,
-  marginBottom: '16px',
+  color: GOLD_FAINT,
+  marginTop: '-2px',
 };
 
-const divider: React.CSSProperties = {
-  height: '1px',
-  background: `linear-gradient(to right, transparent, ${INK_FAINT}, transparent)`,
-  margin: '8px 0',
-};
-
-const bodyText: React.CSSProperties = {
-  textAlign: 'center',
-  fontSize: '13px',
-  lineHeight: '1.7em',
-  marginTop: '10px',
-};
-
-const ownerLine: React.CSSProperties = {
-  textAlign: 'center',
-  marginTop: '14px',
-  marginBottom: '6px',
-  fontSize: '26px',
-  fontFamily: '"Lucida Handwriting", "Apple Chancery", cursive',
-  color: INK,
-  letterSpacing: '1px',
-};
-
-const ownerUnderline: React.CSSProperties = {
-  width: '70%',
-  margin: '0 auto 16px',
-  borderBottom: `1px solid ${INK_FAINT}`,
-};
-
-const placeLine: React.CSSProperties = {
-  textAlign: 'center',
-  fontSize: '14px',
-  fontVariant: 'small-caps',
-  letterSpacing: '2px',
-  marginTop: '12px',
-  color: INK,
-};
-
-const seal: React.CSSProperties = {
-  width: '78px',
-  height: '78px',
-  borderRadius: '50%',
-  margin: '14px auto 0',
-  border: `3px double ${SEAL_RED}`,
-  color: SEAL_RED,
+const portraitFrame: React.CSSProperties = {
+  width: '96px',
+  height: '96px',
+  border: `2px solid ${GOLD_DIM}`,
+  background: '#0a0806',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  fontVariant: 'small-caps',
+  boxShadow: `inset 0 0 12px rgba(0,0,0,0.7), 0 0 4px ${GOLD_DIM}`,
+};
+
+const portraitImage: React.CSSProperties = {
+  width: '88px',
+  height: '88px',
+  imageRendering: 'pixelated',
+  objectFit: 'cover',
+  objectPosition: 'top',
+};
+
+const portraitEmpty: React.CSSProperties = {
   fontSize: '10px',
+  color: GOLD_FAINT,
+  fontStyle: 'italic',
   letterSpacing: '1px',
   textAlign: 'center',
-  fontWeight: 'bold',
-  transform: 'rotate(-6deg)',
-  boxShadow: `inset 0 0 10px ${SEAL_RED}`,
-  opacity: 0.85,
+  padding: '6px',
 };
 
-const footer: React.CSSProperties = {
+const descriptionStyle: React.CSSProperties = {
+  fontSize: '12px',
+  lineHeight: '1.6em',
+  color: '#c9b188',
+  textAlign: 'justify',
+  padding: '8px 10px',
+  border: `1px solid ${GOLD_DIM}`,
+  background: 'rgba(40, 32, 22, 0.5)',
+  fontStyle: 'italic',
+};
+
+const sealCell: React.CSSProperties = {
+  border: `1px solid ${GOLD_DIM}`,
+  padding: '6px 4px',
   textAlign: 'center',
+  background: 'rgba(30, 24, 16, 0.6)',
+  minHeight: '74px',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'space-between',
+};
+
+const sealLabel: React.CSSProperties = {
+  fontSize: '10px',
+  letterSpacing: '2px',
+  fontVariant: 'small-caps',
+  color: GOLD_FAINT,
+};
+
+const sealStamp: React.CSSProperties = {
+  color: INK_RED,
+  fontSize: '11px',
+  fontVariant: 'small-caps',
+  letterSpacing: '1px',
+  fontWeight: 'bold',
+  border: `2px double ${INK_RED}`,
+  borderRadius: '50%',
+  width: '40px',
+  height: '40px',
+  margin: '4px auto',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  transform: 'rotate(-8deg)',
+  textShadow: '0 0 2px rgba(138, 26, 26, 0.4)',
+};
+
+const sealMissing: React.CSSProperties = {
+  color: GOLD_FAINT,
+  fontSize: '9px',
+  fontStyle: 'italic',
+  margin: '8px 0',
+};
+
+const sealStamperLabel: React.CSSProperties = {
+  fontSize: '8px',
+  color: GOLD_FAINT,
+  letterSpacing: '0.5px',
+};
+
+const footerBox: React.CSSProperties = {
+  fontSize: '10px',
+  color: GOLD_FAINT,
+  fontStyle: 'italic',
+  textAlign: 'center',
+};
+
+const defectNote: React.CSSProperties = {
+  color: '#c06060',
   fontSize: '10px',
   fontStyle: 'italic',
-  color: INK_FAINT,
-  marginTop: '10px',
+  textAlign: 'center',
+  marginTop: '4px',
 };
 
+const renderSeal = (seal: SealData) => (
+  <Box style={sealCell}>
+    <Box style={sealLabel}>{seal.label}</Box>
+    {seal.stamped ? (
+      <>
+        <Box style={sealStamp}>Печать</Box>
+        <Box style={sealStamperLabel}>{seal.stamper}</Box>
+      </>
+    ) : (
+      <Box style={sealMissing}>— не заверено —</Box>
+    )}
+  </Box>
+);
+
 export const ResidentManuscript = (props) => {
-  const { data } = useBackend<Data>();
-  const { owner_name, issued_place, is_resident } = data;
+  const { act, data } = useBackend<Data>();
+  const {
+    owner_name,
+    owner_age,
+    owner_status,
+    issue_date,
+    expiry_date,
+    issued_place,
+    description,
+    portrait_data,
+    seal_chancellor,
+    seal_elder,
+    seal_duke,
+    seal_hand,
+    is_owner,
+    is_bound,
+    can_detect,
+    detection_done,
+    detection_result,
+    defect_note,
+  } = data;
 
   return (
-    <Window width={420} height={520} title="Resident Manuscript">
-      <Window.Content fitted>
-        <Box style={parchmentShell}>
-          <Box style={frameBorder}>
-            <Stack vertical fill>
-              <Stack.Item>
-                <Box style={title}>Deed of Citizenship</Box>
-                <Box style={subtitle}>— By the Leave of the Crown —</Box>
-                <Box style={divider} />
-              </Stack.Item>
-
-              <Stack.Item grow>
-                <Box style={bodyText}>
-                  Let it be known to all who read these words that the bearer
-                  of this manuscript has been recognized a rightful Resident
-                  of the city, afforded the honours, rights, and hearthstead
-                  owed to such standing.
-                </Box>
-
-                <Box style={ownerLine}>{owner_name}</Box>
-                <Box style={ownerUnderline} />
-
-                <Box style={placeLine}>— {issued_place} —</Box>
-
-                <Box style={seal}>
-                  Sealed
-                  <br />
-                  &amp;
-                  <br />
-                  Signed
-                </Box>
-              </Stack.Item>
-
-              <Stack.Item>
-                <Box style={divider} />
-                <Box style={footer}>
-                  {is_resident
-                    ? 'Witnessed under lawful hand, true and binding.'
-                    : 'This deed remains unclaimed.'}
-                </Box>
-              </Stack.Item>
-            </Stack>
+    <Window
+      width={560}
+      height={620}
+      title="Грамота Личности"
+      theme="blackstone"
+    >
+      <Window.Content>
+        <Box style={shellStyle}>
+          <Box>
+            <Box style={titleStyle}>Грамота Личности</Box>
+            <Box style={subtitleStyle}>
+              — Под Рукой Короны — {issued_place} —
+            </Box>
           </Box>
+
+          <Stack>
+            <Stack.Item>
+              <Box style={portraitFrame}>
+                {portrait_data ? (
+                  <img
+                    src={`data:image/png;base64,${portrait_data}`}
+                    style={portraitImage}
+                    alt="portrait"
+                  />
+                ) : (
+                  <Box style={portraitEmpty}>
+                    Образ
+                    <br />
+                    не запечатлён
+                  </Box>
+                )}
+              </Box>
+            </Stack.Item>
+            <Stack.Item grow>
+              <Section fill>
+                <LabeledList>
+                  <LabeledList.Item label="Имя">
+                    {owner_name || '—'}
+                  </LabeledList.Item>
+                  <LabeledList.Item label="Возраст">
+                    {owner_age || '—'}
+                  </LabeledList.Item>
+                  <LabeledList.Item label="Сословие">
+                    {owner_status || '—'}
+                  </LabeledList.Item>
+                  <LabeledList.Item label="Выдана">
+                    {issue_date || '—'}
+                  </LabeledList.Item>
+                  <LabeledList.Item label="Истекает">
+                    {expiry_date || '—'}
+                  </LabeledList.Item>
+                </LabeledList>
+              </Section>
+            </Stack.Item>
+          </Stack>
+
+          <Box style={descriptionStyle}>{description}</Box>
+
+          <Box
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '6px',
+            }}
+          >
+            {renderSeal(seal_chancellor)}
+            {renderSeal(seal_elder)}
+            {renderSeal(seal_duke)}
+            {renderSeal(seal_hand)}
+          </Box>
+
+          <Divider />
+
+          <Stack align="center">
+            <Stack.Item grow>
+              <Box style={footerBox}>
+                {is_bound
+                  ? is_owner
+                    ? 'Грамота признана вашей.'
+                    : 'Грамота принадлежит иному.'
+                  : 'Грамота ещё не скреплена с ликом владельца.'}
+              </Box>
+              {!!defect_note && <Box style={defectNote}>{defect_note}</Box>}
+              {detection_done && (
+                <Box
+                  style={{
+                    ...footerBox,
+                    color:
+                      detection_result === 'fake' ? '#c06060' : '#90b070',
+                    marginTop: '2px',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {detection_result === 'fake'
+                    ? 'Сдаётся вам, что грамота поддельна.'
+                    : detection_result === 'real'
+                      ? 'На ваш взгляд грамота подлинна.'
+                      : 'Вы не можете распознать подделку.'}
+                </Box>
+              )}
+            </Stack.Item>
+            <Stack.Item>
+              {can_detect && (
+                <Button
+                  icon="search"
+                  onClick={() => act('detect')}
+                  tooltip="Тайно изучить грамоту на предмет подделки"
+                >
+                  Изучить
+                </Button>
+              )}
+              {!is_bound && (
+                <Button
+                  icon="link"
+                  color="good"
+                  onClick={() => act('bind')}
+                  tooltip="Скрепить грамоту со своим ликом"
+                >
+                  Скрепить
+                </Button>
+              )}
+            </Stack.Item>
+          </Stack>
         </Box>
       </Window.Content>
     </Window>
