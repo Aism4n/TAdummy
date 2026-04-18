@@ -26,7 +26,7 @@
 		),
 		//freely spawns 400 mammon!!! no wae! is this trve?!!?!??
 		"Pouch of Bribery" = list(
-			path = /obj/item/storage/belt/rogue/pouch/coins/matthios,
+			path = /obj/item/storage/belt/rogue/pouch/matthios,
 			m_cooldown = 5 MINUTES,
 			m_rank = SKILL_LEVEL_EXPERT,
 			category = "Rogue Arts",
@@ -166,6 +166,8 @@
 		// I'll probably reuse this as a template for a Zizo Artificery miracle in the future.
 	)
 
+/obj/item/roguecoin/gold/matthios
+	desc = "A gold coin bearing a stylized portrait of Kaiser Alister II Grenzelhoft and the Cross of the Eleven. Minted by the Imperial Treasury, these coins can be found all across the Western Kingdoms."
 
 /obj/effect/proc_holder/spell/invoked/appraise
 	overlay_state = "apprise"
