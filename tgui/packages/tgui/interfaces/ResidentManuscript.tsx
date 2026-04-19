@@ -46,7 +46,7 @@ type DefectKind =
   | 'uncertain_signature'
   | 'stale_parchment_smell'
   | 'lapis_initial_misaligned'
-  | 'watermark_shifted'
+  | 'misruled_pricking'
   | 'gold_edge_cut'
   | 'rethreaded_cord'
   | 'reheated_wax'
@@ -243,8 +243,8 @@ const getDefectKind = (note: string): DefectKind => {
   if (note.includes('Лазуритный инициал')) {
     return 'lapis_initial_misaligned';
   }
-  if (note.includes('Водяной знак')) {
-    return 'watermark_shifted';
+  if (note.includes('Разлиновочные проколы')) {
+    return 'misruled_pricking';
   }
   if (note.includes('Золочёный кант')) {
     return 'gold_edge_cut';
@@ -458,26 +458,53 @@ const DefectOverlay = (props: { defectKinds: DefectKind[] }) => {
           П
         </Box>
       )}
-      {hasDefect(defectKinds, 'watermark_shifted') && (
+      {hasDefect(defectKinds, 'misruled_pricking') && (
         <Box
           style={{
             position: 'absolute',
             left: '72px',
             bottom: '154px',
-            width: '150px',
+            width: '168px',
             height: '42px',
             pointerEvents: 'none',
-            border: '1px solid rgba(30, 58, 138, 0.2)',
-            color: 'rgba(30, 58, 138, 0.22)',
-            fontFamily: '"Palatino Linotype", "Times New Roman", serif',
-            fontSize: '10px',
-            letterSpacing: '3px',
-            lineHeight: '40px',
-            textAlign: 'center',
             transform: 'rotate(-5deg)',
           }}
         >
-          ВОДЯНОЙ ЗНАК
+          <Box
+            style={{
+              position: 'absolute',
+              left: '6px',
+              right: '4px',
+              top: '14px',
+              borderTop: '1px solid rgba(92, 56, 20, 0.32)',
+              transform: 'rotate(2deg)',
+            }}
+          />
+          <Box
+            style={{
+              position: 'absolute',
+              left: '14px',
+              right: '0',
+              top: '28px',
+              borderTop: '1px solid rgba(92, 56, 20, 0.24)',
+              transform: 'rotate(-1deg)',
+            }}
+          />
+          {[0, 18, 36, 54, 72, 90, 108, 126, 144].map((left) => (
+            <Box
+              key={left}
+              style={{
+                position: 'absolute',
+                left: `${left}px`,
+                bottom: '0',
+                width: '4px',
+                height: '4px',
+                borderRadius: '50%',
+                background: 'rgba(92, 56, 20, 0.42)',
+                boxShadow: '0 0 3px rgba(92, 56, 20, 0.18)',
+              }}
+            />
+          ))}
         </Box>
       )}
       {hasDefect(defectKinds, 'stale_parchment_smell') && (
