@@ -1,4 +1,12 @@
-import { Box, Button, Divider, Stack } from 'tgui-core/components';
+import { useEffect, useState } from 'react';
+import {
+  Box,
+  Button,
+  Divider,
+  Input,
+  Stack,
+  TextArea,
+} from 'tgui-core/components';
 
 import { useBackend } from '../backend';
 import { Window } from '../layouts';
@@ -21,6 +29,7 @@ type Data = {
   seal_hand: SealData;
   is_owner: boolean;
   is_bound: boolean;
+  can_edit_fake: boolean;
   can_detect: boolean;
   detection_done: boolean;
   detection_result: string;
@@ -211,6 +220,7 @@ export const ResidentManuscript = (props) => {
     seal_hand,
     is_owner,
     is_bound,
+    can_edit_fake,
     can_detect,
     detection_done,
     detection_result,
@@ -218,38 +228,128 @@ export const ResidentManuscript = (props) => {
     defect_note,
   } = data;
 
+  const [draftOwnerName, setDraftOwnerName] = useState(owner_name || '');
+  const [draftOwnerStatus, setDraftOwnerStatus] = useState(
+    owner_status || 'Безызвестное',
+  );
+  const [draftExpiryDate, setDraftExpiryDate] = useState(expiry_date || '');
+  const [draftIssuedPlace, setDraftIssuedPlace] = useState(issued_place || '');
+  const [draftDescription, setDraftDescription] = useState(description || '');
+
+  useEffect(() => {
+    setDraftOwnerName(owner_name || '');
+    setDraftOwnerStatus(owner_status || 'Безызвестное');
+    setDraftExpiryDate(expiry_date || '');
+    setDraftIssuedPlace(issued_place || '');
+    setDraftDescription(description || '');
+  }, [owner_name, owner_status, expiry_date, issued_place, description]);
+
+  const saveFakeManuscript = () => {
+    act('save_fake', {
+      owner_name: draftOwnerName,
+      owner_status: draftOwnerStatus,
+      expiry_date: draftExpiryDate,
+      issued_place: draftIssuedPlace,
+      description: draftDescription,
+    });
+  };
+
   return (
     <Window
       width={560}
-      height={620}
+      height={680}
       title="Подорожная грамота"
       theme="blackstone"
     >
-      <Window.Content>
+      <Window.Content scrollable>
         <Box style={shellStyle}>
           <Box>
             <Box style={titleStyle}>Подорожная грамота</Box>
             <Box style={subtitleStyle}>
-              ~ Под Рукой Короны ~ {issued_place} ~
+              ~ Под Рукой Короны ~{' '}
+              {can_edit_fake ? draftIssuedPlace || '—' : issued_place} ~
             </Box>
           </Box>
 
           <Box>
             <Box style={fieldRow}>
               <Box style={fieldLabel}>Имя</Box>
-              <Box style={fieldValue}>{owner_name || '—'}</Box>
+              <Box style={fieldValue}>
+                {can_edit_fake ? (
+                  <Input
+                    fluid
+                    maxLength={64}
+                    value={draftOwnerName}
+                    onChange={setDraftOwnerName}
+                    placeholder="Имя владельца"
+                  />
+                ) : (
+                  owner_name || '—'
+                )}
+              </Box>
             </Box>
             <Box style={fieldRow}>
               <Box style={fieldLabel}>Сословие</Box>
-              <Box style={fieldValue}>{owner_status || '—'}</Box>
+              <Box style={fieldValue}>
+                {can_edit_fake ? (
+                  <Input
+                    fluid
+                    maxLength={64}
+                    value={draftOwnerStatus}
+                    onChange={setDraftOwnerStatus}
+                    placeholder="Сословие"
+                  />
+                ) : (
+                  owner_status || '—'
+                )}
+              </Box>
             </Box>
             <Box style={fieldRow}>
               <Box style={fieldLabel}>Дана впредь до..</Box>
-              <Box style={fieldValue}>{expiry_date || '—'}</Box>
+              <Box style={fieldValue}>
+                {can_edit_fake ? (
+                  <Input
+                    fluid
+                    maxLength={64}
+                    value={draftExpiryDate}
+                    onChange={setDraftExpiryDate}
+                    placeholder="Дата"
+                  />
+                ) : (
+                  expiry_date || '—'
+                )}
+              </Box>
             </Box>
+            {can_edit_fake && (
+              <Box style={fieldRow}>
+                <Box style={fieldLabel}>Место выдачи</Box>
+                <Box style={fieldValue}>
+                  <Input
+                    fluid
+                    maxLength={64}
+                    value={draftIssuedPlace}
+                    onChange={setDraftIssuedPlace}
+                    placeholder="Место выдачи"
+                  />
+                </Box>
+              </Box>
+            )}
           </Box>
 
-          <Box style={descriptionStyle}>{description}</Box>
+          <Box style={descriptionStyle}>
+            {can_edit_fake ? (
+              <TextArea
+                fluid
+                height="130px"
+                maxLength={1200}
+                value={draftDescription}
+                onChange={setDraftDescription}
+                dontUseTabForIndent
+              />
+            ) : (
+              description
+            )}
+          </Box>
 
           <Box
             style={{
@@ -296,6 +396,16 @@ export const ResidentManuscript = (props) => {
               )}
             </Stack.Item>
             <Stack.Item>
+              {can_edit_fake && (
+                <Button
+                  icon="save"
+                  color="good"
+                  onClick={saveFakeManuscript}
+                  tooltip="Сохранить заполненную подделку"
+                >
+                  Сохранить
+                </Button>
+              )}
               {can_detect && (
                 <Button
                   icon="search"
@@ -305,7 +415,7 @@ export const ResidentManuscript = (props) => {
                   Изучить
                 </Button>
               )}
-              {!is_bound && (
+              {!is_bound && !can_edit_fake && (
                 <Button
                   icon="link"
                   color="good"
