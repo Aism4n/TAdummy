@@ -114,10 +114,13 @@
 	switch(armor_choice)
 		if("Geschwindigkeit (Light Armor + Dodge Expert)")
 			ADD_TRAIT(H, TRAIT_DODGEEXPERT, TRAIT_GENERIC)
+			H.change_stat(STATKEY_SPD, 2)
 			head = /obj/item/clothing/head/roguetown/roguehood
 			armor = /obj/item/clothing/suit/roguetown/armor/leather/heavy/coat
 		if("Beständigkeit (Medium Armor + Maille Training)")
 			ADD_TRAIT(H, TRAIT_MEDIUMARMOR, TRAIT_GENERIC)
+			H.change_stat(STATKEY_CON, 1)
+			H.change_stat(STATKEY_WIL, 1)
 			armor = /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk
 			shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy
 			pants = /obj/item/clothing/under/roguetown/chainlegs
@@ -222,7 +225,7 @@
 			H.adjust_skillrank_up_to(/datum/skill/combat/maces, SKILL_LEVEL_EXPERT, TRUE)
 
 	// Patron-specific bonuses
-	H.cmode_music = 'sound/music/merc_azurcaephan.ogg'
+	H.cmode_music = 'sound/music/combat_imperial_spellblade.ogg'
 	switch(H.patron?.type)
 		if(/datum/patron/inhumen/zizo)
 			H.grant_language(/datum/language/undead)
