@@ -13,7 +13,7 @@
 	subclass_stats = list(
 		STATKEY_PER = 2, 
 		STATKEY_CON = 1,
-		STATKEY_WIL = 2,
+		STATKEY_WIL = 1,
 	)
 	subclass_mage_aspects = list("mastery" = FALSE, "major" = 0, "minor" = 0, "utilities" = 6, "ward" = TRUE) // Mama Zizo said you get 2 more points on Utility!!!
 	subclass_skills = list(
@@ -156,7 +156,7 @@
 				if("Kriegmesser")
 					r_hand = /obj/item/rogueweapon/sword/long/kriegmesser
 					backr = /obj/item/rogueweapon/scabbard/gwstrap
-					H.change_stat(STATKEY_STR, 2)
+					H.change_stat(STATKEY_STR, 1)
 					H.change_stat(STATKEY_PER, 1)
 				if("Longsword")
 					r_hand = /obj/item/rogueweapon/sword/long
@@ -164,11 +164,11 @@
 					H.change_stat(STATKEY_LCK, 1)
 				if("Rapier")
 					r_hand = /obj/item/rogueweapon/sword/rapier
-					H.change_stat(STATKEY_SPD, 2)
+					H.change_stat(STATKEY_SPD, 1)
 					H.change_stat(STATKEY_PER, 1)
 				if("Sabre")
 					r_hand = /obj/item/rogueweapon/sword/sabre
-					H.change_stat(STATKEY_SPD, 2)
+					H.change_stat(STATKEY_SPD, 1)
 					H.change_stat(STATKEY_PER, 1)
 				if("Steel Greatsword")
 					r_hand = /obj/item/rogueweapon/greatsword
@@ -194,15 +194,15 @@
 			switch(polearm_choice)
 				if("Halberd")
 					r_hand = /obj/item/rogueweapon/halberd
-					H.change_stat(STATKEY_STR, 2)
+					H.change_stat(STATKEY_STR, 1)
 					H.change_stat(STATKEY_PER, 1)
 				if("Bardiche")
 					r_hand = /obj/item/rogueweapon/halberd/bardiche
-					H.change_stat(STATKEY_STR, 2)
+					H.change_stat(STATKEY_STR, 1)
 					H.change_stat(STATKEY_PER, 1)
 				if("Boar Spear")
 					r_hand = /obj/item/rogueweapon/spear/boar
-					H.change_stat(STATKEY_STR, 2)
+					H.change_stat(STATKEY_STR, 1)
 					H.change_stat(STATKEY_PER, 1)
 			H.adjust_skillrank_up_to(/datum/skill/combat/polearms, SKILL_LEVEL_EXPERT, TRUE)
 		if("macebearer")
