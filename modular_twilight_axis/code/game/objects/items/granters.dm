@@ -66,7 +66,8 @@
 	"Меж строк проступает чужая приписка: «Зизо хранит шёпот, Граггар ждёт крови, Маттиос взвесит долг».",\
 )
 
-#define MANUSCRIPT_FOUND_DEFECT_COUNT 3
+#define MANUSCRIPT_MIN_FOUND_DEFECT_COUNT 3
+#define MANUSCRIPT_MAX_FOUND_DEFECT_COUNT 5
 
 #define MANUSCRIPT_VALIDATION_NOTES list(\
 	"Печати сидят ровно, чернила легли уверенно, а шнур не несёт следов повторного крепления.",\
@@ -103,6 +104,9 @@
 	var/list/detection_results
 	var/list/detection_notes
 	var/auto_stamp_seals = TRUE
+	var/can_grant_residence = TRUE
+	var/expiry_year_bonus_min = 0
+	var/expiry_year_bonus_max = 0
 
 /obj/item/book/granter/residentcardvirtue/Initialize()
 	. = ..()
@@ -142,12 +146,16 @@
 	var/offset = rand(10, 20)
 	var/new_day = current_day + offset
 	var/new_month = current_month
+	var/new_year = CALENDAR_EPOCH_YEAR
 	while(new_day > CALENDAR_DAYS_IN_MONTH)
 		new_day -= CALENDAR_DAYS_IN_MONTH
 		new_month += 1
 	if(new_month > CALENDAR_MONTHS_PER_YEAR)
+		new_year += FLOOR((new_month - 1) / CALENDAR_MONTHS_PER_YEAR, 1)
 		new_month = ((new_month - 1) % CALENDAR_MONTHS_PER_YEAR) + 1
-	return "[new_day] [get_month_number_to_text(new_month)] [CALENDAR_EPOCH_YEAR]"
+	if(expiry_year_bonus_max > 0)
+		new_year += rand(expiry_year_bonus_min, expiry_year_bonus_max)
+	return "[new_day] [get_month_number_to_text(new_month)] [new_year]"
 
 /obj/item/book/granter/residentcardvirtue/proc/get_ruler_seal_title()
 	if(SSmapping.config?.map_name == "Rockhill")
@@ -202,6 +210,19 @@
 		return "[user.mobid]"
 	return user.real_name || user.name
 
+/obj/item/book/granter/residentcardvirtue/proc/is_owner_viewer(mob/living/carbon/human/user)
+	if(!ishuman(user))
+		return FALSE
+	var/detection_key = get_detection_character_key(user)
+	if(owner_character_key && detection_key && detection_key == owner_character_key)
+		return TRUE
+	if(is_fake && owner_name)
+		var/real_name = user.real_name || ""
+		var/user_name = user.name || ""
+		if(owner_name == real_name || owner_name == user_name || owner_name == html_encode(real_name) || owner_name == html_encode(user_name))
+			return TRUE
+	return FALSE
+
 /obj/item/book/granter/residentcardvirtue/examine(mob/user)
 	. = ..()
 	if(is_bound && owner_name)
@@ -254,7 +275,7 @@
 	return FALSE
 
 /obj/item/book/granter/residentcardvirtue/proc/can_claim_residence(mob/living/carbon/human/user)
-	return ishuman(user) && owner_character_key && get_detection_character_key(user) == owner_character_key && !HAS_TRAIT(user, TRAIT_RESIDENT) && !is_barred_from_residence(user) && !is_fake && has_any_seal()
+	return can_grant_residence && ishuman(user) && owner_character_key && get_detection_character_key(user) == owner_character_key && !HAS_TRAIT(user, TRAIT_RESIDENT) && !is_barred_from_residence(user) && !is_fake && has_any_seal()
 
 /obj/item/book/granter/residentcardvirtue/proc/is_ruling_authority(mob/living/carbon/human/user)
 	var/seal_key = get_seal_key_for_user(user)
@@ -293,12 +314,13 @@
 	var/detection_key
 	var/can_edit_fake = FALSE
 	var/can_become_resident = FALSE
+	var/is_owner_viewing = FALSE
 	if(ishuman(user))
 		var/mob/living/carbon/human/human_user = user
 		detection_key = get_detection_character_key(human_user)
 		can_edit_fake = can_edit_fake_manuscript(human_user)
 		can_become_resident = can_claim_residence(human_user)
-	var/is_owner_viewing = (detection_key && owner_character_key && detection_key == owner_character_key)
+		is_owner_viewing = is_owner_viewer(human_user)
 	data["owner_name"] = owner_name || (can_edit_fake ? "" : "Неизвестно")
 	data["owner_status"] = owner_status_label || (can_edit_fake ? "Безызвестное" : "—")
 	data["expiry_date"] = expiry_date || "—"
@@ -378,19 +400,20 @@
 	var/list/available_defects = MANUSCRIPT_DEFECT_NOTES
 	available_defects = available_defects.Copy()
 	var/list/generated_defects = list()
-	while(length(generated_defects) < MANUSCRIPT_FOUND_DEFECT_COUNT && length(available_defects))
+	var/defect_count = rand(MANUSCRIPT_MIN_FOUND_DEFECT_COUNT, MANUSCRIPT_MAX_FOUND_DEFECT_COUNT)
+	while(length(generated_defects) < defect_count && length(available_defects))
 		var/selected_defect = pick(available_defects)
 		generated_defects += selected_defect
 		available_defects -= selected_defect
 	return generated_defects
 
 /obj/item/book/granter/residentcardvirtue/proc/ensure_defect_notes()
-	if(length(defect_notes) >= MANUSCRIPT_FOUND_DEFECT_COUNT)
+	if(length(defect_notes) >= MANUSCRIPT_MIN_FOUND_DEFECT_COUNT)
 		return
 	var/list/generated_defects = generate_defect_notes()
 	if(length(defect_note) && !(defect_note in generated_defects))
 		generated_defects.Insert(1, defect_note)
-	while(length(generated_defects) > MANUSCRIPT_FOUND_DEFECT_COUNT)
+	while(length(generated_defects) > MANUSCRIPT_MAX_FOUND_DEFECT_COUNT)
 		generated_defects.Cut(length(generated_defects), length(generated_defects) + 1)
 	defect_notes = generated_defects
 	defect_note = length(defect_notes) ? defect_notes[1] : null
@@ -563,6 +586,11 @@
 /obj/item/book/granter/residentcardvirtue/fake/attack_self(mob/living/user)
 	ui_interact(user)
 
+/obj/item/book/granter/residentcardvirtue/roundstart
+	can_grant_residence = FALSE
+	expiry_year_bonus_min = 5
+	expiry_year_bonus_max = 10
+
 /obj/item/book/granter/residentcardvirtue/base
 	name = "Бланк подорожной грамоты"
 	desc = "Пустой бланк подорожной грамоты. Возьмите перо и впишите своё имя, затем отправьте к уполномоченным лицам для скрепления печатями."
@@ -582,6 +610,7 @@
 #undef MANUSCRIPT_ITEM_DESCRIPTION
 #undef MANUSCRIPT_DESCRIPTION
 #undef MANUSCRIPT_DEFECT_NOTES
-#undef MANUSCRIPT_FOUND_DEFECT_COUNT
+#undef MANUSCRIPT_MIN_FOUND_DEFECT_COUNT
+#undef MANUSCRIPT_MAX_FOUND_DEFECT_COUNT
 #undef MANUSCRIPT_VALIDATION_NOTES
 #undef FAKE_DEFECT_CHANCE

@@ -39,12 +39,19 @@ type Data = {
 };
 
 type DefectKind =
-  | 'blot'
-  | 'seal_smudge'
-  | 'name_wobble'
-  | 'ragged_edge'
-  | 'signature_wobble'
-  | 'stale_parchment'
+  | 'ink_blot'
+  | 'seal_ink_smudge'
+  | 'owner_letter_wobble'
+  | 'ragged_parchment_edge'
+  | 'uncertain_signature'
+  | 'stale_parchment_smell'
+  | 'lapis_initial_misaligned'
+  | 'watermark_shifted'
+  | 'gold_edge_cut'
+  | 'rethreaded_cord'
+  | 'reheated_wax'
+  | 'blue_ink_halo'
+  | 'corrected_date'
   | 'heretical_marginalia'
   | 'generic';
 
@@ -215,39 +222,47 @@ const defectNote: React.CSSProperties = {
 };
 
 const getDefectKind = (note: string): DefectKind => {
-  if (
-    note.includes('Зизо') ||
-    note.includes('Граггар') ||
-    note.includes('Маттиос') ||
-    note.includes('еретич')
-  ) {
-    return 'heretical_marginalia';
-  }
   if (note.includes('клякса')) {
-    return 'blot';
+    return 'ink_blot';
   }
-  if (
-    note.includes('печати') ||
-    note.includes('смазаны') ||
-    note.includes('Сургуч') ||
-    note.includes('шнур')
-  ) {
-    return 'seal_smudge';
+  if (note.includes('Чернила на печати')) {
+    return 'seal_ink_smudge';
   }
-  if (note.includes('имени') || note.includes('инициал')) {
-    return 'name_wobble';
+  if (note.includes('букв') && note.includes('имени')) {
+    return 'owner_letter_wobble';
   }
-  if (note.includes('Край пергамента') || note.includes('кант')) {
-    return 'ragged_edge';
+  if (note.includes('Край пергамента')) {
+    return 'ragged_parchment_edge';
   }
-  if (note.includes('Подпись') || note.includes('дате')) {
-    return 'signature_wobble';
+  if (note.includes('Подпись')) {
+    return 'uncertain_signature';
   }
-  if (note.includes('несвежим') || note.includes('Водяной знак')) {
-    return 'stale_parchment';
+  if (note.includes('несвежим')) {
+    return 'stale_parchment_smell';
   }
-  if (note.includes('ореол')) {
-    return 'blot';
+  if (note.includes('Лазуритный инициал')) {
+    return 'lapis_initial_misaligned';
+  }
+  if (note.includes('Водяной знак')) {
+    return 'watermark_shifted';
+  }
+  if (note.includes('Золочёный кант')) {
+    return 'gold_edge_cut';
+  }
+  if (note.includes('шнур продет повторно')) {
+    return 'rethreaded_cord';
+  }
+  if (note.includes('Сургуч')) {
+    return 'reheated_wax';
+  }
+  if (note.includes('синеватый ореол')) {
+    return 'blue_ink_halo';
+  }
+  if (note.includes('В дате')) {
+    return 'corrected_date';
+  }
+  if (note.includes('Зизо') || note.includes('Граггар') || note.includes('Маттиос')) {
+    return 'heretical_marginalia';
   }
   return 'generic';
 };
@@ -273,7 +288,7 @@ const buildFieldValueStyle = (
   defectKinds: DefectKind[],
   field: 'owner' | 'status' | 'expiry',
 ): React.CSSProperties => {
-  if (hasDefect(defectKinds, 'name_wobble') && field === 'owner') {
+  if (hasDefect(defectKinds, 'owner_letter_wobble') && field === 'owner') {
     return {
       ...fieldValue,
       color: '#4b1010',
@@ -282,7 +297,7 @@ const buildFieldValueStyle = (
       transform: 'rotate(-0.5deg)',
     };
   }
-  if (hasDefect(defectKinds, 'signature_wobble') && field === 'expiry') {
+  if (hasDefect(defectKinds, 'corrected_date') && field === 'expiry') {
     return {
       ...fieldValue,
       color: '#4b1010',
@@ -299,7 +314,7 @@ const buildDescriptionStyle = (
 ): React.CSSProperties => {
   let style: React.CSSProperties = descriptionStyle;
 
-  if (hasDefect(defectKinds, 'stale_parchment')) {
+  if (hasDefect(defectKinds, 'stale_parchment_smell')) {
     style = {
       ...style,
       background: `
@@ -310,10 +325,14 @@ const buildDescriptionStyle = (
       color: '#241b18',
     };
   }
-  if (hasDefect(defectKinds, 'signature_wobble')) {
+  if (hasDefect(defectKinds, 'blue_ink_halo')) {
     style = {
       ...style,
-      borderBottom: '2px solid rgba(138, 26, 26, 0.4)',
+      boxShadow: 'inset 0 0 26px rgba(30, 58, 138, 0.22)',
+      background: `
+        radial-gradient(ellipse at 46% 42%, rgba(30, 58, 138, 0.18) 0 16%, transparent 35%),
+        rgba(255, 248, 215, 0.35)
+      `,
     };
   }
   if (hasDefect(defectKinds, 'heretical_marginalia')) {
@@ -328,7 +347,7 @@ const buildDescriptionStyle = (
 const buildStamperLabelStyle = (
   defectKinds: DefectKind[],
 ): React.CSSProperties =>
-  hasDefect(defectKinds, 'signature_wobble')
+  hasDefect(defectKinds, 'uncertain_signature')
     ? {
         ...sealStamperLabel,
         color: '#7d1616',
@@ -346,7 +365,7 @@ const DefectOverlay = (props: { defectKinds: DefectKind[] }) => {
 
   return (
     <>
-      {(hasDefect(defectKinds, 'blot') || hasDefect(defectKinds, 'generic')) && (
+      {(hasDefect(defectKinds, 'ink_blot') || hasDefect(defectKinds, 'generic')) && (
         <Box
           style={{
             position: 'absolute',
@@ -365,7 +384,7 @@ const DefectOverlay = (props: { defectKinds: DefectKind[] }) => {
           }}
         />
       )}
-      {hasDefect(defectKinds, 'ragged_edge') && (
+      {hasDefect(defectKinds, 'ragged_parchment_edge') && (
         <svg
           aria-hidden="true"
           style={{
@@ -388,7 +407,37 @@ const DefectOverlay = (props: { defectKinds: DefectKind[] }) => {
           />
         </svg>
       )}
-      {hasDefect(defectKinds, 'name_wobble') && (
+      {hasDefect(defectKinds, 'gold_edge_cut') && (
+        <svg
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            left: '24px',
+            top: '26px',
+            width: 'calc(100% - 48px)',
+            height: '28px',
+            pointerEvents: 'none',
+          }}
+          viewBox="0 0 700 28"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M12 17 L72 17 L86 7 L102 18 L190 18 L207 9 L223 19 L366 19 L382 8 L397 18 L520 18 L538 9 L554 19 L686 19"
+            fill="none"
+            stroke="rgba(124, 94, 26, 0.74)"
+            strokeLinecap="round"
+            strokeWidth="2.4"
+          />
+          <path
+            d="M86 7 L92 21 M207 9 L213 22 M382 8 L389 22 M538 9 L545 22"
+            fill="none"
+            stroke="rgba(138, 26, 26, 0.58)"
+            strokeLinecap="round"
+            strokeWidth="1.5"
+          />
+        </svg>
+      )}
+      {hasDefect(defectKinds, 'lapis_initial_misaligned') && (
         <Box
           style={{
             position: 'absolute',
@@ -409,7 +458,29 @@ const DefectOverlay = (props: { defectKinds: DefectKind[] }) => {
           П
         </Box>
       )}
-      {hasDefect(defectKinds, 'stale_parchment') && (
+      {hasDefect(defectKinds, 'watermark_shifted') && (
+        <Box
+          style={{
+            position: 'absolute',
+            left: '72px',
+            bottom: '154px',
+            width: '150px',
+            height: '42px',
+            pointerEvents: 'none',
+            border: '1px solid rgba(30, 58, 138, 0.2)',
+            color: 'rgba(30, 58, 138, 0.22)',
+            fontFamily: '"Palatino Linotype", "Times New Roman", serif',
+            fontSize: '10px',
+            letterSpacing: '3px',
+            lineHeight: '40px',
+            textAlign: 'center',
+            transform: 'rotate(-5deg)',
+          }}
+        >
+          ВОДЯНОЙ ЗНАК
+        </Box>
+      )}
+      {hasDefect(defectKinds, 'stale_parchment_smell') && (
         <Box
           style={{
             position: 'absolute',
@@ -423,6 +494,45 @@ const DefectOverlay = (props: { defectKinds: DefectKind[] }) => {
             mixBlendMode: 'multiply',
           }}
         />
+      )}
+      {hasDefect(defectKinds, 'rethreaded_cord') && (
+        <Box
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: '112px',
+            width: '118px',
+            height: '34px',
+            marginLeft: '-59px',
+            pointerEvents: 'none',
+            transform: 'rotate(2deg)',
+          }}
+        >
+          <Box
+            style={{
+              position: 'absolute',
+              left: '10px',
+              top: '12px',
+              width: '96px',
+              borderTop: '2px dashed rgba(124, 94, 26, 0.58)',
+            }}
+          />
+          {[18, 46, 74].map((left) => (
+            <Box
+              key={left}
+              style={{
+                position: 'absolute',
+                left: `${left}px`,
+                top: '6px',
+                width: '12px',
+                height: '12px',
+                border: '2px solid rgba(92, 56, 20, 0.58)',
+                borderRadius: '50%',
+                boxShadow: '0 0 0 3px rgba(138, 26, 26, 0.08)',
+              }}
+            />
+          ))}
+        </Box>
       )}
       {hasDefect(defectKinds, 'heretical_marginalia') && (
         <Box
@@ -455,8 +565,12 @@ const isRoyalSeal = (seal: SealData) =>
 
 const getSealMark = (seal: SealData) => seal.label.trim().charAt(0);
 
-const OrnateWaxSeal = (props: { seal: SealData; smudged?: boolean }) => {
-  const { seal, smudged } = props;
+const OrnateWaxSeal = (props: {
+  seal: SealData;
+  smudged?: boolean;
+  reheated?: boolean;
+}) => {
+  const { seal, smudged, reheated } = props;
   const royal = isRoyalSeal(seal);
 
   return (
@@ -470,6 +584,13 @@ const OrnateWaxSeal = (props: { seal: SealData; smudged?: boolean }) => {
               transform: 'rotate(-14deg) skewX(-4deg)',
               filter:
                 'drop-shadow(0 1px 2px rgba(80, 12, 12, 0.35)) saturate(0.85)',
+            }
+          : {}),
+        ...(reheated
+          ? {
+              transform: 'rotate(-5deg) scale(1.04)',
+              filter:
+                'drop-shadow(0 0 4px rgba(246, 140, 55, 0.55)) brightness(1.12)',
             }
           : {}),
       }}
@@ -542,6 +663,19 @@ const OrnateWaxSeal = (props: { seal: SealData; smudged?: boolean }) => {
         strokeLinecap="round"
         strokeWidth="2"
       />
+      {reheated && (
+        <g opacity="0.52">
+          <path
+            d="M18 30 C27 18 52 18 62 31 C68 41 61 59 45 64"
+            fill="none"
+            stroke="#ffb15d"
+            strokeLinecap="round"
+            strokeWidth="4"
+          />
+          <circle cx="26" cy="57" fill="#ffb15d" r="3" />
+          <circle cx="56" cy="23" fill="#ffd08a" r="2.5" />
+        </g>
+      )}
       {smudged && (
         <g opacity="0.42">
           <path
@@ -571,7 +705,8 @@ const renderSeal = (seal: SealData, defectKinds: DefectKind[]) => (
       <>
         <OrnateWaxSeal
           seal={seal}
-          smudged={hasDefect(defectKinds, 'seal_smudge')}
+          smudged={hasDefect(defectKinds, 'seal_ink_smudge')}
+          reheated={hasDefect(defectKinds, 'reheated_wax')}
         />
         <Box style={buildStamperLabelStyle(defectKinds)}>{seal.stamper}</Box>
       </>
