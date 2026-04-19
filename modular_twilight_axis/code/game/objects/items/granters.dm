@@ -477,12 +477,12 @@
 
 /datum/supply_pack/rogue/drugs/fake_manuscript
 	name = "Подозрительный свиток"
-	cost = 200
+	cost = 100
 	contains = list(/obj/item/book/granter/residentcardvirtue/fake)
 
 /datum/supply_pack/rogue/luxury/manuscript_base
 	name = "Бланк подорожной грамоты"
-	cost = 120
+	cost = 50
 	contains = list(/obj/item/book/granter/residentcardvirtue/base)
 
 #undef MANUSCRIPT_ITEM_DESCRIPTION
