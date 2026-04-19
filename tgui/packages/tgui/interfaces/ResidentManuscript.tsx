@@ -14,6 +14,7 @@ type SealData = {
   label: string;
   stamped: boolean;
   stamper: string;
+  visible: boolean;
 };
 
 type Data = {
@@ -786,6 +787,12 @@ export const ResidentManuscript = (props) => {
   const foundDefect =
     detectionDone && detection_result === 'fake' && foundDefectNotes.length > 0;
   const defectKinds = foundDefect ? getDefectKinds(foundDefectNotes) : [];
+  const visibleSeals = [
+    seal_chancellor,
+    seal_elder,
+    seal_duke,
+    seal_hand,
+  ].filter((seal) => seal.visible !== false);
 
   useEffect(() => {
     setDraftOwnerName(owner_name || '');
@@ -867,14 +874,13 @@ export const ResidentManuscript = (props) => {
           <Box
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
+              gridTemplateColumns: `repeat(${Math.max(visibleSeals.length, 1)}, 1fr)`,
               gap: '8px',
             }}
           >
-            {renderSeal(seal_chancellor, defectKinds)}
-            {renderSeal(seal_elder, defectKinds)}
-            {renderSeal(seal_duke, defectKinds)}
-            {renderSeal(seal_hand, defectKinds)}
+            {visibleSeals.map((seal) => (
+              <Box key={seal.label}>{renderSeal(seal, defectKinds)}</Box>
+            ))}
           </Box>
 
           <Divider />

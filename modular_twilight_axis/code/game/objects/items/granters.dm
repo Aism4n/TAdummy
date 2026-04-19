@@ -124,7 +124,7 @@
 	detection_results = list()
 	detection_notes = list()
 	if(auto_stamp_seals)
-		stamp_all_seals()
+		stamp_all_seals(should_initially_include_duke_seal())
 
 /obj/item/book/granter/residentcardvirtue/proc/get_map_display_name()
 	var/raw = SSmapping.config?.map_name
@@ -162,10 +162,16 @@
 		return "Король"
 	return "Герцог"
 
-/obj/item/book/granter/residentcardvirtue/proc/stamp_all_seals()
+/obj/item/book/granter/residentcardvirtue/proc/is_noble_manuscript_status()
+	return owner_status_label == "Под милостью Астраты"
+
+/obj/item/book/granter/residentcardvirtue/proc/should_initially_include_duke_seal()
+	return is_noble_manuscript_status()
+
+/obj/item/book/granter/residentcardvirtue/proc/stamp_all_seals(include_duke_seal = TRUE)
 	seals["chancellor"] = list("stamper" = "Канцлер", "time" = world.time)
 	seals["elder"] = list("stamper" = "Старейшина", "time" = world.time)
-	seals["duke"] = list("stamper" = get_ruler_seal_title(), "time" = world.time)
+	seals["duke"] = include_duke_seal ? list("stamper" = get_ruler_seal_title(), "time" = world.time) : null
 	seals["hand"] = list("stamper" = "Длань", "time" = world.time)
 
 /obj/item/book/granter/residentcardvirtue/proc/has_any_seal()
@@ -251,6 +257,8 @@
 	owner_status_label = status_label_for(target)
 	is_bound = TRUE
 	name = "Подорожная грамота"
+	if(auto_stamp_seals)
+		stamp_all_seals(should_initially_include_duke_seal())
 
 /obj/item/book/granter/residentcardvirtue/proc/can_make_undetectable_forgery(mob/living/carbon/human/user)
 	return can_write_master_forgery(user) && (is_fake || istype(src, /obj/item/book/granter/residentcardvirtue/base))
@@ -279,7 +287,9 @@
 
 /obj/item/book/granter/residentcardvirtue/proc/is_ruling_authority(mob/living/carbon/human/user)
 	var/seal_key = get_seal_key_for_user(user)
-	return seal_key == "duke" || seal_key == "hand"
+	if(seal_key == "duke")
+		return !!LAZYACCESS(seals, "duke")
+	return seal_key == "hand"
 
 /obj/item/book/granter/residentcardvirtue/proc/forge_undetectable_fake(mob/living/carbon/human/forger)
 	if(!ishuman(forger))
@@ -292,7 +302,7 @@
 	if(!is_bound)
 		bind_to_holder(forger)
 	icon_state = "contractsigned"
-	stamp_all_seals()
+	stamp_all_seals(should_initially_include_duke_seal())
 	return TRUE
 
 /obj/item/book/granter/residentcardvirtue/proc/status_label_for(mob/living/carbon/human/target)
@@ -332,7 +342,7 @@
 	data["can_become_resident"] = can_become_resident
 	data["seal_chancellor"] = seal_entry("chancellor", "Канцлер")
 	data["seal_elder"] = seal_entry("elder", "Старейшина")
-	data["seal_duke"] = seal_entry("duke", get_ruler_seal_title())
+	data["seal_duke"] = seal_entry("duke", get_ruler_seal_title(), FALSE)
 	data["seal_hand"] = seal_entry("hand", "Длань")
 
 	data["can_detect"] = FALSE
@@ -355,7 +365,7 @@
 			data["can_detect"] = TRUE
 	return data
 
-/obj/item/book/granter/residentcardvirtue/proc/seal_entry(key, label)
+/obj/item/book/granter/residentcardvirtue/proc/seal_entry(key, label, visible = TRUE)
 	var/list/entry
 	if(seals)
 		entry = seals[key]
@@ -364,11 +374,13 @@
 			"label" = label,
 			"stamped" = TRUE,
 			"stamper" = entry["stamper"] || "",
+			"visible" = TRUE,
 		)
 	return list(
 		"label" = label,
 		"stamped" = FALSE,
 		"stamper" = "",
+		"visible" = visible,
 	)
 
 /obj/item/book/granter/residentcardvirtue/ui_act(action, list/params)
@@ -447,7 +459,7 @@
 	is_bound = TRUE
 	name = "Подорожная грамота"
 	icon_state = "contractsigned"
-	stamp_all_seals()
+	stamp_all_seals(should_initially_include_duke_seal())
 	authority_validated = FALSE
 	if(perfect_forgery)
 		undetectable_fake = TRUE
