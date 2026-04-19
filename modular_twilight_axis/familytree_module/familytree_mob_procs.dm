@@ -227,11 +227,7 @@
 	. += family_text
 
 /mob/living/carbon/human/proc/MixDNA(mob/living/carbon/human/parent1, mob/living/carbon/human/parent2, override = FALSE)
-	if(!dna)
-		return FALSE
-
-	dna.update_dna_identity()
-	updateappearance()
+	// Legacy compatibility hook. Family assignment must not mutate a live character's body or appearance.
 	return TRUE
 
 /mob/living/carbon/human/proc/familytree_build_bond_display_entry(mob/living/carbon/human/bonded_person, relation_text = "spouse")

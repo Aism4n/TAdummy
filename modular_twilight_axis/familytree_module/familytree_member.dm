@@ -208,7 +208,7 @@
 		if(child in spouse_children)
 			if(family.SpeciesCalculation(child.person, person, spouse.person))
 				child.adoption_status = FALSE
-				child.person?.MixDNA(person, spouse.person, override = TRUE)
+				SSfamilytree.graph_sync_adoption_status(child.person, FALSE)
 
 /datum/family_member/proc/RecalculateGeneration()
 	if(recalculating_generation)

@@ -218,9 +218,7 @@
 		new_member.AddParent(parent2)
 
 	if(!adopt && parent1 && parent2)
-		if(SpeciesCalculation(person, parent1.person, parent2.person))
-			person?.MixDNA(parent1.person, parent2.person, override = TRUE)
-		else
+		if(!SpeciesCalculation(person, parent1.person, parent2.person))
 			new_member.adoption_status = TRUE
 			SSfamilytree.graph_sync_adoption_status(person, TRUE)
 	else if(!adopt)
