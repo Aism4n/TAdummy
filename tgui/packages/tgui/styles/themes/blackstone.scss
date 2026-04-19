@@ -1,5 +1,9 @@
 @use 'azure_base' as *;
 
+@font-face {
+  font-family: 'MarkScript-Regular';
+  src: url('~roguefont/languages/MarkScript-Regular.ttf');
+}
 
 .theme-blackstone:root {
   @include azure-theme((

@@ -56,7 +56,17 @@
 	"Край пергамента обрезан неровно.",\
 	"Подпись поставлена не вполне уверенно.",\
 	"Пергамент отдаёт несвежим запахом.",\
+	"Лазуритный инициал выбивается из строки и подсох поверх основного текста.",\
+	"Водяной знак смещён и проступает только у нижнего края.",\
+	"Золочёный кант местами лёг поверх свежего надреза.",\
+	"Шёлково-золотой шнур продет повторно: вокруг отверстий видны надломы волокон.",\
+	"Сургуч у одной печати теплее по цвету и блестит как недавно переплавленный.",\
+	"Чернила в середине строки дают синеватый ореол, будто разведены иной водой.",\
+	"В дате один штрих перечёркнут слишком ровно для канцелярской руки.",\
+	"Меж строк проступает чужая приписка: «Зизо хранит шёпот, Граггар ждёт крови, Маттиос взвесит долг».",\
 )
+
+#define MANUSCRIPT_FOUND_DEFECT_COUNT 3
 
 #define MANUSCRIPT_VALIDATION_NOTES list(\
 	"Печати сидят ровно, чернила легли уверенно, а шнур не несёт следов повторного крепления.",\
@@ -87,6 +97,7 @@
 	var/undetectable_fake = FALSE
 	var/authority_validated = FALSE
 	var/defect_note
+	var/list/defect_notes
 	var/list/seals
 	var/list/detection_attempts
 	var/list/detection_results
@@ -98,6 +109,7 @@
 	issued_place = get_map_display_name()
 	description = MANUSCRIPT_DESCRIPTION
 	expiry_date = compute_expiry_date()
+	defect_notes = list()
 	seals = list(
 		"chancellor" = null,
 		"elder" = null,
@@ -147,6 +159,14 @@
 	seals["elder"] = list("stamper" = "Старейшина", "time" = world.time)
 	seals["duke"] = list("stamper" = get_ruler_seal_title(), "time" = world.time)
 	seals["hand"] = list("stamper" = "Длань", "time" = world.time)
+
+/obj/item/book/granter/residentcardvirtue/proc/has_any_seal()
+	if(!seals)
+		return FALSE
+	for(var/seal_key in seals)
+		if(seals[seal_key])
+			return TRUE
+	return FALSE
 
 /obj/item/book/granter/residentcardvirtue/proc/get_seal_key_for_user(mob/living/carbon/human/user)
 	if(!user)
@@ -222,6 +242,20 @@
 /obj/item/book/granter/residentcardvirtue/proc/can_edit_fake_manuscript(mob/living/carbon/human/user)
 	return ishuman(user) && is_fake && !is_bound
 
+/obj/item/book/granter/residentcardvirtue/proc/is_barred_from_residence(mob/living/carbon/human/user)
+	if(!ishuman(user))
+		return TRUE
+	if(HAS_TRAIT(user, TRAIT_OUTLAW) || HAS_TRAIT(user, TRAIT_HERESIARCH) || HAS_TRAIT(user, TRAIT_EXCOMMUNICATED))
+		return TRUE
+	if((user.name in GLOB.outlawed_players) || (user.real_name in GLOB.outlawed_players))
+		return TRUE
+	if((user.name in GLOB.excommunicated_players) || (user.real_name in GLOB.excommunicated_players))
+		return TRUE
+	return FALSE
+
+/obj/item/book/granter/residentcardvirtue/proc/can_claim_residence(mob/living/carbon/human/user)
+	return ishuman(user) && owner_character_key && get_detection_character_key(user) == owner_character_key && !HAS_TRAIT(user, TRAIT_RESIDENT) && !is_barred_from_residence(user) && !is_fake && has_any_seal()
+
 /obj/item/book/granter/residentcardvirtue/proc/is_ruling_authority(mob/living/carbon/human/user)
 	var/seal_key = get_seal_key_for_user(user)
 	return seal_key == "duke" || seal_key == "hand"
@@ -233,6 +267,7 @@
 	undetectable_fake = TRUE
 	authority_validated = FALSE
 	defect_note = null
+	defect_notes = list()
 	if(!is_bound)
 		bind_to_holder(forger)
 	icon_state = "contractsigned"
@@ -257,10 +292,12 @@
 	var/list/data = list()
 	var/detection_key
 	var/can_edit_fake = FALSE
+	var/can_become_resident = FALSE
 	if(ishuman(user))
 		var/mob/living/carbon/human/human_user = user
 		detection_key = get_detection_character_key(human_user)
 		can_edit_fake = can_edit_fake_manuscript(human_user)
+		can_become_resident = can_claim_residence(human_user)
 	var/is_owner_viewing = (detection_key && owner_character_key && detection_key == owner_character_key)
 	data["owner_name"] = owner_name || (can_edit_fake ? "" : "Неизвестно")
 	data["owner_status"] = owner_status_label || (can_edit_fake ? "Безызвестное" : "—")
@@ -270,6 +307,7 @@
 	data["is_owner"] = is_owner_viewing
 	data["is_bound"] = is_bound
 	data["can_edit_fake"] = can_edit_fake
+	data["can_become_resident"] = can_become_resident
 	data["seal_chancellor"] = seal_entry("chancellor", "Канцлер")
 	data["seal_elder"] = seal_entry("elder", "Старейшина")
 	data["seal_duke"] = seal_entry("duke", get_ruler_seal_title())
@@ -280,6 +318,7 @@
 	data["detection_result"] = ""
 	data["detection_note"] = ""
 	data["defect_note"] = ""
+	data["defect_notes"] = list()
 
 	if(is_bound && detection_key && !is_owner_viewing)
 		if(LAZYACCESS(detection_attempts, detection_key))
@@ -287,7 +326,9 @@
 			data["detection_result"] = LAZYACCESS(detection_results, detection_key) || "unknown"
 			data["detection_note"] = LAZYACCESS(detection_notes, detection_key) || ""
 			if(data["detection_result"] == "fake")
-				data["defect_note"] = defect_note || ""
+				ensure_defect_notes()
+				data["defect_note"] = format_defect_notes()
+				data["defect_notes"] = defect_notes || list()
 		else if(!authority_validated)
 			data["can_detect"] = TRUE
 	return data
@@ -320,6 +361,9 @@
 		if("save_fake")
 			save_fake_manuscript(user, params)
 			return TRUE
+		if("become_resident")
+			claim_residence(user)
+			return TRUE
 		if("bind")
 			return TRUE
 
@@ -330,32 +374,82 @@
 	text_value = trim(html_encode(text_value), max_length)
 	return length(text_value) ? text_value : fallback
 
+/obj/item/book/granter/residentcardvirtue/proc/generate_defect_notes()
+	var/list/available_defects = MANUSCRIPT_DEFECT_NOTES
+	available_defects = available_defects.Copy()
+	var/list/generated_defects = list()
+	while(length(generated_defects) < MANUSCRIPT_FOUND_DEFECT_COUNT && length(available_defects))
+		var/selected_defect = pick(available_defects)
+		generated_defects += selected_defect
+		available_defects -= selected_defect
+	return generated_defects
+
+/obj/item/book/granter/residentcardvirtue/proc/ensure_defect_notes()
+	if(length(defect_notes) >= MANUSCRIPT_FOUND_DEFECT_COUNT)
+		return
+	var/list/generated_defects = generate_defect_notes()
+	if(length(defect_note) && !(defect_note in generated_defects))
+		generated_defects.Insert(1, defect_note)
+	while(length(generated_defects) > MANUSCRIPT_FOUND_DEFECT_COUNT)
+		generated_defects.Cut(length(generated_defects), length(generated_defects) + 1)
+	defect_notes = generated_defects
+	defect_note = length(defect_notes) ? defect_notes[1] : null
+
+/obj/item/book/granter/residentcardvirtue/proc/format_defect_notes()
+	if(!length(defect_notes))
+		ensure_defect_notes()
+	return length(defect_notes) ? jointext(defect_notes, " ") : (defect_note || "")
+
+/obj/item/book/granter/residentcardvirtue/proc/normalize_manuscript_status(value)
+	var/text_value = ""
+	if(!isnull(value))
+		text_value = "[value]"
+	switch(text_value)
+		if("Под милостью Астраты")
+			return "Под милостью Астраты"
+	return "Безызвестное"
+
 /obj/item/book/granter/residentcardvirtue/proc/save_fake_manuscript(mob/living/carbon/human/user, list/params)
 	if(!can_edit_fake_manuscript(user))
 		return FALSE
 	if(!params)
 		params = list()
+	var/perfect_forgery = can_make_undetectable_forgery(user)
 	owner_character_key = null
 	owner_name = sanitize_manuscript_field(params["owner_name"], MAX_NAME_LEN, "Неизвестно")
-	owner_status_label = sanitize_manuscript_field(params["owner_status"], MAX_NAME_LEN, "Безызвестное")
-	expiry_date = sanitize_manuscript_field(params["expiry_date"], MAX_NAME_LEN, expiry_date || compute_expiry_date())
-	issued_place = sanitize_manuscript_field(params["issued_place"], MAX_NAME_LEN, issued_place || get_map_display_name())
-	description = sanitize_manuscript_field(params["description"], 1400, MANUSCRIPT_DESCRIPTION)
+	owner_status_label = normalize_manuscript_status(params["owner_status"])
+	expiry_date = expiry_date || compute_expiry_date()
+	issued_place = issued_place || get_map_display_name()
+	description = description || MANUSCRIPT_DESCRIPTION
 	is_bound = TRUE
 	name = "Подорожная грамота"
 	icon_state = "contractsigned"
 	stamp_all_seals()
 	authority_validated = FALSE
-	if(can_make_undetectable_forgery(user))
+	if(perfect_forgery)
 		undetectable_fake = TRUE
 		defect_note = null
+		defect_notes = list()
 	else
 		undetectable_fake = FALSE
 	detection_attempts = list()
 	detection_results = list()
 	detection_notes = list()
-	to_chat(user, span_notice("Вы сохраняете поддельную грамоту, придавая ей вид настоящей."))
+	if(perfect_forgery)
+		to_chat(user, span_notice("Благодаря мастерству письма вы создаёте безупречную поддельную грамоту. Никто не сможет распознать в ней лжи! Почти..."))
+	else
+		to_chat(user, span_notice("Вы создаёте поддельную грамоту, придавая ей вид настоящей."))
 	playsound(user, 'sound/items/write.ogg', 40, TRUE, -2)
+	return TRUE
+
+/obj/item/book/granter/residentcardvirtue/proc/claim_residence(mob/living/carbon/human/user)
+	if(!can_claim_residence(user))
+		return FALSE
+	ADD_TRAIT(user, TRAIT_RESIDENT, TRAIT_GENERIC)
+	REMOVE_TRAIT(user, TRAIT_OUTLANDER, ADVENTURER_TRAIT)
+	REMOVE_TRAIT(user, TRAIT_OUTLANDER, JOB_TRAIT)
+	REMOVE_TRAIT(user, TRAIT_OUTLANDER, TRAIT_GENERIC)
+	to_chat(user, span_notice("Печати на грамоте признаны достаточным основанием: отныне вы считаетесь гражданином этих земель."))
 	return TRUE
 
 /obj/item/book/granter/residentcardvirtue/proc/handle_detection(mob/living/carbon/human/user)
@@ -370,7 +464,7 @@
 		return
 	var/base_int = user.get_true_stat(STATKEY_INT)
 	if(is_ruling_authority(user))
-		handle_authority_detection(detection_key, base_int)
+		handle_authority_detection(user, detection_key, base_int)
 		return
 	if(authority_validated)
 		return
@@ -389,16 +483,17 @@
 	var/result = "unknown"
 	if(prob(chance))
 		if(is_fake && !undetectable_fake)
-			if(!defect_note)
-				defect_note = pick(MANUSCRIPT_DEFECT_NOTES)
+			ensure_defect_notes()
 			result = "fake"
 		else
 			result = "real"
 	LAZYSET(detection_results, detection_key, result)
+	if(result == "fake")
+		to_chat(user, span_warning("Вы обнаруживаете, что грамота поддельная: [format_defect_notes()]"))
 	if(result != "fake")
 		LAZYSET(detection_notes, detection_key, pick(MANUSCRIPT_VALIDATION_NOTES))
 
-/obj/item/book/granter/residentcardvirtue/proc/handle_authority_detection(detection_key, base_int)
+/obj/item/book/granter/residentcardvirtue/proc/handle_authority_detection(mob/living/carbon/human/user, detection_key, base_int)
 	if(authority_validated)
 		return
 	LAZYSET(detection_attempts, detection_key, TRUE)
@@ -406,12 +501,13 @@
 	if(is_fake)
 		var/detected_fake = base_int > 10 || prob(25)
 		if(detected_fake)
-			if(!defect_note)
-				defect_note = pick(MANUSCRIPT_DEFECT_NOTES)
+			ensure_defect_notes()
 			result = "fake"
 		else
 			authority_validated = TRUE
 	LAZYSET(detection_results, detection_key, result)
+	if(result == "fake")
+		to_chat(user, span_warning("Вы обнаруживаете, что грамота поддельная: [format_defect_notes()]"))
 	if(result != "fake")
 		LAZYSET(detection_notes, detection_key, pick(MANUSCRIPT_VALIDATION_NOTES))
 
@@ -425,10 +521,11 @@
 	if(!is_bound)
 		if(can_make_undetectable_forgery(user))
 			forge_undetectable_fake(user)
+			to_chat(user, span_notice("Благодаря мастерству письма вы создаёте безупречную поддельную грамоту. Никто не сможет распознать в ней лжи! Почти..."))
 		else
 			bind_to_holder(user)
+			to_chat(user, span_notice("Вы оформляете подорожную грамоту, вписывая своё имя и образ."))
 		icon_state = "contractsigned"
-		to_chat(user, span_notice("Вы вписываете своё имя и образ в грамоту."))
 		playsound(user, 'sound/items/write.ogg', 40, TRUE, -2)
 		return TRUE
 	var/seal_key = get_seal_key_for_user(user)
@@ -461,10 +558,7 @@
 /obj/item/book/granter/residentcardvirtue/fake/Initialize()
 	. = ..()
 	if(prob(FAKE_DEFECT_CHANCE))
-		defect_note = pick(MANUSCRIPT_DEFECT_NOTES)
-	for(var/seal_key in list("chancellor","elder","duke","hand"))
-		if(prob(75))
-			seals[seal_key] = list("stamper" = pick("неразборчиво","смазано","—"), "time" = 0)
+		ensure_defect_notes()
 
 /obj/item/book/granter/residentcardvirtue/fake/attack_self(mob/living/user)
 	ui_interact(user)
@@ -488,5 +582,6 @@
 #undef MANUSCRIPT_ITEM_DESCRIPTION
 #undef MANUSCRIPT_DESCRIPTION
 #undef MANUSCRIPT_DEFECT_NOTES
+#undef MANUSCRIPT_FOUND_DEFECT_COUNT
 #undef MANUSCRIPT_VALIDATION_NOTES
 #undef FAKE_DEFECT_CHANCE
