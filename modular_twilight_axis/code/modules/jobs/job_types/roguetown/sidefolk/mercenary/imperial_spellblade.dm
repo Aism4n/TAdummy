@@ -7,7 +7,7 @@
 	outfit = /datum/outfit/job/roguetown/mercenary/imperial_spellblade
 	maximum_possible_slots = 1 
 	class_select_category = CLASS_CAT_GRENZELHOFT
-	extra_context = "Этот класс наёмника имеет выбор между двумя стилями игры: через лёгкие доспехи с Dodge Expert или через средние доспехи с Maille Training."
+	extra_context = "Класс обязательно требует покровителя Нок или Зизо. Этот класс наёмника имеет выбор между двумя стилями игры: через лёгкие доспехи с Dodge Expert или через средние доспехи с Maille Training."
 	category_tags = list(CTAG_MERCENARY)
 	traits_applied = list(TRAIT_ARCYNE)
 	subclass_stats = list(
@@ -44,16 +44,15 @@
 
 /datum/outfit/job/roguetown/mercenary/imperial_spellblade/pre_equip(mob/living/carbon/human/H)
 	..()
-	head = /obj/item/clothing/head/roguetown/roguehood
 	shoes = /obj/item/clothing/shoes/roguetown/boots/leather/reinforced
-	pants = /obj/item/clothing/under/roguetown/trou/leather
-	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson
-	gloves = /obj/item/clothing/gloves/roguetown/plate/iron
+	pants = /obj/item/clothing/under/roguetown/heavy_leather_pants
+	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy
+	gloves = /obj/item/clothing/gloves/roguetown/plate
 	belt = /obj/item/storage/belt/rogue/leather
 	neck = /obj/item/clothing/neck/roguetown/chaincoif/chainmantle
 	backl = /obj/item/storage/backpack/rogue/satchel
 	beltl = /obj/item/storage/belt/rogue/pouch/coins/poor
-	wrists = /obj/item/clothing/wrists/roguetown/bracers/iron
+	wrists = /obj/item/clothing/wrists/roguetown/bracers
 	backpack_contents = list(/obj/item/flashlight/flare/torch = 1,
 		/obj/item/reagent_containers/glass/bottle/alchemical/healthpot = 1,
 		/obj/item/chalk = 1,
@@ -115,8 +114,9 @@
 		if("Geschwindigkeit (Light Armor + Dodge Expert)")
 			ADD_TRAIT(H, TRAIT_DODGEEXPERT, TRAIT_GENERIC)
 			H.change_stat(STATKEY_SPD, 2)
-			head = /obj/item/clothing/head/roguetown/roguehood
-			armor = /obj/item/clothing/suit/roguetown/armor/leather/heavy/coat
+			armor = /obj/item/clothing/suit/roguetown/armor/brigandine/light
+			cloak = /obj/item/clothing/cloak/eastcloak2
+			head = /obj/item/clothing/head/roguetown/helmet/bascinet/etruscan/grenzelhoft
 		if("Beständigkeit (Medium Armor + Maille Training)")
 			ADD_TRAIT(H, TRAIT_MEDIUMARMOR, TRAIT_GENERIC)
 			H.change_stat(STATKEY_CON, 1)
@@ -125,16 +125,16 @@
 			shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy
 			pants = /obj/item/clothing/under/roguetown/chainlegs
 			shoes = /obj/item/clothing/shoes/roguetown/boots/armor/iron
-			cloak = /obj/item/clothing/cloak/tabard/devotee/noc
+			cloak = /obj/item/clothing/cloak/eastcloak2
 
 			var/helmets = list(
 				"Pigface Bascinet"		= /obj/item/clothing/head/roguetown/helmet/bascinet/pigface,
 				"Guard Helmet"			= /obj/item/clothing/head/roguetown/helmet/heavy/guard,
 				"Bucket Helmet"			= /obj/item/clothing/head/roguetown/helmet/heavy/bucket,
 				"Knight Helmet"			= /obj/item/clothing/head/roguetown/helmet/heavy/knight,
-				"Armet"					= /obj/item/clothing/head/roguetown/helmet/heavy/knight/armet,
-				"Visored Sallet"		= /obj/item/clothing/head/roguetown/helmet/sallet/visored,
-				"Klappvisier Bascinet"	= /obj/item/clothing/head/roguetown/helmet/bascinet/etruscan,
+				"Armet"					= /obj/item/clothing/head/roguetown/helmet/heavy/knight/armet/grenzelhoft,
+				"Visored Sallet"		= /obj/item/clothing/head/roguetown/helmet/sallet/visored/grenzelhoft,
+				"Klappvisier Bascinet"	= /obj/item/clothing/head/roguetown/helmet/bascinet/etruscan/grenzelhoft,
 				"Hounskull Bascinet"	= /obj/item/clothing/head/roguetown/helmet/bascinet/pigface/hounskull,
 				"Slitted Kettle"		= /obj/item/clothing/head/roguetown/helmet/heavy/knight/skettle,
 				"Volf-Face Helm"		= /obj/item/clothing/head/roguetown/helmet/heavy/volfplate,
