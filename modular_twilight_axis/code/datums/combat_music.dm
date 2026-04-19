@@ -179,4 +179,4 @@
 	desc = "Вот и ты, грензельская свинья, предатель традиций и неверный ученик нашей школы. Я сражусь с тобой лишь из великой милости к твоей убогой жизни."
 	shortname = "ImperialSpellbade"
 	credits = "Оригинал: https://youtu.be/mhsFGJs8a3A?si=wR0c07aVHyqXOPUG"
-	musicpath = list('sound/music/merc_azurcaephan.ogg')
+	musicpath = list('sound/music/combat_imperial_spellblade.ogg')
