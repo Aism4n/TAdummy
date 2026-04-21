@@ -507,7 +507,7 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 /datum/loadout_item/sleevedtabard
 	name = "Tabard, Sleeved"
 	category = "Плащи"
-	path = /obj/item/clothing/cloak/tabard/sleevedtabard
+	path = /obj/item/clothing/cloak/sleevedtabard
 
 //SHOES
 /datum/loadout_item/darkboots
