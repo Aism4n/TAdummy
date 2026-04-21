@@ -185,51 +185,12 @@
 	return erp_try_start(user, src, user)
 
 /obj/item/bodypart/head/dullahan/drop_limb(special)
-	var/mob/living/carbon/human/user = original_owner
-	var/datum/species/dullahan/user_species = user.dna.species
-
-	user_species.soul_light_on(user)
-	user_species.headless = TRUE
-	SEND_SIGNAL(user, COMSIG_ERP_ANATOMY_CHANGED)
-	
-	grabbedby = SANITIZE_LIST(grabbedby)
-	if(grabbedby)
-		for(var/obj/item/grabbing/grab in grabbedby)
-			if(grab.grab_state != GRAB_AGGRESSIVE)
-				continue
-
-			var/mob/living/carbon/human = grab.grabbee
-			var/hand_index = human.get_held_index_of_item(grab)
-			human.dropItemToGround(grab)
-
-			if(!special)
-				insert_worn_items()
-
-			. = ..()
-
-			human.put_in_hand(src, hand_index)
-			grabbedby.Cut()
-			return
-
-		grabbedby.Cut()
-
-	if(!special)
-		insert_worn_items()
-
 	. = ..()
+	SEND_SIGNAL(original_owner, COMSIG_ERP_ANATOMY_CHANGED)
 
 /obj/item/bodypart/head/dullahan/attach_limb(mob/living/carbon/human/user)
-	var/mob/living/carbon/human/user_dullahan = original_owner ? original_owner : user
-	var/datum/species/dullahan/user_species = user_dullahan.dna.species
-	user_species.soul_light_off()
-	user_species.headless = FALSE
-	SEND_SIGNAL(user, COMSIG_ERP_ANATOMY_CHANGED)
-	for(var/item_slot in head_items)
-		var/obj/item/worn_item = head_items[item_slot]
-		if(worn_item)
-			user_dullahan.equip_to_slot(worn_item, text2num(item_slot))
-	head_items = list()
-	return ..()
+	. = ..()
+	SEND_SIGNAL((original_owner ? original_owner : user), COMSIG_ERP_ANATOMY_CHANGED)
 
 /mob/living/carbon/human/species/wildshape
 	var/added_penis = FALSE

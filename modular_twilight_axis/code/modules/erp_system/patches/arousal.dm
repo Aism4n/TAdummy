@@ -577,7 +577,7 @@
 	climaxer.emote("moan", forced = TRUE)
 	climaxer.playsound_local(climaxer, 'sound/misc/mat/end.ogg', 100)
 
-	if(partner && HAS_TRAIT(partner, TRAIT_GOODLOVER))
+	if(partner && HAS_TRAIT(partner, TRAIT_GOODLOVER) && partner != climaxer)
 		if(!climaxer.mob_timers["cumtri"])
 			climaxer.mob_timers["cumtri"] = world.time
 			climaxer.adjust_triumphs(1)
