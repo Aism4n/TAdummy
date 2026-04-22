@@ -82,7 +82,7 @@
 	var/join_create_phase_open = familytree_join_create_phase_open()
 	var/relative_join_phase_open = familytree_relative_join_phase_open()
 
-	if(!xylix_roulette_active && H.setspouse && length(H.setspouse))
+	if(H.setspouse && length(H.setspouse))
 		ftlog("AddLocal: [H.real_name] has favorite=[H.setspouse], trying favorite assign (retry #[H.familytree_setspouse_retries])")
 		var/favorite_result = TryAssignToFavorite(H, status)
 		if(favorite_result == "assigned")
@@ -358,10 +358,11 @@
 	if(!familytree_polygamy_compatible(H, partner_member.person))
 		retry_local_assignment(H, "partner already married")
 		return
-	if(!pronouns_compatible(H, partner_member.person))
+	var/soft_reject_mask = familytree_pair_soft_pref_reject_mask(H, partner_member.person)
+	if(soft_reject_mask & FTREJ_N_PRONOUNS)
 		retry_local_assignment(H, "partner pronouns no longer compatible")
 		return
-	if(GetSpeciesCompatibilityFailureReason(H, partner_member.person))
+	if(soft_reject_mask & FTREJ_N_SPECIES)
 		retry_local_assignment(H, "partner species or anatomy no longer compatible")
 		return
 	if(!familytree_estates_compatible(H, partner_member.person))
@@ -400,9 +401,8 @@
 
 	if(favorite.familytree_opted_out)
 		return "waiting"
-	if(!xylix_roulette_active && favorite.setspouse && length(favorite.setspouse))
-		if(!familytree_names_match(favorite.setspouse, H.real_name))
-			return "waiting"
+	if(!familytree_name_lock_allows_pair(H, favorite))
+		return "waiting"
 	if(favorite.familytree_confirmation_pending)
 		return "waiting"
 
@@ -424,6 +424,10 @@
 		if((status_mode & FAMILYTREE_MODE_JOIN) && H.desired_relative_role == RELATIVE_SPOUSE)
 			if(!familytree_polygamy_compatible(H, favorite))
 				return "skip"
+			if(familytree_pair_soft_pref_reject_mask(H, favorite))
+				return "skip"
+			if(!familytree_estates_compatible(H, favorite) || !familytree_role_tiers_compatible(H, favorite))
+				return "skip"
 			request_mutual_confirmation(H, favorite, CALLBACK(src, PROC_REF(do_execute_family), H, house, favorite.family_member_datum), "family")
 			return "assigned"
 		if(status_mode & FAMILYTREE_MODE_LEGACY_SPOUSE)
@@ -435,6 +439,10 @@
 					favorite_has_dummy_spouse = TRUE
 			if(!favorite_has_dummy_spouse && !familytree_polygamy_compatible(H, favorite))
 				return "skip"
+			if(familytree_pair_soft_pref_reject_mask(H, favorite))
+				return "skip"
+			if(!familytree_estates_compatible(H, favorite) || !familytree_role_tiers_compatible(H, favorite))
+				return "skip"
 			request_mutual_confirmation(H, favorite, CALLBACK(src, PROC_REF(do_execute_family), H, house, favorite.family_member_datum), "family")
 		else
 			request_family_confirmation(H, CALLBACK(src, PROC_REF(do_assign_to_favorite_house), H, house), "house")
@@ -443,6 +451,10 @@
 	if((status_mode & (FAMILYTREE_MODE_CREATE | FAMILYTREE_MODE_JOIN | FAMILYTREE_MODE_LEGACY_SPOUSE)) && familytree_new_family_pair_eligible(H, favorite))
 		var/relation = familytree_new_family_pair_relation(H, favorite)
 		if(relation && !familytree_new_family_relation_valid(H, favorite, relation))
+			return "skip"
+		if(familytree_new_family_pair_pref_reject_mask(H, favorite))
+			return "skip"
+		if(!familytree_estates_compatible(H, favorite))
 			return "skip"
 		if(relation == "spouse")
 			if(!familytree_polygamy_compatible(H, favorite))
@@ -454,6 +466,23 @@
 			return "assigned"
 
 	return "waiting"
+
+/datum/controller/subsystem/familytree/proc/familytree_targets_name(mob/living/carbon/human/seeker, mob/living/carbon/human/target)
+	if(!seeker || !target || !seeker.setspouse || !length(seeker.setspouse))
+		return FALSE
+	return familytree_names_match(seeker.setspouse, target.real_name)
+
+/datum/controller/subsystem/familytree/proc/familytree_mutual_setspouse(mob/living/carbon/human/A, mob/living/carbon/human/B)
+	return familytree_targets_name(A, B) && familytree_targets_name(B, A)
+
+/datum/controller/subsystem/familytree/proc/familytree_name_lock_allows_pair(mob/living/carbon/human/A, mob/living/carbon/human/B)
+	if(!A || !B)
+		return FALSE
+	if(A.setspouse && length(A.setspouse) && !familytree_targets_name(A, B))
+		return FALSE
+	if(B.setspouse && length(B.setspouse) && !familytree_targets_name(B, A))
+		return FALSE
+	return TRUE
 
 /datum/controller/subsystem/familytree/proc/do_assign_to_favorite_house(mob/living/carbon/human/H, datum/heritage/house)
 	if(!H || QDELETED(H) || H.family_datum || !house)
@@ -723,10 +752,11 @@
 			if(member.person && familytree_polygamy_compatible(H, member.person))
 				if(!member.person.client)
 					continue
-				if(xylix_roulette_active || !member.person.setspouse || familytree_names_match(member.person.setspouse, H.real_name))
-					if(!pronouns_compatible(H, member.person))
+				if(!member.person.setspouse || !length(member.person.setspouse) || familytree_targets_name(member.person, H))
+					var/candidate_soft_reject_mask = familytree_pair_soft_pref_reject_mask(H, member.person)
+					if(candidate_soft_reject_mask & FTREJ_N_PRONOUNS)
 						continue
-					if(GetSpeciesCompatibilityFailureReason(H, member.person))
+					if(candidate_soft_reject_mask & FTREJ_N_SPECIES)
 						continue
 					if(!familytree_estates_compatible(H, member.person))
 						continue
@@ -755,8 +785,9 @@
 			if(member.person && familytree_polygamy_compatible(H, member.person))
 				if(!member.person.client)
 					continue
-				if(xylix_roulette_active || !member.person.setspouse || familytree_names_match(member.person.setspouse, H.real_name))
-					if(pronouns_compatible(H, member.person) && SpeciesCompatible(H, member.person) && familytree_estates_compatible(H, member.person) && familytree_role_tiers_compatible(H, member.person))
+				if(!member.person.setspouse || !length(member.person.setspouse) || familytree_targets_name(member.person, H))
+					var/final_soft_reject_mask = familytree_pair_soft_pref_reject_mask(H, member.person)
+					if(!final_soft_reject_mask && familytree_estates_compatible(H, member.person) && familytree_role_tiers_compatible(H, member.person))
 						var/datum/family_member/new_member = house.CreateFamilyMember(H)
 						if(new_member)
 							house.MarryMembers(new_member, member)
@@ -975,15 +1006,15 @@
 			return for_a ? "joined new house as niece/nephew of [key_name(B)]" : "created new house as uncle/aunt of [key_name(A)]"
 	return "created new house as relative of [key_name(other)]"
 
-/datum/controller/subsystem/familytree/proc/familytree_creator_pronouns_compatible(mob/living/carbon/human/creator, mob/living/carbon/human/partner)
-	if(xylix_roulette_active)
+/datum/controller/subsystem/familytree/proc/familytree_creator_pronouns_compatible(mob/living/carbon/human/creator, mob/living/carbon/human/partner, respect_xylix = TRUE)
+	if(respect_xylix && xylix_roulette_active)
 		return TRUE
 	if(!creator || !partner)
 		return FALSE
 	var/pref = creator.gender_choice_pref || ANY_GENDER
 	return pronoun_preference_matches(pref, creator.pronouns == partner.pronouns)
 
-/datum/controller/subsystem/familytree/proc/GetCreatorSpeciesPreferenceFailureReason(mob/living/carbon/human/creator, mob/living/carbon/human/partner)
+/datum/controller/subsystem/familytree/proc/GetCreatorSpeciesPreferenceFailureReason(mob/living/carbon/human/creator, mob/living/carbon/human/partner, respect_xylix = TRUE)
 	if(!creator || !partner)
 		return "missing mob"
 
@@ -993,7 +1024,7 @@
 		if(!creator_isolated || !partner_isolated)
 			return "isolated group mismatch"
 
-	if(xylix_roulette_active)
+	if(respect_xylix && xylix_roulette_active)
 		return null
 
 	var/datum/preferences/P = creator.client?.prefs
@@ -1051,18 +1082,27 @@
 		reject_mask |= FTREJ_N_TIER
 	return reject_mask
 
-/datum/controller/subsystem/familytree/proc/familytree_new_family_pair_pref_reject_mask(mob/living/carbon/human/A, mob/living/carbon/human/B)
+/datum/controller/subsystem/familytree/proc/familytree_soft_pref_reject_mask(mob/living/carbon/human/seeker, mob/living/carbon/human/partner)
 	var/reject_mask = 0
-	if(!pronouns_compatible(A, B))
+	var/respect_xylix = !(familytree_targets_name(seeker, partner) || familytree_targets_name(partner, seeker))
+	if(!familytree_creator_pronouns_compatible(seeker, partner, respect_xylix))
 		reject_mask |= FTREJ_N_PRONOUNS
-	if(GetSpeciesCompatibilityFailureReason(A, B))
+	if(GetCreatorSpeciesPreferenceFailureReason(seeker, partner, respect_xylix))
 		reject_mask |= FTREJ_N_SPECIES
+	return reject_mask
+
+/datum/controller/subsystem/familytree/proc/familytree_pair_soft_pref_reject_mask(mob/living/carbon/human/A, mob/living/carbon/human/B)
+	var/reject_mask = 0
+	if(!familytree_targets_name(A, B))
+		reject_mask |= familytree_soft_pref_reject_mask(A, B)
+	if(!familytree_targets_name(B, A))
+		reject_mask |= familytree_soft_pref_reject_mask(B, A)
+	return reject_mask
+
+/datum/controller/subsystem/familytree/proc/familytree_new_family_pair_pref_reject_mask(mob/living/carbon/human/A, mob/living/carbon/human/B)
+	var/reject_mask = familytree_pair_soft_pref_reject_mask(A, B)
 	if(!familytree_role_tiers_compatible(A, B))
 		reject_mask |= FTREJ_N_TIER
-	if(familytree_can_found_new_family(A))
-		reject_mask |= familytree_new_family_creator_pref_reject_mask(A, B)
-	if(familytree_can_found_new_family(B))
-		reject_mask |= familytree_new_family_creator_pref_reject_mask(B, A)
 	return reject_mask
 
 /datum/controller/subsystem/familytree/proc/familytree_new_family_founder(mob/living/carbon/human/A, mob/living/carbon/human/B)
@@ -1142,20 +1182,17 @@
 		if(!familytree_estates_compatible(H, candidate))
 			reject_mask |= FTREJ_N_ESTATE
 			continue
-		if(!xylix_roulette_active && familytree_can_found_new_family(H) && H.setspouse && length(H.setspouse))
-			if(!familytree_names_match(H.setspouse, candidate.real_name))
-				reject_mask |= FTREJ_N_SETSPOUSE
-				continue
-		if(!xylix_roulette_active && familytree_can_found_new_family(candidate) && candidate.setspouse && length(candidate.setspouse))
-			if(!familytree_names_match(candidate.setspouse, H.real_name))
-				reject_mask |= FTREJ_N_SETSPOUSE
-				continue
+		if(!familytree_name_lock_allows_pair(H, candidate))
+			reject_mask |= FTREJ_N_SETSPOUSE
+			continue
 		var/priority = 0
-		if(!xylix_roulette_active)
-			if(familytree_can_found_new_family(H) && familytree_names_match(H.setspouse, candidate.real_name))
-				priority++
-			if(familytree_can_found_new_family(candidate) && familytree_names_match(candidate.setspouse, H.real_name))
-				priority++
+		if(familytree_mutual_setspouse(H, candidate))
+			priority += 100
+		else
+			if(familytree_targets_name(H, candidate))
+				priority += 10
+			if(familytree_targets_name(candidate, H))
+				priority += 10
 		potential_matches += list(list(candidate, priority))
 
 	ftlog("FindNewlyWedMatch REJECTS [H.real_name] (pool=[viable_spouses.len]): mask=[reject_mask] ([ftreject_decode_newlywed(reject_mask)]) -> matches=[potential_matches.len]", FTLOG_DEBUG)
@@ -1206,13 +1243,14 @@
 			if(!member.person.client)
 				reject_mask |= FTREJ_F_OFFLINE
 				continue
-			if(!xylix_roulette_active && member.person.setspouse && !familytree_names_match(member.person.setspouse, H.real_name))
+			if(!familytree_name_lock_allows_pair(H, member.person))
 				reject_mask |= FTREJ_F_SETSPOUSE
 				continue
-			if(!pronouns_compatible(H, member.person))
+			var/soft_reject_mask = familytree_pair_soft_pref_reject_mask(H, member.person)
+			if(soft_reject_mask & FTREJ_N_PRONOUNS)
 				reject_mask |= FTREJ_F_PRONOUNS
 				continue
-			if(GetSpeciesCompatibilityFailureReason(H, member.person))
+			if(soft_reject_mask & FTREJ_N_SPECIES)
 				reject_mask |= FTREJ_F_SPECIES
 				continue
 			if(!familytree_estates_compatible(H, member.person))
