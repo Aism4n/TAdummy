@@ -19,6 +19,8 @@
 //#include "./overrides/living_modifications.dm"
 #include "./overrides/bloodsuck.dm"
 #include "./overrides/bloodpool.dm"
+#include "./ascended_covens.dm"
+#include "./coven_level_purchases.dm"
 #include "./overrides/pallid_addiction.dm"
 #include "./overrides/pallid_spells.dm"
 #include "./overrides/quicksilver.dm"
