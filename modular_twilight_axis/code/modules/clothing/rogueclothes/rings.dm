@@ -26,8 +26,8 @@
 
 /obj/item/clothing/ring/baotha/attack_right(var/mob/living/carbon/human/user)
 	if(user.patron.type == /datum/patron/inhumen/baotha)
-		var/mimicry = list("gold ring", "silver ring", "bronze ring", "Отмена")
-		var/mimicry_choise = input("Варианты:", "Маскировка") as anything in mimicry
+		var/mimicry = list("gold ring", "silver ring", "bronze ring", "Undo")
+		var/mimicry_choise = input("Variants:", "camouflage") as anything in mimicry
 		switch(mimicry_choise)
 			if("gold ring")
 				name = "gold ring"

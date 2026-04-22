@@ -46,8 +46,7 @@
 
 /obj/item/clothing/suit/roguetown/armor/regenerating/baotha/attack_right(var/mob/living/carbon/human/user)
 	if(user.patron.type == /datum/patron/inhumen/baotha)
-		var/datum/component/cursed_item/cursed = GetComponent(/datum/component/cursed_item)
-		var/mimicry = list("shirt", "formal silks", "rags", "tunic", "dress", "silky dress", "undervestments", "royal gown", "white foreign shirt", "silk shirt", "fancy coat", "low cut tunic", "pristine dress", "gilded dress shirt", "Отмена")
+		var/mimicry = list("shirt", "formal silks", "rags", "tunic", "dress", "silky dress", "undervestments", "royal gown", "white foreign shirt", "silk shirt", "fancy coat", "low cut tunic", "pristine dress", "gilded dress shirt", "Undo")
 		var/mimicry_choise = input("Variants:", "camouflage") as anything in mimicry
 		switch(mimicry_choise)
 			if("shirt")
@@ -124,9 +123,11 @@
 				icon = realicon
 				icon_state = realstate
 				mob_overlay_icon = realmob
-				if(!cursed)
+				if(icon_state != realstate)
+					armor = ARMOR_BRIGANDINE
 					AddComponent(/datum/component/cursed_item, TRAIT_CRACKHEAD, "CLOTCH")
-		if(mimicry_choise != "Undo")
+		if(icon_state != realstate)
+			armor = ARMOR_PADDED
 			qdel(GetComponent(/datum/component/cursed_item))
 		playsound(user, pick('sound/magic/magic_nulled.ogg'), 20, TRUE)
 

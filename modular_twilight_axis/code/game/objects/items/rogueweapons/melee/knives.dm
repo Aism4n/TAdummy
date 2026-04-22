@@ -131,7 +131,11 @@
 /obj/item/rogueweapon/huntingknife/idagger/steel/baotha/Initialize()
 	. = ..()
 	icon_state = "baotha_knife1"
+	addtimer(CALLBACK(src, PROC_REF(icon_proc)), wait = (1 SECONDS))
 	AddComponent(/datum/component/cursed_item, TRAIT_CRACKHEAD, "KNIFE")
+
+/obj/item/rogueweapon/huntingknife/idagger/steel/baotha/proc/icon_proc()
+	icon_state = "baotha_knife2"
 
 /obj/item/rogueweapon/huntingknife/idagger/steel/baotha/attack_self(var/mob/living/carbon/human/user)
 	if(user.patron.type == /datum/patron/inhumen/baotha)

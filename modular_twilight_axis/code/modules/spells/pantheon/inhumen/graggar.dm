@@ -174,7 +174,7 @@
 	invocations = list("Accincti flammis.")
 	invocation_type = "whisper"
 	recharge_time = 0
-	devotion_cost = 30
+	devotion_cost = 0
 	miracle = TRUE
 
 /obj/effect/proc_holder/spell/self/graggar_regenerate/cast(mob/living/carbon/human/user)
@@ -202,7 +202,7 @@
 
 /datum/status_effect/buff/graggar_regenerate/on_apply()
 	. = ..()
-	addtimer(CALLBACK(src, PROC_REF(continue_proc)), wait = (10 SECONDS))
+	addtimer(CALLBACK(src, PROC_REF(continue_proc)), wait = (5 SECONDS))
 
 /datum/status_effect/buff/graggar_regenerate/proc/continue_proc()
 	if(QDELETED(src) || QDELING(src) || !owner || QDELETED(owner))
@@ -228,13 +228,13 @@
 		if(cost != 0)
 			user.devotion?.update_devotion(-cost)
 			to_chat(user, "<font color='purple'>I lose [cost] devotion!</font>")
-			user.adjustBruteLoss(7*skill)
-			user.adjustFireLoss(7*skill)
-			user.heal_wounds(skill)
-			new /obj/effect/temp_visual/heal_blood(get_turf(user))
-			new /obj/effect/temp_visual/heal_blood(get_turf(user))
-			new /obj/effect/temp_visual/heal_blood(get_turf(user))
+			user.adjustBruteLoss(-7*skill)
+			user.adjustFireLoss(-7*skill)
+			user.heal_wounds(-skill)
+			for(var/i in 1 to 3)
+				var/obj/effect/temp_visual/heal/H = new /obj/effect/temp_visual/heal_blood(get_turf(owner))
+				H.color = "#bc0909"
 		user.apply_status_effect(user.devotion?.update_devotion(-cost))
-		addtimer(CALLBACK(src, PROC_REF(continue_proc)), wait = (10 SECONDS))
+		addtimer(CALLBACK(src, PROC_REF(continue_proc)), wait = (5 SECONDS))
 	else
 		return

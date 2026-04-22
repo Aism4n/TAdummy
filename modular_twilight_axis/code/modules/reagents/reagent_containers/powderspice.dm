@@ -45,9 +45,12 @@
 	. = 1
 
 /datum/reagent/smartium/on_mob_metabolize(mob/living/M)
-	M.overlay_fullscreen("druqk", /atom/movable/screen/fullscreen/color_vision/blue)
+	M.overlay_fullscreen("druqk", /atom/movable/screen/fullscreen/color_vision/light_blue)
 	animate(M.client, pixel_y = 1, time = 1, loop = -1, flags = ANIMATION_RELATIVE)
 	animate(pixel_y = -1, time = 1, flags = ANIMATION_RELATIVE)
+
+/atom/movable/screen/fullscreen/color_vision/light_blue
+	color = "#00e5ff4e"
 
 /datum/reagent/smartium/on_mob_end_metabolize(mob/living/M)
 	animate(M.client)
@@ -93,9 +96,12 @@
 	. = 1
 
 /datum/reagent/corps_dust/on_mob_metabolize(mob/living/M)
-	M.overlay_fullscreen("druqk", /atom/movable/screen/fullscreen/color_vision/red)
+	M.overlay_fullscreen("druqk", /atom/movable/screen/fullscreen/color_vision/light_red)
 	animate(M.client, pixel_y = 1, time = 1, loop = -1, flags = ANIMATION_RELATIVE)
 	animate(pixel_y = -1, time = 1, flags = ANIMATION_RELATIVE)
+
+/atom/movable/screen/fullscreen/color_vision/light_red
+	color = "#ff00004e"
 
 /datum/reagent/corps_dustt/on_mob_end_metabolize(mob/living/M)
 	animate(M.client)
@@ -223,7 +229,4 @@
 	if(!hallucination || !client || stat)
 		return
 	hallucination--
-	if(world.time < next_hallucination)
-		return
 	new hallucination_type(src, FALSE)
-	next_hallucination = world.time + rand(100, 600)
