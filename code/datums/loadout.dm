@@ -1069,32 +1069,32 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 
 /datum/loadout_item/psicross/gronnzizo
 	name = "Wolf Talisman"
-	category = list("Аксессуары", "Донат")
+	category = list("Аксессуары")
 	path = /obj/item/clothing/neck/roguetown/psicross/inhumen/gronn
 
 /datum/loadout_item/psicross/gronnbaotha
 	name = "Leopard Talisman"
-	category = list("Аксессуары", "Донат")
+	category = list("Аксессуары")
 	path = /obj/item/clothing/neck/roguetown/psicross/inhumen/baothagronn
 
 /datum/loadout_item/psicross/gronnmatthios
 	name = "Bear Talisman"
-	category = list("Аксессуары", "Донат")
+	category = list("Аксессуары")
 	path = /obj/item/clothing/neck/roguetown/psicross/inhumen/matthios/gronn
 
 /datum/loadout_item/psicross/gronngraggar
 	name = "Moose Talisman"
-	category = list("Аксессуары", "Донат")
+	category = list("Аксессуары")
 	path = /obj/item/clothing/neck/roguetown/psicross/inhumen/graggar/gronn
 
 /datum/loadout_item/psicross/gronndendor
 	name = "Volfskinned Talisman"
-	category = list("Аксессуары", "Донат")
+	category = list("Аксессуары")
 	path = /obj/item/clothing/neck/roguetown/psicross/dendor/gronn
 
 /datum/loadout_item/psicross/gronnabyssor
 	name = "Hadal Talisman"
-	category = list("Аксессуары", "Донат")
+	category = list("Аксессуары")
 	path = /obj/item/clothing/neck/roguetown/psicross/abyssor/gronn
 
 /datum/loadout_item/wedding_band
@@ -2631,6 +2631,13 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	path = /obj/item/clothing/head/roguetown/circlet/saffiratiara
 	donatitem = TRUE
 	donat_tier = 2
+
+/datum/loadout_item/donator/ketrai
+	name = "Octopus hat"
+	path = /obj/item/clothing/head/roguetown/octopus
+	category = list("Головные уборы", "Донат")
+	donatitem = TRUE
+	donat_tier = 2	
 
 // Обувь
 
