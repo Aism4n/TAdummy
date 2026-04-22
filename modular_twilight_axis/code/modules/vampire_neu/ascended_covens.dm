@@ -339,7 +339,8 @@
 	if(!overlay_icon || !overlay_icon_state || (current_button.active_overlay_icon_state == overlay_icon_state && !force))
 		return
 	current_button.cut_overlay(current_button.button_overlay)
-	current_button.button_overlay = mutable_appearance(icon = overlay_icon, icon_state = overlay_icon_state, color = TA_ASCENDED_COVEN_LIGHT)
+	current_button.button_overlay = mutable_appearance(icon = overlay_icon, icon_state = overlay_icon_state)
+	current_button.button_overlay.color = TA_ASCENDED_COVEN_LIGHT
 	current_button.add_overlay(current_button.button_overlay)
 	current_button.active_overlay_icon_state = overlay_icon_state
 
@@ -361,9 +362,15 @@
 	if(!targeting || LAZYACCESS(modifiers, RIGHT_CLICK))
 		end_targeting()
 		return COMSIG_MOB_CANCEL_CLICKON
-	if(power.try_activate(target))
-		end_targeting()
+	INVOKE_ASYNC(src, PROC_REF(ta_async_target_activate), target)
+	end_targeting()
 	return COMSIG_MOB_CANCEL_CLICKON
+
+/datum/action/ta_ascended_coven/proc/ta_async_target_activate(atom/target)
+	if(!owner || !power)
+		return
+	if(power?.try_activate(target))
+		build_all_button_icons()
 
 /datum/action/ta_ascended_coven/proc/begin_targeting()
 	var/client/client = owner?.client
@@ -389,7 +396,8 @@
 		if(!overlay_icon || !overlay_icon_state || (current_button.active_overlay_icon_state == overlay_icon_state && !force))
 			return
 		current_button.cut_overlay(current_button.button_overlay)
-		current_button.button_overlay = mutable_appearance(icon = overlay_icon, icon_state = overlay_icon_state, color = TA_ASCENDED_COVEN_LIGHT)
+		current_button.button_overlay = mutable_appearance(icon = overlay_icon, icon_state = overlay_icon_state)
+		current_button.button_overlay.color = TA_ASCENDED_COVEN_LIGHT
 		current_button.add_overlay(current_button.button_overlay)
 		current_button.active_overlay_icon_state = overlay_icon_state
 		return
@@ -788,7 +796,7 @@
 		to_chat(owner, span_warning("Мне не хватает [vitae_cost] витэ, чтобы выпустить божественный удар."))
 		ta_cancel_prepared_strike(show_message = FALSE)
 		return
-	ta_omnipotence_impact(target)
+	INVOKE_ASYNC(src, PROC_REF(ta_omnipotence_impact), target)
 	ta_finish_prepared_strike()
 
 /datum/coven_power/potence/ascended_omnipotence/proc/ta_cancel_prepared_strike(show_message = TRUE)
@@ -807,6 +815,8 @@
 	discipline?.ta_ascended_action?.build_all_button_icons(force = TRUE)
 
 /datum/coven_power/potence/ascended_omnipotence/proc/ta_omnipotence_impact(mob/living/carbon/human/primary_target)
+	if(!owner || !istype(primary_target) || QDELETED(primary_target) || primary_target.stat == DEAD)
+		return
 	var/zone = ta_pick_omnipotence_zone()
 	var/list/armor_integrity = ta_capture_omnipotence_armor(primary_target, zone)
 	primary_target.run_armor_check(zone, "blunt", damage = TA_OMNIPOTENCE_DAMAGE, blade_dulling = BCLASS_BLUNT, intdamfactor = BLUNT_DEFAULT_INT_DAMAGEFACTOR)
@@ -1035,10 +1045,10 @@
 	if(!active || !owner)
 		return
 	for(var/mob/living/victim in get_turf(owner))
-		ta_afterpass_attack(victim)
+		INVOKE_ASYNC(src, PROC_REF(ta_afterpass_attack), victim)
 
 /datum/coven_power/celerity/ascended_afterpass/proc/ta_afterpass_attack(mob/living/victim)
-	if(!active || !owner || !istype(victim) || victim == owner || victim.stat == DEAD)
+	if(!active || !owner || !istype(victim) || QDELETED(victim) || victim == owner || victim.stat == DEAD)
 		return FALSE
 	if(phased_hits[REF(victim)] && phased_hits[REF(victim)] > world.time)
 		return FALSE
@@ -1062,7 +1072,7 @@
 	if(victim == owner || victim.stat == DEAD)
 		return FALSE
 
-	ta_afterpass_attack(victim)
+	INVOKE_ASYNC(src, PROC_REF(ta_afterpass_attack), victim)
 
 	var/turf/owner_turf = get_turf(owner)
 	var/turf/victim_turf = get_turf(victim)
@@ -1117,6 +1127,7 @@
 	return ..()
 
 /datum/coven_power/demonic/ascended_embrace/can_activate_untargeted(alert = FALSE)
+	. = ..()
 	return FALSE
 
 /*
