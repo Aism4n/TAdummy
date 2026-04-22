@@ -1121,7 +1121,6 @@
 	return ..()
 
 /datum/coven_power/demonic/ascended_embrace/on_owner_qdel()
-	SIGNAL_HANDLER
 	if(owner)
 		qdel(owner.GetComponent(/datum/component/ta_ascended_demonic_embrace))
 	return ..()
