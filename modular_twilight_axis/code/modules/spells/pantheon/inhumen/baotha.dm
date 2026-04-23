@@ -103,115 +103,31 @@
 	invocations = list("Accincti flammis.")
 	invocation_type = "whisper"
 	recharge_time = 0
-	devotion_cost = 30
+	devotion_cost = 40
 	miracle = TRUE
 	var/used = FALSE
-/*
-	var/rname
-	var/hname
-	var/dna
-	var/mind
-	var/species
-	var/skin_tone
-	var/hair_color
-	var/facial_hair_color
-	var/eye_color
-	var/dna_eye_color
 
-	var/duble_rname
-	var/duble_hname
-	var/duble_dna
-	var/duble_mind
-	var/duble_species
-	var/duble_skin_tone
-	var/duble_hair_color
-	var/duble_facial_hair_color
-	var/duble_eye_color
-	var/duble_dna_eye_color
-*/
 #define TRAIT_MIRAGE "Mirage"
 
 /obj/effect/proc_holder/spell/self/mirage/cast(mob/living/carbon/human/user)
+	var/skill_level = user.get_skill_level(associated_skill)
+	devotion_cost = 40-(5*skill_level)
 	playsound(get_turf(user), 'sound/magic/haste.ogg', 80, TRUE, soundping = TRUE)
 	user.visible_message(span_love("[user]'s body begins shrouded in a corrosive purple haze that obscures his silhouette!"))
-
-	if(used == FALSE)
-		ADD_TRAIT(user, TRAIT_MIRAGE, TRAIT_MIRACLE)
-		/*rname = user.real_name
-		hname = user.name
-		dna = user.dna.real_name
-		mind = user.mind.name
-		species = user.dna.species
-		skin_tone = user.skin_tone
-		hair_color = user.hair_color
-		facial_hair_color = user.facial_hair_color
-		eye_color = user.eye_color
-		dna_eye_color = user.dna.features["eye_color"]*/
-		used = TRUE
-		var/mirage_type = list("Name", "Feature")
-		var/selection = input(user, "Rituals of Gedonism", src) as null|anything in mirage_type
-		switch(selection) // put ur rite selection here
-			if("Name")
-				mirror_full_transform(user)
-			if("Feature")
-				perform_mirror_transform(user)
-	else
-		var/mirage_type = list("Name", "Feature", "Nevermind")
-		var/selection = input(user, "Rituals of Gedonism", src) as null|anything in mirage_type
-		switch(selection) // put ur rite selection here
-			if("Name")
-				mirror_full_transform(user)
-			if("Feature")
-				perform_mirror_transform(user)
-			/*if("Safe")
-				duble_rname = user.real_name
-				duble_hname = user.name
-				duble_dna = user.dna.real_name
-				duble_mind = user.mind.name
-				duble_species = user.dna.species
-				duble_skin_tone = user.skin_tone
-				duble_hair_color = user.hair_color
-				duble_facial_hair_color = user.facial_hair_color
-				duble_eye_color = user.eye_color
-				duble_dna_eye_color = user.dna.features["eye_color"]
-			if("Swap")
-				if(HAS_TRAIT(user, TRAIT_MIRAGE))
-					user.real_name = rname
-					user.name = hname
-					user.dna.real_name = dna
-					user.mind.name = mind
-					user.set_species(species, icon_update=0)
-					user.skin_tone = skin_tone
-					user.hair_color = hair_color
-					user.facial_hair_color = facial_hair_color
-					user.eye_color = eye_color
-					user.dna.features["eye_color"] = dna_eye_color
-					user.update_body()
-					user.update_hair()
-					user.update_body_parts()
-					user.update_hair()
-					user.update_body_parts()
-					REMOVE_TRAIT(user, TRAIT_MIRAGE, TRAIT_MIRACLE)
-				else
-					user.real_name = duble_rname
-					user.name = duble_hname
-					user.dna.real_name = duble_dna
-					user.mind.name = duble_mind
-					user.set_species(duble_species, icon_update=0)
-					user.skin_tone = duble_skin_tone
-					user.hair_color = duble_hair_color
-					user.facial_hair_color = duble_facial_hair_color
-					user.eye_color = duble_eye_color
-					user.dna.features["eye_color"] = duble_dna_eye_color
-					user.update_body()
-					user.update_hair()
-					user.update_body_parts()
-					user.update_hair()
-					user.update_body_parts()
-					ADD_TRAIT(user, TRAIT_MIRAGE, TRAIT_MIRACLE)*/
-			if("Nevermind")
-				revert_cast()
-				return FALSE
+	var/mirage_type = list("Name", "Feature", "Nevermind")
+	var/selection = input(user, "Rituals of Gedonism", src) as null|anything in mirage_type
+	ADD_TRAIT(user, TRAIT_MIRAGE, TRAIT_MIRACLE)
+	ADD_TRAIT(user, TRAIT_EDIT_DESCRIPTORS, TRAIT_MIRACLE)
+	switch(selection) // put ur rite selection here
+		if("Name")
+			mirror_full_transform(user)
+		if("Feature")
+			perform_mirror_transform(user)
+		if("Nevermind")
+			revert_cast()
+	REMOVE_TRAIT(user, TRAIT_MIRAGE, TRAIT_MIRACLE)
+	REMOVE_TRAIT(user, TRAIT_EDIT_DESCRIPTORS, TRAIT_MIRACLE)
+	return TRUE
 
 proc/mirror_full_transform(mob/user)
 	if(!ishuman(user))
