@@ -532,6 +532,70 @@
 	else
 		SStgui.update_uis(src)
 
+/datum/vampire_project/servant/proc/summon(summon_type, atom/feedback_atom)
+	feedback_atom.visible_message("The crucible stirs, summoning a servant from the realms beyond...")
+	var/list/candidates = pollGhostCandidates("Do you want to play as a Vampire's [summon_type]?", ROLE_VAMPIRE_SUMMON, null, null, 30 SECONDS, POLL_IGNORE_VL_SERVANT)
+	if(!LAZYLEN(candidates))
+		feedback_atom.visible_message("But alas, the depths are hollow...")
+		return FALSE
+
+	var/mob/C = pick(candidates)
+	if(!C || !istype(C, /mob/dead))
+		feedback_atom.visible_message("But alas, the depths are hollow...")
+		return FALSE
+
+	. = TRUE
+
+	if(istype(C, /mob/dead/new_player))
+		var/mob/dead/new_player/N = C
+		N.close_spawn_windows()
+
+	var/mob/living/carbon/human/species/human/northern/target = new /mob/living/carbon/human/species/human/northern(get_turf(feedback_atom))
+	target.key = C.key
+	target.visible_message(span_warning("[target]'s eyes light up with an eerie glow!"))
+	addtimer(CALLBACK(target, TYPE_PROC_REF(/mob/living/carbon/human, TA_finish_vampire_crucible_summon), summon_type, initiator_clan, feedback_atom), 3 SECONDS)
+
+/mob/living/carbon/human/proc/TA_finish_vampire_crucible_summon(summon_type, datum/clan/initiator_clan, atom/feedback_atom)
+	if(QDELETED(src))
+		return
+
+	load_char_or_namechoice()
+	if(QDELETED(src) || !mind)
+		return
+
+	if(!initiator_clan)
+		if(!QDELETED(feedback_atom))
+			feedback_atom.visible_message("But alas, the summoned soul cannot find a clan to bind it...")
+		return
+
+	var/job_rank
+	var/generation
+	switch(summon_type)
+		if("Vampire Servant")
+			job_rank = "Vampire Servant"
+			generation = GENERATION_THINBLOOD
+		if("Vampire Guard")
+			job_rank = "Vampire Guard"
+			generation = GENERATION_NEONATE
+		if("Vampire Spawn")
+			job_rank = "Vampire Spawn"
+			generation = GENERATION_ANCILLAE
+
+	if(!job_rank)
+		return
+
+	var/mob/equipped_mob = SSjob.EquipRank(src, job_rank, TRUE)
+	var/mob/living/carbon/human/summon = src
+	if(ishuman(equipped_mob))
+		summon = equipped_mob
+	if(QDELETED(summon) || !summon.mind)
+		return
+
+	var/datum/antagonist/vampire/new_antag = new /datum/antagonist/vampire(incoming_clan = initiator_clan, forced_clan = TRUE, generation = generation)
+	summon.mind.add_antag_datum(new_antag)
+	ADD_TRAIT(summon, TRAIT_BLOODPOOL_BORN, TRAIT_GENERIC)
+	summon.update_action_buttons(TRUE)
+
 /datum/vampire_project
 	var/TA_cup_paid_amount = 0
 
