@@ -3083,9 +3083,9 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	path = /obj/item/clothing/under/roguetown/trou/leather/etrpants
 	donatitem = TRUE
 	donat_tier = 1
-	
+
 /datum/loadout_item/etrdress3
-	name = "Embroidered dress - (only female, no small races)"
+	name = "Strapless gown - (only female, no small races)"
 	category = list("Одежда", "Донат")
 	path = /obj/item/clothing/suit/roguetown/shirt/dress/etrdress3
 	donatitem = TRUE
