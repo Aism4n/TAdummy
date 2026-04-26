@@ -2,7 +2,8 @@
 	name = "snake ring"
 	desc = "The ring is made of steel with gilding, and it is artfully recreated as a snake. The quality of the work is so high that it feels as if the snake's gem-filled eyes are watching you."
 	icon_state = "baotha_knife"
-	icon = 'modular_twilight_axis/icons/roguetown/weapons/32.dmi'
+	icon = 'modular_twilight_axis/icons/roguetown/clothing/rings.dmi'
+	mob_overlay_icon = 'modular_twilight_axis/icons/roguetown/clothing/onmob/rings.dmi'
 	max_integrity = 300
 	var/realname
 	var/realdesc
@@ -47,13 +48,6 @@
 				desc = realdesc
 				icon = realicon
 				icon_state = realstate
-
-		if(mimicry_choise != "Undo")
-			desc = ""
-			icon = 'icons/roguetown/clothing/rings.dmi'
-			mob_overlay_icon = 'icons/roguetown/clothing/onmob/rings.dmi'
-		else
-			icon = realicon
 
 /obj/item/clothing/ring/baotha/attack_self(var/mob/living/carbon/human/user)
 	if(user.patron.type == /datum/patron/inhumen/baotha)

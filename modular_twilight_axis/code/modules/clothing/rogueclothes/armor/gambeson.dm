@@ -27,16 +27,12 @@
 	var/realname
 	var/realdesc
 	var/realstate
-	var/realicon
-	var/realmob
 
 /obj/item/clothing/suit/roguetown/armor/regenerating/baotha/Initialize()
 	.=..()
 	realname = name
 	realdesc = desc
 	realstate = icon_state
-	realicon = icon
-	realmob = mob_overlay_icon
 	AddComponent(/datum/component/cursed_item, TRAIT_CRACKHEAD, "CLOTH")
 
 /obj/item/clothing/suit/roguetown/armor/regenerating/baotha/examine(var/mob/living/carbon/human/user)
@@ -54,86 +50,63 @@
 				name = "shirt"
 				desc = "Modest and humble. It lets you walk around in public with your dignity intact."
 				icon_state = "undershirt"
-				mimic()
 			if("formal silks")
 				name = "formal silks"
 				desc = "Modest and humble. It lets you walk around in public with your dignity intact."
 				icon_state = "puritan_shirt"
-				mimic()
 			if("rags")
 				name = "rags"
 				desc = "From rags to... nope, still rags."
 				icon_state = "rags"
-				mimic()
 			if("tunic")
 				name = "tunic"
 				desc = "Modest and fashionable, with the right colors."
 				icon_state = "tunic"
-				mimic()
 			if("dress")
 				name = "dress"
 				desc = "A simple dress worn by women and the bold."
 				icon_state = "dress"
-				mimic()
 			if("silky dress")
 				name = "silky dress"
 				desc = "Despite not actually being made of silk, the legendary expertise needed to sew this puts the quality on par."
 				icon_state = "silkydress"
-				mimic()
 			if("undervestments")
 				name = "undervestments"
 				desc = "A soft garment designed to prevent chafing from wearing heavy robes all dae and night."
 				icon_state = "priestunder"
-				mimic()
 			if("royal gown")
 				name = "royal gown"
 				desc = "An elaborate ball gown, a favoured fashion of queens and elevated nobility in Enigma."
 				icon_state = "royaldress"
-				icon = 'icons/roguetown/clothing/shirts_royalty.dmi'
-				mob_overlay_icon = 'icons/roguetown/clothing/onmob/shirts_royalty.dmi'
 			if("white foreign shirt")
 				name = "white foreign shirt"
 				desc = "A shirt typically used by foreign gangs."
-				icon_state = "eastshirt1"
-				mimic()
+				icon_state = "eastshirt2"
 			if("silk shirt")
 				name = "silk shirt"
 				desc = "A sleeveless shirt woven from glossy material."
 				icon_state = "webs"
-				mimic()
 			if("fancy coat")
 				name = "fancy coat"
 				desc = "A fancy tunic and coat combo. How elegant."
 				icon_state = "noblecoat"
-				mimic()
 			if("low cut tunic")
 				name = "low cut tunic"
 				desc = "A tunic exposing much of the neck and... shoulders?! How scandalous..."
 				icon_state = "lowcut"
-				mimic()
 			if("pristine dress")
 				name = "pristine dress"
 				desc = "A flowy, intricate dress made by the finest tailors in the land for the monarch's children."
 				icon_state = "princess"
-				icon = 'icons/roguetown/clothing/shirts_royalty.dmi'
-				mob_overlay_icon = 'icons/roguetown/clothing/onmob/shirts_royalty.dmi'
 			if("gilded dress shirt")
 				name = "gilded dress shirt"
 				desc = "A gold-embroidered dress shirt specially tailored for the monarch's children."
 				icon_state = "prince"
-				icon = 'icons/roguetown/clothing/shirts_royalty.dmi'
-				mob_overlay_icon = 'icons/roguetown/clothing/onmob/shirts_royalty.dmi'
 			if("Undo")
 				name = realname
 				desc = realdesc
 				icon = realicon
-				icon_state = realstate
-				mob_overlay_icon = realmob
 		playsound(user, pick('sound/magic/magic_nulled.ogg'), 20, TRUE)
-
-/obj/item/clothing/suit/roguetown/armor/regenerating/baotha/proc/mimic()
-	icon = 'icons/roguetown/clothing/shirts.dmi'
-	mob_overlay_icon = 'icons/roguetown/clothing/onmob/shirts.dmi'
 
 /obj/item/clothing/suit/roguetown/shirt/padedetrshirt
 	name = "padded etruscan shirt"
