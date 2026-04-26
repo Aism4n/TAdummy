@@ -41,7 +41,7 @@ coordinates = [163, 124, 2]
 map_files = ["Dvadoma.dmm"]
 directory = "_maps/twilight_axis/templates/dun_world/towner_house/"
 required_map = "dun_world.dmm"
-coordinates = [123, 133, 1]
+coordinates = [124, 133, 1]
 
 [templates.towner_house3]
 map_files = ["eoradom.dmm"]
