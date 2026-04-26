@@ -5,6 +5,7 @@
 #define TA_CRUCIBLE_VAMPIRE_BLOODPOOL_RESERVE 300
 #define TA_CRUCIBLE_DONATION_VITAE 3000
 #define TA_CRUCIBLE_DONATION_BLOOD 400
+#define TA_RIFT_AMULET_PROJECT_COST 2000
 
 /obj/structure/vampire/bloodpool/Initialize(mapload)
 	. = ..()
@@ -15,6 +16,7 @@
 
 	active_projects = list()
 	available_project_types = available_project_types?.Copy() || list()
+	TA_ensure_twilight_project_types()
 	set_light(3, 3, 20, l_color = LIGHT_COLOR_BLOOD_MAGIC)
 
 /obj/structure/vampire/bloodpool/proc/copy_state_to_modular_bloodpool(obj/structure/vampire/bloodpool/TA/replacement)
@@ -32,6 +34,7 @@
 	replacement.owner_clan = owner_clan
 	replacement.sunstolen = sunstolen
 	replacement.available_project_types = available_project_types?.Copy() || list()
+	replacement.TA_ensure_twilight_project_types()
 	replacement.active_projects = active_projects || list()
 	active_projects = list()
 
@@ -40,6 +43,11 @@
 		if(!project)
 			continue
 		project.bloodpool = replacement
+
+/obj/structure/vampire/bloodpool/proc/TA_ensure_twilight_project_types()
+	available_project_types = available_project_types?.Copy() || list()
+	if(!(/datum/vampire_project/TA_rift_amulet in available_project_types))
+		available_project_types += /datum/vampire_project/TA_rift_amulet
 
 /obj/structure/vampire/bloodpool/TA
 	name = "Crimson Crucible"
@@ -541,6 +549,21 @@
 /datum/vampire_project/servant/servant_t3/summon(summon_type, atom/feedback_atom)
 	return TA_summon(summon_type, feedback_atom)
 
+/datum/vampire_project/TA_rift_amulet
+	display_name = "Bloodbound Gate Amulet"
+	description = "Shape a portable rift anchor from vitae and old stone."
+	total_cost = TA_RIFT_AMULET_PROJECT_COST
+	completion_sound = 'sound/misc/vcraft.ogg'
+	can_be_initiated_by = TA_INITIATE_LORDE
+
+/datum/vampire_project/TA_rift_amulet/on_complete(atom/movable/creation_point)
+	var/turf/drop_turf = get_turf(creation_point)
+	if(!drop_turf)
+		return
+
+	new /obj/item/clothing/neck/portalamulet/TA(drop_turf)
+	creation_point.visible_message(span_notice("A bloodbound gate amulet clinks out of the crimson crucible."))
+
 /datum/vampire_project/servant/proc/TA_summon(summon_type, atom/feedback_atom)
 	feedback_atom.visible_message("The crucible stirs, summoning a servant from the realms beyond...")
 	var/list/candidates = pollGhostCandidates("Do you want to play as a Vampire's [summon_type]?", ROLE_VAMPIRE_SUMMON, null, null, 30 SECONDS, POLL_IGNORE_VL_SERVANT)
@@ -637,6 +660,8 @@
 			return "Призвать стража"
 		if("Summon Knight Spawn")
 			return "Призвать рыцаря-отродье"
+		if("Bloodbound Gate Amulet")
+			return "Кровавый амулет разлома"
 	return display_name
 
 /datum/vampire_project/proc/ui_project_description()
@@ -659,6 +684,8 @@
 			return "Страж с кровью клана ответит на зов."
 		if("Summon Knight Spawn")
 			return "Сильное отродье в рыцарском обличье выйдет из горнила."
+		if("Bloodbound Gate Amulet")
+			return "Переплести 2000 витэ в носимый якорь для Врат разлома."
 	return description
 
 /datum/vampire_project/proc/ui_project_start_failure()
@@ -676,3 +703,4 @@
 #undef TA_CRUCIBLE_VAMPIRE_BLOODPOOL_RESERVE
 #undef TA_CRUCIBLE_DONATION_VITAE
 #undef TA_CRUCIBLE_DONATION_BLOOD
+#undef TA_RIFT_AMULET_PROJECT_COST
