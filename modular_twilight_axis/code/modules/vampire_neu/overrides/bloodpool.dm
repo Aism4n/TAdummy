@@ -532,7 +532,16 @@
 	else
 		SStgui.update_uis(src)
 
-/datum/vampire_project/servant/proc/summon(summon_type, atom/feedback_atom)
+/datum/vampire_project/servant/servant_t1/summon(summon_type, atom/feedback_atom)
+	return TA_summon(summon_type, feedback_atom)
+
+/datum/vampire_project/servant/servant_t2/summon(summon_type, atom/feedback_atom)
+	return TA_summon(summon_type, feedback_atom)
+
+/datum/vampire_project/servant/servant_t3/summon(summon_type, atom/feedback_atom)
+	return TA_summon(summon_type, feedback_atom)
+
+/datum/vampire_project/servant/proc/TA_summon(summon_type, atom/feedback_atom)
 	feedback_atom.visible_message("The crucible stirs, summoning a servant from the realms beyond...")
 	var/list/candidates = pollGhostCandidates("Do you want to play as a Vampire's [summon_type]?", ROLE_VAMPIRE_SUMMON, null, null, 30 SECONDS, POLL_IGNORE_VL_SERVANT)
 	if(!LAZYLEN(candidates))
