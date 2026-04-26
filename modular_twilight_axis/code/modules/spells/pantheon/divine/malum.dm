@@ -67,7 +67,7 @@
 			var/mob/living/carbon/C = target
 			C.visible_message(span_warning("[target] resists the searing heat!"))
 			return
-		handle_living_entity_TA(target, user, nosmeltore)s
+		handle_living_entity_TA(target, user, nosmeltore)
 
 /obj/effect/proc_holder/spell/invoked/TAhammerfall
 	name = "Hammerfall"
