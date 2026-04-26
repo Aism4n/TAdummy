@@ -105,7 +105,7 @@
 			if("Undo")
 				name = realname
 				desc = realdesc
-				icon = realicon
+				icon_state = realstate
 		playsound(user, pick('sound/magic/magic_nulled.ogg'), 20, TRUE)
 
 /obj/item/clothing/suit/roguetown/shirt/padedetrshirt
