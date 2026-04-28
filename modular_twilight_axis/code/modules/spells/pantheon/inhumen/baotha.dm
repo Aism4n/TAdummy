@@ -97,11 +97,10 @@
 	chargedrain = 0
 	chargetime = 0
 	chargedloop = /datum/looping_sound/invokeholy
-	sound = 'sound/magic/astrata_choir.ogg'
+	sound = 'sound/foley/gross.ogg'
 	associated_skill = /datum/skill/magic/holy
 	antimagic_allowed = FALSE
-	invocations = list("Accincti flammis.")
-	invocation_type = "whisper"
+	invocation_type = "none"
 	recharge_time = 0
 	devotion_cost = 40
 	miracle = TRUE

@@ -127,6 +127,8 @@
 	throwforce = 40
 	force = 25
 	wdefense = 4
+	var/last_cut = 0
+	var/last_drug = 0
 
 /obj/item/rogueweapon/huntingknife/idagger/steel/baotha/Initialize()
 	. = ..()
@@ -153,9 +155,26 @@
 	if(!istype(target))
 		return FALSE
 	var/list/drugs = list(/datum/reagent/ozium,
-						/datum/reagent/moondust,
-						/datum/reagent/corps_dust,
-						/datum/reagent/smartium)
+						/datum/reagent/moondust)
 	var/random_drug = pick(drugs)
+	if(HAS_TRAIT(target, TRAIT_PSYCHOSIS))
+		ADD_TRAIT(target, TRAIT_PSYCHOSIS, "baothaknife")
+	target.hallucination += rand(1,60)
+	to_chat(target, span_warning(pick("Is this TRVE??","IDDQD","DAFUQ?","I am NOT meant to see this.","What... WHAT is this?","This doesn't make SENSE.","I don't UNDERSTAND.","Why does it LOOK like that?","Something is WRONG here.","I can't make SENSE of this.","This isn't RIGHT.","What am I looking at?","None of THIS adds up.","I shouldn't be SEEING this.","This feels... INCORRECT.","Why is everything like this?","I CAN'T process this.","This ISN'T how it should be.","I don't get it.","What is happening?","This is all WRONG.","I CAN'T tell what's REAL.","Why does it feel off?","I don't recognize this.","This SHOULDN'T exist.","What is THIS supposed to be?","I can't FOLLOW this.","This isn't making sense anymore.","I think SOMETHING is broke.", "Why can't I understand THIS?", "This feels IMPOSSIBLE.", "I don't KNOW what I'm seeing.")))
+	target.Jitter(5)
+	if(prob(50))
+		target.emote(pick("giggle","laugh","chuckle"))
+	if(last_cut + 10 SECONDS >= world.time)
+		return FALSE
+	target.blur_eyes(5)
+	target.adjust_blurriness(10)
+	target.adjustToxLoss(10)
+	last_cut = world.time
+	if(last_drug + 1 MINUTES >= world.time)
+		return FALSE
 	target.reagents.add_reagent(random_drug, 2)
+	last_drug = world.time
 	return FALSE
+
+
+

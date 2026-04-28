@@ -170,11 +170,10 @@
 	chargedrain = 0
 	chargetime = 0
 	chargedloop = /datum/looping_sound/invokeholy
-	sound = 'sound/magic/astrata_choir.ogg'
+	sound = 'sound/foley/gross.ogg'
 	associated_skill = /datum/skill/magic/holy
 	antimagic_allowed = FALSE
-	invocations = list("")
-	invocation_type = "whisper"
+	invocation_type = "none"
 	recharge_time = 0
 	devotion_cost = 0
 	miracle = TRUE
@@ -234,6 +233,8 @@
 			user.adjustBruteLoss(-10*skill)
 			user.adjustFireLoss(-10*skill)
 			user.heal_wounds(-5*skill)
+			if(skill >= 3)
+				user.reagents.add_reagent(/datum/reagent/water, 3*skill) 
 			for(var/i in 1 to 3)
 				var/obj/effect/temp_visual/heal/H = new /obj/effect/temp_visual/heal_blood(get_turf(owner))
 				H.color = "#bc0909"
