@@ -93,7 +93,8 @@
 		if(!powerful)
 			if(ishuman(target))
 				var/mob/living/carbon/human/H = target
-				if(istype(H.wear_neck, /obj/item/clothing/neck/roguetown/psicross/silver))
+				var/obj/item/clothing/neck/roguetown/psicross/silver/silver_cross = locate(/obj/item/clothing/neck/roguetown/psicross/silver) in H.contents
+				if(silver_cross)
 					var/extra = "!"
 					if(knowledgable)
 						extra = ", кажется, это был [user]!"

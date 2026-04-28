@@ -74,7 +74,7 @@
 /obj/structure/vampire/bloodpool/TA/ui_data(mob/user)
 	var/list/data = list()
 	var/mob/living/living_user = user
-	var/is_lord = is_crucible_lord(living_user)
+	var/is_lord = is_crucible_methuselah(living_user)
 	var/is_vampire = is_crucible_vampire(living_user)
 	var/list/active_project_data = list()
 	var/list/available_project_data = list()
@@ -123,7 +123,7 @@
 			"contributors" = contributor_names,
 		))
 
-	if(is_vampire)
+	if(is_lord)
 		for(var/project_type in available_project_types)
 			if(project_type in active_projects)
 				continue
@@ -167,7 +167,8 @@
 
 	switch(action)
 		if("start_project")
-			if(!is_crucible_vampire(user))
+			if(!is_crucible_methuselah(user))
+				to_chat(user, span_warning("Только Метсуфелат может начинать новые ритуалы."))
 				return TRUE
 			var/project_path = params["type_path"]
 			if(!project_path)
@@ -175,9 +176,6 @@
 			var/project_type = text2path(project_path)
 			if(!ispath(project_type, /datum/vampire_project) || !(project_type in available_project_types) || (project_type in active_projects))
 				to_chat(user, span_warning("Горнило не смогло распознать этот ритуал."))
-				return TRUE
-			if(!is_crucible_lord(user))
-				to_chat(user, span_warning("Только владыка клана может начинать новые ритуалы."))
 				return TRUE
 			start_new_project_tgui(project_type, user)
 			return TRUE
@@ -191,28 +189,27 @@
 			deposit_blood_to_cup(user)
 			return TRUE
 		if("cancel_project")
-			if(!is_crucible_vampire(user))
+			if(!is_crucible_methuselah(user))
+				to_chat(user, span_warning("Только Метсуфелат может отменять ритуалы."))
 				return TRUE
 			var/datum/vampire_project/project = get_active_project_by_ref(params["ref"])
 			var/project_type = get_active_project_type(project)
 			if(!project || !project_type)
 				return TRUE
-			if(!is_crucible_lord(user))
-				to_chat(user, span_warning("Только владыка клана может отменять ритуалы."))
-				return TRUE
 			if(tgui_alert(user, "Отменить ритуал \"[project.ui_project_name()]\"? Вложенная кровь будет возвращена участникам.", "Багровое горнило", list("Отменить ритуал", "Назад")) != "Отменить ритуал")
 				return TRUE
-			if(QDELETED(src) || !is_crucible_lord(user) || active_projects[project_type] != project)
+			if(QDELETED(src) || !is_crucible_methuselah(user) || active_projects[project_type] != project)
 				return TRUE
 			cancel_project(project_type)
 			SStgui.update_uis(src)
 			return TRUE
 	return FALSE
 
-/obj/structure/vampire/bloodpool/TA/proc/is_crucible_lord(mob/living/user)
+/obj/structure/vampire/bloodpool/TA/proc/is_crucible_methuselah(mob/living/user)
 	if(!istype(user))
 		return FALSE
-	return user.clan?.clan_leader == user
+	var/datum/antagonist/vampire/vampire = user.mind?.has_antag_datum(/datum/antagonist/vampire)
+	return vampire?.generation >= GENERATION_METHUSELAH
 
 /obj/structure/vampire/bloodpool/TA/proc/is_crucible_vampire(mob/living/user)
 	if(!istype(user))
@@ -286,7 +283,7 @@
 
 	if(is_vampire)
 		var/available_vitae = get_vampire_personal_vitae_for_crucible(user)
-		if(is_crucible_lord(user))
+		if(is_crucible_methuselah(user))
 			available_vitae += current
 		return available_vitae
 
@@ -317,7 +314,7 @@
 
 /obj/structure/vampire/bloodpool/TA/proc/get_project_locked_reason(datum/vampire_project/project, is_lord, can_start)
 	if(!is_lord)
-		return "Начинать ритуалы может только владыка клана."
+		return "Начинать ритуалы может только Метсуфелат."
 	if(can_start)
 		return ""
 	if(project.start_failure_message)
@@ -348,7 +345,7 @@
 	var/is_vampire = is_crucible_vampire(user)
 	var/max_contribution = min(get_available_vitae_for_contribution(user, is_vampire), max(project.total_cost - project.paid_amount, 0))
 	if(is_vampire)
-		if(!is_crucible_lord(user) && project.display_name != "Wicked Plate" && project.display_name != "World Anchor")
+		if(!is_crucible_methuselah(user) && project.display_name != "Wicked Plate" && project.display_name != "World Anchor")
 			max_contribution = min(max_contribution, max((project.total_cost - project.paid_amount) - 100, 0))
 	else
 		max_contribution = min(max_contribution, get_blood_limited_vitae(user))
@@ -382,19 +379,19 @@
 	return CEILING((vitae_amount * TA_CRUCIBLE_DONATION_BLOOD) / TA_CRUCIBLE_DONATION_VITAE, 1)
 
 /obj/structure/vampire/bloodpool/TA/proc/start_new_project_tgui(project_type, mob/living/user)
+	if(!ispath(project_type, /datum/vampire_project) || !(project_type in available_project_types) || (project_type in active_projects))
+		return
+
 	var/datum/vampire_project/project = new project_type()
 
+	if(QDELETED(src) || !istype(user) || !is_crucible_methuselah(user))
+		qdel(project)
+		return
 	if(!project.can_start(user, src))
 		to_chat(user, span_warning(project.ui_project_start_failure()))
 		qdel(project)
 		return
 
-	if(QDELETED(src) || !istype(user) || !is_crucible_vampire(user) || !is_crucible_lord(user))
-		qdel(project)
-		return
-	if(!ispath(project_type, /datum/vampire_project) || !(project_type in available_project_types) || (project_type in active_projects))
-		qdel(project)
-		return
 	if(!project.can_start(user, src))
 		to_chat(user, span_warning(project.ui_project_start_failure()))
 		qdel(project)
@@ -502,7 +499,7 @@
 
 	var/cup_contribution = 0
 	var/personal_contribution = contribution
-	if(is_vampire && is_crucible_lord(user))
+	if(is_vampire && is_crucible_methuselah(user))
 		cup_contribution = min(current, contribution)
 		personal_contribution = contribution - cup_contribution
 
@@ -626,6 +623,9 @@
 	var/datum/antagonist/vampire/new_antag = new /datum/antagonist/vampire(incoming_clan = initiator_clan, forced_clan = TRUE, generation = generation)
 	summon.mind.add_antag_datum(new_antag)
 	ADD_TRAIT(summon, TRAIT_BLOODPOOL_BORN, TRAIT_GENERIC)
+	if(summon.client)
+		SSrole_class_handler.setup_class_handler(summon)
+		try_apply_character_post_equipment(summon, summon.client)
 	summon.update_action_buttons(TRUE)
 
 /datum/vampire_project
@@ -693,7 +693,7 @@
 		if("This project cannot be started.")
 			return "Этот ритуал нельзя начать."
 		if("This project can only be initiate by your Lorde.")
-			return "Этот ритуал может начать только владыка клана."
+			return "Этот ритуал может начать только Метсуфелат."
 	return start_failure_message
 
 #undef TA_CRUCIBLE_MAX_BLOOD

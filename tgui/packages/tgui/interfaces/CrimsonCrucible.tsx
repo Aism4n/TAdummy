@@ -124,7 +124,7 @@ export const CrimsonCrucible = () => {
                       БАГРОВОЕ ГОРНИЛО
                     </Box>
                     <Box color="#c8878d" textAlign="center" mt={0.3}>
-                      {isVampire ? (isLord ? 'Права владыки клана' : 'Вампир клана') : 'Живая жертва'}
+                      {isVampire ? (isLord ? 'Право на Власть' : 'Право на Жертву') : 'Живая жертва'}
                     </Box>
                   </Stack.Item>
                   <Stack.Item width="230px">
@@ -187,11 +187,11 @@ export const CrimsonCrucible = () => {
                       </Box>
                     ) : !isLord && (
                       <Box color="#c7a97a" italic mb={1}>
-                        Начинать новые ритуалы может только владыка клана. Вкладывать
-                        витэ в уже начатые ритуалы могут другие вампиры.
+                        Начинать новые ритуалы может только Метсуфелат. Остальным доступны
+                        только пожертвования крови в чашу и вложения в уже начатые ритуалы.
                       </Box>
                     )}
-                    {isVampire && availableProjects.length ? (
+                    {isVampire && isLord && availableProjects.length ? (
                       availableProjects.map((project) => (
                         <AvailableProjectCard
                           key={project.type_path}
@@ -199,7 +199,7 @@ export const CrimsonCrucible = () => {
                           onStart={() => act('start_project', { type_path: project.type_path })}
                         />
                       ))
-                    ) : isVampire ? (
+                    ) : isVampire && isLord ? (
                       <EmptyState text="Нет доступных ритуалов." />
                     ) : null}
                   </Section>
@@ -237,7 +237,7 @@ const ActiveProjectCard = (props: ActiveProjectCardProps) => {
         </Stack.Item>
         <Stack.Item grow basis={0}>
           <Box bold fontSize={1.08}>
-            {project.name} {project.isLordOnly ? '(воля владыки)' : '(открытый)'}
+            {project.name} {project.isLordOnly ? '(воля Метсуфелата)' : '(открытый)'}
           </Box>
           <Box color="#3b2724" mt={0.3}>
             {project.description}
@@ -309,7 +309,7 @@ const AvailableProjectCard = (props: AvailableProjectCardProps) => {
     >
       <Stack align="center">
         <Stack.Item>
-          <Box style={sealStyle}>{project.isLordOnly ? 'В' : 'О'}</Box>
+          <Box style={sealStyle}>{project.isLordOnly ? 'М' : 'О'}</Box>
         </Stack.Item>
         <Stack.Item grow basis={0}>
           <Box bold>{project.name}</Box>
