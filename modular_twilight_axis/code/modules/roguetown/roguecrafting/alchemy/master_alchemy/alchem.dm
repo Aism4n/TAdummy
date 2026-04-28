@@ -375,7 +375,7 @@
 
 	data["knowledge"] = knowledge
 
-	if(transmute_slot && (transmute_slot in STR.real_location()))
+	if(transmute_slot && STR && (transmute_slot in STR.real_location()))
 		var/icon/T_IMG = icon(transmute_slot.icon, transmute_slot.icon_state, frame = 1)
 		data["transmute_item"] = list("name" = transmute_slot.name, "image" = "data:image/png;base64,[icon2base64(T_IMG)]")
 	else
@@ -557,6 +557,7 @@
 			return TRUE
 
 		if("consume_lux")
+			if(!STR) return TRUE
 			var/obj/item/reagent_containers/lux/L = locate(/obj/item/reagent_containers/lux) in STR.real_location()
 			var/obj/item/reagent_containers/lux_impure/LI = locate(/obj/item/reagent_containers/lux_impure) in STR.real_location()
 			

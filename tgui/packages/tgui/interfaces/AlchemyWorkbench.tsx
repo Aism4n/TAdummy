@@ -465,10 +465,10 @@ const TransmutationTab = () => {
               <Icon name="bolt" color="teal" size={2} mr={1} />
               <Stack.Item grow>
                 <Box bold color="teal" fontSize="1.1em">Накопитель Энергии</Box>
-                <ProgressBar value={data.lux_tank?.charges || 0} maxValue={data.lux_tank?.max || 500} color="teal" mt={0.5} />
+                <ProgressBar value={data.lux_tank?.charges || 0} maxValue={data.lux_tank?.max || 1000} color="teal" mt={0.5} />
                 <Stack justify="space-between" mt={0.5} align="center">
                   <Box fontSize="0.9em" color="white">
-                    Зарядов Люкса: {data.lux_tank?.charges || 0} / {data.lux_tank?.max || 500}
+                    Зарядов Люкса: {data.lux_tank?.charges || 0} / {data.lux_tank?.max || 1000}
                   </Box>
                   <Button icon="battery-full" color="good" onClick={() => act('consume_lux')}>
                     Поглотить Люкс из склада
@@ -549,14 +549,18 @@ const TransmutationTab = () => {
       {selecting && (
         <Box style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.95)', zIndex: 100, padding: '15px' }}>
           <Section title="Выберите материал" fill scrollable buttons={<Button icon="times" color="transparent" onClick={() => setSelecting(false)} />}>
-            {data.available_all_items.map((item, i) => (
-              <Button key={i} fluid mb={1} onClick={() => { act('transmute_assign', { item_ref: item.ref }); setSelecting(false); }}>
-                <Stack align="center">
-                  <img src={item.image} style={{ width: '24px', height: '24px', marginRight: '8px' }} />
-                  <Box>{item.name}</Box>
-                </Stack>
-              </Button>
-            ))}
+          {data.available_all_items.length > 0 ? (
+              data.available_all_items.map((item, i) => (
+                <Button key={i} fluid mb={1} onClick={() => { act('transmute_assign', { item_ref: item.ref }); setSelecting(false); }}>
+                  <Stack align="center">
+                    <img src={item.image} style={{ width: '24px', height: '24px', marginRight: '8px' }} />
+                    <Box>{item.name}</Box>
+                  </Stack>
+                </Button>
+              ))
+            ) : (
+              <Box italic color="gray" textAlign="center">Склад стола пуст...</Box>
+            )}
           </Section>
         </Box>
       )}
