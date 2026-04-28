@@ -3686,6 +3686,7 @@
 #include "modular_twilight_axis\code\modules\roguetown\rogueantagonists\zizo_cult\zizobook.dm"
 #include "modular_twilight_axis\code\modules\roguetown\rogueantagonists\zizo_cult\zizocult.dm"
 #include "modular_twilight_axis\code\modules\roguetown\rogueantagonists\zizo_cult\zizoid.dm"
+#include "modular_twilight_axis\code\modules\roguetown\roguecrafting\alchemy.dm"
 #include "modular_twilight_axis\code\modules\roguetown\roguecrafting\ceramics.dm"
 #include "modular_twilight_axis\code\modules\roguetown\roguecrafting\engineering.dm"
 #include "modular_twilight_axis\code\modules\roguetown\roguecrafting\items.dm"
