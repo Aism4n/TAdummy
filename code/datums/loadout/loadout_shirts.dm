@@ -1,4 +1,4 @@
-//SHIRTS
+/*//SHIRTS
 /datum/loadout_item/longcoat
 	name = "Longcoat"
 	path = /obj/item/clothing/suit/roguetown/armor/longcoat
@@ -169,11 +169,16 @@
 	name = "Bared Robe"
 	path = /obj/item/clothing/suit/roguetown/shirt/robe/bared
 	sort_category = "Shirts"
+
 /datum/loadout_item/velvetdress
 	name = "Velvet Dress"
 	path = /obj/item/clothing/suit/roguetown/shirt/velvetdress
 	sort_category = "Shirts"
+
 /datum/loadout_item/nobledress
 	name = "Noble's Pinafore"
 	path = /obj/item/clothing/suit/roguetown/shirt/nobledress
 	sort_category = "Shirts"
+
+
+*/

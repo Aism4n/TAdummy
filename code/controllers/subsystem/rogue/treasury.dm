@@ -464,6 +464,11 @@ SUBSYSTEM_DEF(treasury)
 	mint(discretionary_fund, amt, "exported [D.name]")
 	SStreasury.total_export += amt
 	record_round_statistic(STATS_STOCKPILE_EXPORTS_VALUE, amt)
+
+	if(!silent && amt >= EXPORT_ANNOUNCE_THRESHOLD) // Only announce big spending.
+		scom_announce("[SSticker.realm_name] exports [D.name] for [amt] mammon.")
+	D.lower_demand()
+
 	return amt
 
 /datum/controller/subsystem/treasury/proc/auto_export()
@@ -479,8 +484,12 @@ SUBSYSTEM_DEF(treasury)
 			continue
 		if(D.stockpile_amount >= D.importexport_amt)
 			total_value_exported += do_export(D, TRUE)
+
 	var/list/surplus_result = mass_export_surplus(silent = TRUE)
 	total_value_exported += surplus_result["revenue"]
+
+	if(total_value_exported >= EXPORT_ANNOUNCE_THRESHOLD)
+		scom_announce("[SSticker.realm_name] exports [total_value_exported] mammons of surplus goods.")
 
 /// Walks every auto-priced trade-good stockpile entry and exports stock above the
 /// daily auto-export floor (limit * autoexport_percentage) to its best-paying region,
