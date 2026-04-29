@@ -22,6 +22,7 @@
 #include "./overrides/portal.dm"
 #include "./ascended_covens.dm"
 #include "./coven_level_purchases.dm"
+#include "./clan_hierarchy_json.dm"
 #include "./overrides/pallid_addiction.dm"
 #include "./overrides/pallid_spells.dm"
 #include "./overrides/quicksilver.dm"
