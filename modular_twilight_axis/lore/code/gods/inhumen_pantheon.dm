@@ -199,7 +199,7 @@
 	undead_hater = TRUE
 	miracles = list(/obj/effect/proc_holder/spell/targeted/touch/orison					= CLERIC_ORI,
 					/obj/effect/proc_holder/spell/invoked/TAbaothavice					= CLERIC_T0,
-					/obj/effect/proc_holder/spell/self/TAbless_drink					= CLERIC_T0,
+					//obj/effect/proc_holder/spell/self/TAbless_drink					= CLERIC_T0,
 					/obj/effect/proc_holder/spell/targeted/touch/TAloversruin			= CLERIC_T0,
 					/obj/effect/proc_holder/spell/invoked/TAbaothablessings				= CLERIC_T1,
 					/obj/effect/proc_holder/spell/self/TAinsufflation					= CLERIC_T1,
