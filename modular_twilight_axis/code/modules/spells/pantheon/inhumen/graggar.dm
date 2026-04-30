@@ -174,13 +174,13 @@
 	associated_skill = /datum/skill/magic/holy
 	antimagic_allowed = FALSE
 	invocation_type = "none"
-	recharge_time = 0
+	recharge_time = 1 MINUTES
 	devotion_cost = 0
 	miracle = TRUE
 
 /obj/effect/proc_holder/spell/self/graggar_regenerate/cast(mob/living/carbon/human/user)
 	playsound(get_turf(user), 'sound/magic/haste.ogg', 80, TRUE, soundping = TRUE)
-
+	recharge_time = 1 MINUTES
 	if(user.has_status_effect(/datum/status_effect/buff/graggar_regenerate))
 		user.remove_status_effect(/datum/status_effect/buff/graggar_regenerate)
 		return TRUE
@@ -188,6 +188,7 @@
 		user.emote("warcry")
 		user.visible_message("[user] mutters an incantation and their skin begin regenerate.")
 		user.apply_status_effect(/datum/status_effect/buff/graggar_regenerate)
+		recharge_time = 0
 	return TRUE
 
 /atom/movable/screen/alert/status_effect/buff/graggar_regenerate
@@ -201,6 +202,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/buff/graggar_regenerate
 	effectedstats = list(STATKEY_WIL = -3, STATKEY_STR = -3) //Target body loosing CON, but getting fireresist.
 	duration = 6 SECONDS
+	var/last_water = 0
 
 /datum/status_effect/buff/graggar_regenerate/on_apply()
 	. = ..()
@@ -213,15 +215,15 @@
 	var/skill = user.get_skill_level(/datum/skill/magic/holy)
 	var/cost = 50 //Novice
 	switch(skill)
-		if(2)
+		if(6)
 			cost = 45
-		if(3)
+		if(5)
 			cost = 40
 		if(4)
 			cost = 35
-		if(5)
+		if(3)
 			cost = 30
-		if(6)
+		if(2)
 			cost = 25
 	if(user.has_status_effect(/datum/status_effect/buff/graggar_regenerate))
 		if((user.devotion?.devotion - cost) < 0)
@@ -230,11 +232,13 @@
 		if(cost != 0)
 			user.devotion?.update_devotion(-cost)
 			to_chat(user, "<font color='purple'>I lose [cost] devotion!</font>")
-			user.adjustBruteLoss(-10*skill)
-			user.adjustFireLoss(-10*skill)
-			user.heal_wounds(-5*skill)
-			if(skill >= 3)
-				user.reagents.add_reagent(/datum/reagent/water, 3*skill) 
+			user.adjustBruteLoss(-5*skill)
+			user.adjustFireLoss(-5*skill)
+			user.heal_wounds(-3*skill)
+			if(last_water + 10 SECONDS <= world.time)
+				last_water = world.time
+				if(skill >= 3)
+					user.reagents.add_reagent(/datum/reagent/water, 3*skill) 
 			for(var/i in 1 to 3)
 				var/obj/effect/temp_visual/heal/H = new /obj/effect/temp_visual/heal_blood(get_turf(owner))
 				H.color = "#bc0909"
