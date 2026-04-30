@@ -50,6 +50,33 @@ GLOBAL_LIST_INIT(familytree_title_prefixes, list(
 /datum/controller/subsystem/familytree/proc/SpeciesCompatible(mob/living/carbon/human/A, mob/living/carbon/human/B)
 	return !GetSpeciesCompatibilityFailureReason(A, B)
 
+/datum/controller/subsystem/familytree/proc/familytree_species_preference_allows(mob/living/carbon/human/seeker, mob/living/carbon/human/target)
+	if(!seeker || !target)
+		return FALSE
+	var/species_mode = seeker.species_preference_mode
+	if(!species_mode)
+		species_mode = "ANY"
+	switch(species_mode)
+		if("ANY")
+			return TRUE
+		if("SAME_TYPE")
+			return seeker.dna?.species?.type == target.dna?.species?.type
+		if("SPECIFIC_TYPE")
+			var/list/pref_types = get_familytree_species_type_list(seeker.preferred_species_types)
+			return (target.dna?.species?.type in pref_types)
+	return TRUE
+
+/datum/controller/subsystem/familytree/proc/familytree_relative_species_compatible(mob/living/carbon/human/A, mob/living/carbon/human/B)
+	if(!A || !B)
+		return FALSE
+	if(xylix_roulette_pair_applies(A, B))
+		return TRUE
+	var/a_isolated = is_isolated(A)
+	var/b_isolated = is_isolated(B)
+	if(a_isolated || b_isolated)
+		return a_isolated && b_isolated
+	return familytree_species_preference_allows(A, B) && familytree_species_preference_allows(B, A)
+
 /datum/controller/subsystem/familytree/proc/GetSpeciesCompatibilityFailureReason(mob/living/carbon/human/A, mob/living/carbon/human/B)
 	if(!A || !B)
 		return "missing mob"
@@ -237,6 +264,17 @@ GLOBAL_LIST_INIT(familytree_title_prefixes, list(
 	if(istype(house.dominant_race, /datum/species))
 		return house.dominant_race.name == our_race
 	return FALSE
+
+/datum/controller/subsystem/familytree/proc/house_relative_compatible(datum/heritage/house, mob/living/carbon/human/seeker)
+	if(!house || !seeker?.dna?.species)
+		return FALSE
+	if(xylix_roulette_applies(seeker))
+		return TRUE
+	var/seeker_isolated = is_isolated(seeker)
+	var/house_isolated = is_house_isolated(house)
+	if(seeker_isolated || house_isolated)
+		return seeker_isolated && house_isolated
+	return TRUE
 
 /datum/controller/subsystem/familytree/proc/get_familytree_unsubscribe_reason(mob/living/carbon/human/H)
 	if(!H)
@@ -531,6 +569,26 @@ GLOBAL_LIST_INIT(familytree_title_prefixes, list(
 		return TRUE
 	return familytree_single_parent_species_compatible(child, parent, house)
 
+/datum/controller/subsystem/familytree/proc/familytree_genital_signature(mob/living/carbon/human/H)
+	if(!H)
+		return null
+	var/signature = 0
+	if(H.getorganslot(ORGAN_SLOT_PENIS))
+		signature |= 1
+	if(H.getorganslot(ORGAN_SLOT_VAGINA))
+		signature |= 2
+	return signature
+
+/datum/controller/subsystem/familytree/proc/familytree_biological_parent_genitals_compatible(mob/living/carbon/human/parent1, mob/living/carbon/human/parent2)
+	var/parent1_signature = familytree_genital_signature(parent1)
+	var/parent2_signature = familytree_genital_signature(parent2)
+	if(isnull(parent1_signature) || isnull(parent2_signature))
+		return FALSE
+	if(parent1_signature == parent2_signature)
+		return FALSE
+	var/combined_signature = parent1_signature | parent2_signature
+	return (combined_signature & 1) && (combined_signature & 2)
+
 /datum/controller/subsystem/familytree/proc/familytree_biological_parent_pair_allowed(mob/living/carbon/human/parent1, mob/living/carbon/human/parent2, mob/living/carbon/human/child, datum/heritage/house = null)
 	if(!child)
 		return FALSE
@@ -538,6 +596,8 @@ GLOBAL_LIST_INIT(familytree_title_prefixes, list(
 		return familytree_biological_parent_allowed(parent2, child, house)
 	if(!parent2)
 		return familytree_biological_parent_allowed(parent1, child, house)
+	if(!familytree_biological_parent_genitals_compatible(parent1, parent2))
+		return FALSE
 	if(xylix_roulette_pair_applies(parent1, child) || xylix_roulette_pair_applies(parent2, child))
 		return TRUE
 	var/datum/heritage/context = house || child.family_datum || parent1.family_datum || parent2.family_datum || ruling_family

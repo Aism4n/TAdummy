@@ -139,6 +139,12 @@
 	if(result == "Да, сбросить")
 		ftlog("SETSPOUSE RESET: [H.real_name] cleared setspouse '[H.setspouse]'")
 		H.setspouse = ""
+		var/datum/preferences/P = H.client?.prefs
+		if(P)
+			P.familytree_module_load_character()
+			P.setspouse = ""
+			P.familytree_module_save_character()
+			load_familytree_runtime_preferences(H, P)
 		H.familytree_assignment_scheduled = FALSE
 		run_local_assignment(H, status)
 	else

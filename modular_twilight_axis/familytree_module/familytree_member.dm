@@ -235,7 +235,7 @@
 	var/list/spouse_children = spouse.get_child_members()
 	for(var/datum/family_member/child as anything in get_child_members())
 		if(child in spouse_children)
-			if(family.SpeciesCalculation(child.person, person, spouse.person) || SSfamilytree.xylix_roulette_pair_applies(child.person, person) || SSfamilytree.xylix_roulette_pair_applies(child.person, spouse.person))
+			if(SSfamilytree.familytree_biological_parent_pair_allowed(person, spouse.person, child.person, family))
 				child.adoption_status = FALSE
 				SSfamilytree.graph_sync_adoption_status(child.person, FALSE)
 
@@ -346,6 +346,77 @@
 			return "grandmother-in-law"
 	return "grandparent-in-law"
 
+/datum/family_member/proc/GetParentInLawTermForSpouse(datum/family_member/spouse)
+	switch(spouse?.GetRelationshipStyle())
+		if("masculine")
+			switch(GetRelationshipStyle())
+				if("masculine")
+					return "father-in-law"
+				if("feminine")
+					return "mother-in-law"
+		if("feminine")
+			switch(GetRelationshipStyle())
+				if("masculine")
+					return "father-in-law"
+				if("feminine")
+					return "mother-in-law"
+	return GetParentInLawTerm()
+
+/datum/family_member/proc/GetSpouseSiblingInLawTerm(datum/family_member/spouse)
+	switch(spouse?.GetRelationshipStyle())
+		if("masculine")
+			switch(GetRelationshipStyle())
+				if("masculine")
+					return "brother-in-law"
+				if("feminine")
+					return "sister-in-law"
+		if("feminine")
+			switch(GetRelationshipStyle())
+				if("masculine")
+					return "brother-in-law"
+				if("feminine")
+					return "sister-in-law"
+	return GetSiblingInLawTerm()
+
+/datum/family_member/proc/GetSpouseOfSpousesSiblingInLawTerm(datum/family_member/spouse, datum/family_member/spouse_sibling)
+	if(spouse?.GetRelationshipStyle() == "masculine" && spouse_sibling?.GetRelationshipStyle() == "masculine" && GetRelationshipStyle() == "feminine")
+		return "sister-in-law"
+	if(spouse?.GetRelationshipStyle() == "feminine" && spouse_sibling?.GetRelationshipStyle() == "feminine" && GetRelationshipStyle() == "masculine")
+		return "brother-in-law"
+	return GetSpouseOfSiblingTerm()
+
+/datum/family_member/proc/GetSpouseOfSiblingTerm()
+	switch(GetRelationshipStyle())
+		if("masculine")
+			return "brother-in-law"
+		if("feminine")
+			return "sister-in-law"
+	return GetSiblingInLawTerm()
+
+/datum/family_member/proc/GetSpouseOfChildTerm()
+	switch(GetRelationshipStyle())
+		if("masculine")
+			return "son-in-law"
+		if("feminine")
+			return "daughter-in-law"
+	return GetChildInLawTerm()
+
+/datum/family_member/proc/GetStepChildTerm()
+	switch(GetRelationshipStyle())
+		if("masculine")
+			return "stepson"
+		if("feminine")
+			return "stepdaughter"
+	return "stepchild"
+
+/datum/family_member/proc/GetCoParentInLawTerm()
+	switch(GetRelationshipStyle())
+		if("masculine")
+			return "co-father-in-law"
+		if("feminine")
+			return "co-mother-in-law"
+	return "co-parent-in-law"
+
 /datum/family_member/proc/GetGrandchildTerm()
 	switch(GetRelationshipStyle())
 		if("masculine")
@@ -448,6 +519,10 @@
 	if(sworn_sibling_rel)
 		return sworn_sibling_rel
 
+	var/inlaw_rel = GetInLawRelation(other)
+	if(inlaw_rel)
+		return inlaw_rel
+
 	if(AreSiblings(other))
 		if(AreFullSiblings(other))
 			return other.GetSiblingTerm()
@@ -461,10 +536,6 @@
 	if(grandchild_rel)
 		return grandchild_rel
 
-	var/great_aunt_uncle_rel = GetGreatAuntUncleRelation(other)
-	if(great_aunt_uncle_rel)
-		return great_aunt_uncle_rel
-
 	var/great_niece_nephew_rel = GetGreatNieceNephewRelation(other)
 	if(great_niece_nephew_rel)
 		return great_niece_nephew_rel
@@ -477,25 +548,9 @@
 	if(niece_nephew_rel)
 		return niece_nephew_rel
 
-	var/cousin_once_removed_rel = GetCousinOnceRemovedRelation(other)
-	if(cousin_once_removed_rel)
-		return cousin_once_removed_rel
-
-	var/cousin_rel = GetCousinRelation(other)
-	if(cousin_rel)
-		return cousin_rel
-
-	var/second_cousin_rel = GetSecondCousinRelation(other)
-	if(second_cousin_rel)
-		return second_cousin_rel
-
 	var/great_rel = GetGreatRelation(other)
 	if(great_rel)
 		return great_rel
-
-	var/inlaw_rel = GetInLawRelation(other)
-	if(inlaw_rel)
-		return inlaw_rel
 
 	return "distant relative"
 
@@ -592,24 +647,31 @@
 	for(var/datum/family_member/spouse as anything in get_spouse_members())
 		var/list/spouse_parents = spouse.get_parent_members()
 		if(other in spouse_parents)
-			return other.GetParentInLawTerm()
+			return other.GetParentInLawTermForSpouse(spouse)
 		var/list/spouse_children = spouse.get_child_members()
 		if(other in spouse_children)
-			return other.GetChildInLawTerm()
+			return other.GetStepChildTerm()
 		if(spouse.AreSiblings(other))
-			return other.GetSiblingInLawTerm()
+			return other.GetSpouseSiblingInLawTerm(spouse)
 
-		for(var/datum/family_member/spouse_parent as anything in spouse_parents)
-			if(other in spouse_parent.get_parent_members())
-				return other.GetGrandparentInLawTerm()
+		for(var/datum/family_member/spouse_sibling as anything in family.members)
+			if(!spouse.AreSiblings(spouse_sibling) || spouse_sibling == spouse)
+				continue
+			if(other in spouse_sibling.get_spouse_members())
+				return other.GetSpouseOfSpousesSiblingInLawTerm(spouse, spouse_sibling)
+			if(other in spouse_sibling.get_blood_child_members())
+				return other.GetNieceNephewTerm()
 
 	for(var/datum/family_member/member as anything in family.members)
 		if(AreSiblings(member) && (other in member.get_spouse_members()))
-			return other.GetSiblingInLawTerm()
+			return other.GetSpouseOfSiblingTerm()
 
 	for(var/datum/family_member/child as anything in get_child_members())
 		if(other in child.get_spouse_members())
-			return other.GetChildInLawTerm()
+			return other.GetSpouseOfChildTerm()
+		for(var/datum/family_member/child_spouse as anything in child.get_spouse_members())
+			if(other in child_spouse.get_parent_members())
+				return other.GetCoParentInLawTerm()
 
 	return null
 
@@ -661,11 +723,6 @@
 	return null
 
 /datum/family_member/proc/GetGreatRelation(datum/family_member/other)
-	for(var/datum/family_member/parent as anything in get_blood_parent_members())
-		for(var/datum/family_member/grandparent as anything in parent.get_blood_parent_members())
-			if(other in grandparent.get_blood_parent_members())
-				return other.GetGreatGrandparentTerm()
-
 	for(var/datum/family_member/child as anything in get_blood_child_members())
 		for(var/datum/family_member/grandchild as anything in child.get_blood_child_members())
 			if(other in grandchild.get_blood_child_members())

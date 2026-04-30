@@ -448,7 +448,7 @@
 				return "skip"
 			request_mutual_confirmation(H, favorite, CALLBACK(src, PROC_REF(do_execute_family), H, house, favorite.family_member_datum), "family")
 		else
-			request_family_confirmation(H, CALLBACK(src, PROC_REF(do_assign_to_favorite_house), H, house), "house")
+			request_family_confirmation(H, CALLBACK(src, PROC_REF(do_assign_to_favorite_house), H, house, favorite.family_member_datum), "house")
 		return "assigned"
 
 	if((status_mode & (FAMILYTREE_MODE_CREATE | FAMILYTREE_MODE_JOIN | FAMILYTREE_MODE_LEGACY_SPOUSE)) && familytree_new_family_pair_eligible(H, favorite))
@@ -502,14 +502,17 @@
 		return FALSE
 	return TRUE
 
-/datum/controller/subsystem/familytree/proc/do_assign_to_favorite_house(mob/living/carbon/human/H, datum/heritage/house)
+/datum/controller/subsystem/familytree/proc/do_assign_to_favorite_house(mob/living/carbon/human/H, datum/heritage/house, datum/family_member/favorite_member)
 	if(!H || QDELETED(H) || H.family_datum || !house)
 		return
 	if(!familytree_relative_join_phase_open())
 		wait_for_relative_join_phase(H, "favorite house confirmation accepted before join phase")
 		return
+	if(!favorite_member?.person || favorite_member.family != house)
+		retry_local_assignment(H, "favorite house anchor lost")
+		return
 	var/forced_role = familytree_forced_role_from_relative_role(H.desired_relative_role)
-	var/list/assignment = AddPersonToHouse(house, H, FALSE, forced_role)
+	var/list/assignment = AddPersonToHouse(house, H, FALSE, forced_role, favorite_member)
 	if(H.family_datum)
 		var/favorite_role = familytree_relative_assignment_audit_text(assignment)
 		familytree_admin_log_house_assignment(H, house, "joined favorite house as [favorite_role]")
@@ -622,9 +625,6 @@
 		return
 	ftlog("AssignToHouse START: [H.real_name] race=[H.dna?.species?.name] isolated=[is_isolated(H)] pref=[H.familytree_pref]")
 
-	var/our_race = H.dna.species.name
-	var/we_are_isolated = is_isolated(H)
-
 	var/list/candidates = list()
 	var/reject_mask = 0
 
@@ -638,7 +638,7 @@
 		if(!house_allows_relatives(house, H))
 			reject_mask |= FTREJ_H_RELATIVES
 			continue
-		if(!house_race_compatible(house, our_race, we_are_isolated, H))
+		if(!house_relative_compatible(house, H))
 			reject_mask |= FTREJ_H_RACE
 			continue
 		if(house.member_nodes.len < 1)
@@ -658,9 +658,11 @@
 	if(candidates.len)
 		var/list/remaining_candidates = candidates.Copy()
 		while(remaining_candidates.len)
-			var/datum/heritage/chosen_house = pick(remaining_candidates)
+			var/datum/heritage/chosen_house = pick_preferred_family_house(remaining_candidates)
+			if(!chosen_house)
+				break
 			remaining_candidates -= chosen_house
-			ftlog("AssignToHouse: [H.real_name] → JOINING random existing house '[chosen_house.housename || "no name"]' (members=[chosen_house.member_nodes.len])")
+			ftlog("AssignToHouse: [H.real_name] → JOINING preferred existing house '[chosen_house.housename || "no name"]' (members=[chosen_house.member_nodes.len])")
 			var/list/assignment = AddPersonToHouse(chosen_house, H, FALSE, forced_role)
 			if(H.family_datum)
 				familytree_admin_log_house_assignment(H, chosen_house, "joined existing house as [familytree_relative_assignment_audit_text(assignment)]")
@@ -671,11 +673,11 @@
 	else
 		ftlog("AssignToHouse: [H.real_name] → NO suitable existing house found. Staying without family.", FTLOG_WARN)
 
-/datum/controller/subsystem/familytree/proc/AddPersonToHouse(datum/heritage/house, mob/living/carbon/human/person, adopted = FALSE, forced_role = null)
-	return familytree_assign_random_relative_role(house, person, adopted, forced_role)
+/datum/controller/subsystem/familytree/proc/AddPersonToHouse(datum/heritage/house, mob/living/carbon/human/person, adopted = FALSE, forced_role = null, datum/family_member/preferred_anchor = null)
+	return familytree_assign_random_relative_role(house, person, adopted, forced_role, preferred_anchor)
 
-/datum/controller/subsystem/familytree/proc/familytree_assign_random_relative_role(datum/heritage/house, mob/living/carbon/human/person, adopted = FALSE, forced_role = null)
-	var/list/assignment = familytree_pick_random_relative_assignment(house, person, forced_role, adopted)
+/datum/controller/subsystem/familytree/proc/familytree_assign_random_relative_role(datum/heritage/house, mob/living/carbon/human/person, adopted = FALSE, forced_role = null, datum/family_member/preferred_anchor = null)
+	var/list/assignment = familytree_pick_random_relative_assignment(house, person, forced_role, adopted, preferred_anchor)
 	if(!assignment)
 		return null
 	var/datum/family_member/anchor = assignment["anchor"]
@@ -686,9 +688,13 @@
 	assignment["member"] = new_member
 	return assignment
 
-/datum/controller/subsystem/familytree/proc/familytree_pick_random_relative_assignment(datum/heritage/house, mob/living/carbon/human/person, forced_role = null, adopted = FALSE)
+/datum/controller/subsystem/familytree/proc/familytree_pick_random_relative_assignment(datum/heritage/house, mob/living/carbon/human/person, forced_role = null, adopted = FALSE, datum/family_member/preferred_anchor = null)
 	if(!house || !person)
 		return null
+	if(preferred_anchor?.family == house && preferred_anchor.person != person)
+		var/list/preferred_roles = familytree_possible_roles_for_anchor(house, person, preferred_anchor, forced_role, adopted)
+		if(preferred_roles.len)
+			return list("anchor" = preferred_anchor, "role" = pick(preferred_roles))
 	var/list/eligible_anchors = list()
 	for(var/datum/family_member/member as anything in house.members)
 		var/list/roles = familytree_possible_roles_for_anchor(house, person, member, forced_role, adopted)
@@ -705,19 +711,15 @@
 	var/list/possible_roles = list()
 	if(!house || !person || !anchor?.person || anchor.person == person)
 		return possible_roles
+	if(!familytree_relative_species_compatible(person, anchor.person))
+		return possible_roles
 
-	if(CanBeParentOf(anchor.person, person) && (adopted || familytree_biological_parent_allowed(anchor.person, person, house)))
+	if(CanBeParentOf(anchor.person, person) && familytree_parent_link_mode(anchor.person, person, house, adopted))
 		possible_roles += "child"
 	if(familytree_can_be_sibling_of_anchor(house, person, anchor))
 		possible_roles += "sibling"
 	if(anchor.get_parent_members().len < 2 && CanBeParentOf(person, anchor.person))
-		var/can_add_as_parent = adopted || familytree_biological_parent_allowed(person, anchor.person, house)
-		if(can_add_as_parent)
-			for(var/datum/family_member/existing_parent as anything in anchor.get_parent_members())
-				if(existing_parent?.person && !familytree_biological_parent_pair_allowed(person, existing_parent.person, anchor.person, house))
-					can_add_as_parent = FALSE
-					break
-		if(can_add_as_parent)
+		if(familytree_parent_link_mode(person, anchor.person, house, adopted))
 			possible_roles += "parent"
 	if(anchor.get_parent_members().len < 2 && familytree_can_be_uncle_aunt_of(person, anchor.person))
 		possible_roles += "uncle_aunt"
@@ -734,20 +736,64 @@
 	if(!CanBeSiblings(anchor.person.age, person.age))
 		return FALSE
 	var/list/anchor_parents = anchor.get_parent_members()
-	var/list/real_anchor_parents = list()
 	for(var/datum/family_member/parent as anything in anchor_parents)
 		if(!parent?.person)
 			continue
+		if(!familytree_relative_species_compatible(person, parent.person))
+			return FALSE
 		if(!CanBeParentOf(parent.person, person))
 			return FALSE
-		real_anchor_parents += parent.person
-	if(real_anchor_parents.len >= 2)
-		if(!familytree_biological_parent_pair_allowed(real_anchor_parents[1], real_anchor_parents[2], person, house))
-			return FALSE
-	else if(real_anchor_parents.len == 1)
-		if(!familytree_biological_parent_allowed(real_anchor_parents[1], person, house))
-			return FALSE
 	return TRUE
+
+/datum/controller/subsystem/familytree/proc/familytree_parent_link_mode(mob/living/carbon/human/parent, mob/living/carbon/human/child, datum/heritage/house, adopted = FALSE)
+	if(!parent || !child)
+		return null
+	if(adopted)
+		return "adoptive"
+	if(familytree_biological_parent_allowed(parent, child, house))
+		return "biological"
+	return "adoptive"
+
+/datum/controller/subsystem/familytree/proc/familytree_coparent_link_mode(datum/family_member/anchor, datum/family_member/coparent, mob/living/carbon/human/child, datum/heritage/house, adopted = FALSE)
+	if(!coparent?.person || !child)
+		return null
+	if(!familytree_relative_species_compatible(child, coparent.person))
+		return null
+	if(adopted)
+		return "adoptive"
+	if(CanBeParentOf(coparent.person, child) && anchor?.person && CanBeParentOf(anchor.person, child))
+		if(familytree_biological_parent_pair_allowed(anchor.person, coparent.person, child, house))
+			return "biological"
+	return "adoptive"
+
+/datum/controller/subsystem/familytree/proc/familytree_add_parent_link(datum/family_member/child, datum/family_member/parent, link_mode)
+	if(!child || !parent || !link_mode)
+		return FALSE
+	var/old_adoption_status = child.adoption_status
+	child.adoption_status = (link_mode == "adoptive")
+	var/success = child.AddParent(parent)
+	if(!success && link_mode == "biological")
+		child.adoption_status = TRUE
+		success = child.AddParent(parent)
+		if(success)
+			link_mode = "adoptive"
+	child.adoption_status = success ? (old_adoption_status || link_mode == "adoptive") : old_adoption_status
+	return success
+
+/datum/controller/subsystem/familytree/proc/familytree_pick_spouse_coparent(datum/heritage/house, datum/family_member/anchor, mob/living/carbon/human/child, adopted = FALSE)
+	if(!house || !anchor?.person || !child)
+		return null
+	var/list/candidates = list()
+	for(var/datum/family_member/spouse as anything in anchor.get_spouse_members())
+		if(!spouse?.person || spouse.family != house)
+			continue
+		if(spouse == anchor)
+			continue
+		if(familytree_coparent_link_mode(anchor, spouse, child, house, adopted))
+			candidates += spouse
+	if(!candidates.len)
+		return null
+	return pick(candidates)
 
 /datum/controller/subsystem/familytree/proc/familytree_apply_relative_role_to_anchor(datum/heritage/house, mob/living/carbon/human/person, datum/family_member/anchor, role, adopted = FALSE)
 	if(!house || !person || !anchor?.person || !role)
@@ -763,13 +809,28 @@
 
 	switch(role)
 		if("child")
-			success = new_member.AddParent(anchor)
+			var/datum/family_member/coparent = familytree_pick_spouse_coparent(house, anchor, person, adopted)
+			var/coparent_link_mode = familytree_coparent_link_mode(anchor, coparent, person, house, adopted)
+			var/link_mode = coparent_link_mode ? coparent_link_mode : familytree_parent_link_mode(anchor.person, person, house, adopted)
+			success = familytree_add_parent_link(new_member, anchor, link_mode)
+			if(success && coparent_link_mode && new_member.get_parent_members().len < 2)
+				familytree_add_parent_link(new_member, coparent, coparent_link_mode)
 		if("sibling")
 			var/list/anchor_parents = anchor.get_parent_members()
 			if(anchor_parents.len)
 				success = TRUE
+				var/force_adoptive_sibling_parentage = adopted
+				if(anchor_parents.len >= 2)
+					var/datum/family_member/anchor_parent_a = anchor_parents[1]
+					var/datum/family_member/anchor_parent_b = anchor_parents[2]
+					if(anchor_parent_a?.person && anchor_parent_b?.person && !familytree_biological_parent_pair_allowed(anchor_parent_a.person, anchor_parent_b.person, person, house))
+						force_adoptive_sibling_parentage = TRUE
 				for(var/datum/family_member/parent as anything in anchor_parents)
-					if(!new_member.AddParent(parent))
+					if(parent?.person && !familytree_relative_species_compatible(person, parent.person))
+						success = FALSE
+						break
+					var/sibling_parent_mode = (parent?.person && !force_adoptive_sibling_parentage) ? familytree_parent_link_mode(parent.person, person, house, FALSE) : "adoptive"
+					if(!familytree_add_parent_link(new_member, parent, sibling_parent_mode))
 						success = FALSE
 						break
 			else
@@ -777,7 +838,13 @@
 				if(created_phantom_parent && anchor.AddParent(created_phantom_parent))
 					success = new_member.AddParent(created_phantom_parent)
 		if("parent")
-			success = anchor.AddParent(new_member)
+			var/parent_link_mode = familytree_parent_link_mode(person, anchor.person, house, adopted)
+			if(!adopted)
+				for(var/datum/family_member/existing_parent as anything in anchor.get_parent_members())
+					if(existing_parent?.person && !familytree_biological_parent_pair_allowed(person, existing_parent.person, anchor.person, house))
+						parent_link_mode = "adoptive"
+						break
+			success = familytree_add_parent_link(anchor, new_member, parent_link_mode)
 		if("uncle_aunt")
 			success = familytree_apply_uncle_aunt_relation(house, new_member, anchor)
 
@@ -1432,19 +1499,27 @@
 	if(!potential_matches.len)
 		return null
 
-	var/min_house_size = 100000
+	var/list/preferred_matches = list()
 	for(var/list/match_data in potential_matches)
-		min_house_size = min(min_house_size, match_data[3])
+		if(match_data[3] < FAMILYTREE_PREFERRED_MIN_HOUSE_SIZE)
+			preferred_matches += list(match_data)
 
+	var/list/match_pool = preferred_matches.len ? preferred_matches : potential_matches
 	var/list/best_matches = list()
-	for(var/list/match_data in potential_matches)
-		if(match_data[3] == min_house_size)
-			best_matches += list(match_data)
+	if(preferred_matches.len)
+		var/min_house_size = 100000
+		for(var/list/match_data in match_pool)
+			min_house_size = min(min_house_size, match_data[3])
+		for(var/list/match_data in match_pool)
+			if(match_data[3] == min_house_size)
+				best_matches += list(match_data)
+	else
+		best_matches = match_pool.Copy()
 
 	var/list/chosen = pick(best_matches)
 	var/datum/heritage/chosen_house = chosen[1]
 	var/datum/family_member/chosen_member = chosen[2]
-	ftlog("FindFamilyMatch [H.real_name] -> [chosen_member.person.real_name] in '[chosen_house.housename]' (scanned=[houses_scanned]h matches=[potential_matches.len] min_size=[min_house_size])", FTLOG_DEBUG)
+	ftlog("FindFamilyMatch [H.real_name] -> [chosen_member.person.real_name] in '[chosen_house.housename]' (scanned=[houses_scanned]h matches=[potential_matches.len] chosen_size=[chosen[3]] preferred_min=[FAMILYTREE_PREFERRED_MIN_HOUSE_SIZE])", FTLOG_DEBUG)
 	return list(chosen_house, chosen_member)
 
 /datum/controller/subsystem/familytree/proc/AssignNewlyWed(mob/living/carbon/human/H)
@@ -1519,9 +1594,6 @@
 	if(!H)
 		return FALSE
 
-	var/our_race = H.dna.species.name
-	var/we_are_isolated = is_isolated(H)
-
 	for(var/datum/heritage/house as anything in families)
 		if(house.closed)
 			continue
@@ -1529,7 +1601,7 @@
 			continue
 		if(!house_allows_relatives(house, H))
 			continue
-		if(!house_race_compatible(house, our_race, we_are_isolated, H))
+		if(!house_relative_compatible(house, H))
 			continue
 		if(!familytree_house_supports_role(house, H, forced_role))
 			continue
@@ -1591,6 +1663,17 @@
 		if(house.member_nodes.len == min_member_count)
 			least_filled += house
 	return pick(least_filled)
+
+/datum/controller/subsystem/familytree/proc/pick_preferred_family_house(list/candidates)
+	if(!candidates.len)
+		return null
+	var/list/underfilled = list()
+	for(var/datum/heritage/house as anything in candidates)
+		if(house.member_nodes.len < FAMILYTREE_PREFERRED_MIN_HOUSE_SIZE)
+			underfilled += house
+	if(underfilled.len)
+		return pick_least_filled_house(underfilled)
+	return pick(candidates)
 
 /datum/controller/subsystem/familytree/proc/bestow_wedding_rings(mob/living/carbon/human/A, mob/living/carbon/human/B)
 	give_wedding_ring(A)

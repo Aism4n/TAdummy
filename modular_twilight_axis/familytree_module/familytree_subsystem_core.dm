@@ -473,6 +473,9 @@ SUBSYSTEM_DEF(familytree)
 		ftlog("run_local ABORT: null/qdel", FTLOG_ERROR)
 		return
 	var/effective_status = status
+	var/datum/preferences/P = H.client?.prefs
+	if(P && load_familytree_runtime_preferences(H, P))
+		effective_status = H.familytree_pref
 	check_xylix_roulette()
 	if(apply_xylix_roulette_preferences(H))
 		effective_status = H.familytree_pref

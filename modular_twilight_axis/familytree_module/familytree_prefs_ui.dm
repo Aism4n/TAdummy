@@ -436,6 +436,9 @@
 
 			P.familytree_module_sanitize_character()
 			P.familytree_module_save_character()
+			if(ishuman(user))
+				var/mob/living/carbon/human/H = user
+				SSfamilytree.load_familytree_runtime_preferences(H, P)
 
 			SStgui.update_uis(src)
 			return TRUE
