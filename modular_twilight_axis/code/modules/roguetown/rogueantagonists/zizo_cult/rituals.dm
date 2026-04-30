@@ -708,110 +708,6 @@ GLOBAL_LIST_INIT(ritual_counters, list())
 		if(HL.real_name == input)
 			to_chat(HL, "<i>You hear a voice in your head... <b>[text]</i></b>")
 
-/datum/ritual/transmutation/summonoutfit
-	name = "Призыв снаряжения культа"
-	desk = "Призывает снаряжение культа. Легкая броня и цепь."
-	center_requirement = /obj/item/natural/cloth
-
-	n_req = /obj/item/ingot/iron
-
-/datum/ritual/transmutation/summonoutfit/invoke(mob/living/user, turf/center)
-	var/datum/effect_system/spark_spread/S = new(center)
-	S.set_up(1, 1, center)
-	S.start()
-
-	new /obj/item/clothing/head/roguetown/helmet/skullcap/cult(center)
-
-	new /obj/item/clothing/cloak/half/shadowcloak/cult(center)
-
-	new /obj/item/clothing/suit/roguetown/armor/brigandine/light/cult(center)
-
-	new /obj/item/rope/chain(center)
-
-	playsound(get_turf(center), pick('sound/items/bsmith1.ogg','sound/items/bsmith2.ogg','sound/items/bsmith3.ogg','sound/items/bsmith4.ogg'), 100, FALSE)
-
-/datum/ritual/transmutation/summonneant
-	name = "Призыв Косы"
-	desk = "Призывает Особую косу Зизо."
-	center_requirement = /obj/item/reagent_containers/lux
-
-	w_req = /obj/item/ingot/steel
-	e_req = /obj/item/ingot/steel
-
-	is_cultist_ritual = TRUE
-
-/datum/ritual/transmutation/summonneant/invoke(mob/living/user, turf/center)
-
-	var/datum/effect_system/spark_spread/S = new(center)
-	S.set_up(1, 1, center)
-	S.start()
-
-	new /obj/item/rogueweapon/zizo/neant(center)
-
-	playsound(get_turf(center), pick('sound/items/bsmith1.ogg','sound/items/bsmith2.ogg','sound/items/bsmith3.ogg','sound/items/bsmith4.ogg'), 100, FALSE)
-
-/datum/ritual/transmutation/summonarmor
-	name = "Призыв доспехов Зизо"
-	desk = "Призывает доспехи Зизо."
-	cultist_number = 3
-	number_cultist_for_add_limit = 1
-	ritual_limit = 1
-	center_book = "Культист"
-	
-	center_requirement = /mob/living/carbon/human
-	n_req = /obj/item/ingot/steel
-	s_req = /obj/item/ingot/steel
-
-	is_cultist_ritual = TRUE
-
-/datum/ritual/transmutation/summonarmor/invoke(mob/living/user, turf/center)
-	var/mob/living/carbon/human/target = locate() in center.contents
-	if(!target)
-		return
-	if(target.stat == DEAD)
-		target.gib(FALSE, FALSE, FALSE)
-	var/datum/effect_system/spark_spread/S = new(center)
-	S.set_up(1, 1, center)
-	S.start()
-
-	new /obj/item/clothing/suit/roguetown/armor/plate/full/avantyne(center)
-
-	new /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/avantyne/heavy(center)
-
-	new /obj/item/clothing/under/roguetown/platelegs/avantyne/heavy(center)
-
-	new /obj/item/clothing/shoes/roguetown/boots/armor/avantyne/heavy(center)
-
-	new /obj/item/clothing/wrists/roguetown/bracers/avantyne/heavy(center)
-
-	new /obj/item/clothing/gloves/roguetown/plate/avantyne/heavy(center)
-
-	new /obj/item/clothing/head/roguetown/helmet/heavy/zizo(center)
-
-	new /obj/item/clothing/neck/roguetown/bevor/avantyne/heavy(center)
-
-	playsound(get_turf(center), pick('sound/items/bsmith1.ogg','sound/items/bsmith2.ogg','sound/items/bsmith3.ogg','sound/items/bsmith4.ogg'), 100, FALSE)
-	ADD_TRAIT(target,TRAIT_HEAVYARMOR, TRAIT_GENERIC)
-	target.mind.AddSpell(new /datum/action/cooldown/spell/mending)
-
-/datum/ritual/transmutation/summonweapon
-	name = "Призыв Оружия"
-	desk = "Призывает набор оружия, включая меч Зизо."
-	center_requirement = /obj/item/rogueweapon/sword
-
-	n_req = /obj/item/natural/bundle/bone
-	e_req = /obj/item/natural/bundle/bone
-	s_req = /obj/item/natural/bundle/bone
-	w_req = /obj/item/natural/bundle/bone
-
-/datum/ritual/transmutation/summonweapon/invoke(mob/living/user, turf/center)
-	var/datum/effect_system/spark_spread/S = new(center)
-	S.set_up(1, 1, center)
-	S.start()
-
-	new /obj/item/rogueweapon/sword/avantyne(center)
-
-	playsound(get_turf(center), pick('sound/items/bsmith1.ogg','sound/items/bsmith2.ogg','sound/items/bsmith3.ogg','sound/items/bsmith4.ogg'), 100, FALSE)
 
 // FLESH CRAFTING
 /datum/ritual/fleshcrafting
@@ -1449,7 +1345,7 @@ GLOBAL_LIST_INIT(ritual_counters, list())
 	S.set_up(1, 1, center)
 	S.start()
 
-	new /obj/item/rogueweapon/sword/long/zizo(center)
+	new /obj/item/rogueweapon/sword/long/avantyne(center)
 	playsound(get_turf(center), pick('sound/items/bsmith1.ogg','sound/items/bsmith2.ogg','sound/items/bsmith3.ogg','sound/items/bsmith4.ogg'), 100, FALSE)
 
 /datum/ritual/weaponary/summonaxe
