@@ -392,7 +392,7 @@
 		else if(!is_person_a && session.result_b == CONFIRM_PENDING)
 			session.result_b = CONFIRM_ACCEPTED
 		person.familytree_confirmation_pending = FALSE
-		retry_local_assignment(person, "mutual confirmation cancelled")
+		session.notify_cancelled(person)
 		if(session.result_a != CONFIRM_PENDING && session.result_b != CONFIRM_PENDING)
 			qdel(session)
 		return
@@ -416,7 +416,7 @@
 			session.result_b = accepted ? CONFIRM_ACCEPTED : (result ? CONFIRM_REJECTED : CONFIRM_TIMEOUT)
 		person.familytree_confirmation_pending = FALSE
 		if(accepted)
-			retry_local_assignment(person, "mutual confirmation cancelled")
+			session.notify_cancelled(person)
 		else if(!person.familytree_opted_out)
 			ftlog("MUTUAL CONFIRM: [person.real_name] declined cancelled type=[session.confirm_type] result=[result || "timeout"]")
 			to_chat(person, span_warning("Вы отказались от участия в семейной системе на этот раунд."))
