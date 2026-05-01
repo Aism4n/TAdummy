@@ -252,13 +252,16 @@
 
 /datum/status_effect/debuff/revive_dnr/on_apply()
 	. = ..()
-	if(owner)
-		ADD_TRAIT(owner, TRAIT_DNR, "revive_grace")
-		RegisterSignal(owner, COMSIG_MOB_DEATH, PROC_REF(on_death))
+	if(!owner)
+		return
+	ADD_TRAIT(owner, TRAIT_DNR, "revive_grace")
+	RegisterSignal(owner, COMSIG_MOB_DEATH, PROC_REF(on_death))
 
 /datum/status_effect/debuff/revive_dnr/on_remove()
 	. = ..()
-	if(owner && !permanent) 
+	if(!owner)
+		return
+	if(!permanent)
 		REMOVE_TRAIT(owner, TRAIT_DNR, "revive_grace")
 	UnregisterSignal(owner, COMSIG_MOB_DEATH)
 
@@ -270,6 +273,6 @@
 	H.remove_status_effect(type)
 
 /atom/movable/screen/alert/status_effect/debuff/revive_dnr
-	name = "Lux Exaustion"
+	name = "Lux Exhaustion"
 	desc = "The strain of binding with Lux has left my body fractured and unready. It cannot accept another — not yet."
 	icon_state = "stressb"
