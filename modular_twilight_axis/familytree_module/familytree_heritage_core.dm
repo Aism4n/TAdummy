@@ -385,11 +385,13 @@
 		else
 			return "Generation [generation]"
 
-/datum/heritage/proc/BuildFamilyTree(datum/family_member/root_member, datum/family_member/checker_member, list/visited = null, depth = 0, include_spouses = TRUE, include_children = TRUE)
+/datum/heritage/proc/BuildFamilyTree(datum/family_member/root_member, datum/family_member/checker_member, list/visited = null, depth = 0, include_spouses = TRUE, include_children = TRUE, list/spouse_seen = null)
 	if(!root_member)
 		return null
 	if(!visited)
 		visited = list()
+	if(!spouse_seen)
+		spouse_seen = list()
 	if(visited[root_member])
 		return null
 	visited[root_member] = TRUE
@@ -425,15 +427,17 @@
 		for(var/datum/family_member/spouse as anything in root_member.get_spouse_members())
 			if(!spouse || visited[spouse])
 				continue
-			var/list/spouse_node = BuildFamilyTree(spouse, checker_member, visited, depth + 1, FALSE, FALSE)
+			var/list/spouse_visited = visited.Copy()
+			var/list/spouse_node = BuildFamilyTree(spouse, checker_member, spouse_visited, depth + 1, FALSE, FALSE, spouse_seen)
 			if(spouse_node)
+				spouse_seen[spouse] = TRUE
 				node["spouses"] += list(spouse_node)
 
 	if(include_children)
 		for(var/datum/family_member/child as anything in root_member.get_child_members())
 			if(!child || visited[child])
 				continue
-			var/list/child_node = BuildFamilyTree(child, checker_member, visited, depth + 1, TRUE, TRUE)
+			var/list/child_node = BuildFamilyTree(child, checker_member, visited, depth + 1, TRUE, TRUE, spouse_seen)
 			if(child_node)
 				node["children"] += list(child_node)
 
@@ -459,6 +463,24 @@
 				sorted[j] = b
 				sorted[j + 1] = a
 	return sorted
+
+/datum/heritage/proc/PrioritizeFamilyTreeRootsForChecker(list/candidates, datum/family_member/checker_member)
+	if(!length(candidates) || !checker_member)
+		return candidates
+
+	var/list/checker_roots = list()
+	var/list/other_roots = list()
+	for(var/datum/family_member/root as anything in candidates)
+		if(root == checker_member || checker_member.IsDescendantOf(root))
+			checker_roots += root
+		else
+			other_roots += root
+
+	if(!checker_roots.len)
+		return candidates
+
+	checker_roots += other_roots
+	return checker_roots
 
 /datum/heritage/proc/FamilyRootSortLess(datum/family_member/a, datum/family_member/b, list/depth_cache)
 	var/a_gen = a?.generation
@@ -503,6 +525,7 @@
 
 	var/datum/family_member/checker_member = GetMemberForPerson(checker)
 	var/list/visited = list()
+	var/list/spouse_seen = list()
 	var/list/root_candidates = list()
 
 	for(var/datum/family_member/member as anything in members)
@@ -523,16 +546,21 @@
 			root_candidates += members[1]
 
 	root_candidates = SortFamilyTreeRoots(root_candidates)
+	root_candidates = PrioritizeFamilyTreeRootsForChecker(root_candidates, checker_member)
 
 	for(var/datum/family_member/root as anything in root_candidates)
-		var/list/root_node = BuildFamilyTree(root, checker_member, visited)
+		if(spouse_seen[root] && !root.get_child_members().len)
+			continue
+		var/list/root_node = BuildFamilyTree(root, checker_member, visited, 0, TRUE, TRUE, spouse_seen)
 		if(root_node)
 			tree_roots += list(root_node)
 
 	for(var/datum/family_member/member as anything in members)
 		if(!member?.person || visited[member])
 			continue
-		var/list/orphan_node = BuildFamilyTree(member, checker_member, visited)
+		if(spouse_seen[member] && !member.get_child_members().len)
+			continue
+		var/list/orphan_node = BuildFamilyTree(member, checker_member, visited, 0, TRUE, TRUE, spouse_seen)
 		if(orphan_node)
 			tree_roots += list(orphan_node)
 
