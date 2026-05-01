@@ -708,7 +708,6 @@ GLOBAL_LIST_INIT(ritual_counters, list())
 		if(HL.real_name == input)
 			to_chat(HL, "<i>You hear a voice in your head... <b>[text]</i></b>")
 
-
 // FLESH CRAFTING
 /datum/ritual/fleshcrafting
 	abstract_type = /datum/ritual/fleshcrafting
