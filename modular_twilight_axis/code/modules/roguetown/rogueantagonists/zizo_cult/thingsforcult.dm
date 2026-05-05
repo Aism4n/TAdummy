@@ -264,8 +264,7 @@ GLOBAL_DATUM_INIT(html_tags, /regex, regex(@"<.*?>", "g"))
 /obj/item/rogueweapon/sword/sabre/zizo/Initialize(mapload, ...)
 	. = ..()
 	AddComponent(/datum/component/cursed_item, TRAIT_CABAL, "SWORD")
-	AddElement(/datum/element/tipped_item)
-	AddComponent(/datum/component/lifesteal)
+	AddComponent(/datum/component/lifesteal, 15)
 
 /obj/item/rogueweapon/huntingknife/idagger/steel/zizo
 	name = "cursed dagger"
@@ -308,7 +307,6 @@ GLOBAL_DATUM_INIT(html_tags, /regex, regex(@"<.*?>", "g"))
 /obj/item/rogueweapon/stoneaxe/battle/zizo/Initialize(mapload, ...)
 	. = ..()
 	AddComponent(/datum/component/cursed_item, TRAIT_CABAL, "AXE")
-	AddElement(/datum/element/tipped_item)
 
 /obj/item/rogueweapon/mace/steel/zizo
 	icon = 'modular_twilight_axis/code/modules/roguetown/rogueantagonists/zizo_cult/sprites/zizo_weapone.dmi'
@@ -317,7 +315,6 @@ GLOBAL_DATUM_INIT(html_tags, /regex, regex(@"<.*?>", "g"))
 /obj/item/rogueweapon/mace/steel/zizo/Initialize(mapload, ...)
 	. = ..()
 	AddComponent(/datum/component/cursed_item, TRAIT_CABAL, "MACE")
-	AddElement(/datum/element/tipped_item)
 
 /obj/item/rogueweapon/shield/tower/zizo
 	icon = 'modular_twilight_axis/code/modules/roguetown/rogueantagonists/zizo_cult/sprites/zizo_weapone.dmi'
@@ -334,7 +331,6 @@ GLOBAL_DATUM_INIT(html_tags, /regex, regex(@"<.*?>", "g"))
 /obj/item/rogueweapon/shield/tower/zizo/Initialize(mapload, ...)
 	. = ..()
 	AddComponent(/datum/component/cursed_item, TRAIT_CABAL, "SHIELD")
-	AddElement(/datum/element/tipped_item)
 
 /obj/item/rogueweapon/spear/zizo
 	icon = 'modular_twilight_axis/code/modules/roguetown/rogueantagonists/zizo_cult/sprites/zizo_weapone_twoh.dmi'
@@ -352,7 +348,6 @@ GLOBAL_DATUM_INIT(html_tags, /regex, regex(@"<.*?>", "g"))
 /obj/item/rogueweapon/greataxe/steel/doublehead/zizo/Initialize(mapload, ...)
 	. = ..()
 	AddComponent(/datum/component/cursed_item, TRAIT_CABAL, "AXE")
-	AddElement(/datum/element/tipped_item)
 
 /obj/item/rogueweapon/halberd/glaive/zizo
 	icon = 'modular_twilight_axis/code/modules/roguetown/rogueantagonists/zizo_cult/sprites/zizo_weapone_twoh.dmi'
@@ -361,7 +356,6 @@ GLOBAL_DATUM_INIT(html_tags, /regex, regex(@"<.*?>", "g"))
 /obj/item/rogueweapon/halberd/glaive/zizo/Initialize(mapload, ...)
 	. = ..()
 	AddComponent(/datum/component/cursed_item, TRAIT_CABAL, "GLAIVE")
-	AddElement(/datum/element/tipped_item)
 
 /obj/item/ingot/steel/zizo
 	name = "cursed ancient ingot"
