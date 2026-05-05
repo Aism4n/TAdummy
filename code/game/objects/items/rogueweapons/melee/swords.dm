@@ -133,6 +133,35 @@
 	wdefense = 4
 	sellprice = 10
 
+/obj/item/rogueweapon/sword/zizo
+	name = "avantyne arming sword"
+	desc = "The cardinal sin, coalesced into a crystalline crucifix. In Her name, your will shall be projected unto the worshippers of lesser gods; and by your \
+	hand, they shall bend the knee to progress."
+	icon_state = "zizoarming"
+	sheathe_icon = "zizoarming"
+	force = 25
+	force_wielded = 30
+	smeltresult = /obj/item/ingot/component/zizo
+
+/obj/item/rogueweapon/sword/zizo/Initialize()
+	. = ..()
+	AddComponent(/datum/component/cursed_item, TRAIT_CABAL, "SWORD")
+
+/obj/item/rogueweapon/sword/avantyne
+	name = "avantyne-threaded arming sword"
+	desc = "Anger and spite, channeled into a blade that defies both wisdom and purity. Seldom does such power come without a price, however; are you ready to pay it?"
+	icon_state = "zizoarming"
+	sheathe_icon = "zizoarming"
+	possible_item_intents = list(/datum/intent/sword/cut/arming, /datum/intent/sword/thrust/short, /datum/intent/sword/strike)
+	gripped_intents = list(/datum/intent/sword/cut/arming, /datum/intent/sword/thrust/arming, /datum/intent/sword/strike)
+	force = 25
+	force_wielded = 30
+	max_blade_int = 300
+	max_integrity = 300
+	equip_delay_self = 0
+	unequip_delay_self = 0
+	smeltresult = /obj/item/ingot/avantyne
+
 /obj/item/rogueweapon/sword/long
 	name = "longsword"
 	desc = "A lethal and perfectly balanced weapon. The longsword is the protagonist of endless tales and myths \
@@ -189,6 +218,21 @@
 		/datum/intent/sword/strike,
 	)
 	wdefense = 3
+
+/obj/item/rogueweapon/sword/long/getonmobprop(tag)
+	. = ..()
+	if(tag == "altgrip" && .)
+		return .
+	if(tag)
+		switch(tag)
+			if("gen") return list("shrink" = 0.5, "sx" = -14, "sy" = -8, "nx" = 15, "ny" = -7, "wx" = -10, "wy" = -5, "ex" = 7, "ey" = -6, "northabove" = 0, "southabove" = 1, "eastabove" = 1, "westabove" = 0, "nturn" = -13, "sturn" = 110, "wturn" = -60, "eturn" = -30, "nflip" = 1, "sflip" = 1, "wflip" = 8, "eflip" = 1)
+			if("wielded") return list("shrink" = 0.6,"sx" = 9,"sy" = -4,"nx" = -7,"ny" = 1,"wx" = -9,"wy" = 2,"ex" = 10,"ey" = 2,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = 5,"sturn" = -190,"wturn" = -170,"eturn" = -10,"nflip" = 8,"sflip" = 8,"wflip" = 1,"eflip" = 0)
+			if("onback") return list("shrink" = 0.5, "sx" = -1, "sy" = 2, "nx" = 0, "ny" = 2, "wx" = 2, "wy" = 1, "ex" = 0, "ey" = 1, "nturn" = 0, "sturn" = 0, "wturn" = 70, "eturn" = 15, "nflip" = 1, "sflip" = 1, "wflip" = 1, "eflip" = 1, "northabove" = 1, "southabove" = 0, "eastabove" = 0, "westabove" = 0)
+			if("onbelt") return list("shrink" = 0.4, "sx" = -4, "sy" = -6, "nx" = 5, "ny" = -6, "wx" = 0, "wy" = -6, "ex" = -1, "ey" = -6, "nturn" = 100, "sturn" = 156, "wturn" = 90, "eturn" = 180, "nflip" = 0, "sflip" = 0, "wflip" = 0, "eflip" = 0, "northabove" = 0, "southabove" = 1, "eastabove" = 1, "westabove" = 0)
+			if("altgrip") return list("shrink" = 0.6,"sx" = 2,"sy" = 3,"nx" = -7,"ny" = 1,"wx" = -8,"wy" = 0,"ex" = 8,"ey" = -1,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = -135,"sturn" = -35,"wturn" = 45,"eturn" = 145,"nflip" = 8,"sflip" = 8,"wflip" = 1,"eflip" = 0)
+
+/obj/item/rogueweapon/sword/long/death
+	color = CLOTHING_BLACK
 
 /obj/item/rogueweapon/sword/long/broadsword
 	name = "broadsword"
@@ -304,20 +348,33 @@
 		added_def = 1,\
 	)
 
-/obj/item/rogueweapon/sword/long/death
-	color = CLOTHING_BLACK
+/obj/item/rogueweapon/sword/long/ravox_spirit
+	name = "\"Adjudicator\""
+	desc = "A blessed longsword of Ravox, held by the devout crusaders in service to the Divine Ten against the encroaching darkness. The crossguard bears motif of the Justicar, and psalms from the Pantheon's holy tome have been meticulously carved along the blade's edge. </br>'...And upon the Lands came the DIVINE. In PSYDON's absence, so came the TRUE GODS from their rest. So were THEIR gifts spread across the breadth of the world.' </br>'...It was the Justicar's hand that stayed the blade, for He objected to the execution, and demanded that Justice overcome where Vengeance reigned.'</br>Many tales surround this mythical blade - the demise of the Dark Star and the Mad Duke are often cited as to have been result of such - with little evidence to support these claims."
+	icon_state = "seemasterblade"
+	sheathe_icon = "eclipsum"
+	force = 30
+	force_wielded = 35
+	max_blade_int = 400
+	max_integrity = 500
+	equip_delay_self = 0
+	unequip_delay_self = 0//Same as avantyne sword
+	is_silver = TRUE
 
-/obj/item/rogueweapon/sword/long/getonmobprop(tag)
+/obj/item/rogueweapon/sword/long/ravox_spirit/Initialize()
 	. = ..()
-	if(tag == "altgrip" && .)
-		return .
-	if(tag)
-		switch(tag)
-			if("gen") return list("shrink" = 0.5, "sx" = -14, "sy" = -8, "nx" = 15, "ny" = -7, "wx" = -10, "wy" = -5, "ex" = 7, "ey" = -6, "northabove" = 0, "southabove" = 1, "eastabove" = 1, "westabove" = 0, "nturn" = -13, "sturn" = 110, "wturn" = -60, "eturn" = -30, "nflip" = 1, "sflip" = 1, "wflip" = 8, "eflip" = 1)
-			if("wielded") return list("shrink" = 0.6,"sx" = 9,"sy" = -4,"nx" = -7,"ny" = 1,"wx" = -9,"wy" = 2,"ex" = 10,"ey" = 2,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = 5,"sturn" = -190,"wturn" = -170,"eturn" = -10,"nflip" = 8,"sflip" = 8,"wflip" = 1,"eflip" = 0)
-			if("onback") return list("shrink" = 0.5, "sx" = -1, "sy" = 2, "nx" = 0, "ny" = 2, "wx" = 2, "wy" = 1, "ex" = 0, "ey" = 1, "nturn" = 0, "sturn" = 0, "wturn" = 70, "eturn" = 15, "nflip" = 1, "sflip" = 1, "wflip" = 1, "eflip" = 1, "northabove" = 1, "southabove" = 0, "eastabove" = 0, "westabove" = 0)
-			if("onbelt") return list("shrink" = 0.4, "sx" = -4, "sy" = -6, "nx" = 5, "ny" = -6, "wx" = 0, "wy" = -6, "ex" = -1, "ey" = -6, "nturn" = 100, "sturn" = 156, "wturn" = 90, "eturn" = 180, "nflip" = 0, "sflip" = 0, "wflip" = 0, "eflip" = 0, "northabove" = 0, "southabove" = 1, "eastabove" = 1, "westabove" = 0)
-			if("altgrip") return list("shrink" = 0.6,"sx" = 2,"sy" = 3,"nx" = -7,"ny" = 1,"wx" = -8,"wy" = 0,"ex" = 8,"ey" = -1,"northabove" = 0,"southabove" = 1,"eastabove" = 1,"westabove" = 0,"nturn" = -135,"sturn" = -35,"wturn" = 45,"eturn" = 145,"nflip" = 8,"sflip" = 8,"wflip" = 1,"eflip" = 0)
+	AddComponent(/datum/component/cursed_item, TRAIT_BATTLEMASTER, "SWORD")
+
+/obj/item/rogueweapon/sword/long/ravox_spirit/ComponentInitialize()
+	AddComponent(\
+		/datum/component/silverbless,\
+		pre_blessed = BLESSING_TENNITE,\
+		silver_type = SILVER_TENNITE,\
+		added_force = 0,\
+		added_blade_int = 0,\
+		added_int = 0,\
+		added_def = 1,\
+	)
 
 /obj/item/rogueweapon/sword/long/etruscan
 	name = "basket-hilted longsword"
@@ -354,16 +411,33 @@
 	desc = "A wicked, unconventional, and otherwordly blade that was created by no swordsmith - a manifestation of hate for the state of this world that follows no design principles but spite and anger."
 	icon_state = "zizosword"
 	sheathe_icon = "zizosword"
-	force = 30
-	force_wielded = 35
+	force = 35
+	force_wielded = 40
 	max_blade_int = 400
 	max_integrity = 500
 	equip_delay_self = 0
 	unequip_delay_self = 0
+	wdefense_wbonus = 7
+	smeltresult = /obj/item/ingot/component/zizo
 
 /obj/item/rogueweapon/sword/long/zizo/Initialize()
 	. = ..()
 	AddComponent(/datum/component/cursed_item, TRAIT_CABAL, "SWORD")
+
+/obj/item/rogueweapon/sword/long/avantyne
+	name = "avantyne-threaded longsword"
+	desc = "A parasitic mandate to progress, borne through the cultivation of crystalline metastasis. This otherworldly blade is stronger and sharper than any \
+	mortal-made masterwork, yet comes at a cost that has yet to be realized."
+	icon_state = "zizolongsword"
+	sheathe_icon = "zizolongsword"
+	force = 30
+	force_wielded = 35
+	max_blade_int = 400
+	max_integrity = 400
+	equip_delay_self = 0
+	unequip_delay_self = 0
+	wdefense_wbonus = 5
+	smeltresult = /obj/item/ingot/avantyne
 
 /obj/item/rogueweapon/sword/long/heirloom
 	name = "old longsword"
@@ -409,6 +483,16 @@
 	static_price = TRUE
 	max_integrity = 999
 	max_blade_int = 9999
+
+/obj/item/rogueweapon/sword/long/judgement/ascendant/tester
+	name = "DEBUG TEST SWORD - DO NOT USE IN ROUND"
+	desc = "A ridiculous admin-spawn test weapon that one-shots anything. If you are holding this in a real round, something has gone badly wrong."
+	force = 999
+	force_wielded = 999
+	max_integrity = 999
+	max_blade_int = 9999
+	sellprice = 0
+	static_price = TRUE
 
 /obj/item/rogueweapon/sword/long/judgement/vlord
 	name = "\"Ichor Fang\""
@@ -1492,6 +1576,16 @@
 	item_state = "staffblade"
 	sheathe_icon = "staffblade"
 
+/obj/item/rogueweapon/sword/rapier/avantyne
+	name = "avantyne-threaded rapier"
+	desc = "Graceful yet grotesque, this piercing shard of spite ignores the art of fencing in favor of the art of suffering. To wield it is to let your coldest grudges guide your hand."
+	icon_state = "zizorapier"
+	sheathe_icon = "zizorapier"
+	force = 25
+	max_blade_int = 250
+	max_integrity = 200
+	smeltresult = /obj/item/ingot/avantyne
+
 /obj/item/rogueweapon/sword/cutlass
 	name = "cutlass"
 	desc = "The mariner's special: A short, broad sabre with a slightly curved blade optimized for slashing."
@@ -1804,15 +1898,19 @@
 	name = "ruma hwando"
 	desc = "A foreign steel single-edged sword with cloud patterns on the groove. The Ruma Clan's insignia is engraved on the blade."
 	icon_state = "eastsword2"
+	force = 27
+	max_integrity = 200
+	sharpness_mod = 2
+	sellprice = 50
 
 /obj/item/rogueweapon/sword/sabre/mulyeog/rumacaptain
-	force = 30
 	name = "samjeongdo"
 	desc = "A gold-stained sword with cloud patterns on the groove. One of a kind. It is a symbol of status within the Ruma clan."
 	icon_state = "eastsword3"
-	max_integrity = 180
+	force = 27
+	max_integrity = 200
 	sharpness_mod = 2
-	wdefense = 4
+	sellprice = 150
 
 /obj/item/rogueweapon/sword/sabre/hook
 	force = 20
