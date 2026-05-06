@@ -10,8 +10,19 @@
 	var/int_divisor = 3.3
 	var/blood_dice = 9
 	var/will_dice = 6
-	var/min_transfix_msg_length = 15
 	var/transfix_msg
+
+/datum/status_effect/debuff/transfix_paste_int
+	id = "transfix_paste_int"
+	duration = -1
+	status_type = STATUS_EFFECT_MULTIPLE
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/transfix_paste_int
+	effectedstats = list(STATKEY_INT = -TA_TRANSFIX_PASTE_INT_LOSS)
+
+/atom/movable/screen/alert/status_effect/debuff/transfix_paste_int
+	name = "Sorcerous Overreach"
+	desc = "Я превысил пределы своей магии. Мой разум наказан за неестественно быструю речь."
+	icon_state = "debuff"
 
 /obj/effect/proc_holder/spell/targeted/TA_transfix_neu/choose_targets(mob/user = usr)
 	var/list/selection = list()
@@ -44,7 +55,8 @@
 		to_chat(user, span_warning("Вы не можете говорить!"))
 		revert_cast(user)
 		return
-	transfix_msg = tgui_input_text(user, "Произнесите фразу вслух. Нужно минимум [min_transfix_msg_length] символов; счетчик снизу.", "Заворожить", max_length = MAX_MESSAGE_LEN, encode = FALSE)
+	var/transfix_input_started_at = world.time
+	transfix_msg = tgui_input_text(user, "Произнесите фразу вслух. Нужно минимум [TA_TRANSFIX_MIN_MSG_LENGTH] символов; счетчик снизу.", "Заворожить", max_length = MAX_MESSAGE_LEN, encode = FALSE)
 
 	if(QDELETED(user))
 		return
@@ -59,8 +71,14 @@
 		return
 
 	var/transfix_msg_length = transfix_msg ? length_char(transfix_msg) : 0
-	if(transfix_msg_length < min_transfix_msg_length)
-		to_chat(user, span_userdanger("Слишком короткая фраза ([transfix_msg_length]/[min_transfix_msg_length]) — разум жертвы не поддастся!"))
+	var/transfix_input_elapsed = max(world.time - transfix_input_started_at, 1)
+	if(transfix_msg_length >= TA_TRANSFIX_MIN_MSG_LENGTH && transfix_exceeds_input_speed(transfix_msg_length, transfix_input_elapsed))
+		handle_transfix_speed_violation(user, transfix_msg_length, transfix_input_elapsed)
+		revert_cast(user)
+		return
+
+	if(transfix_msg_length < TA_TRANSFIX_MIN_MSG_LENGTH)
+		to_chat(user, span_userdanger("Слишком короткая фраза ([transfix_msg_length]/[TA_TRANSFIX_MIN_MSG_LENGTH]) — разум жертвы не поддастся!"))
 		revert_cast(user)
 		return
 
@@ -138,3 +156,37 @@
 	if(target.hud_used)
 		for(var/atom/movable/screen/eye_intent/eyet in target.hud_used.static_inventory)
 			eyet.update_icon(target)
+
+/obj/effect/proc_holder/spell/targeted/TA_transfix_neu/proc/transfix_exceeds_input_speed(transfix_msg_length, transfix_input_elapsed)
+	return (transfix_msg_length * (1 MINUTES)) > (TA_TRANSFIX_CHARS_PER_MINUTE * transfix_input_elapsed)
+
+/obj/effect/proc_holder/spell/targeted/TA_transfix_neu/proc/handle_transfix_speed_violation(mob/user, transfix_msg_length, transfix_input_elapsed)
+	if(!ishuman(user))
+		return
+
+	var/mob/living/carbon/human/H = user
+	var/elapsed_seconds = max(round(transfix_input_elapsed / (1 SECONDS), 0.1), 0.1)
+	message_admins("[ADMIN_LOOKUPFLW(H)] triggered transfix speed guard: [transfix_msg_length] chars in [elapsed_seconds]s. СКОРЕЕ ВСЕГО - копипаста.")
+	log_admin("[key_name(H)] triggered transfix speed guard: [transfix_msg_length] chars in [elapsed_seconds]s. СКОРЕЕ ВСЕГО - копипаста.")
+
+	H.apply_status_effect(/datum/status_effect/debuff/transfix_paste_int)
+	H.apply_status_effect(/datum/status_effect/incapacitating/stun, TA_TRANSFIX_PASTE_STUN_TIME)
+	H.apply_status_effect(/datum/status_effect/incapacitating/knockdown, TA_TRANSFIX_PASTE_STUN_TIME)
+	break_transfix_disguise(H)
+	H.visible_message(span_danger("[H] превысил пределы своей могучей магии!"), span_userdanger("Я превысил пределы своей могучей магии!"))
+
+	if(H.STAINT >= TA_TRANSFIX_PASTE_DEATH_INT)
+		return
+
+	H.visible_message(span_danger("[H] превысил свои пределы, разрываясь на куски от темной силы!"), span_userdanger("Превысил свои пределы, разрываясь на куски от темной силы!"))
+	ADD_TRAIT(H, TRAIT_DUSTABLE, "transfix_paste")
+	if(!QDELETED(H) && H.stat != DEAD)
+		H.death()
+
+/obj/effect/proc_holder/spell/targeted/TA_transfix_neu/proc/break_transfix_disguise(mob/living/carbon/human/H)
+	var/datum/component/vampire_disguise/disguise = H.GetComponent(/datum/component/vampire_disguise)
+	if(disguise?.disguised)
+		disguise.remove_disguise(H)
+		return
+
+	SEND_SIGNAL(H, COMSIG_FORCE_UNDISGUISE)

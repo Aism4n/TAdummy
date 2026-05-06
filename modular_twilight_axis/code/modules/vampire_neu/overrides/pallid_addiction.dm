@@ -1,6 +1,8 @@
-#define PALLID_BLOOD_INTERVAL (60 MINUTES)
-#define PALLID_ROT_FIRST_INTERVAL (15 MINUTES)
-#define PALLID_ROT_REPEAT_INTERVAL (45 MINUTES)
+#define PALLID_BLOOD_INTERVAL (45 MINUTES)
+#define PALLID_WITHDRAWAL_REPEAT_INTERVAL (25 MINUTES)
+#define PALLID_WITHDRAWAL_TOX_DAMAGE 40
+#define PALLID_WITHDRAWAL_ROT_LIMBS 3
+#define PALLID_WITHDRAWAL_WEAKNESS_CHANCE 40
 
 /// STATUS EFFECTS
 
@@ -8,22 +10,37 @@
 	id = "pallid_blood"
 	duration = -1
 	alert_type = /atom/movable/screen/alert/status_effect/buff/pallid_blood
+	var/extra_stat
+	var/extra_stat_amount = 0
+
+/datum/status_effect/buff/pallid_blood/on_creation(mob/living/new_owner, ...)
+	effectedstats = list(
+		STATKEY_STR = 1,
+		STATKEY_PER = 1,
+		STATKEY_INT = 1,
+		STATKEY_CON = 1,
+		STATKEY_WIL = 1,
+		STATKEY_SPD = 1,
+		STATKEY_LCK = 1,
+	)
+	if(extra_stat)
+		effectedstats[extra_stat] += extra_stat_amount
+	return ..()
 
 /datum/status_effect/buff/pallid_blood/str
 	id = "pallid_blood_str"
-	effectedstats = list(STATKEY_STR = 1)
+	extra_stat = STATKEY_STR
+	extra_stat_amount = 1
 
 /datum/status_effect/buff/pallid_blood/spd
 	id = "pallid_blood_spd"
-	effectedstats = list(STATKEY_SPD = 1)
+	extra_stat = STATKEY_SPD
+	extra_stat_amount = 1
 
 /datum/status_effect/buff/pallid_blood/int
 	id = "pallid_blood_int"
-	effectedstats = list(STATKEY_INT = 2)
-
-/datum/status_effect/buff/pallid_blood/lck
-	id = "pallid_blood_lck"
-	effectedstats = list(STATKEY_LCK = 1)
+	extra_stat = STATKEY_INT
+	extra_stat_amount = 2
 
 /atom/movable/screen/alert/status_effect/buff/pallid_blood
 	name = "Cursed Blood"
@@ -34,7 +51,34 @@
 	id = "pallid_withdrawal"
 	duration = -1
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/pallid_withdrawal
-	effectedstats = list(STATKEY_STR = -1, STATKEY_SPD = -1, STATKEY_CON = -2)
+	effectedstats = list()
+
+/datum/status_effect/debuff/pallid_withdrawal/on_creation(mob/living/new_owner, list/pallid_buff_stats)
+	if(islist(pallid_buff_stats))
+		effectedstats = list()
+		for(var/stat_key in pallid_buff_stats)
+			effectedstats[stat_key] = -pallid_buff_stats[stat_key]
+	else
+		effectedstats = list(
+			STATKEY_STR = -1,
+			STATKEY_PER = -1,
+			STATKEY_INT = -1,
+			STATKEY_CON = -1,
+			STATKEY_WIL = -1,
+			STATKEY_SPD = -1,
+			STATKEY_LCK = -1,
+		)
+	return ..()
+
+/datum/status_effect/debuff/pallid_withdrawal/on_apply()
+	. = ..()
+	if(. && prob(PALLID_WITHDRAWAL_WEAKNESS_CHANCE))
+		ADD_TRAIT(owner, TRAIT_CRITICAL_WEAKNESS, id)
+
+/datum/status_effect/debuff/pallid_withdrawal/on_remove()
+	if(owner)
+		REMOVE_TRAIT(owner, TRAIT_CRITICAL_WEAKNESS, id)
+	return ..()
 
 /atom/movable/screen/alert/status_effect/debuff/pallid_withdrawal
 	name = "Blood Withdrawal"
@@ -47,9 +91,9 @@
 	var/mob/living/carbon/human/sire = null
 	var/last_fed_time
 	var/buff_path
+	var/list/buff_stats
 	var/withdrawal_active = FALSE
-	var/last_rot_time
-	var/first_rot_done = FALSE
+	var/next_withdrawal_effect_time = 0
 
 /datum/component/pallid_addiction/Initialize(mob/living/carbon/human/linked_sire)
 	if(!ishuman(parent))
@@ -57,7 +101,6 @@
 
 	sire = linked_sire
 	last_fed_time = world.time
-	last_rot_time = world.time
 
 	var/mob/living/carbon/human/owner = parent
 
@@ -71,23 +114,14 @@
 	if(length(candidates))
 		buff_path = pick(candidates)
 	else
-		buff_path = /datum/status_effect/buff/pallid_blood/lck
+		buff_path = /datum/status_effect/buff/pallid_blood
 
 	RegisterSignal(parent, COMSIG_LIVING_DRINKED_LIMB_BLOOD, PROC_REF(on_drink_blood))
 	RegisterSignal(parent, COMSIG_LIVING_DEATH, PROC_REF(on_death))
 
 	START_PROCESSING(SSprocessing, src)
 
-	owner.apply_status_effect(buff_path)
-	switch(buff_path)
-		if(/datum/status_effect/buff/pallid_blood/str)
-			to_chat(owner, span_notice("Проклятая кровь наделяет меня противоестественной силой."))
-		if(/datum/status_effect/buff/pallid_blood/spd)
-			to_chat(owner, span_notice("Проклятая кровь наделяет меня противоестественной скоростью."))
-		if(/datum/status_effect/buff/pallid_blood/int)
-			to_chat(owner, span_notice("Проклятая кровь наделяет меня противоестественной ясностью ума."))
-		if(/datum/status_effect/buff/pallid_blood/lck)
-			to_chat(owner, span_notice("Проклятая кровь наделяет меня противоестественной удачей."))
+	apply_pallid_buff(owner, TRUE)
 
 /datum/component/pallid_addiction/Destroy()
 	UnregisterSignal(parent, list(COMSIG_LIVING_DRINKED_LIMB_BLOOD, COMSIG_LIVING_DEATH))
@@ -98,6 +132,44 @@
 		owner.remove_status_effect(/datum/status_effect/debuff/pallid_withdrawal)
 	return ..()
 
+/datum/component/pallid_addiction/proc/apply_pallid_buff(mob/living/carbon/human/owner, announce = FALSE)
+	if(!istype(owner) || !buff_path)
+		return null
+
+	var/datum/status_effect/buff/pallid_blood/buff = owner.has_status_effect(buff_path)
+	if(!buff)
+		buff = owner.apply_status_effect(buff_path)
+	if(buff?.effectedstats)
+		buff_stats = buff.effectedstats.Copy()
+
+	if(!announce)
+		return buff
+
+	switch(buff_path)
+		if(/datum/status_effect/buff/pallid_blood/str)
+			to_chat(owner, span_notice("Проклятая кровь наделяет меня противоестественной силой."))
+		if(/datum/status_effect/buff/pallid_blood/spd)
+			to_chat(owner, span_notice("Проклятая кровь наделяет меня противоестественной скоростью."))
+		if(/datum/status_effect/buff/pallid_blood/int)
+			to_chat(owner, span_notice("Проклятая кровь наделяет меня противоестественной ясностью ума."))
+		else
+			to_chat(owner, span_notice("Проклятая кровь разливается по телу противоестественной мощью."))
+	return buff
+
+/datum/component/pallid_addiction/proc/clear_pallid_withdrawal(mob/living/carbon/human/owner)
+	if(!istype(owner))
+		return
+	owner.remove_status_effect(/datum/status_effect/debuff/pallid_withdrawal)
+	withdrawal_active = FALSE
+	next_withdrawal_effect_time = 0
+
+/datum/component/pallid_addiction/proc/apply_withdrawal_effects(mob/living/carbon/human/owner)
+	if(!istype(owner))
+		return
+	owner.apply_damage(PALLID_WITHDRAWAL_TOX_DAMAGE, TOX, forced = TRUE)
+	apply_random_rot(PALLID_WITHDRAWAL_ROT_LIMBS)
+	to_chat(owner, span_userdanger("Недостаток вампирской крови травит меня и заставляет плоть гнить."))
+
 /datum/component/pallid_addiction/proc/on_drink_blood(mob/living/drinker, mob/living/victim)
 	SIGNAL_HANDLER
 
@@ -105,25 +177,22 @@
 		return
 
 	last_fed_time = world.time
-	last_rot_time = world.time
 
 	var/mob/living/carbon/human/owner = parent
 	if(!istype(owner))
 		return
 
 	if(withdrawal_active)
-		owner.remove_status_effect(/datum/status_effect/debuff/pallid_withdrawal)
-		withdrawal_active = FALSE
-		first_rot_done = FALSE
+		clear_pallid_withdrawal(owner)
 
 	if(!owner.has_status_effect(buff_path))
-		owner.apply_status_effect(buff_path)
+		apply_pallid_buff(owner)
 
 /datum/component/pallid_addiction/proc/on_death()
 	SIGNAL_HANDLER
 	qdel(src)
 
-/datum/component/pallid_addiction/proc/apply_random_rot()
+/datum/component/pallid_addiction/proc/apply_random_rot(rot_count = 1)
 	var/mob/living/carbon/human/owner = parent
 	if(!istype(owner))
 		return
@@ -136,12 +205,16 @@
 	if(!length(valid_limbs))
 		return
 
-	var/obj/item/bodypart/target_limb = pick(valid_limbs)
-	target_limb.rotted = TRUE
+	for(var/i in 1 to rot_count)
+		if(!length(valid_limbs))
+			break
+		var/obj/item/bodypart/target_limb = pick(valid_limbs)
+		valid_limbs -= target_limb
+		target_limb.rotted = TRUE
+		to_chat(owner, span_userdanger("Я чувствую как гниль расползается по моей [target_limb.name]!"))
+
 	owner.apply_status_effect(/datum/status_effect/debuff/rotted_zombie)
 	owner.update_body()
-
-	to_chat(owner, span_userdanger("Я чувствую как гниль расползается по моей [target_limb.name]!"))
 
 /datum/component/pallid_addiction/process()
 	var/mob/living/carbon/human/owner = parent
@@ -156,16 +229,15 @@
 	if(!withdrawal_active)
 		withdrawal_active = TRUE
 		owner.remove_status_effect(buff_path)
-		owner.apply_status_effect(/datum/status_effect/debuff/pallid_withdrawal)
+		owner.apply_status_effect(/datum/status_effect/debuff/pallid_withdrawal, buff_stats)
 		to_chat(owner, span_userdanger("Мне нужна кровь вампира или лекарство, иначе я превращусь в умертвие. Я чувствую как проклятие ползёт по моим венам."))
 
-	var/rot_interval = first_rot_done ? PALLID_ROT_REPEAT_INTERVAL : PALLID_ROT_FIRST_INTERVAL
-	var/time_since_rot = world.time - last_rot_time
-	if(time_since_rot >= rot_interval)
-		apply_random_rot()
-		last_rot_time = world.time
-		first_rot_done = TRUE
+	if(world.time >= next_withdrawal_effect_time)
+		apply_withdrawal_effects(owner)
+		next_withdrawal_effect_time = world.time + PALLID_WITHDRAWAL_REPEAT_INTERVAL
 
 #undef PALLID_BLOOD_INTERVAL
-#undef PALLID_ROT_FIRST_INTERVAL
-#undef PALLID_ROT_REPEAT_INTERVAL
+#undef PALLID_WITHDRAWAL_REPEAT_INTERVAL
+#undef PALLID_WITHDRAWAL_TOX_DAMAGE
+#undef PALLID_WITHDRAWAL_ROT_LIMBS
+#undef PALLID_WITHDRAWAL_WEAKNESS_CHANCE

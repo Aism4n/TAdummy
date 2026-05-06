@@ -45,10 +45,10 @@
 	if(addiction)
 		qdel(addiction)
 
+	M.remove_status_effect(/datum/status_effect/buff/pallid_blood)
 	M.remove_status_effect(/datum/status_effect/buff/pallid_blood/str)
 	M.remove_status_effect(/datum/status_effect/buff/pallid_blood/spd)
 	M.remove_status_effect(/datum/status_effect/buff/pallid_blood/int)
-	M.remove_status_effect(/datum/status_effect/buff/pallid_blood/lck)
 	M.remove_status_effect(/datum/status_effect/debuff/pallid_withdrawal)
 
 	if(M.mind)
