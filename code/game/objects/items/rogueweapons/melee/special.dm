@@ -62,6 +62,18 @@
 	tranged = TRUE
 	noaa = TRUE
 
+/datum/intent/knuckles/sear
+	name = "sear"
+	blade_class = BCLASS_BURN
+	attack_verb = list("chars", "sears")
+	hitsound = list('sound/combat/hits/punch/punch_hard (1).ogg', 'sound/combat/hits/punch/punch_hard (2).ogg', 'sound/combat/hits/punch/punch_hard (3).ogg')
+	chargetime = 0
+	penfactor = PEN_NONE
+	clickcd = 8
+	swingdelay = 0
+	icon_state = "incrack"
+	item_d_type = BURN
+
 /datum/intent/knuckles/strike
 	name = "punch"
 	blade_class = BCLASS_BLUNT
@@ -461,6 +473,43 @@
 		added_int = 50,\
 		added_def = 2,\
 	)
+
+/obj/item/rogueweapon/handclaw/steel/graggaredged
+	name = "vicious sickleclaw"
+	desc = "A tainted mimicry of Ravox's falx, forever stained with the blood of the one they both cherished above all else. The fury of God, for \
+	just a moment, wilted before the sorrow of Man; before the wounded champion lept forth and drove His blade straight into the Sinistar's eye."
+	icon_state = "graggarpatasickle"
+	icon = 'icons/roguetown/weapons/unarmed32.dmi'
+	wdefense = 3
+	force = 35
+	possible_item_intents = list(/datum/intent/claw/cut/steel, /datum/intent/claw/lunge/steel, /datum/intent/claw/rend/steel)
+	wbalance = WBALANCE_HEAVY
+	max_blade_int = 333
+	max_integrity = 333
+	sharpness_mod = 2
+	smeltresult = /obj/item/ingot/component/graggar
+
+/obj/item/rogueweapon/handclaw/steel/graggaredged/Initialize()
+	. = ..()
+	AddComponent(/datum/component/cursed_item, TRAIT_HORDE, "GAUNTLET", "RENDERED ASUNDER")
+
+/obj/item/rogueweapon/handclaw/steel/graggarblunt
+	name = "vicious mantlebreaker"
+	desc = "A tainted mimicry of Astrata's staff, studded with the remains of divine bone and gristle. By His command, the Apotheosis rose; and with His \
+	final heartbeat, the Sinistar fell. How little He could've known, that it would ultimately be a tragedy without purpose - a war without reason."
+	icon_state = "graggarpataclub"
+	icon = 'icons/roguetown/weapons/unarmed32.dmi'
+	wdefense = 3
+	force = 35
+	possible_item_intents = list(/datum/intent/mace/strike, /datum/intent/mace/smash)
+	wbalance = WBALANCE_HEAVY
+	max_blade_int = 333
+	max_integrity = 333
+	smeltresult = /obj/item/ingot/component/graggar
+
+/obj/item/rogueweapon/handclaw/steel/graggarblunt/Initialize()
+	. = ..()
+	AddComponent(/datum/component/cursed_item, TRAIT_HORDE, "GAUNTLET", "RENDERED ASUNDER")
 
 ///Peasantry / Militia Weapon Pack///
 
@@ -929,13 +978,13 @@
 	damfactor = 1.2
 	swingdelay = 8
 	clickcd = CLICK_CD_MELEE
-	penfactor = PEN_MEDIUM
+	penfactor = PEN_HEAVY
 
 /datum/intent/claw/lunge/steel
 	damfactor = 1.2
 	swingdelay = 12
 	clickcd = CLICK_CD_HEAVY
-	penfactor = PEN_MEDIUM
+	penfactor = PEN_HEAVY
 
 /datum/intent/claw/lunge/gronn
 	damfactor = 1.1
@@ -953,13 +1002,12 @@
 	item_d_type = "slash"
 
 /datum/intent/claw/cut/iron
-	penfactor = PEN_LIGHT
-	swingdelay = 8
-	damfactor = 1.4
+	penfactor = PEN_MEDIUM
+	damfactor = 1.1
 	clickcd = CLICK_CD_HEAVY
 
 /datum/intent/claw/cut/steel
-	penfactor = PEN_NONE
+	penfactor = PEN_MEDIUM
 	swingdelay = 4
 	damfactor = 1.3
 	clickcd = CLICK_CD_HEAVY

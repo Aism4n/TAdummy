@@ -31,6 +31,7 @@
 	var/residency_print_cooldown = 0
 	// Last trade-modal quote keyed by ckey. Read by ui_data to round-trip per-user.
 	var/list/last_trade_quote = list()
+	COOLDOWN_DECLARE(fulfill_retry_cooldown)
 
 /obj/structure/roguemachine/steward/Initialize()
 	. = ..()
@@ -741,7 +742,7 @@
 			contents += "<a href='?src=\ref[src];setloanrate=1'>\[Loan Rate: [round(SStreasury.loan_interest_rate * 100)]%/day\]</a><BR>"
 			contents += "<a href='?src=\ref[src];setpurchasefloor=1'>\[Purchase Floor: [SStreasury.stockpile_purchase_floor]m\]</a><BR>"
 			contents += "<BR>"
-			contents += "<a href='?src=\ref[src];switchtab=[TAB_INVESTMENTS]'>\[Инвестиции\]</a><BR>"
+		//	contents += "<a href='?src=\ref[src];switchtab=[TAB_INVESTMENTS]'>\[Инвестиции\]</a><BR>" Временно и лениво убрал инвестиции у казначея. Надо их будет переделать
 			contents += "</center>"
 		if(TAB_BANK)
 			contents += "<a href='?src=\ref[src];switchtab=[TAB_MAIN]'>\[Return\]</a>"
