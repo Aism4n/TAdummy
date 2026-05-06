@@ -596,19 +596,7 @@ drinksomeblood()
 	var/drain_choice = "Иссушить\nБЕСПЛАТНО / [drain_reward_text]"
 	var/cancel_choice = "Отмена"
 
-	var/list/prompt_lines = list("Как я поступлю с [victim]?")
-	prompt_lines += "Силовая конвертация"
-	if(is_methuselah)
-		prompt_lines += "Цена: бесплатно."
-	else
-		prompt_lines += "Цена: [research_cost] RP, -[maxbloodpool_cost] макс. кровозапаса."
-		if(!can_afford_force)
-			prompt_lines += "Силовая конвертация сейчас недоступна: не хватает RP или максимального кровозапаса."
-	prompt_lines += "Приглашение в клан"
-	prompt_lines += "Цена: бесплатно. Награда при принятии: [offer_reward_text]."
-	if(can_drain)
-		prompt_lines += "Иссушить"
-		prompt_lines += "Эффект: Pallid без обращения. Награда: [drain_reward_text]."
+	var/prompt_text = "Как я поступлю с [victim]?"
 
 	var/list/options = list(invite_choice)
 	if(can_afford_force)
@@ -617,7 +605,7 @@ drinksomeblood()
 		options += drain_choice
 	options += cancel_choice
 
-	var/choice = tgui_alert(src, jointext(prompt_lines, "\n"), "ПРОКЛЯТИЕ КАИНА", options)
+	var/choice = tgui_alert(src, prompt_text, "ПРОКЛЯТИЕ КАИНА", options)
 
 	if(choice != force_choice && choice != invite_choice && choice != drain_choice)
 		H.vampire_conversion_prompt_active = FALSE
