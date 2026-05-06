@@ -90,7 +90,7 @@
 		return
 	if(!victim.ambushable())
 		return
-	if(victim.m_intent == MOVE_INTENT_SNEAK || HAS_TRAIT(victim, TRAIT_AZURENATIVE)) // TA_EDIT +HAS_TRAIT(victim, TRAIT_AZURENATIVE)
+	if(victim.m_intent == MOVE_INTENT_SNEAK)
 		return
 
 	buckle_mob(victim, TRUE, check_loc = FALSE)
