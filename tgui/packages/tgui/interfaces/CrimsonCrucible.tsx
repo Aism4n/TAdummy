@@ -96,6 +96,174 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
     cost: 'Cost: {n} vitae',
     start: 'Start',
   },
+  ru: {
+    windowTitle: 'Багровый Тигель',
+    headerTitle: 'БАГРОВЫЙ ТИГЕЛЬ',
+    roleLord: 'Право Господства',
+    roleVampire: 'Право Жертвы',
+    roleMortal: 'Живая жертва',
+    expand: 'Развернуть',
+    restore: 'Свернуть',
+    expandTip: 'Развернуть окно на весь экран',
+    restoreTip: 'Восстановить размер окна',
+    close: 'Закрыть',
+    closeTip: 'Закрыть окно',
+    bloodInCup: 'Крови в чаше: {current} / {max}',
+    committed: 'Внесено: {n} витаэ',
+    pourBlood: 'Налить кровь',
+    giveBlood: 'Отдать кровь',
+    availableToPour: 'Доступно для вливания: {n} витаэ',
+    activeRituals: 'Активные ритуалы',
+    newRituals: 'Новые ритуалы',
+    emptyActive: 'Тигель безмолвствует. Ни один ритуал не начат.',
+    mortalNote:
+      'Тигель принимает кровь в чашу или в уже начатые ритуалы. Новые обряды — воля клана.',
+    nonLordNote:
+      'Только Мафусаил может начинать новые ритуалы. Прочие могут наполнять чашу и помогать уже начатым.',
+    noRituals: 'Нет доступных ритуалов.',
+    direct: 'Направить',
+    contribute: 'Внести',
+    cancel: 'Отменить',
+    required: 'Требуется: {n} витаэ',
+    collected: 'Собрано: {n} витаэ',
+    remaining: 'Осталось: {n} витаэ',
+    contributors: 'Участники:',
+    description: 'Описание',
+    mechanics: 'Механика',
+    cost: 'Цена: {n} витаэ',
+    start: 'Начать',
+  },
+};
+
+type ProjectLoc = { name: string; description: string; mechanics: string };
+
+const RU_PROJECTS_BY_NAME: Record<string, ProjectLoc> = {
+  'Summon Vampyre Servant': {
+    name: 'Призвать Вампирского Слугу',
+    description:
+      'Верный слуга, что будет выполнять рутинные дела за тебя и твоих присных — от труда у подземных горнов до забот по поместью.',
+    mechanics: 'Поколение: Неонат — может обратить 1 Тонкокровного — 9 RP',
+  },
+  'Summon Vampyre Guard': {
+    name: 'Призвать Вампирского Стража',
+    description:
+      'Верный слуга, готовый сражаться за твоё дело или защищать поместье — клинком и щитом, луком и стрелами или хитростью и магией.',
+    mechanics: 'Поколение: Неонат — может обратить 1 Тонкокровного — 9 RP',
+  },
+  'Summon Vampyre Champion': {
+    name: 'Призвать Вампирского Поборника',
+    description:
+      'Верный, одарённый и могущественный поборник — глашатай твоей армии тьмы или диверсант, разрывающий смертных из тени.',
+    mechanics: 'Поколение: Анцилла — может обратить 5 Неонатов — 17 RP.',
+  },
+  'Rite of Stirring': {
+    name: 'Обряд Пробуждения',
+    description:
+      'Древняя кровь шевелится вновь. Забытый шёпот раскатывается по костям земли.',
+    mechanics:
+      '+2 ко всем характеристикам лорда + 1000 к лимиту витаэ лорда + открывает Поборников',
+  },
+  'Rite of Reclamation': {
+    name: 'Обряд Возвращения',
+    description:
+      'Долго запертая сила возвращается. Земля, камень и тени вновь склоняются перед своим истинным господином.',
+    mechanics:
+      '+2 ко всем характеристикам лорда + 1000 к лимиту витаэ лорда + открывает обряды доспехов.',
+  },
+  'Rite of Dominion': {
+    name: 'Обряд Господства',
+    description:
+      'Завеса времени рвётся. Воля Древнего изливается, опутывая чужаков хваткой Земли.',
+    mechanics:
+      '+2 ко всем характеристикам лорда + 1000 к лимиту витаэ лорда.',
+  },
+  'Rite of Sovereignty': {
+    name: 'Обряд Владычества',
+    description:
+      'Лорд обретает целостность. Древняя сила пропитывает каждый камень и каждую жилу — Земля и её владыка едины.',
+    mechanics:
+      '+2 ко всем характеристикам тралов и лорда + 1000 к лимиту витаэ лорда и тралов. Убивает Солнце и громко возвещает о твоём пришествии.',
+  },
+  'Wicked Plate': {
+    name: 'Скверная Латная Броня',
+    description:
+      'Призыв полного комплекта вампирского латного доспеха из кристаллизованной крови. Ни сталь, ни серебро, ни спасение не помешают воле Лорда.',
+    mechanics: 'Может быть проведено только один раз.',
+  },
+};
+
+const RU_ACCESS_TEXT: Record<string, string> = {
+  "(Methuselah's will)": '(воля Мафусаила)',
+  '(open)': '(открыто)',
+};
+
+const RU_LOCKED_REASONS: Record<string, string> = {
+  'Only the Methuselah can begin new rituals.':
+    'Только Мафусаил может начинать новые ритуалы.',
+  'The ritual conditions are not fulfilled yet.':
+    'Условия ритуала ещё не выполнены.',
+  'This project cannot be started.': 'Этот ритуал не может быть начат.',
+};
+
+const localizeContributors = (text: string, lang: string): string => {
+  if (lang !== 'ru' || !text) return text;
+  if (text === 'No one yet') return 'Никого пока';
+  return text;
+};
+
+const localizeContribution = (text: string, lang: string): string => {
+  if (lang !== 'ru' || !text) return text;
+  let m: RegExpMatchArray | null;
+  if (
+    (m = text.match(/^Can direct up to (\d+) vitae; the cup is spent first$/))
+  ) {
+    return `Могу направить до ${m[1]} витаэ; сначала расходуется чаша`;
+  }
+  if ((m = text.match(/^Can contribute up to (\d+) vitae$/))) {
+    return `Могу внести до ${m[1]} витаэ`;
+  }
+  if ((m = text.match(/^Will sacrifice (\d+) vitae and (\d+) blood$/))) {
+    return `Пожертвую ${m[1]} витаэ и ${m[2]} крови`;
+  }
+  return text;
+};
+
+const localizeActiveProject = (p: Project, lang: string): Project => {
+  if (lang !== 'ru') return p;
+  const next: Project = { ...p };
+  const loc = RU_PROJECTS_BY_NAME[p.name];
+  if (loc) {
+    next.name = loc.name;
+    next.description = loc.description;
+    next.mechanics = loc.mechanics;
+  }
+  if (p.accessText && RU_ACCESS_TEXT[p.accessText]) {
+    next.accessText = RU_ACCESS_TEXT[p.accessText];
+  }
+  next.contributorsText = localizeContributors(p.contributorsText, lang);
+  next.contributionText = localizeContribution(p.contributionText, lang);
+  return next;
+};
+
+const localizeAvailableProject = (
+  p: AvailableProject,
+  lang: string,
+): AvailableProject => {
+  if (lang !== 'ru') return p;
+  const next: AvailableProject = { ...p };
+  const loc = RU_PROJECTS_BY_NAME[p.name];
+  if (loc) {
+    next.name = loc.name;
+    next.description = loc.description;
+    next.mechanics = loc.mechanics;
+  }
+  if (p.accessText && RU_ACCESS_TEXT[p.accessText]) {
+    next.accessText = RU_ACCESS_TEXT[p.accessText];
+  }
+  if (p.lockedReason && RU_LOCKED_REASONS[p.lockedReason]) {
+    next.lockedReason = RU_LOCKED_REASONS[p.lockedReason];
+  }
+  return next;
 };
 
 const resolveLang = (raw: string | undefined): string => {
@@ -310,6 +478,12 @@ export const CrimsonCrucible = () => {
   } = data;
   const lang = resolveLang(data.language);
   const t = makeT(lang, data.i18nOverrides);
+  const localizedActiveProjects = activeProjects.map((p) =>
+    localizeActiveProject(p, lang),
+  );
+  const localizedAvailableProjects = availableProjects.map((p) =>
+    localizeAvailableProject(p, lang),
+  );
   const bloodRatio = clampRatio(bloodLevel / Math.max(maxBlood, 1));
   const roleText = isVampire
     ? isLord
@@ -407,8 +581,8 @@ export const CrimsonCrucible = () => {
           </Box>
           <Box style={contentGridStyle}>
             <Section title={t('activeRituals')} fill scrollable>
-              {activeProjects.length ? (
-                activeProjects.map((project, index) => (
+              {localizedActiveProjects.length ? (
+                localizedActiveProjects.map((project, index) => (
                   <ActiveProjectCard
                     key={project.ref}
                     index={index}
@@ -433,8 +607,8 @@ export const CrimsonCrucible = () => {
                   {t('nonLordNote')}
                 </Box>
               ) : null}
-              {isVampire && isLord && availableProjects.length ? (
-                availableProjects.map((project) => (
+              {isVampire && isLord && localizedAvailableProjects.length ? (
+                localizedAvailableProjects.map((project) => (
                   <AvailableProjectCard
                     key={project.type_path}
                     project={project}
