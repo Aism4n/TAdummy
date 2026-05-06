@@ -17,7 +17,7 @@
 	H.mind.RemoveSpell(/obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
 	H.RemoveSpell(/obj/effect/proc_holder/spell/targeted/transfix_neu)
 	H.RemoveSpell(/obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
-//	H.AddSpell(new /obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
+	H.AddSpell(new /obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
 
 	var/static/list/thrall_caps = alist(
 		GENERATION_METHUSELAH = THRALLS_METHUSELAH,
