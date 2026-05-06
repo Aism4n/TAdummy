@@ -508,7 +508,7 @@
 		negate_slowdown = TRUE
 
 	if(negate_slowdown)
-		. -= 2
+		. -= 1 // TA EDIT 2 —> 1 (since slowdown numbers were changed)
 	return max(., 0)
 
 
