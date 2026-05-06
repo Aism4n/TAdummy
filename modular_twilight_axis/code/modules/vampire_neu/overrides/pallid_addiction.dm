@@ -10,20 +10,30 @@
 	id = "pallid_blood"
 	duration = -1
 	alert_type = /atom/movable/screen/alert/status_effect/buff/pallid_blood
+	var/enhanced = FALSE
 	var/extra_stat
 	var/extra_stat_amount = 0
 
-/datum/status_effect/buff/pallid_blood/on_creation(mob/living/new_owner, ...)
-	effectedstats = list(
-		STATKEY_STR = 1,
-		STATKEY_PER = 1,
-		STATKEY_INT = 1,
-		STATKEY_CON = 1,
-		STATKEY_WIL = 1,
-		STATKEY_SPD = 1,
-		STATKEY_LCK = 1,
-	)
+/datum/status_effect/buff/pallid_blood/on_creation(mob/living/new_owner, enhanced_pallid = FALSE, selected_extra_stat = null, selected_extra_stat_amount = 0)
+	enhanced = enhanced_pallid
+	if(selected_extra_stat)
+		extra_stat = selected_extra_stat
+		extra_stat_amount = selected_extra_stat_amount
+
+	effectedstats = list()
+	if(enhanced)
+		effectedstats = list(
+			STATKEY_STR = 1,
+			STATKEY_PER = 1,
+			STATKEY_INT = 1,
+			STATKEY_CON = 1,
+			STATKEY_WIL = 1,
+			STATKEY_SPD = 1,
+			STATKEY_LCK = 1,
+		)
 	if(extra_stat)
+		if(isnull(effectedstats[extra_stat]))
+			effectedstats[extra_stat] = 0
 		effectedstats[extra_stat] += extra_stat_amount
 	return ..()
 
@@ -91,30 +101,37 @@
 	var/mob/living/carbon/human/sire = null
 	var/last_fed_time
 	var/buff_path
+	var/enhanced = FALSE
+	var/extra_stat
+	var/extra_stat_amount = 0
 	var/list/buff_stats
 	var/withdrawal_active = FALSE
 	var/next_withdrawal_effect_time = 0
 
-/datum/component/pallid_addiction/Initialize(mob/living/carbon/human/linked_sire)
+/datum/component/pallid_addiction/Initialize(mob/living/carbon/human/linked_sire, enhanced_pallid = FALSE)
 	if(!ishuman(parent))
 		return COMPONENT_INCOMPATIBLE
 
 	sire = linked_sire
+	enhanced = enhanced_pallid
 	last_fed_time = world.time
 
 	var/mob/living/carbon/human/owner = parent
 
 	var/list/candidates = list()
 	if(owner.STASTR < 15)
-		candidates += /datum/status_effect/buff/pallid_blood/str
+		candidates += STATKEY_STR
 	if(owner.STASPD < 15)
-		candidates += /datum/status_effect/buff/pallid_blood/spd
+		candidates += STATKEY_SPD
 	if(owner.STAINT < 17)
-		candidates += /datum/status_effect/buff/pallid_blood/int
+		candidates += STATKEY_INT
 	if(length(candidates))
-		buff_path = pick(candidates)
+		extra_stat = pick(candidates)
+		extra_stat_amount = (extra_stat == STATKEY_INT) ? 2 : 1
 	else
-		buff_path = /datum/status_effect/buff/pallid_blood
+		extra_stat = STATKEY_LCK
+		extra_stat_amount = 1
+	buff_path = /datum/status_effect/buff/pallid_blood
 
 	RegisterSignal(parent, COMSIG_LIVING_DRINKED_LIMB_BLOOD, PROC_REF(on_drink_blood))
 	RegisterSignal(parent, COMSIG_LIVING_DEATH, PROC_REF(on_death))
@@ -138,19 +155,19 @@
 
 	var/datum/status_effect/buff/pallid_blood/buff = owner.has_status_effect(buff_path)
 	if(!buff)
-		buff = owner.apply_status_effect(buff_path)
+		buff = owner.apply_status_effect(buff_path, enhanced, extra_stat, extra_stat_amount)
 	if(buff?.effectedstats)
 		buff_stats = buff.effectedstats.Copy()
 
 	if(!announce)
 		return buff
 
-	switch(buff_path)
-		if(/datum/status_effect/buff/pallid_blood/str)
+	switch(extra_stat)
+		if(STATKEY_STR)
 			to_chat(owner, span_notice("Проклятая кровь наделяет меня противоестественной силой."))
-		if(/datum/status_effect/buff/pallid_blood/spd)
+		if(STATKEY_SPD)
 			to_chat(owner, span_notice("Проклятая кровь наделяет меня противоестественной скоростью."))
-		if(/datum/status_effect/buff/pallid_blood/int)
+		if(STATKEY_INT)
 			to_chat(owner, span_notice("Проклятая кровь наделяет меня противоестественной ясностью ума."))
 		else
 			to_chat(owner, span_notice("Проклятая кровь разливается по телу противоестественной мощью."))
