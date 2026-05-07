@@ -33,10 +33,6 @@ SUBSYSTEM_DEF(familytree)
 	var/current_royal_partner_mode = "closed"
 	var/list/current_royal_partner_snapshot = list()
 
-	var/list/intimacy_pairs = list()
-	var/xylix_roulette_active = FALSE
-	var/list/xylix_roulette_checked_ckeys = list()
-	var/list/xylix_roulette_flagged_ckeys = list()
 	var/familytree_busy_retry_limit = 30
 	var/familytree_busy_retry_delay = 10 SECONDS
 	var/familytree_log_file
@@ -119,7 +115,6 @@ SUBSYSTEM_DEF(familytree)
 	ftlog("families after preset: [families.len]")
 	create_isolated_species_houses()
 	ftlog("families after isolated houses: [families.len]")
-	check_xylix_roulette()
 	load_enigma_roles()
 	RegisterSignal(SSdcs, COMSIG_GLOB_MOB_CREATED, PROC_REF(on_mob_created))
 	var/registered_count = 0
@@ -147,101 +142,6 @@ SUBSYSTEM_DEF(familytree)
 			family.dominant_race = species_instance
 			families += family
 
-/datum/controller/subsystem/familytree/proc/check_xylix_roulette()
-	if(xylix_roulette_active)
-		return TRUE
-	if(!SSgamemode)
-		return FALSE
-	if(!SSgamemode.storyteller_active(/datum/storyteller/xylix))
-		return FALSE
-	xylix_roulette_active = TRUE
-	roll_xylix_roulette_for_registered_humans()
-	wake_xylix_viable_spouses()
-	refresh_xylix_royal_partner_jobs()
-	notify_xylix_participants()
-	return TRUE
-
-/datum/controller/subsystem/familytree/proc/roll_xylix_roulette_for_registered_humans()
-	if(!xylix_roulette_active)
-		return
-	for(var/mob/living/carbon/human/H in GLOB.mob_list)
-		if(!H?.familytree_module_signal_bound)
-			continue
-		xylix_roulette_applies(H)
-
-/datum/controller/subsystem/familytree/proc/xylix_roulette_applies(mob/living/carbon/human/H)
-	if(!xylix_roulette_active || !H || QDELETED(H) || istype(H, /mob/living/carbon/human/dummy))
-		return FALSE
-	if(!H.ckey)
-		return FALSE
-
-	var/ckey_key = H.ckey
-	if(!xylix_roulette_checked_ckeys[ckey_key])
-		xylix_roulette_checked_ckeys[ckey_key] = TRUE
-		if(prob(FAMILYTREE_XYLIX_ROULETTE_CHANCE))
-			xylix_roulette_flagged_ckeys[ckey_key] = TRUE
-		ftlog("XYLIX ROLL: [H.real_name] ([ckey_key]) flag=[!!xylix_roulette_flagged_ckeys[ckey_key]] chance=[FAMILYTREE_XYLIX_ROULETTE_CHANCE]", FTLOG_DEBUG)
-
-	H.familytree_xylix_roulette_checked = TRUE
-	H.familytree_xylix_roulette_flag = !!xylix_roulette_flagged_ckeys[ckey_key]
-	if(H.familytree_xylix_roulette_flag)
-		notify_xylix_participant(H)
-	return H.familytree_xylix_roulette_flag
-
-/datum/controller/subsystem/familytree/proc/xylix_roulette_pair_applies(mob/living/carbon/human/A, mob/living/carbon/human/B)
-	return xylix_roulette_applies(A) || xylix_roulette_applies(B)
-
-/datum/controller/subsystem/familytree/proc/wake_xylix_viable_spouses()
-	for(var/mob/living/carbon/human/H as anything in viable_spouses.Copy())
-		if(!H || QDELETED(H) || H.family_datum || H.familytree_opted_out || !H.client)
-			viable_spouses -= H
-			continue
-		load_familytree_runtime_preferences(H, H.client?.prefs)
-		if(!apply_xylix_roulette_preferences(H))
-			continue
-		if(!familytree_pref_enabled(H.familytree_pref))
-			stop_tracking_human(H, "familytree disabled before xylix wake")
-			continue
-		if(H.familytree_assignment_scheduled)
-			continue
-		H.familytree_assignment_scheduled = TRUE
-		addtimer(CALLBACK(src, PROC_REF(run_local_assignment), H, H.familytree_pref), rand(1, 5) SECONDS)
-
-/datum/controller/subsystem/familytree/proc/notify_xylix_participant(mob/living/carbon/human/H)
-	if(!H?.client || H.familytree_xylix_roulette_notified)
-		return FALSE
-	if(H.family_datum || H.familytree_opted_out || !familytree_pref_enabled(H.familytree_pref))
-		return FALSE
-	var/xylix_msg = span_danger("<font size='2'>Карты вашей судьбы могут быть подтасованы. Ксайликс наблюдает за семейной рулеткой.</font>")
-	to_chat(H, xylix_msg)
-	H.familytree_xylix_roulette_notified = TRUE
-	return TRUE
-
-/datum/controller/subsystem/familytree/proc/notify_xylix_participants()
-	for(var/mob/M as anything in GLOB.player_list)
-		if(!M.client || !ishuman(M))
-			continue
-		var/mob/living/carbon/human/H = M
-		var/datum/preferences/P = H.client?.prefs
-		if(P)
-			load_familytree_runtime_preferences(H, P)
-		if(xylix_roulette_applies(H))
-			notify_xylix_participant(H)
-
-/datum/controller/subsystem/familytree/proc/apply_xylix_roulette_preferences(mob/living/carbon/human/H)
-	if(!H || !xylix_roulette_applies(H))
-		return FALSE
-	if(H.familytree_opted_out || !familytree_pref_enabled(H.familytree_pref))
-		return FALSE
-	var/original_relative_role = H.desired_relative_role || RELATIVE_ANY
-	H.familytree_pref = FAMILYTREE_MODE_ALL
-	H.gender_choice_pref = ANY_GENDER
-	H.polygamy_mode = POLYGAMY_ALLOW_BOTH
-	H.desired_relative_role = original_relative_role
-	H.allow_low_status_marriage = TRUE
-	H.allow_relatives_in_family = TRUE
-	return TRUE
-
 /datum/controller/subsystem/familytree/proc/load_familytree_runtime_preferences(mob/living/carbon/human/H, datum/preferences/P)
 	if(!H || !P)
 		return FALSE
@@ -260,6 +160,7 @@ SUBSYSTEM_DEF(familytree)
 	H.desired_relative_role = P.desired_relative_role
 	H.allow_low_status_marriage = P.allow_low_status_marriage
 	H.allow_relatives_in_family = P.allow_relatives_in_family
+	H.know_your_fate = P.know_your_fate
 	return TRUE
 
 /datum/controller/subsystem/familytree/proc/on_familytree_target_preference_changed(mob/living/carbon/human/H, old_setspouse)
@@ -330,10 +231,10 @@ SUBSYSTEM_DEF(familytree)
 	if(!H || QDELETED(H) || !H.ckey || !H.mind)
 		ftlog("try_grant_holy SKIP: [H?.real_name] null/qdel/nockey/nomind")
 		return FALSE
-	if(!H.devotion)
-		ftlog("try_grant_holy SKIP: [H.real_name] no devotion (not a cleric)")
+	if(!familytree_priest_can_perform_bond(H))
+		ftlog("try_grant_holy SKIP: [H.real_name] patron/level not eligible")
 		return FALSE
-	ftlog("try_grant_holy: [H.real_name] GRANTING familytree_establish_bond + familytree_dissolve_marriage (devotion present)")
+	ftlog("try_grant_holy: [H.real_name] GRANTING familytree_establish_bond + familytree_dissolve_marriage")
 	H.verbs |= list(
 		/mob/living/carbon/human/proc/familytree_establish_bond,
 		/mob/living/carbon/human/proc/familytree_dissolve_marriage,
@@ -354,9 +255,6 @@ SUBSYSTEM_DEF(familytree)
 	RegisterSignal(H, COMSIG_MOB_DEATH, PROC_REF(on_human_death))
 	RegisterSignal(H, COMSIG_LIVING_REVIVE, PROC_REF(on_human_revive))
 	RegisterSignal(H, COMSIG_JOB_RECEIVED, PROC_REF(on_human_job_received))
-	RegisterSignal(H, COMSIG_SEX_CLIMAX, PROC_REF(on_human_climax))
-	if(xylix_roulette_active)
-		xylix_roulette_applies(H)
 	ftlog("register_human: [H.real_name] signals bound OK")
 
 /datum/controller/subsystem/familytree/proc/stop_tracking_human(mob/living/carbon/human/H, reason = "unspecified")
@@ -371,7 +269,7 @@ SUBSYSTEM_DEF(familytree)
 		return
 	ftlog("stop_tracking: [H.real_name] ([H.ckey]) reason=[reason]")
 	H.familytree_module_signal_bound = FALSE
-	UnregisterSignal(H, list(COMSIG_MOB_LOGIN, COMSIG_MOB_LOGOUT, COMSIG_MOB_DEATH, COMSIG_LIVING_REVIVE, COMSIG_JOB_RECEIVED, COMSIG_SEX_CLIMAX))
+	UnregisterSignal(H, list(COMSIG_MOB_LOGIN, COMSIG_MOB_LOGOUT, COMSIG_MOB_DEATH, COMSIG_LIVING_REVIVE, COMSIG_JOB_RECEIVED))
 
 /datum/controller/subsystem/familytree/proc/on_human_login(mob/living/carbon/human/H)
 	SIGNAL_HANDLER
@@ -416,9 +314,10 @@ SUBSYSTEM_DEF(familytree)
 	try_queue_assignment(H)
 	addtimer(CALLBACK(src, PROC_REF(try_grant_holy_spells), H), 2 SECONDS)
 
-/datum/controller/subsystem/familytree/proc/on_human_climax(mob/living/carbon/human/H)
-	SIGNAL_HANDLER
-	on_intimacy_event(H)
+/datum/controller/subsystem/familytree/proc/on_family_formed(datum/heritage/house)
+	if(!house)
+		return
+	schedule_house_member_resync(house)
 
 /datum/controller/subsystem/familytree/proc/try_queue_assignment(mob/living/carbon/human/H)
 	ftlog("try_queue_assignment: [H?.real_name] ([H?.ckey])")
@@ -467,8 +366,6 @@ SUBSYSTEM_DEF(familytree)
 		return
 
 	load_familytree_runtime_preferences(H, P)
-	check_xylix_roulette()
-	apply_xylix_roulette_preferences(H)
 	ftlog("try_queue: [H.real_name] pref=[H.familytree_pref] setspouse=[H.setspouse] role=[H.desired_relative_role]")
 	if(is_royal_suitor_job(job))
 		ftlog("try_queue STOP: [H.real_name] royal suitor job")
@@ -509,9 +406,6 @@ SUBSYSTEM_DEF(familytree)
 	var/effective_status = status
 	var/datum/preferences/P = H.client?.prefs
 	if(P && load_familytree_runtime_preferences(H, P))
-		effective_status = H.familytree_pref
-	check_xylix_roulette()
-	if(apply_xylix_roulette_preferences(H))
 		effective_status = H.familytree_pref
 	if(H.familytree_opted_out || !familytree_pref_enabled(effective_status))
 		ftlog("run_local STOP: [H.real_name] familytree disabled before local assignment")

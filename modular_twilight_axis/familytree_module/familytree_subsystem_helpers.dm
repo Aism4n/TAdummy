@@ -38,8 +38,6 @@ GLOBAL_LIST_INIT(familytree_title_prefixes, list(
 /proc/pronouns_compatible(mob/living/carbon/human/A, mob/living/carbon/human/B)
 	if(!A || !B)
 		return FALSE
-	if(SSfamilytree?.xylix_roulette_pair_applies(A, B))
-		return TRUE
 
 	var/pref_a = A.gender_choice_pref || ANY_GENDER
 	var/pref_b = B.gender_choice_pref || ANY_GENDER
@@ -69,8 +67,6 @@ GLOBAL_LIST_INIT(familytree_title_prefixes, list(
 /datum/controller/subsystem/familytree/proc/familytree_relative_species_compatible(mob/living/carbon/human/A, mob/living/carbon/human/B)
 	if(!A || !B)
 		return FALSE
-	if(xylix_roulette_pair_applies(A, B))
-		return TRUE
 	var/a_isolated = is_isolated(A)
 	var/b_isolated = is_isolated(B)
 	if(a_isolated || b_isolated)
@@ -88,11 +84,6 @@ GLOBAL_LIST_INIT(familytree_title_prefixes, list(
 		if(!a_isolated || !b_isolated)
 			return "isolated group mismatch"
 
-	var/a_xylix = xylix_roulette_applies(A)
-	var/b_xylix = xylix_roulette_applies(B)
-	if(a_xylix && b_xylix)
-		return null
-
 	var/typeA = A.dna.species.type
 	var/typeB = B.dna.species.type
 	var/list/pref_types_a = get_familytree_species_type_list(A.preferred_species_types)
@@ -104,35 +95,31 @@ GLOBAL_LIST_INIT(familytree_title_prefixes, list(
 	if(!mode_b)
 		mode_b = "ANY"
 
-	if(!a_xylix)
-		switch(mode_a)
-			if("ANY")
-				;
-			if("SAME_TYPE")
-				if(typeA != typeB)
-					return "species mismatch"
-			if("SPECIFIC_TYPE")
-				if(!(typeB in pref_types_a))
-					return "species mismatch"
+	switch(mode_a)
+		if("ANY")
+			;
+		if("SAME_TYPE")
+			if(typeA != typeB)
+				return "species mismatch"
+		if("SPECIFIC_TYPE")
+			if(!(typeB in pref_types_a))
+				return "species mismatch"
 
-	if(!b_xylix)
-		switch(mode_b)
-			if("ANY")
-				;
-			if("SAME_TYPE")
-				if(typeA != typeB)
-					return "species mismatch"
-			if("SPECIFIC_TYPE")
-				if(!(typeA in pref_types_b))
-					return "species mismatch"
+	switch(mode_b)
+		if("ANY")
+			;
+		if("SAME_TYPE")
+			if(typeA != typeB)
+				return "species mismatch"
+		if("SPECIFIC_TYPE")
+			if(!(typeA in pref_types_b))
+				return "species mismatch"
 
-	if(!a_xylix)
-		if(!AnatomyCompatible(A.preferred_species_anatomy, B))
-			return "anatomy mismatch"
+	if(!AnatomyCompatible(A.preferred_species_anatomy, B))
+		return "anatomy mismatch"
 
-	if(!b_xylix)
-		if(!AnatomyCompatible(B.preferred_species_anatomy, A))
-			return "anatomy mismatch"
+	if(!AnatomyCompatible(B.preferred_species_anatomy, A))
+		return "anatomy mismatch"
 
 	return null
 
@@ -249,12 +236,6 @@ GLOBAL_LIST_INIT(familytree_title_prefixes, list(
 	return FALSE
 
 /datum/controller/subsystem/familytree/proc/house_race_compatible(datum/heritage/house, our_race, we_are_isolated, mob/living/carbon/human/seeker = null)
-	if(xylix_roulette_applies(seeker))
-		if(we_are_isolated)
-			return is_house_isolated(house)
-		if(is_house_isolated(house))
-			return FALSE
-		return TRUE
 	if(we_are_isolated)
 		return is_house_isolated(house)
 	if(is_house_isolated(house))
@@ -268,8 +249,6 @@ GLOBAL_LIST_INIT(familytree_title_prefixes, list(
 /datum/controller/subsystem/familytree/proc/house_relative_compatible(datum/heritage/house, mob/living/carbon/human/seeker)
 	if(!house || !seeker?.dna?.species)
 		return FALSE
-	if(xylix_roulette_applies(seeker))
-		return TRUE
 	var/seeker_isolated = is_isolated(seeker)
 	var/house_isolated = is_house_isolated(house)
 	if(seeker_isolated || house_isolated)
@@ -565,8 +544,6 @@ GLOBAL_LIST_INIT(familytree_title_prefixes, list(
 /datum/controller/subsystem/familytree/proc/familytree_biological_parent_allowed(mob/living/carbon/human/parent, mob/living/carbon/human/child, datum/heritage/house = null)
 	if(!parent || !child)
 		return FALSE
-	if(xylix_roulette_pair_applies(parent, child))
-		return TRUE
 	return familytree_single_parent_species_compatible(child, parent, house)
 
 /datum/controller/subsystem/familytree/proc/familytree_genital_signature(mob/living/carbon/human/H)
@@ -598,12 +575,48 @@ GLOBAL_LIST_INIT(familytree_title_prefixes, list(
 		return familytree_biological_parent_allowed(parent1, child, house)
 	if(!familytree_biological_parent_genitals_compatible(parent1, parent2))
 		return FALSE
-	if(xylix_roulette_pair_applies(parent1, child) || xylix_roulette_pair_applies(parent2, child))
-		return TRUE
 	var/datum/heritage/context = house || child.family_datum || parent1.family_datum || parent2.family_datum || ruling_family
 	if(!context)
 		return FALSE
 	return context.SpeciesCalculation(child, parent1, parent2)
+
+/datum/controller/subsystem/familytree/proc/familytree_pair_blocked(mob/living/carbon/human/seeker, mob/living/carbon/human/partner)
+	if(!seeker || !partner)
+		return FALSE
+	if(seeker.familytree_blocked_ckeys && (partner.ckey in seeker.familytree_blocked_ckeys))
+		return TRUE
+	if(partner.familytree_blocked_ckeys && (seeker.ckey in partner.familytree_blocked_ckeys))
+		return TRUE
+	return FALSE
+
+/datum/controller/subsystem/familytree/proc/familytree_format_fate_reveal(mob/living/carbon/human/partner)
+	if(!partner)
+		return ""
+	var/species_name = partner.dna?.species?.name || "неизвестный вид"
+	var/gender_text
+	switch(partner.gender)
+		if(MALE)
+			gender_text = "мужской"
+		if(FEMALE)
+			gender_text = "женский"
+		if(PLURAL)
+			gender_text = "множественный"
+		if(NEUTER)
+			gender_text = "средний"
+		else
+			gender_text = "неопределённый"
+	var/has_penis = partner.getorganslot(ORGAN_SLOT_PENIS) != null
+	var/has_vagina = partner.getorganslot(ORGAN_SLOT_VAGINA) != null
+	var/anatomy_text
+	if(has_penis && has_vagina)
+		anatomy_text = "обоеполая"
+	else if(has_penis)
+		anatomy_text = "мужская"
+	else if(has_vagina)
+		anatomy_text = "женская"
+	else
+		anatomy_text = "без половых признаков"
+	return "\nРаса: [species_name]\nПол: [gender_text]\nАнатомия: [anatomy_text]"
 
 /datum/controller/subsystem/familytree/proc/CanBeSiblings(age1, age2)
 	if(!age1 || !age2)

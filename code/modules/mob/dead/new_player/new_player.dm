@@ -299,9 +299,6 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 	var/datum/job/job = SSjob.GetJob(rank)
 	if(!job)
 		return JOB_UNAVAILABLE_GENERIC
-	// TA EDIT START - validate latejoin against the character slot mapped to this job.
-	var/datum/preferences/job_prefs = client.prefs.get_job_prefs(rank)
-	// TA EDIT END
 	if(CONFIG_GET(flag/usewhitelist))
 		if(job.whitelist_req && !client.whitelisted())
 			return JOB_UNAVAILABLE_GENERIC
@@ -323,7 +320,7 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 		if(!isnull(job.max_pq) && (get_playerquality(ckey) > job.max_pq))
 			return JOB_UNAVAILABLE_PQ
 	#endif
-	var/datum/species/pref_species = job_prefs.pref_species // TA EDIT
+	var/datum/species/pref_species = client.prefs.pref_species
 	if(length(job.allowed_races) && !(pref_species.type in job.allowed_races))
 		return JOB_UNAVAILABLE_RACE
 	var/list/allowed_sexes = list()
@@ -336,11 +333,11 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 		if(FEMALE in job.allowed_sexes)
 			allowed_sexes -= FEMALE
 			allowed_sexes += MALE
-	if(length(allowed_sexes) && !(job_prefs.gender in allowed_sexes)) // TA EDIT
+	if(length(allowed_sexes) && !(client.prefs.gender in allowed_sexes))
 		return JOB_UNAVAILABLE_SEX
-	if(length(job.allowed_ages) && !(job_prefs.age in job.allowed_ages)) // TA EDIT
+	if(length(job.allowed_ages) && !(client.prefs.age in job.allowed_ages))
 		return JOB_UNAVAILABLE_AGE
-	if(length(job.allowed_patrons) && !(job_prefs.selected_patron.type in job.allowed_patrons)) // TA EDIT
+	if(length(job.allowed_patrons) && !(client.prefs.selected_patron.type in job.allowed_patrons))
 		return JOB_UNAVAILABLE_PATRON
 	if((client.prefs.lastclass == job.title) && !job.bypass_lastclass)
 		return JOB_UNAVAILABLE_LASTCLASS
@@ -358,9 +355,9 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 		else
 			return JOB_UNAVAILABLE_SLOTFULL
 	if(length(job.vice_restrictions) || length(job.virtue_restrictions))
-		var/has_restricted_virtue = (job_prefs.virtue?.type in job.virtue_restrictions) || (job_prefs.virtuetwo?.type in job.virtue_restrictions) // TA EDIT
+		var/has_restricted_virtue = (client.prefs.virtue?.type in job.virtue_restrictions) || (client.prefs.virtuetwo?.type in job.virtue_restrictions)
 		var/has_restricted_vice = FALSE
-		for(var/datum/charflaw/cf in job_prefs.charflaws) // TA EDIT
+		for(var/datum/charflaw/cf in client.prefs.charflaws)
 			if(cf.type in job.vice_restrictions)
 				has_restricted_vice = TRUE
 				break

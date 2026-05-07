@@ -10,6 +10,7 @@
 	var/tmp/familytree_module_loaded_slot
 	var/tmp/familytree_module_loaded_path
 	var/allow_relatives_in_family = TRUE
+	var/know_your_fate = FALSE
 
 /mob/living/carbon/human
 	var/family_UI = TRUE
@@ -31,10 +32,9 @@
 	var/tmp/familytree_opted_out = FALSE
 	var/tmp/familytree_setspouse_timeout_offered = FALSE
 	var/tmp/familytree_setspouse_retries = 0
-	var/tmp/familytree_xylix_roulette_checked = FALSE
-	var/tmp/familytree_xylix_roulette_flag = FALSE
-	var/tmp/familytree_xylix_roulette_notified = FALSE
 	var/allow_relatives_in_family = TRUE
+	var/know_your_fate = FALSE
+	var/tmp/list/familytree_blocked_ckeys = list()
 
 /proc/familytree_pref_mask(pref)
 	if(isnum(pref))
@@ -133,6 +133,7 @@
 			"desired_relative_role" = "desired_relative_role",
 			"allow_low_status_marriage" = "allow_low_status_marriage",
 			"allow_relatives_in_family" = "allow_relatives_in_family",
+			"know_your_fate" = "know_your_fate",
 		)
 	return key_map
 
@@ -165,6 +166,7 @@
 	desired_relative_role = initial(desired_relative_role)
 	allow_low_status_marriage = initial(allow_low_status_marriage)
 	allow_relatives_in_family = initial(allow_relatives_in_family)
+	know_your_fate = initial(know_your_fate)
 
 /datum/preferences/proc/familytree_module_sanitize_character()
 	family = sanitize_integer(family, FAMILY_NONE, FAMILY_NEWLYWED, FAMILY_NONE)
@@ -211,6 +213,7 @@
 		desired_relative_role = RELATIVE_ANY
 	allow_low_status_marriage = sanitize_integer(allow_low_status_marriage, 0, 1, 0)
 	allow_relatives_in_family = sanitize_integer(allow_relatives_in_family, 0, 1, TRUE)
+	know_your_fate = sanitize_integer(know_your_fate, 0, 1, 0)
 
 /datum/preferences/proc/familytree_module_has_enabled_customizer_entry(entry_type)
 	validate_customizer_entries()
@@ -393,7 +396,8 @@
 		"polygamyMode" = P.polygamy_mode,
 		"desiredRelativeRole" = P.desired_relative_role,
 		"allowLowStatusMarriage" = P.allow_low_status_marriage,
-		"allowRelativesInFamily" = P.allow_relatives_in_family
+		"allowRelativesInFamily" = P.allow_relatives_in_family,
+		"knowYourFate" = P.know_your_fate
 	)
 
 	var/list/species_names = list()
@@ -440,6 +444,7 @@
 			P.desired_relative_role = text2num("[params["desiredRelativeRole"]]")
 			P.allow_low_status_marriage = text2num("[params["allowLowStatusMarriage"]]")
 			P.allow_relatives_in_family = text2num("[params["allowRelativesInFamily"]]")
+			P.know_your_fate = text2num("[params["knowYourFate"]]")
 
 			P.familytree_module_sanitize_character()
 			P.familytree_module_save_character()

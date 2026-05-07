@@ -68,8 +68,6 @@
 
 /datum/controller/subsystem/familytree/proc/get_royal_partner_allowed_races(mob/living/carbon/human/duke, datum/preferences/P, list/default_races) as /list
 	var/list/allowed_races = islist(default_races) ? default_races.Copy() : list()
-	if(xylix_roulette_applies(duke))
-		return allowed_races
 	if(!P)
 		return allowed_races
 
@@ -95,8 +93,6 @@
 
 /datum/controller/subsystem/familytree/proc/get_royal_partner_allowed_sexes(mob/living/carbon/human/duke, datum/preferences/P, list/default_sexes) as /list
 	var/list/allowed_sexes = islist(default_sexes) ? default_sexes.Copy() : list()
-	if(xylix_roulette_applies(duke))
-		return allowed_sexes
 	if(!P)
 		return allowed_sexes
 
@@ -163,28 +159,6 @@
 
 	apply_royal_partner_job_state("consort", FALSE)
 	apply_royal_partner_job_state("suitor", FALSE)
-
-/datum/controller/subsystem/familytree/proc/refresh_xylix_royal_partner_jobs()
-	if(!xylix_roulette_active || !current_royal_partner_owner || current_royal_partner_mode == "closed")
-		return FALSE
-	if(!xylix_roulette_applies(current_royal_partner_owner))
-		return FALSE
-	if(!ensure_royal_partner_job_baselines())
-		return FALSE
-	var/list/consort_baseline = royal_partner_job_baselines["consort"]
-	var/list/suitor_baseline = royal_partner_job_baselines["suitor"]
-	if(!consort_baseline || !suitor_baseline)
-		return FALSE
-	switch(current_royal_partner_mode)
-		if("consort")
-			apply_royal_partner_job_state("consort", TRUE, 1, consort_baseline["allowed_races"], consort_baseline["allowed_sexes"])
-			apply_royal_partner_job_state("suitor", FALSE)
-			return TRUE
-		if("suitor")
-			apply_royal_partner_job_state("consort", FALSE)
-			apply_royal_partner_job_state("suitor", TRUE, 2, suitor_baseline["allowed_races"], suitor_baseline["allowed_sexes"])
-			return TRUE
-	return FALSE
 
 /datum/controller/subsystem/familytree/proc/refresh_royal_partner_jobs(mob/living/carbon/human/duke, datum/preferences/P)
 	if(!duke?.client)
@@ -347,8 +321,6 @@
 	var/job_key = get_royal_partner_job_key(role_or_job)
 	if(!job_key || current_royal_partner_mode != job_key)
 		return FALSE
-	if(xylix_roulette_applies(current_royal_partner_owner))
-		return TRUE
 
 	var/datum/preferences/P = C.prefs
 	var/datum/job/job = resolve_job_datum(role_or_job)

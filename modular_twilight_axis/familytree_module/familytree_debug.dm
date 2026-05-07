@@ -616,13 +616,6 @@ GLOBAL_LIST_INIT(ftdebug_age_pool, list(
 	var/tier_compat_allow = familytree_role_tiers_compatible(noble, wretch)
 	results += "7d. Knight+Wretch with allow_low: tier_compat=[tier_compat_allow]"
 
-	var/saved_xylix = xylix_roulette_active
-	xylix_roulette_active = TRUE
-	var/xylix_estate = familytree_estates_compatible(noble, wretch)
-	var/xylix_tier = familytree_role_tiers_compatible(noble, wretch)
-	xylix_roulette_active = saved_xylix
-	results += "7e. Xylix override: estate=[xylix_estate] tier=[xylix_tier] (both TRUE)"
-
 	var/mob/living/carbon/human/elf = ftdebug_spawn_entity(spawn_loc)
 	ftdebug_apply_random_props(elf, /datum/species/elf/dark)
 	elf.gender = MALE

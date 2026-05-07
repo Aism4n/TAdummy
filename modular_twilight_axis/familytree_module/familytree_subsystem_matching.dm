@@ -175,7 +175,7 @@
 		return
 
 	if(family_mode & FAMILYTREE_MODE_LEGACY_SPOUSE)
-		if(H.virginity && !xylix_roulette_applies(H))
+		if(H.virginity)
 			ftlog("AddLocal: [H.real_name] SKIP: virginity gate")
 			stop_tracking_human(H, "legacy full family flow skipped; virginity gate")
 			return
@@ -554,7 +554,6 @@
 		var/datum/preferences/candidate_prefs = candidate.client?.prefs
 		if(candidate_prefs)
 			load_familytree_runtime_preferences(candidate, candidate_prefs)
-			apply_xylix_roulette_preferences(candidate)
 			candidate_pref = candidate.familytree_pref
 		if(!familytree_pref_enabled(candidate_pref))
 			continue
@@ -1235,15 +1234,13 @@
 			return for_a ? "joined new house as niece/nephew of [key_name(B)]" : "created new house as uncle/aunt of [key_name(A)]"
 	return "created new house as relative of [key_name(other)]"
 
-/datum/controller/subsystem/familytree/proc/familytree_creator_pronouns_compatible(mob/living/carbon/human/creator, mob/living/carbon/human/partner, respect_xylix = TRUE)
-	if(respect_xylix && xylix_roulette_applies(creator))
-		return TRUE
+/datum/controller/subsystem/familytree/proc/familytree_creator_pronouns_compatible(mob/living/carbon/human/creator, mob/living/carbon/human/partner)
 	if(!creator || !partner)
 		return FALSE
 	var/pref = creator.gender_choice_pref || ANY_GENDER
 	return pronoun_preference_matches(pref, creator.pronouns == partner.pronouns)
 
-/datum/controller/subsystem/familytree/proc/GetCreatorSpeciesPreferenceFailureReason(mob/living/carbon/human/creator, mob/living/carbon/human/partner, respect_xylix = TRUE)
+/datum/controller/subsystem/familytree/proc/GetCreatorSpeciesPreferenceFailureReason(mob/living/carbon/human/creator, mob/living/carbon/human/partner)
 	if(!creator || !partner)
 		return "missing mob"
 
@@ -1252,9 +1249,6 @@
 	if(creator_isolated || partner_isolated)
 		if(!creator_isolated || !partner_isolated)
 			return "isolated group mismatch"
-
-	if(respect_xylix && xylix_roulette_applies(creator))
-		return null
 
 	var/creator_type = creator.dna.species.type
 	var/partner_type = partner.dna.species.type
@@ -1279,9 +1273,6 @@
 	return null
 
 /datum/controller/subsystem/familytree/proc/familytree_creator_role_tiers_compatible(mob/living/carbon/human/creator, mob/living/carbon/human/partner)
-	if(xylix_roulette_pair_applies(creator, partner))
-		return TRUE
-
 	var/creator_tier = familytree_get_role_tier(creator)
 	var/partner_tier = familytree_get_role_tier(partner)
 
@@ -1312,10 +1303,9 @@
 
 /datum/controller/subsystem/familytree/proc/familytree_soft_pref_reject_mask(mob/living/carbon/human/seeker, mob/living/carbon/human/partner)
 	var/reject_mask = 0
-	var/respect_xylix = !(familytree_targets_name(seeker, partner) || familytree_targets_name(partner, seeker))
-	if(!familytree_creator_pronouns_compatible(seeker, partner, respect_xylix))
+	if(!familytree_creator_pronouns_compatible(seeker, partner))
 		reject_mask |= FTREJ_N_PRONOUNS
-	if(GetCreatorSpeciesPreferenceFailureReason(seeker, partner, respect_xylix))
+	if(GetCreatorSpeciesPreferenceFailureReason(seeker, partner))
 		reject_mask |= FTREJ_N_SPECIES
 	return reject_mask
 
@@ -1395,6 +1385,9 @@
 		var/cand_block = get_familytree_runtime_block_reason(candidate, TRUE)
 		if(cand_block)
 			viable_spouses -= candidate
+			reject_mask |= FTREJ_N_BLOCK
+			continue
+		if(familytree_pair_blocked(H, candidate))
 			reject_mask |= FTREJ_N_BLOCK
 			continue
 		if(relation == "spouse" && !familytree_polygamy_compatible(H, candidate))
@@ -1491,6 +1484,9 @@
 				reject_mask |= FTREJ_F_PARTIAL
 				continue
 			if(member.person.familytree_opted_out)
+				reject_mask |= FTREJ_F_OPTOUT
+				continue
+			if(familytree_pair_blocked(H, member.person))
 				reject_mask |= FTREJ_F_OPTOUT
 				continue
 			potential_matches += list(list(house, member, house.member_nodes.len))
@@ -1695,8 +1691,6 @@
 /datum/controller/subsystem/familytree/proc/house_allows_relatives(datum/heritage/house, mob/living/carbon/human/seeker = null)
 	if(!house)
 		return FALSE
-	if(xylix_roulette_applies(seeker))
-		return TRUE
 	if(!house.house_leader?.person)
 		return TRUE
 	var/mob/living/carbon/human/leader = house.house_leader.person

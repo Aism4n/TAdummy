@@ -9,11 +9,10 @@
 // familytree_heritage_core.dm       - /datum/heritage: house, members, marriage, species calc, display build
 // familytree_member.dm              - /datum/family_member: graph-facing accessors, relation terms, GetRelationshipTo, phantom links
 // familytree_social.dm              - estates, role tiers, polygamy, lore-based polygyny/polyandry
-// familytree_storytellers.dm        - storyteller influence (Xylix etc), intimacy events, karma
 // familytree_rituals.dm             - clergy helpers, desired-role search, ritual_adopt, vampire_bind, family_curse
 // familytree_holy_verbs.dm          - holy skill verbs: establish_bond, dissolve_marriage (manual marriage/adoption/sibling)
 // familytree_lifecycle.dm           - royal job hooks, enigma, noble dynasty, notifications, confirmation sessions, setspouse reset
-// familytree_subsystem_core.dm      - SUBSYSTEM_DEF(familytree): init, signals, queue, local/royal runners, Xylix roulette
+// familytree_subsystem_core.dm      - SUBSYSTEM_DEF(familytree): init, signals, queue, local/royal runners
 // familytree_subsystem_helpers.dm   - species/anatomy/gender compat, job helpers, age checks, DetermineAppropriateRole
 // familytree_subsystem_matching.dm  - AddLocal, AssignToHouse/Family, NewlyWed/Family matching, favorite, wedding ring
 // familytree_subsystem_royal.dm     - royal partner jobs, AddRoyal, lineage generation, royal hand offer
@@ -64,7 +63,6 @@
 // Phase gates for join/create matching. Do not bypass without updating AI_NAVIGATION.md gotchas.
 #define FAMILYTREE_JOIN_CREATE_DELAY (2 MINUTES)
 #define FAMILYTREE_RELATIVE_JOIN_DELAY (5 MINUTES)
-#define FAMILYTREE_XYLIX_ROULETTE_CHANCE 15
 #define FAMILYTREE_PREFERRED_MIN_HOUSE_SIZE 5
 
 #define ANY_GENDER 1
@@ -131,7 +129,6 @@
 #include "familytree_heritage_core.dm"
 #include "familytree_member.dm"
 #include "familytree_social.dm"
-#include "familytree_storytellers.dm"
 #include "familytree_rituals.dm"
 #include "familytree_holy_verbs.dm"
 #include "familytree_lifecycle.dm"

@@ -243,6 +243,10 @@
 	if((refuser == person_a ? result_a : result_b) == CONFIRM_TIMEOUT)
 		reason = "timeout"
 	SSfamilytree.ftlog("MUTUAL CONFIRM: [refuser.real_name] [reason] type=[confirm_type]")
+	if(refuser.know_your_fate && other && SSfamilytree.familytree_record_blocked_pair(refuser, other))
+		to_chat(refuser, span_warning("Вы больше не будете матчиться с этим персонажем в этом раунде."))
+		SSfamilytree.try_queue_assignment(refuser)
+		return
 	refuser.familytree_opted_out = TRUE
 	SSfamilytree.unsubscribe_familytree_human(refuser, "player [reason] [confirm_type]")
 	to_chat(refuser, span_warning("Вы отказались от участия в семейной системе на этот раунд."))
@@ -294,13 +298,31 @@
 	INVOKE_ASYNC(src, PROC_REF(do_solo_confirmation), H, on_accept, confirm_type)
 
 /datum/controller/subsystem/familytree/proc/familytree_confirmation_found_text(confirm_type, mob/living/carbon/human/person, mob/living/carbon/human/partner = null, mutual = FALSE)
+	var/base_text
 	if(confirm_type == "targeted_spouse" && partner)
-		return "Ваша судьба сошлась с [partner.real_name]!"
-	if(confirm_type == "spouse" || confirm_type == "targeted_spouse")
-		return "Вам нашли пару!"
-	if(confirm_type == "family")
-		return mutual ? "Система нашла для вас семейную связь!" : "Система нашла для вас семью!"
-	return "Система нашла для вас семью!"
+		base_text = "Ваша судьба сошлась с [partner.real_name]!"
+	else if(confirm_type == "spouse" || confirm_type == "targeted_spouse")
+		base_text = "Вам нашли пару!"
+	else if(confirm_type == "family")
+		base_text = mutual ? "Система нашла для вас семейную связь!" : "Система нашла для вас семью!"
+	else
+		base_text = "Система нашла для вас семью!"
+	if(person?.know_your_fate && partner)
+		base_text += familytree_format_fate_reveal(partner)
+	return base_text
+
+/datum/controller/subsystem/familytree/proc/familytree_confirmation_prompt_body(found_text, mob/living/carbon/human/person, mob/living/carbon/human/partner)
+	if(person?.know_your_fate && partner)
+		return "[found_text]\n\nХотите продолжить?\n\nЕсли вы не сделаете выбор — он будет засчитан как отказ.\nОтказавшись, вы больше не будете матчиться с этим персонажем в этом раунде."
+	return "[found_text]\n\nХотите продолжить?\n\nЕсли вы не сделаете выбор — он будет засчитан как отказ.\nОтказавшись, вы потеряете возможность найти семью в этом раунде."
+
+/datum/controller/subsystem/familytree/proc/familytree_record_blocked_pair(mob/living/carbon/human/refuser, mob/living/carbon/human/other)
+	if(!refuser || !other || !other.ckey)
+		return FALSE
+	if(!islist(refuser.familytree_blocked_ckeys))
+		refuser.familytree_blocked_ckeys = list()
+	refuser.familytree_blocked_ckeys |= other.ckey
+	return TRUE
 
 /datum/controller/subsystem/familytree/proc/familytree_confirmation_should_chat(confirm_type)
 	return confirm_type != "targeted_spouse"
@@ -318,7 +340,7 @@
 	if(familytree_confirmation_should_chat(confirm_type))
 		to_chat(H, span_love(found_text))
 
-	var/result = tgui_alert(H, "[found_text]\n\nХотите продолжить?\n\nЕсли вы не сделаете выбор — он будет засчитан как отказ.\nОтказавшись, вы потеряете возможность найти семью в этом раунде.", "Семейная система", list("Да", "Нет"), 60 SECONDS)
+	var/result = tgui_alert(H, familytree_confirmation_prompt_body(found_text, H, context_person), "Семейная система", list("Да", "Нет"), 60 SECONDS)
 
 	if(!H || QDELETED(H))
 		return
@@ -330,9 +352,13 @@
 		on_accept.Invoke()
 	else
 		ftlog("CONFIRM REJECT: [H.real_name] type=[confirm_type] result=[result || "timeout"]")
-		to_chat(H, span_warning("Вы отказались от участия в семейной системе на этот раунд."))
-		H.familytree_opted_out = TRUE
-		unsubscribe_familytree_human(H, "player declined [confirm_type]")
+		if(H.know_your_fate && context_person && familytree_record_blocked_pair(H, context_person))
+			to_chat(H, span_warning("Вы больше не будете матчиться с этим персонажем в этом раунде."))
+			try_queue_assignment(H)
+		else
+			to_chat(H, span_warning("Вы отказались от участия в семейной системе на этот раунд."))
+			H.familytree_opted_out = TRUE
+			unsubscribe_familytree_human(H, "player declined [confirm_type]")
 
 /datum/controller/subsystem/familytree/proc/request_mutual_confirmation(mob/living/carbon/human/person_a, mob/living/carbon/human/person_b, datum/callback/on_both_accept, confirm_type = "family", busy_attempt = 0, busy_deferred = FALSE)
 	if(!person_a || QDELETED(person_a) || !person_b || QDELETED(person_b))
@@ -425,7 +451,7 @@
 	if(familytree_confirmation_should_chat(session.confirm_type))
 		to_chat(person, span_love(found_text))
 
-	var/result = tgui_alert(person, "[found_text]\n\nХотите продолжить?\n\nЕсли вы не сделаете выбор — он будет засчитан как отказ.\nОтказавшись, вы потеряете возможность найти семью в этом раунде.", "Семейная система", list("Да", "Нет"), 60 SECONDS)
+	var/result = tgui_alert(person, familytree_confirmation_prompt_body(found_text, person, partner), "Семейная система", list("Да", "Нет"), 60 SECONDS)
 
 	if(!person || QDELETED(person))
 		return
@@ -442,9 +468,13 @@
 			session.notify_cancelled(person)
 		else if(!person.familytree_opted_out)
 			ftlog("MUTUAL CONFIRM: [person.real_name] declined cancelled type=[session.confirm_type] result=[result || "timeout"]")
-			to_chat(person, span_warning("Вы отказались от участия в семейной системе на этот раунд."))
-			person.familytree_opted_out = TRUE
-			unsubscribe_familytree_human(person, "player declined [session.confirm_type]")
+			if(person.know_your_fate && partner && familytree_record_blocked_pair(person, partner))
+				to_chat(person, span_warning("Вы больше не будете матчиться с этим персонажем в этом раунде."))
+				try_queue_assignment(person)
+			else
+				to_chat(person, span_warning("Вы отказались от участия в семейной системе на этот раунд."))
+				person.familytree_opted_out = TRUE
+				unsubscribe_familytree_human(person, "player declined [session.confirm_type]")
 		if(session.result_a != CONFIRM_PENDING && session.result_b != CONFIRM_PENDING)
 			qdel(session)
 		return

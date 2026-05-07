@@ -45,9 +45,6 @@
 	return FALSE
 
 /proc/familytree_estates_compatible(mob/living/carbon/human/A, mob/living/carbon/human/B)
-	if(SSfamilytree.xylix_roulette_pair_applies(A, B))
-		return TRUE
-
 	var/estate_a = familytree_get_estate(A)
 	var/estate_b = familytree_get_estate(B)
 
@@ -146,9 +143,6 @@
 	return ROLE_TIER_NONE
 
 /proc/familytree_role_tiers_compatible(mob/living/carbon/human/A, mob/living/carbon/human/B)
-	if(SSfamilytree.xylix_roulette_pair_applies(A, B))
-		return TRUE
-
 	var/tier_a = familytree_get_role_tier(A)
 	var/tier_b = familytree_get_role_tier(B)
 
@@ -241,8 +235,6 @@
 /proc/familytree_polygamy_compatible(mob/living/carbon/human/seeker, mob/living/carbon/human/target)
 	if(!seeker || !target)
 		return FALSE
-	if(SSfamilytree?.xylix_roulette_pair_applies(seeker, target))
-		return TRUE
 
 	var/seeker_has_spouse = seeker.spouse_mob || (seeker.family_member_datum && seeker.family_member_datum.get_spouse_members().len)
 	var/target_has_spouse = target.spouse_mob || (target.family_member_datum && target.family_member_datum.get_spouse_members().len)
