@@ -329,6 +329,10 @@
 			var/checkrange = 3 + user.get_skill_level(/datum/skill/magic/holy)
 			for(var/obj/machinery/light/rogue/O in range(checkrange, user))
 				O.fire_act()
+			for(var/obj/item/candle/O in range(checkrange, user))
+				O.fire_act()
+			for(var/obj/item/flashlight/flare/torch/O in range(checkrange, user))
+				O.fire_act()
 			return TRUE
 		if(L.anti_magic_check())
 			L.visible_message(span_warning("The magic fades away around [L]!"))
