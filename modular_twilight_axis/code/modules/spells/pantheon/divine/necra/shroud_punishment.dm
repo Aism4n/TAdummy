@@ -84,16 +84,11 @@
 		if(!spawn_turf)
 			break
 		new /obj/effect/temp_visual/gib_animation(spawn_turf, "gibbed-h")
-		var/mob/living/simple_animal/hostile/rogue/skeleton/grasper = new(spawn_turf, null, FALSE, TRUE)
+		var/mob/living/carbon/human/species/skeleton/npc/necra_garden/grasper = new(spawn_turf)
 		grasper.faction = list(FACTION_CABAL)
-		grasper.move_to_delay = 2
 		grasper.add_filter("necra_garden_aura", 2, list("type" = "outline", "color" = "#7ad6ff", "alpha" = 160, "size" = 2))
 		grasper.add_filter("necra_garden_glow", 1, list("type" = "drop_shadow", "color" = "#5fbfe680", "size" = 3, "offset" = 0))
-		if(grasper.ai_controller)
-			grasper.ai_controller.set_blackboard_key(BB_BASIC_MOB_CURRENT_TARGET, src)
-			grasper.ai_controller.set_blackboard_key(BB_HIGHEST_THREAT_MOB, src)
-			grasper.ai_controller.set_ai_status(AI_STATUS_ON)
-		grasper.GiveTarget(src)
+		addtimer(CALLBACK(grasper, TYPE_PROC_REF(/mob/living/carbon/human/species/skeleton/npc/necra_garden, aggro_at), src), 2 SECONDS)
 
 /obj/structure/closet/dirthole/closed/attackby(obj/item/attacking_item, mob/user, params)
 	if(istype(attacking_item, /obj/item/rogueweapon/shovel) && isliving(user))
