@@ -331,15 +331,6 @@
 				return TRUE
 	return FALSE
 
-/mob/living/proc/ta_mark_player_raised_undead(mob/living/raiser)
-	if(!raiser)
-		return FALSE
-	if(raiser.mind?.current)
-		summoner = raiser.mind.current.real_name
-	else
-		summoner = raiser.name
-	return TRUE
-
 /mob/living/proc/tranquility_shroud_has_deadite_mask()
 	var/datum/status_effect/tranquility_shroud/shroud = has_status_effect(/datum/status_effect/tranquility_shroud)
 	return shroud?.uses_deadite_mask()
