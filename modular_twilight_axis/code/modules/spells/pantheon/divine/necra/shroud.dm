@@ -204,7 +204,6 @@
 	RegisterSignal(owner, COMSIG_ATOM_HITBY, PROC_REF(on_owner_hitby))
 	RegisterSignal(owner, COMSIG_ATOM_ENTERED, PROC_REF(on_owner_entered_by_atom))
 	RegisterSignal(owner, COMSIG_HUMAN_LIFE, PROC_REF(on_owner_life))
-	RegisterSignal(owner, COMSIG_PARENT_EXAMINE, PROC_REF(on_owner_examined))
 	owner.tranquility_shroud_hide_from_nearby_undead()
 
 /datum/element/tranquility_shroud/Detach(datum/source, ...)
@@ -220,7 +219,6 @@
 		COMSIG_ATOM_HITBY,
 		COMSIG_ATOM_ENTERED,
 		COMSIG_HUMAN_LIFE,
-		COMSIG_PARENT_EXAMINE,
 	))
 	return ..()
 
@@ -300,14 +298,6 @@
 		return
 	source.break_tranquility_shroud_and_anger_necra("theft")
 
-/datum/element/tranquility_shroud/proc/on_owner_examined(mob/living/source, mob/examiner, list/examine_text)
-	SIGNAL_HANDLER
-	if(!examiner || examiner == source)
-		return
-	var/extra = source.tranquility_shroud_undead_examine_text(examiner)
-	if(extra)
-		examine_text += extra
-
 /datum/element/tranquility_shroud/proc/on_owner_life(mob/living/carbon/human/source)
 	SIGNAL_HANDLER
 	if(!ishuman(source) || QDELETED(source) || source.stat == DEAD)
@@ -357,6 +347,15 @@
 		return span_boldnotice("Another deadite.")
 	return null
 
+/mob/living/get_villain_text(mob/examiner)
+	. = ..()
+	var/shroud_text = tranquility_shroud_undead_examine_text(examiner)
+	if(!shroud_text)
+		return .
+	if(.)
+		. += "<br>"
+	. += shroud_text
+
 /mob/living/proc/tranquility_shroud_respects_deadites()
 	if(!(mob_biotypes & MOB_UNDEAD))
 		return FALSE
@@ -390,6 +389,10 @@
 
 /mob/living/proc/tranquility_shroud_is_undead_witness()
 	if(mob_biotypes & MOB_UNDEAD)
+		return TRUE
+	if(istype(src, /mob/living/carbon/human/species/skeleton))
+		return TRUE
+	if(istype(src, /mob/living/simple_animal/hostile/rogue/skeleton))
 		return TRUE
 	if(!mind)
 		return FALSE

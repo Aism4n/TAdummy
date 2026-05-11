@@ -11,9 +11,7 @@
 	if(!remove_tranquility_shroud(TRANQUILITY_SHROUD_REMOVAL_NECRA_ANGER))
 		return FALSE
 	if(penalty_caster && !QDELETED(penalty_caster))
-		for(var/datum/action/cooldown/spell/touch/shroud_of_tranquility/spell in penalty_caster.actions)
-			spell.StartCooldown(TRANQUILITY_SHROUD_NECRA_PENALTY_COOLDOWN)
-			to_chat(penalty_caster, span_userdanger("Некра запрещает мне творить покров — я чувствую её гнев на своих руках."))
+		addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(tranquility_shroud_apply_necra_penalty), penalty_caster), 0)
 	playsound(get_turf(src), TRANQUILITY_SHROUD_ANGER_SOUND, 80, TRUE)
 	to_chat(src, span_userdanger("Ваши действия прогневили Некру. Вы чувствуете ледяной озноб и взгляд, устремленный на вас из темноты."))
 	addtimer(CALLBACK(src, PROC_REF(tranquility_shroud_anger_nearby_undead)), 0)
@@ -21,6 +19,13 @@
 		var/mob/living/carbon/human/H = src
 		addtimer(CALLBACK(H, TYPE_PROC_REF(/mob/living/carbon/human, tranquility_shroud_punishment_summon), reason), 0)
 	return TRUE
+
+/proc/tranquility_shroud_apply_necra_penalty(mob/living/penalty_caster)
+	if(!penalty_caster || QDELETED(penalty_caster))
+		return
+	for(var/datum/action/cooldown/spell/touch/shroud_of_tranquility/spell in penalty_caster.actions)
+		spell.StartCooldown(TRANQUILITY_SHROUD_NECRA_PENALTY_COOLDOWN)
+	to_chat(penalty_caster, span_userdanger("Некра запрещает мне творить покров — я чувствую её гнев на своих руках."))
 
 /mob/living/proc/tranquility_shroud_anger_nearby_undead()
 	if(QDELETED(src) || stat == DEAD)
