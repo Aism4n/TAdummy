@@ -184,8 +184,7 @@
 /atom/movable/screen/alert/status_effect/buff/tranquility_shroud
 	name = "Shroud of Tranquility"
 	desc = "A solemn stillness lingers over me. Lesser dead may briefly forget my name."
-	icon = 'modular_twilight_axis/icons/mob/actions/necra_shroud.dmi'
-	icon_state = "shroud_tranquility"
+	icon_state = "necravow"
 
 /datum/element/tranquility_shroud
 
@@ -382,10 +381,17 @@
 			continue
 		if(witness.stat == DEAD)
 			continue
-		if(!(witness.mob_biotypes & MOB_UNDEAD))
+		if(!witness.tranquility_shroud_is_undead_witness())
 			continue
 		if(witness.is_player_raised_undead())
 			continue
+		return TRUE
+	return FALSE
+
+/mob/living/proc/tranquility_shroud_is_undead_witness()
+	if(mob_biotypes & MOB_UNDEAD)
+		return TRUE
+	if(mind?.has_antag_datum(/datum/antagonist/zombie))
 		return TRUE
 	return FALSE
 
