@@ -4,14 +4,16 @@
 #define AP_FALLOFF_BULLET		0.5
 #define DMG_FALLOFF_BULLET		0.5
 
+/obj/projectile
+	var/secondary_damage
+	var/secondary_damage_type
+
 /obj/projectile/bullet
 	var/silver = FALSE
 	var/blessed = FALSE
 	var/critfactor = 1
 	var/gunpowder_npc_critfactor = 1
 	var/gunpowder
-	var/secondary_damage
-	var/secondary_damage_type
 
 	min_range = MIN_BULLET_RANGE
 	max_range = MAX_BULLET_RANGE
