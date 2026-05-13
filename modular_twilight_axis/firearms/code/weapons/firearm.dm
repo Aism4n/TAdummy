@@ -95,7 +95,7 @@
 /obj/item/twilight_powderflask/volf
 	name = "powderflask"
 	desc = "Пороховница, предназначенная для удобной перезарядки огнестрельного оружия. Содержит порох смешанный с ядовитыми порошками, изготовленными специально для волков. В нём нет благословлений, его существование столь же омерзительно как и существование рунных волков."
-	icon_state = "powderflask_holyfyre"
+	icon_state = "powderflask_psy"
 	gunpowder = "psypowder"
 	charges = 30
 
