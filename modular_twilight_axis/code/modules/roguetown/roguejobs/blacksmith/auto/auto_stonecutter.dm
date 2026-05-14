@@ -10,10 +10,7 @@
 	var/max_idle_ticks = 5
 	
 /obj/machinery/auto_stonecutter/update_icon()
-	if(active)
-		icon_state = "autochisel"
-	else
-		icon_state = "autochisel"
+	icon_state = active ? "autochisel" : "autochiseloff"
 
 /obj/machinery/auto_stonecutter/attack_hand(mob/user)
 	active = !active
@@ -24,6 +21,10 @@
 		to_chat(user, span_notice("The [src] falls silent."))
 		STOP_PROCESSING(SSmachines, src)
 	update_icon()
+
+/obj/machinery/auto_stonecutter/Destroy()
+	STOP_PROCESSING(SSmachines, src)
+	return ..()
 
 /obj/machinery/auto_stonecutter/process()
 	if(!active)
@@ -56,7 +57,7 @@
 /obj/machinery/auto_stonecutter/examine(mob/user)
 	. = ..()
 	. += span_info("Status: [active ? "Running" : "Idle"].")
-	. += span_info("It will process any raw stones lying on its floor.")
+	. += span_info("It will process any raw stones lying nearly on its floor.")
 
 /datum/crafting_recipe/roguetown/engineering/auto_stonecutter
 	name = "Камнерезка"

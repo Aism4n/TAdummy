@@ -25,6 +25,11 @@
 		STOP_PROCESSING(SSmachines, src)
 	update_icon()
 
+
+/obj/machinery/auto_sawmill/Destroy()
+	STOP_PROCESSING(SSmachines, src)
+	return ..()
+
 /obj/machinery/auto_sawmill/process()
 	if(!active)
 		return
@@ -60,7 +65,7 @@
 /obj/machinery/auto_sawmill/examine(mob/user)
 	. = ..()
 	. += span_info("It is currently [active ? "active" : "inactive"].")
-	. += span_info("Place small logs on the same tile and turn it on to produce planks.")
+	. += span_info("Place small logs on the tile nearly and turn it on to produce planks.")
 
 /datum/crafting_recipe/roguetown/engineering/auto_sawmill
 	name = "Лесопилка"
