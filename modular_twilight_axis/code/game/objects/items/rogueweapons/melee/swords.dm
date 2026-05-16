@@ -111,15 +111,3 @@
 
 /datum/intent/sword/chop/cleave
 	icon_state = "incleave"
-
-/obj/item/rogueweapon/shield/iron/bone
-	icon = 'modular_twilight_axis/icons/roguetown/weapons/shields.dmi'
-
-/obj/item/rogueweapon/shield/bronze
-	icon = 'modular_twilight_axis/icons/roguetown/weapons/shields.dmi'
-
-/obj/item/rogueweapon/shield/tower/metal/gold
-	icon = 'modular_twilight_axis/icons/roguetown/weapons/shields.dmi'
-
-/obj/item/rogueweapon/shield/bronze/great
-	icon = 'modular_twilight_axis/icons/roguetown/weapons/shields.dmi'
