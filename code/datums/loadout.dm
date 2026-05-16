@@ -810,9 +810,15 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	donatitem = TRUE
 
 /datum/loadout_item/fancymaiddress
-	name = "maid dress"
+	name = "Valorian Maid Dress"
 	category = list("Одежда", "Донат")
 	path = /obj/item/clothing/suit/roguetown/shirt/dress/maidfancy
+	donatitem = TRUE
+
+/datum/loadout_item/maiddress
+	name = "Maid Dress"
+	category = list("Одежда", "Донат")
+	path = /obj/item/clothing/suit/roguetown/shirt/dress/maid
 	donatitem = TRUE
 
 //PANTS
@@ -1608,6 +1614,34 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 /datum/loadout_item/donator_eiren5
 	name = "Donator Kit - Glintstone Longsword - Required: Longsword"
 	path = /obj/item/enchantingkit/weapon/eiren_m
+	category = list("Оружие", "Донат")
+	donatitem = TRUE
+	donat_tier = 2
+
+/datum/loadout_item/donator/koruu_silver_kukri
+	name = "Donator Kit - Psydonic Leachwhacker - Required: Psydonic Dagger"
+	path = /obj/item/enchantingkit/weapon/koruu_kukri_silver
+	category = list("Оружие", "Донат")
+	donatitem = TRUE
+	donat_tier = 2
+
+/datum/loadout_item/donator/koruu_longsword
+	name = "Donator Kit - Excaliber - Required: Longsword"
+	path = /obj/item/enchantingkit/weapon/koruu_longsword
+	category = list("Оружие", "Донат")
+	donatitem = TRUE
+	donat_tier = 2
+
+/datum/loadout_item/donator/koruu_etrusc
+	name = "Donator Kit - Colada - Required: Longsword Or Judgement"
+	path = /obj/item/enchantingkit/weapon/koruu_etrusc
+	category = list("Оружие", "Донат")
+	donatitem = TRUE
+	donat_tier = 2
+
+/datum/loadout_item/donator/koruu_judgement
+	name = "Donator Kit - A Durthurian Tale - Required: Longsword"
+	path = /obj/item/enchantingkit/weapon/koruu_judgement
 	category = list("Оружие", "Донат")
 	donatitem = TRUE
 	donat_tier = 2
@@ -2703,6 +2737,18 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	category = list("Головные уборы", "Донат")
 	donatitem = TRUE
 	donat_tier = 2	
+
+/datum/loadout_item/maidband
+	name = "Maid Headdress"
+	path = /obj/item/clothing/head/roguetown/maidhead
+	category = list("Головные уборы", "Донат")
+	donatitem = TRUE
+
+/datum/loadout_item/maidbandfancy
+	name = "Valorian Maid Headband"
+	path = /obj/item/clothing/head/roguetown/maidband
+	category = list("Головные уборы", "Донат")
+	donatitem = TRUE
 
 // Обувь
 
