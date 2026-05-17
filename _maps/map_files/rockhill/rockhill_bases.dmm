@@ -562,8 +562,7 @@
 /turf/open/floor/rogue/naturalstone,
 /area/rogue/outdoors/bograt/safe)
 "cK" = (
-/obj/item/storage/belt/rogue/surgery_bag/full,
-/obj/structure/table/wood/poor,
+/obj/structure/table/optable,
 /turf/open/floor/rogue/tile/bfloorz,
 /area/rogue/indoors/wretchcamp)
 "cL" = (
@@ -726,17 +725,11 @@
 /turf/closed/wall/mineral/rogue/craftstone,
 /area/rogue/indoors)
 "dH" = (
-/obj/effect/decal/cobbleedge{
-	dir = 9;
-	pixel_x = 1;
-	pixel_y = -1
+/obj/structure/fluff/railing/border{
+	dir = 1
 	},
-/obj/item/reagent_containers/food/snacks/rogue/meat/shellfish{
-	pixel_y = 22;
-	pixel_x = 14
-	},
-/turf/open/floor/rogue/cobble/mossy,
-/area/rogue/indoors/wretchcamp)
+/turf/open/floor/rogue/ruinedwood/spiral,
+/area/rogue/under/cave/inhumen)
 "dI" = (
 /turf/open/floor/rogue/cobble/mossy,
 /area/rogue/outdoors/bograt/safe)
@@ -2295,10 +2288,9 @@
 /turf/closed/wall/mineral/rogue/wooddark,
 /area/rogue/outdoors/banditcamp)
 "kY" = (
-/obj/machinery/light/rogue/candle/blue,
-/obj/structure/flora/tinymushrooms,
-/turf/open/floor/rogue/grasspurple,
-/area/rogue/outdoors/bograt/safe)
+/obj/structure/fluff/railing/border,
+/turf/open/floor/rogue/ruinedwood/spiral,
+/area/rogue/under/cave/inhumen)
 "la" = (
 /obj/structure/closet/crate/drawer,
 /obj/machinery/light/rogue/candle/r,
@@ -4684,7 +4676,9 @@
 /turf/open/floor/rogue/metal/barograte,
 /area/rogue/outdoors/bograt/safe)
 "xO" = (
-/obj/structure/vine,
+/obj/structure/stairs/stone{
+	dir = 1
+	},
 /turf/open/floor/rogue/grasspurple,
 /area/rogue/outdoors/bograt/safe)
 "xQ" = (
@@ -4895,11 +4889,9 @@
 /turf/open/floor/rogue/herringbone,
 /area/rogue/indoors/vampire_manor)
 "yE" = (
-/obj/structure/table/optable,
-/obj/structure/fluff/walldeco/chains{
-	icon_state = "chains4"
-	},
 /obj/machinery/light/rogue/candle/l,
+/obj/structure/table/wood/poor,
+/obj/item/storage/belt/rogue/surgery_bag/full,
 /turf/open/floor/rogue/tile/bfloorz,
 /area/rogue/indoors/wretchcamp)
 "yF" = (
@@ -5003,7 +4995,9 @@
 	pixel_x = 9;
 	pixel_y = 43
 	},
-/obj/structure/table/vtable,
+/obj/machinery/alch_workbench{
+	pixel_y = -8
+	},
 /turf/open/floor/rogue/churchrough,
 /area/rogue/indoors/wretchcamp)
 "zh" = (
@@ -5271,6 +5265,7 @@
 /obj/structure/fluff/walldeco/med3{
 	pixel_y = 32
 	},
+/obj/structure/table/optable,
 /turf/open/floor/rogue/tile/bfloorz,
 /area/rogue/indoors/wretchcamp)
 "Ab" = (
@@ -5310,6 +5305,12 @@
 	icon_state = "bluestone"
 	},
 /area/rogue/indoors/wretchcamp)
+"Al" = (
+/obj/structure/fluff/railing/border{
+	dir = 6
+	},
+/turf/open/floor/rogue/ruinedwood/spiral,
+/area/rogue/under/cave/inhumen)
 "Am" = (
 /obj/machinery/light/rogue/torchholder{
 	dir = 4
@@ -5456,7 +5457,7 @@
 /turf/open/floor/rogue/blocks,
 /area/rogue/under/cave/inhumen)
 "Bg" = (
-/obj/structure/leyline/tamed,
+/obj/structure/leyline/normal/grove,
 /turf/open/floor/rogue/greenstone/runed,
 /area/rogue/under/town/basement)
 "Bh" = (
@@ -5620,6 +5621,12 @@
 	},
 /turf/open/floor/rogue/tile/bfloorz,
 /area/rogue/indoors/vampire_manor)
+"Ca" = (
+/obj/structure/fluff/walldeco/chains{
+	icon_state = "chains5"
+	},
+/turf/open/floor/rogue/tile/bfloorz,
+/area/rogue/indoors/wretchcamp)
 "Cb" = (
 /obj/structure/fluff/railing/border,
 /turf/open/transparent/openspace,
@@ -5911,6 +5918,9 @@
 /area/rogue/indoors/wretchcamp)
 "Dz" = (
 /obj/structure/ladder,
+/obj/structure/fluff/railing/border{
+	dir = 9
+	},
 /turf/open/floor/rogue/ruinedwood/spiral,
 /area/rogue/under/cave/inhumen)
 "DA" = (
@@ -6462,30 +6472,8 @@
 /turf/open/floor/rogue/cobble,
 /area/rogue/outdoors/bograt/safe)
 "FT" = (
-/obj/structure/rack/rogue/shelf,
-/obj/item/reagent_containers/glass/bottle/alchemical{
-	pixel_x = -7;
-	pixel_y = 43
-	},
-/obj/item/reagent_containers/glass/bottle/alchemical{
-	pixel_x = -3;
-	pixel_y = 43
-	},
-/obj/item/reagent_containers/glass/bottle/alchemical{
-	pixel_x = 1;
-	pixel_y = 43
-	},
-/obj/item/reagent_containers/glass/bottle/alchemical{
-	pixel_x = 5;
-	pixel_y = 43
-	},
-/obj/item/reagent_containers/glass/bottle/alchemical{
-	pixel_x = 9;
-	pixel_y = 43
-	},
-/obj/structure/table/vtable/v2,
-/obj/item/recipe_book/alchemy,
-/turf/open/floor/rogue/churchrough,
+/obj/structure/gate/bars,
+/turf/open/transparent/openspace,
 /area/rogue/indoors/wretchcamp)
 "FW" = (
 /obj/structure/stairs/stone{
@@ -7246,6 +7234,9 @@
 /turf/open/floor/carpet/red,
 /area/rogue/indoors/vampire_manor)
 "JD" = (
+/obj/structure/fluff/railing/border{
+	dir = 4
+	},
 /turf/open/floor/rogue/ruinedwood/spiral,
 /area/rogue/under/cave/inhumen)
 "JE" = (
@@ -7428,6 +7419,7 @@
 /area/rogue/outdoors/bograt/safe)
 "Kt" = (
 /obj/machinery/light/rogue/candle,
+/obj/structure/fluff/railing/border,
 /turf/open/floor/rogue/ruinedwood/spiral,
 /area/rogue/under/cave/inhumen)
 "Kv" = (
@@ -7634,6 +7626,27 @@
 /obj/item/alch/waterdust,
 /obj/item/alch/waterdust,
 /obj/structure/closet/crate/chest/wicker,
+/obj/structure/rack/rogue/shelf,
+/obj/item/reagent_containers/glass/bottle/alchemical{
+	pixel_x = 5;
+	pixel_y = 43
+	},
+/obj/item/reagent_containers/glass/bottle/alchemical{
+	pixel_x = 9;
+	pixel_y = 43
+	},
+/obj/item/reagent_containers/glass/bottle/alchemical{
+	pixel_x = 1;
+	pixel_y = 43
+	},
+/obj/item/reagent_containers/glass/bottle/alchemical{
+	pixel_x = -3;
+	pixel_y = 43
+	},
+/obj/item/reagent_containers/glass/bottle/alchemical{
+	pixel_x = -7;
+	pixel_y = 43
+	},
 /turf/open/floor/rogue/churchrough,
 /area/rogue/indoors/wretchcamp)
 "Lp" = (
@@ -8408,6 +8421,12 @@
 "OJ" = (
 /turf/open/floor/rogue/hexstone,
 /area/rogue/indoors/wretchcamp)
+"OK" = (
+/obj/structure/fluff/railing/border{
+	dir = 5
+	},
+/turf/open/floor/rogue/ruinedwood/spiral,
+/area/rogue/under/cave/inhumen)
 "OL" = (
 /turf/open/floor/rogue/blocks,
 /area/rogue/under/cave/inhumen)
@@ -8928,9 +8947,11 @@
 /turf/open/floor/rogue/cobblerock,
 /area/rogue/outdoors/bograt/safe)
 "QX" = (
-/obj/item/rogueweapon/mace/church,
+/obj/structure/fluff/railing/border{
+	dir = 8
+	},
 /turf/open/floor/rogue/ruinedwood/spiral,
-/area/rogue/outdoors/bograt/above)
+/area/rogue/under/cave/inhumen)
 "QY" = (
 /obj/structure/chair/wood/rogue/fancy{
 	dir = 8
@@ -10570,6 +10591,12 @@
 "Yw" = (
 /turf/closed/mineral/rogue/elementalmote,
 /area/rogue/under/cavewet/bogcaves)
+"Yx" = (
+/obj/structure/fluff/railing/border{
+	dir = 10
+	},
+/turf/open/floor/rogue/ruinedwood/spiral,
+/area/rogue/under/cave/inhumen)
 "Yz" = (
 /turf/closed/wall/mineral/rogue/stone,
 /area/rogue/outdoors/banditcamp)
@@ -20153,13 +20180,13 @@ Iu
 WO
 AW
 AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
 AW
 AW
 TK
@@ -20305,14 +20332,14 @@ Iu
 YT
 AW
 AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
 AW
 AW
 AW
@@ -20457,15 +20484,15 @@ Iu
 Iu
 TK
 AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
 AW
 AW
 AW
@@ -20609,16 +20636,16 @@ Wz
 TK
 TK
 AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
 AW
 AW
 Sr
@@ -20761,16 +20788,16 @@ nS
 xA
 AW
 AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
 AW
 AW
 Sr
@@ -20913,16 +20940,16 @@ nS
 QS
 AW
 AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
 AW
 TK
 Sr
@@ -21065,16 +21092,16 @@ nS
 xA
 AW
 AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
 AW
 AW
 Sr
@@ -21217,16 +21244,16 @@ Wz
 TK
 TK
 AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
 AW
 AW
 Sr
@@ -21369,16 +21396,16 @@ Iu
 Iu
 TK
 AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
 AW
 AW
 Sr
@@ -21521,16 +21548,16 @@ Sr
 Iu
 AW
 AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
 AW
 AW
 Sr
@@ -21675,13 +21702,13 @@ TK
 AW
 AW
 AW
-AW
-AW
-AW
-AW
-AW
-AW
-AW
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
+Ov
 AW
 AW
 AW
@@ -21829,10 +21856,10 @@ TK
 AW
 AW
 AW
-AW
-AW
-AW
-AW
+Ov
+Ov
+Ov
+Ov
 AW
 AW
 AW
@@ -21982,8 +22009,8 @@ Sr
 TK
 AW
 AW
-AW
-AW
+Ov
+Ov
 AW
 AW
 AW
@@ -23021,7 +23048,7 @@ ra
 wY
 tj
 zt
-fC
+ra
 QE
 QE
 QE
@@ -23173,7 +23200,7 @@ wY
 Ii
 wY
 ra
-ZK
+fC
 Us
 QE
 WA
@@ -23325,7 +23352,7 @@ tj
 wY
 ra
 CA
-Qf
+ZK
 VE
 QE
 WA
@@ -23477,7 +23504,7 @@ ra
 ra
 ra
 JV
-dH
+Qf
 VE
 WA
 WA
@@ -41133,6 +41160,7 @@ QU
 QU
 QU
 oz
+Al
 JD
 JD
 JD
@@ -41141,8 +41169,7 @@ JD
 JD
 JD
 JD
-JD
-JD
+OK
 Zr
 Zm
 iy
@@ -41285,7 +41312,7 @@ QU
 zB
 Vc
 Ll
-JD
+kY
 Oz
 Oz
 Oz
@@ -41294,7 +41321,7 @@ Oz
 Oz
 Oz
 Oz
-JD
+dH
 Zr
 Zm
 iy
@@ -41437,7 +41464,7 @@ QU
 Cb
 VY
 ZJ
-JD
+kY
 Oz
 Oz
 Oz
@@ -41446,7 +41473,7 @@ Oz
 Oz
 Oz
 Oz
-JD
+dH
 Zr
 Zm
 iy
@@ -41598,7 +41625,7 @@ Oz
 Oz
 Oz
 Oz
-JD
+dH
 Zr
 Zm
 iy
@@ -41739,9 +41766,9 @@ QU
 QU
 QU
 Cb
-QX
+VY
 ZJ
-JD
+kY
 Oz
 Oz
 Oz
@@ -41750,7 +41777,7 @@ Oz
 Oz
 Oz
 Oz
-JD
+dH
 Ll
 Zm
 iy
@@ -41893,7 +41920,7 @@ QU
 lS
 mG
 Zr
-JD
+kY
 Oz
 Oz
 Oz
@@ -41902,7 +41929,7 @@ Oz
 Oz
 Oz
 Oz
-JD
+dH
 Ll
 Zm
 iy
@@ -42045,15 +42072,15 @@ QU
 QU
 QU
 oz
-JD
-JD
-JD
-JD
-JD
-JD
-JD
-JD
-JD
+Yx
+QX
+QX
+QX
+QX
+QX
+QX
+QX
+QX
 Dz
 Zr
 Zm
@@ -42957,7 +42984,7 @@ Pz
 Pz
 VG
 QH
-Pz
+VG
 Sm
 IE
 Pz
@@ -43410,11 +43437,11 @@ QU
 TK
 TK
 Pz
-xO
+VG
 Pz
 VG
 im
-Ef
+Pz
 VG
 lB
 cI
@@ -43562,10 +43589,10 @@ QU
 QU
 xA
 Ov
-VG
-Pz
-kY
-VG
+Ov
+Ov
+xO
+kH
 Pz
 FJ
 lB
@@ -43714,10 +43741,10 @@ QU
 QU
 TK
 aW
-VG
-Pz
-Pz
-VG
+Ov
+Ov
+xO
+kH
 KP
 Bl
 lB
@@ -43867,9 +43894,9 @@ QU
 xA
 Ov
 Ov
-Ef
+Ov
 xO
-VG
+kH
 Pz
 me
 lB
@@ -44018,7 +44045,7 @@ QU
 TK
 TK
 Pz
-xO
+VG
 Pz
 Pz
 Pz
@@ -44631,7 +44658,7 @@ uT
 uT
 Pz
 VG
-VG
+Ef
 VG
 VG
 VG
@@ -62972,8 +62999,8 @@ IG
 ou
 Tp
 yE
-cK
-cK
+Eq
+Eq
 yE
 Tp
 DZ
@@ -63118,7 +63145,7 @@ VL
 VL
 VL
 Tp
-FT
+IG
 IG
 IG
 Sc
@@ -63126,7 +63153,7 @@ Tp
 Aa
 Eq
 Eq
-Eq
+cK
 Tp
 Lg
 yl
@@ -63275,10 +63302,10 @@ IG
 IG
 xa
 Tp
-Eq
+Ca
 pY
 Eq
-Eq
+Ca
 Tp
 Ch
 rP
@@ -64662,7 +64689,7 @@ QU
 QU
 QU
 Tp
-VL
+FT
 Tp
 QU
 QU
