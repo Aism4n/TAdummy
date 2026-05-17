@@ -212,7 +212,6 @@ drinksomeblood()
 
 		if(VVictim.generation > VDrinker.generation)
 			VDrinker.generation = VVictim.generation
-			VDrinker.recalculate_hud_visibility()
 
 			var/victim_blood_skill = victim.get_skill_level(/datum/skill/magic/blood)
 			var/drinker_blood_skill = get_skill_level(/datum/skill/magic/blood)
