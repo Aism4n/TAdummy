@@ -22,10 +22,6 @@
 /datum/manor/proc/get_owner_display_name(mob/living/carbon/human/owner)
 	if(owner?.client?.prefs?.manor_name && length(owner.client.prefs.manor_name))
 		return owner.client.prefs.manor_name
-	if(owner?.real_name && length(owner.real_name))
-		return owner.real_name
-	if(owner?.name && length(owner.name))
-		return owner.name
 	return "Неизвестное имение"
 
 /datum/manor/proc/get_owner_manor_type(mob/living/carbon/human/owner)
@@ -134,7 +130,7 @@
 		if(is_dusk && patron == /datum/patron/divine/noc)
 			continue
 
-		var/list/available_produce = copylist(workstation.produce)
+		var/list/available_produce = workstation.produce
 		var/selected_count = min(length(available_produce), rand(2, 6))
 		var/list/selected_produce = list()
 		while(length(selected_produce) < selected_count)
@@ -175,24 +171,23 @@
 	if(!total_units && !total_profit_money)
 		return null
 
-	if(!SStreasury.has_account(owner))
-		SStreasury.create_bank_account(owner, 0)
-
 	var/coin_income = 0
-	if(total_units)
-		coin_income = ceil(total_units / 10)
-		SStreasury.generate_money_account(coin_income, owner)
-	if(total_profit_money)
-		SStreasury.generate_money_account(total_profit_money, owner)
-		coin_income += total_profit_money
+	if(SStreasury.has_account(owner))
+		if(total_units)
+			coin_income = ceil(total_units / 10)
+			SStreasury.generate_money_account(coin_income, owner)
+		if(total_profit_money)
+			SStreasury.generate_money_account(total_profit_money, owner)
+			coin_income += total_profit_money
 
-	var/list/product_messages = list()
+	var/message = "Доход вашего поместья за этот дае: "
 	for(var/good in produced_summary)
-		product_messages += "[produced_summary[good]]x [get_readable_good_name(good)]"
+		message += "[produced_summary[good]]x [get_readable_good_name(good)]; "
 
-	var/message = "В вашем поместье [manor_name] произведено: [list2text(product_messages, ", ")]"
 	if(coin_income)
-		message += ". Вы получили [coin_income] маммонов."
+		message += "[coin_income] маммон чистой прибыли."
+	else
+		message += "прибыль от поместья отсутствует."
 	if(owner.client)
 		to_chat(owner, span_info(message))
 
