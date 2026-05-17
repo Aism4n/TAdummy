@@ -1,8 +1,12 @@
 #define PALLID_BLOOD_INTERVAL (45 MINUTES)
+#define PALLID_WITHDRAWAL_WARNING_TIME (10 MINUTES)
 #define PALLID_WITHDRAWAL_REPEAT_INTERVAL (25 MINUTES)
 #define PALLID_WITHDRAWAL_TOX_DAMAGE 40
 #define PALLID_WITHDRAWAL_ROT_LIMBS 3
 #define PALLID_WITHDRAWAL_WEAKNESS_CHANCE 40
+#define PALLID_THRALL_BLOOD_HIGH_DURATION (5 MINUTES)
+#define PALLID_THRALL_BLOOD_HIGH_DRUGGINESS 30
+#define PALLID_THRALL_BLOOD_HIGH_INT_LOSS 2
 
 /// STATUS EFFECTS
 
@@ -95,6 +99,45 @@
 	desc = "Проклятие разъедает моё тело. Мне нужна кровь вампира, пока не стало слишком поздно."
 	icon_state = "hunger1"
 
+/datum/status_effect/debuff/pallid_blood_high
+	id = "pallid_blood_high"
+	duration = PALLID_THRALL_BLOOD_HIGH_DURATION
+	status_type = STATUS_EFFECT_REFRESH
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/pallid_blood_high
+	effectedstats = list(STATKEY_INT = -PALLID_THRALL_BLOOD_HIGH_INT_LOSS)
+	tick_interval = 10 SECONDS
+
+/datum/status_effect/debuff/pallid_blood_high/on_apply()
+	. = ..()
+	if(.)
+		ensure_pallid_high()
+
+/datum/status_effect/debuff/pallid_blood_high/refresh()
+	. = ..()
+	if(owner)
+		ensure_pallid_high()
+
+/datum/status_effect/debuff/pallid_blood_high/tick()
+	ensure_pallid_high()
+	if(prob(10))
+		to_chat(owner, span_notice(pick(
+			"Чужая кровь шумит в голове сладким дурманом.",
+			"Мысли плывут, но тело просит ещё крови.",
+			"Проклятие превращает кровь в липкое блаженство."
+		)))
+
+/datum/status_effect/debuff/pallid_blood_high/proc/ensure_pallid_high()
+	var/mob/living/carbon/C = owner
+	if(!istype(C))
+		return
+	if(C.druggy < PALLID_THRALL_BLOOD_HIGH_DRUGGINESS)
+		C.set_drugginess(PALLID_THRALL_BLOOD_HIGH_DRUGGINESS)
+
+/atom/movable/screen/alert/status_effect/debuff/pallid_blood_high
+	name = "Blood Haze"
+	desc = "Чужая кровь стала дурманом. Мне легче, но мысли мутнеют."
+	icon_state = "hunger2"
+
 /// COMPONENT
 
 /datum/component/pallid_addiction
@@ -106,6 +149,7 @@
 	var/extra_stat_amount = 0
 	var/list/buff_stats
 	var/withdrawal_active = FALSE
+	var/withdrawal_warning_sent = FALSE
 	var/next_withdrawal_effect_time = 0
 
 /datum/component/pallid_addiction/Initialize(mob/living/carbon/human/linked_sire, enhanced_pallid = FALSE)
@@ -178,6 +222,7 @@
 		return
 	owner.remove_status_effect(/datum/status_effect/debuff/pallid_withdrawal)
 	withdrawal_active = FALSE
+	withdrawal_warning_sent = FALSE
 	next_withdrawal_effect_time = 0
 
 /datum/component/pallid_addiction/proc/apply_withdrawal_effects(mob/living/carbon/human/owner)
@@ -199,11 +244,25 @@
 	if(!istype(owner))
 		return
 
+	withdrawal_warning_sent = FALSE
+	to_chat(owner, span_notice("Кровь моего сира на вкус как мёд. Проклятие довольно затихает."))
+
 	if(withdrawal_active)
 		clear_pallid_withdrawal(owner)
 
 	if(!owner.has_status_effect(buff_path))
 		apply_pallid_buff(owner)
+
+/datum/component/pallid_addiction/proc/handle_blood_drink_reaction(mob/living/carbon/human/drinker, mob/living/carbon/victim)
+	if(!istype(drinker))
+		return FALSE
+
+	if(victim == sire)
+		return TRUE
+
+	drinker.apply_status_effect(/datum/status_effect/debuff/pallid_blood_high)
+	to_chat(drinker, span_notice("Меня не тошнит от чужой крови. Проклятие превращает её в сладкий дурман, и мысли становятся вязкими."))
+	return TRUE
 
 /datum/component/pallid_addiction/proc/on_death()
 	SIGNAL_HANDLER
@@ -240,6 +299,10 @@
 
 	var/time_since_fed = world.time - last_fed_time
 
+	if(!withdrawal_active && !withdrawal_warning_sent && time_since_fed >= PALLID_BLOOD_INTERVAL - PALLID_WITHDRAWAL_WARNING_TIME)
+		withdrawal_warning_sent = TRUE
+		to_chat(owner, span_userdanger("Мне срочно нужно выпить крови, иначе проклятье уничтожит мое тело."))
+
 	if(time_since_fed < PALLID_BLOOD_INTERVAL)
 		return
 
@@ -254,7 +317,11 @@
 		next_withdrawal_effect_time = world.time + PALLID_WITHDRAWAL_REPEAT_INTERVAL
 
 #undef PALLID_BLOOD_INTERVAL
+#undef PALLID_WITHDRAWAL_WARNING_TIME
 #undef PALLID_WITHDRAWAL_REPEAT_INTERVAL
 #undef PALLID_WITHDRAWAL_TOX_DAMAGE
 #undef PALLID_WITHDRAWAL_ROT_LIMBS
 #undef PALLID_WITHDRAWAL_WEAKNESS_CHANCE
+#undef PALLID_THRALL_BLOOD_HIGH_DURATION
+#undef PALLID_THRALL_BLOOD_HIGH_DRUGGINESS
+#undef PALLID_THRALL_BLOOD_HIGH_INT_LOSS

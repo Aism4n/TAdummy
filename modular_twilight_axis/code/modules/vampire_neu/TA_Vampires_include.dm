@@ -22,7 +22,6 @@
 #include "./overrides/pallid_spells.dm"
 #include "./overrides/quicksilver.dm"
 #include "./overrides/transfix.dm"
-#include "./i18n/russian_language.dm"
 #include "./overrides/vampire.dm"
 
 // Local defines

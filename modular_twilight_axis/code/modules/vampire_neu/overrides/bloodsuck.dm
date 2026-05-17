@@ -152,6 +152,12 @@ drinksomeblood()
 		return TRUE
 	return FALSE
 
+/mob/living/carbon/human/proc/handle_pallid_blood_drink_reaction(mob/living/carbon/victim)
+	var/datum/component/pallid_addiction/addiction = GetComponent(/datum/component/pallid_addiction)
+	if(!addiction)
+		return FALSE
+	return addiction.handle_blood_drink_reaction(src, victim)
+
 /// BLOOD MECHANICS
 /mob/living/carbon/human/proc/build_blood_handle(mob/living/carbon/victim, datum/antagonist/vampire/VVictim)
 	var/blood_handle
@@ -771,6 +777,8 @@ drinksomeblood()
 	var/datum/antagonist/vampire/VDrinker = get_vampire_drinker()
 
 	if(!VDrinker)
+		if(handle_pallid_blood_drink_reaction(victim))
+			return
 		if(should_puke_nonvamp())
 			force_puke()
 		return
