@@ -7,9 +7,9 @@
 #define TRANQUILITY_SHROUD_MODE_RESTLESS "restless"
 #define TRANQUILITY_SHROUD_MODE_DEADITE "deadite"
 #define TRANQUILITY_SHROUD_MODE_VAMPIRE "vampire"
-#define TRANQUILITY_SHROUD_CHOICE_RESTLESS "Тихая завеса"
-#define TRANQUILITY_SHROUD_CHOICE_DEADITE "Лик дедайта"
-#define TRANQUILITY_SHROUD_CHOICE_VAMPIRE "Лик вампира"
+#define TRANQUILITY_SHROUD_CHOICE_RESTLESS "Restless Veil"
+#define TRANQUILITY_SHROUD_CHOICE_DEADITE "Zombie Form"
+#define TRANQUILITY_SHROUD_CHOICE_VAMPIRE "Vampire Guise"
 #define TRANQUILITY_SHROUD_DEADITE_SKIN "78a060"
 #define TRANQUILITY_SHROUD_VAMPIRE_SKIN "c9d3de"
 #define TRANQUILITY_SHROUD_SUN_BURN_DAMAGE 3
@@ -38,7 +38,7 @@
 	return /datum/stressevent/tranquility_shroud/restless
 
 /datum/action/cooldown/spell/touch/shroud_of_tranquility
-	name = "Саван Умиротворения"
+	name = "Shroud of Tranquility"
 	desc = "Draw a graveward hush over a living soul, hiding them from the dead until time, violence, or contact with undeath tears the shroud away."
 
 	background_icon = 'icons/mob/actions/genericmiracles.dmi'
@@ -93,17 +93,17 @@
 /datum/action/cooldown/spell/touch/shroud_of_tranquility/proc/choose_tranquility_shroud_mode(mob/living/carbon/caster, mob/living/living_target, applied_shroud_tier)
 	var/list/options = list(TRANQUILITY_SHROUD_CHOICE_RESTLESS)
 	var/list/descriptions = list(
-		TRANQUILITY_SHROUD_CHOICE_RESTLESS = "T0: скрыть цель от скелетов и неразумной нежити. С T1 добавляет одноразовую защиту от удара нежити.",
+		TRANQUILITY_SHROUD_CHOICE_RESTLESS = "T0: Hide the target from skeletons and mindless undead. At T1, adds a one-time ward against an undead attack.",
 	)
 
 	if(applied_shroud_tier >= CLERIC_T2)
 		options += TRANQUILITY_SHROUD_CHOICE_DEADITE
-		descriptions[TRANQUILITY_SHROUD_CHOICE_DEADITE] = "T2: замаскировать цель под дедайта, запретить бег, скрыть сердцебиение и защитить от заразы дедайтов."
+		descriptions[TRANQUILITY_SHROUD_CHOICE_DEADITE] = "T2: Mask the target as a zombie, prevent running, hide their heartbeat, and protect them from zombie infection."
 	if(applied_shroud_tier >= CLERIC_T3)
 		options += TRANQUILITY_SHROUD_CHOICE_VAMPIRE
-		descriptions[TRANQUILITY_SHROUD_CHOICE_VAMPIRE] = "T3: замаскировать цель под недавно обращённого вампира, включая клыки и солнечную уязвимость."
+		descriptions[TRANQUILITY_SHROUD_CHOICE_VAMPIRE] = "T3: Mask the target as a newly turned vampire, including fangs and sunlight vulnerability."
 
-	var/choice = tgui_input_list(caster, "Каким саваном укрыть [living_target]?", "Саван Умиротворения", options, options[1], descriptions = descriptions)
+	var/choice = tgui_input_list(caster, "Which shroud should cover [living_target]?", "Shroud of Tranquility", options, options[1], descriptions = descriptions)
 	switch(choice)
 		if(TRANQUILITY_SHROUD_CHOICE_RESTLESS)
 			return TRANQUILITY_SHROUD_MODE_RESTLESS
@@ -311,7 +311,7 @@
 		owner.remove_stress(stress_event_type)
 
 /atom/movable/screen/alert/status_effect/buff/tranquility_shroud
-	name = "Саван Умиротворения"
+	name = "Shroud of Tranquility"
 	desc = "A solemn stillness lingers over me. The dead may briefly forget my name."
 	icon_state = "necravow"
 
@@ -332,6 +332,7 @@
 	RegisterSignal(owner, COMSIG_ATOM_BULLET_ACT, PROC_REF(on_owner_bullet_act))
 	RegisterSignal(owner, COMSIG_ATOM_HITBY, PROC_REF(on_owner_hitby))
 	RegisterSignal(owner, COMSIG_HUMAN_LIFE, PROC_REF(on_owner_life))
+	RegisterSignal(owner, COMSIG_PARENT_EXAMINE, PROC_REF(on_owner_examine))
 	RegisterSignal(owner, COMSIG_MOB_BEFORE_SPELL_CAST, PROC_REF(on_owner_cast_spell))
 	RegisterSignal(owner, "mob_ai_target_check", PROC_REF(on_owner_ai_target_check))
 	owner.tranquility_shroud_hide_from_nearby_undead()
@@ -348,6 +349,7 @@
 		COMSIG_ATOM_BULLET_ACT,
 		COMSIG_ATOM_HITBY,
 		COMSIG_HUMAN_LIFE,
+		COMSIG_PARENT_EXAMINE,
 		COMSIG_MOB_BEFORE_SPELL_CAST,
 		"mob_ai_target_check",
 	))
@@ -443,6 +445,17 @@
 		return
 	shroud.process_sun_burn()
 
+/datum/element/tranquility_shroud/proc/on_owner_examine(mob/living/source, mob/user, list/examine_list)
+	SIGNAL_HANDLER
+	if(!ishuman(source))
+		return
+	var/mob/living/carbon/human/H = source
+	if(!H.tranquility_shroud_has_vampire_mask())
+		return
+	if(H.is_face_concealed_for_shroud())
+		return
+	examine_list += span_redtext("[H.p_they(TRUE)] [H.p_have()] strange glowing eyes and fangs!")
+
 /mob/living/proc/has_tranquility_shroud()
 	return !!has_status_effect(/datum/status_effect/tranquility_shroud)
 
@@ -524,9 +537,9 @@
 		return null
 	var/mob/living/living_examiner = examiner
 	if(shroud.uses_vampire_mask() && living_examiner.mind?.has_antag_datum(/datum/antagonist/vampire))
-		return span_boldnotice("Низший вампир. Из мелкого ответвления, недавно обращённый.")
+		return span_boldnotice("A lesser vampire from a minor bloodline, newly turned.")
 	if(shroud.uses_deadite_mask() && living_examiner.tranquility_shroud_is_real_undead())
-		return span_boldnotice("Another deadite.")
+		return span_boldnotice("Another zombie.")
 	return null
 
 /mob/living/get_villain_text(mob/examiner)

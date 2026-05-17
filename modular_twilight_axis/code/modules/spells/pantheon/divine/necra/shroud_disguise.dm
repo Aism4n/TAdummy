@@ -125,7 +125,7 @@
 	if(uses_deadite_mask())
 		H.original_skin_tone = H.skin_tone
 		H.skin_tone = TRANQUILITY_SHROUD_DEADITE_SKIN
-		to_chat(H, span_notice("My skin takes on a greenish, deadite pallor."))
+		to_chat(H, span_notice("My skin takes on a greenish, zombie pallor."))
 		H.update_body()
 
 /datum/status_effect/tranquility_shroud/proc/restore_skin_appearance()
@@ -184,6 +184,3 @@
 	if(wear_neck && (wear_neck.flags_inv & HIDEFACE))
 		return TRUE
 	return FALSE
-
-/mob/living/carbon/human/proc/tranquility_shroud_should_show_vampire_fangs()
-	return tranquility_shroud_has_vampire_mask() && !is_face_concealed_for_shroud()
