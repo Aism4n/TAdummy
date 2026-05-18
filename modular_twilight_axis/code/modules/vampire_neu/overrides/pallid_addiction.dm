@@ -106,6 +106,11 @@
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/pallid_blood_high
 	effectedstats = list(STATKEY_INT = -PALLID_THRALL_BLOOD_HIGH_INT_LOSS)
 	tick_interval = 10 SECONDS
+	var/list/high_messages = list(
+		"Чужая кровь шумит в голове сладким дурманом.",
+		"Мысли плывут, но тело просит ещё крови.",
+		"Проклятие превращает кровь в липкое блаженство."
+	)
 
 /datum/status_effect/debuff/pallid_blood_high/on_apply()
 	. = ..()
@@ -120,17 +125,11 @@
 /datum/status_effect/debuff/pallid_blood_high/tick()
 	ensure_pallid_high()
 	if(prob(10))
-		to_chat(owner, span_notice(pick(
-			"Чужая кровь шумит в голове сладким дурманом.",
-			"Мысли плывут, но тело просит ещё крови.",
-			"Проклятие превращает кровь в липкое блаженство."
-		)))
+		to_chat(owner, span_notice(pick(high_messages)))
 
 /datum/status_effect/debuff/pallid_blood_high/proc/ensure_pallid_high()
-	if(!istype(owner, /mob/living/carbon))
-		return
-	var/mob/living/carbon/C = owner
-	C.set_drugginess(PALLID_THRALL_BLOOD_HIGH_DRUGGINESS)
+	if(owner)
+		owner.set_drugginess(PALLID_THRALL_BLOOD_HIGH_DRUGGINESS)
 
 /atom/movable/screen/alert/status_effect/debuff/pallid_blood_high
 	name = "Blood Haze"
