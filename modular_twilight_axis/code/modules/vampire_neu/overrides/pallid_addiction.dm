@@ -127,11 +127,10 @@
 		)))
 
 /datum/status_effect/debuff/pallid_blood_high/proc/ensure_pallid_high()
-	var/mob/living/carbon/C = owner
-	if(!istype(C))
+	if(!istype(owner, /mob/living/carbon))
 		return
-	if(C.druggy < PALLID_THRALL_BLOOD_HIGH_DRUGGINESS)
-		C.set_drugginess(PALLID_THRALL_BLOOD_HIGH_DRUGGINESS)
+	var/mob/living/carbon/C = owner
+	C.set_drugginess(PALLID_THRALL_BLOOD_HIGH_DRUGGINESS)
 
 /atom/movable/screen/alert/status_effect/debuff/pallid_blood_high
 	name = "Blood Haze"
