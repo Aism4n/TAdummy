@@ -96,7 +96,7 @@
 /obj/effect/proc_holder/spell/self/pallid_sense
 	name = "Проклятая Интуиция"
 	desc = "Скверна в крови шепчет направление к тому, кто вас отметил."
-	recharge_time = 5 MINUTES
+	recharge_time = 3 MINUTES
 	overlay_icon = 'icons/mob/actions/vampspells.dmi'
 	action_icon = 'icons/mob/actions/vampspells.dmi'
 	overlay_state = "yourbloodismine"
