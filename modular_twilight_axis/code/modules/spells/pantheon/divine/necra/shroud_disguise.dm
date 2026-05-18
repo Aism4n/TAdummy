@@ -119,13 +119,13 @@
 	if(uses_vampire_mask())
 		H.original_skin_tone = H.skin_tone
 		H.skin_tone = TRANQUILITY_SHROUD_VAMPIRE_SKIN
-		to_chat(H, span_notice("My skin grows pale and cold, like a newly turned vampire."))
+		to_chat(H, span_notice("Моя кожа бледнеет и холодеет, словно у новообращённого вампира."))
 		H.update_body()
 		return
 	if(uses_deadite_mask())
 		H.original_skin_tone = H.skin_tone
 		H.skin_tone = TRANQUILITY_SHROUD_DEADITE_SKIN
-		to_chat(H, span_notice("My skin takes on a greenish, zombie pallor."))
+		to_chat(H, span_notice("Моя кожа принимает зеленоватую, мертвенную бледность зомби."))
 		H.update_body()
 
 /datum/status_effect/tranquility_shroud/proc/restore_skin_appearance()
@@ -148,7 +148,7 @@
 		return
 	if(GLOB.tod != "day")
 		if(vampire_sunlit)
-			to_chat(owner, span_notice("The scorching gaze of the Sun-Tyrant burns me no more."))
+			to_chat(owner, span_notice("Жгучий взор Солнечного Владыки больше не терзает меня."))
 		vampire_sunlit = FALSE
 		return
 	if(!ishuman(owner))
@@ -161,16 +161,16 @@
 	var/turf/loc_turf = H.loc
 	if(!loc_turf.can_see_sky())
 		if(vampire_sunlit)
-			to_chat(H, span_notice("The scorching gaze of the Sun-Tyrant burns me no more."))
+			to_chat(H, span_notice("Жгучий взор Солнечного Владыки больше не терзает меня."))
 		vampire_sunlit = FALSE
 		return
 	if(HAS_TRAIT(H, TRAIT_WEATHER_PROTECTED))
 		if(!vampire_sunlit)
-			to_chat(H, span_danger("I am shielded from the Sun-Tyrant's scorn."))
+			to_chat(H, span_danger("Я укрыт от гнева Солнечного Владыки."))
 		vampire_sunlit = TRUE
 		return
 	if(!vampire_sunlit)
-		to_chat(H, span_danger("The sunlight burns my flesh!"))
+		to_chat(H, span_danger("Солнечный свет жжёт мою плоть!"))
 	vampire_sunlit = TRUE
 	H.fire_act(1, TRANQUILITY_SHROUD_SUN_BURN_DAMAGE)
 	if(H.on_fire)

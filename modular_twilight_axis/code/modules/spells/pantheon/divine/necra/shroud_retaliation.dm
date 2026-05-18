@@ -6,6 +6,8 @@
 		return
 	if(shroud_mode != TRANQUILITY_SHROUD_MODE_RESTLESS || shroud_tier < CLERIC_T1)
 		return
+	if(owner && !QDELETED(owner) && HAS_TRAIT(owner, TRAIT_GRAVEROBBER))
+		return
 	if(QDELETED(undead_source) || undead_source.stat == DEAD)
 		return
 	if(!isliving(undead_source))
@@ -18,5 +20,5 @@
 	undead_source.adjust_fire_stacks(TRANQUILITY_SHROUD_RETALIATION_FIRE_STACKS, /datum/status_effect/fire_handler/fire_stacks/divine)
 	undead_source.ignite_mob()
 	if(owner && !QDELETED(owner))
-		to_chat(owner, span_notice("Necra's ward flashes white, stunning and burning the undead assailant."))
-		owner.visible_message(span_warning("[owner]'s pale ward bursts into white flame around [undead_source]!"))
+		to_chat(owner, span_notice("Оберег Некры вспыхивает белым светом, оглушая и поджигая напавшую нежить."))
+		owner.visible_message(span_warning("Бледный оберег вокруг [owner] взрывается белым пламенем, охватывая [undead_source]!"))
