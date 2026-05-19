@@ -201,7 +201,7 @@
 		. += max(workstation.last_cycle_productivity, 0)
 		. += max(workstation.production_increase, 0)
 
-/datum/manor/proc/get_stockpile_entry_for_good(/datum/roguestock/stockpile/good_path)
+/datum/manor/proc/get_stockpile_entry_for_good(datum/roguestock/stockpile/good_path)
 	if(!good_path)
 		return null
 	var/trade_good_id = initial(good_path.trade_good_id)
@@ -209,7 +209,7 @@
 		return null
 	return SSeconomy.find_stockpile_by_trade_good(trade_good_id)
 
-/datum/manor/proc/get_readable_good_name(/datum/roguestock/stockpile/good_path, fallback = "Ресурс")
+/datum/manor/proc/get_readable_good_name(datum/roguestock/stockpile/good_path, fallback = "Ресурс")
 	if(!good_path)
 		return fallback
 	var/as_text = initial(good_path.name)
@@ -230,9 +230,9 @@
 	for(var/datum/workstation/workstation in workstations)
 		if(workstation.workers_employed <= 0 || !length(workstation.produce))
 			continue
-		if(is_dawn && !(patron == /datum/patron/divine/noc || patron == /datum/patron/inhumen/zizo))
+		if(is_dawn && !(istype(patron, /datum/patron/divine/noc) || istype(patron, /datum/patron/inhumen/zizo)))
 			continue
-		if(is_dusk && patron == /datum/patron/divine/noc)
+		if(is_dusk && istype(patron, /datum/patron/divine/noc))
 			continue
 
 		var/list/available_produce = workstation.produce
@@ -246,16 +246,19 @@
 		var/this_workstation_units = 0
 		for(var/i = 1; i <= workstation.workers_employed; i++)
 			var/datum/roguestock/stockpile/selected_good = pick(selected_produce)
-			var/min_units = patron == /datum/patron/divine/noc ? 1 : 0
-			var/max_units = patron == /datum/patron/divine/noc ? 3 : 2
+			var/min_units = istype(patron, /datum/patron/divine/noc) ? 1 : 0
+			var/max_units = istype(patron, /datum/patron/divine/noc) ? 3 : 2
 			var/units = rand(min_units, max_units)
 			if(units <= 0)
 				continue
-			if(patron == /datum/patron/divine/noc)
+			if(istype(patron, /datum/patron/divine/noc))
 				if(istype(workstation, /datum/workstation/hunt))
 					units = max(1, ceil(units * 1.2))
 				else if(istype(workstation, /datum/workstation/field))
 					units = max(0, floor(units * 0.8))
+			if(istype(patron, /datum/patron/inhumen/zizo))
+				if(istype(workstation, /datum/workstation/trade))
+					units = max(0, ceil(units * 0.5))
 
 			var/datum/roguestock/stockpile_entry = get_stockpile_entry_for_good(selected_good)
 			if(!stockpile_entry)
@@ -268,7 +271,10 @@
 
 		workstation.last_cycle_productivity = max(this_workstation_units, 0)
 		if(workstation.generate_profit)
-			total_profit_money += workstation.workers_employed * 2
+			if(istype(patron, /datum/patron/inhumen/zizo))
+				total_profit_money += workstation.workers_employed
+			else
+				total_profit_money += workstation.workers_employed * 2
 
 	last_cycle_productivity = max(total_units, 0)
 
