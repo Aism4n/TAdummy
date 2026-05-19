@@ -39,6 +39,41 @@
 			return "small"
 	return manor_size
 
+/datum/manor/proc/set_up_patron_bonuses()
+	switch(patron)
+		if(/datum/patron/divine/xylix)
+			var/has_trade_district = FALSE
+			for(var/datum/workstation/ws in workstations)
+				if(istype(ws, /datum/workstation/trade))
+					ws.workstation_size += 5
+					workers_limit += 5
+					has_trade_district = TRUE
+			if(!has_trade_district)
+				var/datum/workstation/trade/new_trade = new /datum/workstation/trade()
+				workstations += new_trade
+				workers_limit += new_trade.workstation_size
+		if(/datum/patron/divine/noc)
+			for(var/datum/workstation/ws in workstations)
+				if(istype(ws, /datum/workstation/farm))
+					ws.production_increase = 0.8
+				else if(istype(ws, /datum/workstation/hunt))
+					ws.production_increase = 1.2
+		if(/datum/patron/inhumen/zizo)
+			for(var/datum/workstation/ws in workstations)
+				if(istype(ws, /datum/workstation/trade))
+					ws.production_increase = 0.5
+		if(/datum/patron/divine/malum)
+			var/has_mine_district = FALSE
+			for(var/datum/workstation/ws in workstations)
+				if(istype(ws, /datum/workstation/mining))
+					ws.workstation_size += 5
+					workers_limit += 5
+					has_mine_district = TRUE
+			if(!has_mine_district)
+				var/datum/workstation/mining/new_mining = new /datum/workstation/mining()
+				workstations += new_mining
+				workers_limit += new_mining.workstation_size
+
 /datum/manor/proc/update_workstation_types(type = "manor", manor_size = "big")
 	if(!type)
 		type = manor_type
@@ -163,18 +198,7 @@
 		workstations += new_workstation
 		workers_limit += new_workstation.workstation_size
 
-	switch(patron)
-		if(/datum/patron/divine/xylix)
-			var/has_trade_district = FALSE
-			for(var/datum/workstation/ws in workstations)
-				if(istype(ws, /datum/workstation/trade))
-					ws.workstation_size += 5
-					workers_limit += 5
-					has_trade_district = TRUE
-			if(!has_trade_district)
-				var/datum/workstation/trade/new_trade = new /datum/workstation/trade()
-				workstations += new_trade
-				workers_limit += new_trade.workstation_size
+	set_up_patron_bonuses()
 
 	if(workers_limit < min_workers)
 		workers_limit = min_workers
@@ -230,9 +254,9 @@
 	for(var/datum/workstation/workstation in workstations)
 		if(workstation.workers_employed <= 0 || !length(workstation.produce))
 			continue
-		if(is_dawn && !(istype(patron, /datum/patron/divine/noc) || istype(patron, /datum/patron/inhumen/zizo)))
+		if(is_dawn && !(patron == /datum/patron/divine/noc || patron == /datum/patron/inhumen/zizo))
 			continue
-		if(is_dusk && istype(patron, /datum/patron/divine/noc))
+		if(is_dusk && patron == /datum/patron/divine/noc)
 			continue
 
 		var/list/available_produce = workstation.produce
@@ -246,19 +270,11 @@
 		var/this_workstation_units = 0
 		for(var/i = 1; i <= workstation.workers_employed; i++)
 			var/datum/roguestock/stockpile/selected_good = pick(selected_produce)
-			var/min_units = istype(patron, /datum/patron/divine/noc) ? 1 : 0
-			var/max_units = istype(patron, /datum/patron/divine/noc) ? 3 : 2
+			var/min_units = patron == /datum/patron/divine/noc ? 1 : 0
+			var/max_units = patron == /datum/patron/divine/noc ? 3 : 2
 			var/units = rand(min_units, max_units)
 			if(units <= 0)
 				continue
-			if(istype(patron, /datum/patron/divine/noc))
-				if(istype(workstation, /datum/workstation/hunt))
-					units = max(1, ceil(units * 1.2))
-				else if(istype(workstation, /datum/workstation/field))
-					units = max(0, floor(units * 0.8))
-			if(istype(patron, /datum/patron/inhumen/zizo))
-				if(istype(workstation, /datum/workstation/trade))
-					units = max(0, ceil(units * 0.5))
 
 			var/datum/roguestock/stockpile_entry = get_stockpile_entry_for_good(selected_good)
 			if(!stockpile_entry)
@@ -267,11 +283,12 @@
 			stockpile_entry.stockpile_amount += units
 			produced_summary[selected_good] = produced_summary[selected_good] ? produced_summary[selected_good] + units : units
 			this_workstation_units += units
-			total_units += units
 
+		this_workstation_units = ceil(this_workstation_units * production_increase)
+		total_units += this_workstation_units
 		workstation.last_cycle_productivity = max(this_workstation_units, 0)
 		if(workstation.generate_profit)
-			if(istype(patron, /datum/patron/inhumen/zizo))
+			if(patron == /datum/patron/inhumen/zizo)
 				total_profit_money += workstation.workers_employed
 			else
 				total_profit_money += workstation.workers_employed * 2

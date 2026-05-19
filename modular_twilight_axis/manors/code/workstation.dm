@@ -4,7 +4,7 @@
 	var/workstation_size = 5
 	var/workers_employed = 0
 	var/generate_profit = FALSE
-	var/production_increase = 0
+	var/production_increase = 1
 	var/last_cycle_productivity = 0
 	var/workstation_theme = "field"
 

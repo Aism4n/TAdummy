@@ -360,7 +360,7 @@ const WorkstationCard = ({ ws, act }: { ws: WorkstationData; act: (action: strin
             <Button style={workerButton} onClick={() => act('inc_workers', { id: ws.id })}>+</Button>
           </div>
           <div style={{ textAlign: 'right', fontSize: '15px' }}>
-            <div>Бонус производства: {ws.production_bonus}</div>
+            <div>Продуктивность: {ws.production_bonus * 100}%</div>
             <div>{ws.generate_profit ? 'Даёт прибыль' : 'Даёт сырьё'}</div>
           </div>
         </div>
