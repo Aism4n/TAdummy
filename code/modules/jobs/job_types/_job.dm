@@ -177,10 +177,15 @@
 
 	var/townie_contract_gate_exempt = FALSE
 
-/// Either flag exempts. Job-level is "this whole job has no town rotation" (Adventurer,
-/// Mercenary, Vagabond, Court Agent). Advclass-level is "this specific subclass deserves
-/// the exemption within an otherwise non-exempt job" (Hunter / Witch / Levy / Thug under
-/// Pilgrim). Pilgrim/Blacksmith etc. land at FALSE on both sides.
+	///
+	var/quest_claim_barred = FALSE
+
+/proc/is_quest_claim_barred(mob/user)
+	if(!user?.mind)
+		return FALSE
+	var/datum/job/J = user.job ? SSjob.GetJob(user.job) : null
+	return J?.quest_claim_barred ? TRUE : FALSE
+
 /proc/is_townie_contract_gate_exempt(mob/user)
 	if(!user?.mind)
 		return FALSE
@@ -722,6 +727,8 @@
 		for(var/adv in job_subclasses)
 			var/datum/advclass/advpath = adv
 			var/datum/advclass/subclass = SSrole_class_handler.get_advclass_by_name(initial(advpath.name))
+			if(!subclass)
+				continue
 			if(subclass.maximum_possible_slots != -1)
 				dat += "[subclass.name] — <b>"
 				if(subclass.total_slots_occupied >= subclass.maximum_possible_slots)
@@ -746,6 +753,8 @@
 			var/advdat = ""
 			var/datum/advclass/subclasspath = adv
 			var/datum/advclass/subclass = SSrole_class_handler.get_advclass_by_name(initial(subclasspath.name))
+			if(!subclass)
+				continue
 			var/found_issue = FALSE
 			if(length(subclass.virtue_limits))
 				for(var/virtuetype in subclass.virtue_limits)
@@ -792,6 +801,8 @@
 	for(var/adv in job_subclasses)
 		var/datum/advclass/subclasspath = adv
 		var/datum/advclass/subclass = SSrole_class_handler.get_advclass_by_name(initial(subclasspath.name))
+		if(!subclass)
+			continue
 		if(length(subclass.virtue_limits))
 			for(var/virtuetype in subclass.virtue_limits)
 				if(istype(player.prefs.virtue, virtuetype) || istype(player.prefs.virtuetwo, virtuetype))
