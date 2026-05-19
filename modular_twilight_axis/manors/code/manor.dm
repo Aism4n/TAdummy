@@ -39,7 +39,7 @@
 			return "small"
 	return manor_size
 
-/datum/manor/proc/set_up_patron_bonuses()
+/datum/manor/proc/set_up_patron_bonuses(datum/workstaton/workstation)
 	switch(patron)
 		if(/datum/patron/divine/xylix)
 			var/has_trade_district = FALSE
@@ -197,8 +197,7 @@
 		var/datum/workstation/new_workstation = new workstation_type()
 		workstations += new_workstation
 		workers_limit += new_workstation.workstation_size
-
-	set_up_patron_bonuses()
+		set_up_patron_bonuses(new_workstation)
 
 	if(workers_limit < min_workers)
 		workers_limit = min_workers
