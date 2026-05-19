@@ -11,6 +11,7 @@ PROCESSING_SUBSYSTEM_DEF(roguemachine)
 	var/list/stock_machines = list()
 	var/list/noticeboards = list()
 	var/hermailermaster
+	var/list/secret_mail = list() // TA EDIT 
 	var/list/death_queue = list()
 	var/last_death_report
 	var/obj/item/clothing/head/roguetown/crown/serpcrown/crown

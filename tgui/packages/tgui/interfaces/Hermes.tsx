@@ -17,17 +17,18 @@ type Data = {
   quill_cost: number;
   letter_cost: number;
   has_tube?: boolean;
+  is_court_agent?: boolean; // TA EDIT
 };
 
 export const Hermes = (props: any, context: any) => {
   const { act, data } = useBackend<Data>();
-  const { balance, paper_cost, quill_cost, letter_cost, has_tube } = data;
+  const { balance, paper_cost, quill_cost, letter_cost, has_tube, is_court_agent } = data; // TA EDIT
 
   const [recipient, setRecipient] = useState('');
   const [sender, setSender] = useState('');
   const [letterContent, setLetterContent] = useState('');
 
-  const canSendLetter = balance >= letter_cost && recipient.length > 0;
+  const canSendLetter = (balance >= letter_cost || is_court_agent) && recipient.length > 0; // TA EDIT
   const canBuyPaper = balance >= paper_cost;
   const canBuyQuill = balance >= quill_cost;
   const canSendTube = letterContent.length > 0;
