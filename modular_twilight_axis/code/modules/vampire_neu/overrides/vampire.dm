@@ -9,6 +9,8 @@
 /datum/antagonist/vampire/on_gain()
 	. = ..()
 
+	research_points += 3
+
 	var/mob/living/carbon/human/H = owner?.current
 	if(!istype(H) || !H.mind)
 		return
