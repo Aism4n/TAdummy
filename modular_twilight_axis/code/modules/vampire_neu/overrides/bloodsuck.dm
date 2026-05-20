@@ -56,6 +56,10 @@ drinksomeblood()
 	Main entry point.
 */
 
+#define TA_VAMP_BLOODDRINK_INITIAL_BLOOD_LOSS 3
+#define TA_VAMP_BLOODDRINK_VITAE_BLOOD_LOSS 27
+#define TA_VAMP_BLOODDRINK_VITAE_DRAIN 250
+
 /// VISUALS
 /mob/living/carbon/human/add_bite_animation()
 	remove_overlay(SUNDER_LAYER)
@@ -117,7 +121,7 @@ drinksomeblood()
 	last_drinkblood_use = world.time
 	changeNext_move(CLICK_CD_MELEE)
 
-	victim.blood_volume = max(victim.blood_volume - 5, 0)
+	victim.blood_volume = max(victim.blood_volume - TA_VAMP_BLOODDRINK_INITIAL_BLOOD_LOSS, 0)
 	victim.handle_blood()
 
 	playsound(loc, 'sound/misc/drink_blood.ogg', 100, FALSE, -4)
@@ -177,9 +181,9 @@ drinksomeblood()
 	return blood_handle
 
 /mob/living/carbon/human/proc/consume_vitae(mob/living/carbon/victim)
-	var/used_vitae = 150
+	var/used_vitae = TA_VAMP_BLOODDRINK_VITAE_DRAIN
 
-	victim.blood_volume = max(victim.blood_volume - 45, 0)
+	victim.blood_volume = max(victim.blood_volume - TA_VAMP_BLOODDRINK_VITAE_BLOOD_LOSS, 0)
 
 	if(victim.bloodpool < used_vitae)
 		used_vitae = victim.bloodpool
@@ -406,7 +410,7 @@ drinksomeblood()
 /mob/living/carbon/human/proc/use_pallid_conversion_rules()
 	return get_active_player_count() >= TA_VAMP_CONVERT_PALLID_THRESHOLD
 
-/mob/living/carbon/human/proc/apply_pallid_curse(mob/living/carbon/human/sire, enhanced_pallid = FALSE)
+/mob/living/carbon/human/proc/apply_pallid_curse(mob/living/carbon/human/sire)
 	if(!istype(sire))
 		return FALSE
 	if(HAS_TRAIT(src, TRAIT_PALLID))
@@ -418,7 +422,7 @@ drinksomeblood()
 	apply_status_effect(/datum/status_effect/debuff/devitalised, 10 MINUTES)
 	Paralyze(TA_VAMP_CONVERT_RESIST_STUN_TIME)
 
-	AddComponent(/datum/component/pallid_addiction, sire, enhanced_pallid)
+	AddComponent(/datum/component/pallid_addiction, sire, TRUE)
 
 	if(mind)
 		mind.AddSpell(new /obj/effect/proc_holder/spell/self/pallid_sense(null, sire))
@@ -465,7 +469,7 @@ drinksomeblood()
 		to_chat(src, span_userdanger("Отвергнутое проклятие оставляет след на моей душе!"))
 		to_chat(sire, span_danger("[src] отвергает проклятие, но скверна остаётся в крови!"))
 
-		apply_pallid_curse(sire, TRUE)
+		apply_pallid_curse(sire)
 
 		vampire_conversion_prompt_active = FALSE
 		return TRUE
@@ -578,13 +582,9 @@ drinksomeblood()
 	H.vampire_conversion_prompt_active = TRUE
 
 	// === DETERMINE AVAILABLE OPTIONS ===
-	var/is_methuselah = (VDrinker.generation == GENERATION_METHUSELAH)
-	var/can_afford_force = is_methuselah || can_pay_conversion_cost(VDrinker)
+	var/can_force_convert = istype(VDrinker, /datum/antagonist/vampire/lord)
 	var/can_drain = !HAS_TRAIT(victim, TRAIT_PALLID) && !HAS_TRAIT(victim, TA_TRAIT_PALLID_DRAIN_IMMUNE) && !HAS_TRAIT(victim, TA_TRAIT_PALLID_DRAINED_ONCE)
 
-	var/list/costs = get_conversion_costs(VDrinker)
-	var/research_cost = costs["research_cost"]
-	var/maxbloodpool_cost = costs["maxbloodpool_cost"]
 	var/reward_maxbloodpool_cap = get_vampire_conversion_reward_maxbloodpool_cap(VDrinker)
 	var/remaining_maxbloodpool_reward = max(reward_maxbloodpool_cap - maxbloodpool, 0)
 	var/offer_maxbloodpool_reward = min(TA_VAMP_CONVERT_OFFER_MAXBLOODPOOL_REWARD, remaining_maxbloodpool_reward)
@@ -595,7 +595,7 @@ drinksomeblood()
 		offer_reward_text = "[offer_reward_text], +[offer_maxbloodpool_reward] МАКС. КРОВИ"
 	if(drain_maxbloodpool_reward)
 		drain_reward_text = "[drain_reward_text], +[drain_maxbloodpool_reward] МАКС. КРОВИ"
-	var/force_price_text = is_methuselah ? "БЕСПЛАТНО" : "[research_cost] RP / -[maxbloodpool_cost] МАКС. КРОВИ"
+	var/force_price_text = "БЕСПЛАТНО"
 	var/invite_choice = "Приглашение в клан\nБЕСПЛАТНО / [offer_reward_text]"
 	var/force_choice = "Насильно обратить\n[force_price_text]"
 	var/drain_choice = "Иссушить\nБЕСПЛАТНО / [drain_reward_text]"
@@ -604,13 +604,17 @@ drinksomeblood()
 	var/prompt_text = "Как я поступлю с [victim]?"
 
 	var/list/options = list(invite_choice)
-	if(can_afford_force)
+	if(can_force_convert)
 		options += force_choice
 	if(can_drain)
 		options += drain_choice
 	options += cancel_choice
 
 	var/choice = tgui_alert(src, prompt_text, "ПРОКЛЯТИЕ КАИНА", options)
+
+	if(choice == force_choice && !can_force_convert)
+		H.vampire_conversion_prompt_active = FALSE
+		return
 
 	if(choice != force_choice && choice != invite_choice && choice != drain_choice)
 		H.vampire_conversion_prompt_active = FALSE
@@ -664,7 +668,7 @@ drinksomeblood()
 			return
 		to_chat(H, span_userdanger("Проклятая кровь выжигает след на моей душе и теле!"))
 		to_chat(src, span_danger("Я иссушаю [victim], оставляя в крови след Pallid."))
-		if(!H.apply_pallid_curse(src, use_pallid_conversion_rules()))
+		if(!H.apply_pallid_curse(src))
 			H.vampire_conversion_prompt_active = FALSE
 			return
 		ADD_TRAIT(H, TA_TRAIT_PALLID_DRAINED_ONCE, TRAIT_GENERIC)
@@ -770,7 +774,7 @@ drinksomeblood()
 	if(VVictim)
 		return victim.bloodpool <= 0
 
-	return victim.bloodpool <= 0 && victim.blood_volume - 5 < BLOOD_VOLUME_SURVIVE
+	return victim.bloodpool <= 0 && victim.blood_volume - TA_VAMP_BLOODDRINK_INITIAL_BLOOD_LOSS < BLOOD_VOLUME_SURVIVE
 
 /// RESOLUTION
 /mob/living/carbon/human/proc/resolve_blooddrink_consequences(mob/living/carbon/victim)
@@ -862,3 +866,7 @@ drinksomeblood()
 
 	perform_initial_blooddrink(victim, sublimb_grabbed)
 	resolve_blooddrink_consequences(victim)
+
+#undef TA_VAMP_BLOODDRINK_INITIAL_BLOOD_LOSS
+#undef TA_VAMP_BLOODDRINK_VITAE_BLOOD_LOSS
+#undef TA_VAMP_BLOODDRINK_VITAE_DRAIN

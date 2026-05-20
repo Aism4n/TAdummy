@@ -160,19 +160,9 @@
 
 	var/mob/living/carbon/human/owner = parent
 
-	var/list/candidates = list()
-	if(owner.STASTR < 15)
-		candidates += STATKEY_STR
-	if(owner.STASPD < 15)
-		candidates += STATKEY_SPD
-	if(owner.STAINT < 17)
-		candidates += STATKEY_INT
-	if(length(candidates))
-		extra_stat = pick(candidates)
-		extra_stat_amount = (extra_stat == STATKEY_INT) ? 2 : 1
-	else
-		extra_stat = STATKEY_LCK
-		extra_stat_amount = 1
+	var/list/candidates = list(STATKEY_STR, STATKEY_SPD, STATKEY_INT)
+	extra_stat = pick(candidates)
+	extra_stat_amount = (extra_stat == STATKEY_INT) ? 2 : 1
 	buff_path = /datum/status_effect/buff/pallid_blood
 
 	RegisterSignal(parent, COMSIG_LIVING_DRINKED_LIMB_BLOOD, PROC_REF(on_drink_blood))
