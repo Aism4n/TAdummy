@@ -12,6 +12,7 @@
 	var/manor_name = "Неизвестное имение"
 	var/manor_size = "big"
 	var/manor_type = "manor"
+	var/datum/virtue/virtue_origin = new /datum/virtue/none
 	var/min_workers = 5
 	var/total_workers = 5
 	var/patron = /datum/patron/divine/astrata
@@ -29,8 +30,17 @@
 		return owner.client.prefs.manor_type
 	return manor_type
 
+/datum/manor/proc/is_foreign_estate(mob/living/carbon/human/owner)
+	if(!owner)
+		return FALSE
+	if(owner.mind?.has_antag_datum(/datum/antagonist))
+		return FALSE
+	return HAS_TRAIT(owner, TRAIT_NOBLE) && HAS_TRAIT(owner, TRAIT_OUTLANDER)
+
 /datum/manor/proc/get_manor_size(mob/living/carbon/human/owner)
 	if(owner)
+		if(is_foreign_estate(owner))
+			return "small"
 		if(owner.advjob == "Knight Banneret" || (owner.mind?.assigned_role in list("Marshal", "Steward", "Hand")))
 			return "big"
 		if(owner.mind?.assigned_role in list("Councillor", "Knight"))
@@ -208,6 +218,10 @@
 
 	manor_name = get_owner_display_name(owner)
 	manor_type = get_owner_manor_type(owner)
+	if(owner?.client?.prefs?.virtue_origin && istype(owner.client.prefs.virtue_origin, /datum/virtue/origin))
+		virtue_origin = owner.client.prefs.virtue_origin
+	else
+		virtue_origin = new /datum/virtue/none
 	manor_size = get_manor_size(owner)
 	update_workstation_types(manor_type, manor_size)
 
@@ -254,6 +268,42 @@
 		return null
 	return SSeconomy.find_stockpile_by_trade_good(trade_good_id)
 
+/datum/manor/proc/send_foreign_estate_income_mail(mob/living/carbon/human/owner, coin_income, estate_levy, import_tariff)
+	if(!owner)
+		return
+	if(!SSroguemachine.hermailermaster)
+		if(owner.client)
+			to_chat(owner, span_warning("Ваш иностранный доход не может быть доставлен - почтовый терминал HERMES недоступен."))
+		return
+
+	var/obj/item/paper/P = new
+	P.mailer = manor_name
+	P.mailedto = owner.real_name
+	var/title_greeting = (owner.titles_pref == TITLES_F) ? "Миледи" : "Милорд"
+	P.info = "[title_greeting],\n"
+	P.info += "Направляем Вам средства, полученные от реализации товаров, произведённых Вашими крестьянами и рабочими за прошедший дае."
+	P.info += "\nЧистая прибыль: [coin_income] маммон."
+	if(estate_levy)
+		P.info += "\nКрестьянский оброк: [estate_levy] маммон."
+	if(import_tariff)
+		P.info += "\nИмпортный тариф: [import_tariff] маммон."
+	P.update_icon()
+	var/obj/item/smallDelivery/delivery = new
+	if(coin_income > 0)
+		budget2change(coin_income, null, null, FALSE, delivery)
+	delivery.note = P
+
+	var/datum/component/storage/STR = SSroguemachine.hermailermaster.GetComponent(/datum/component/storage)
+	if(STR)
+		STR.handle_item_insertion(delivery, prevent_warning = TRUE)
+		SSroguemachine.hermailermaster.new_mail = TRUE
+		SSroguemachine.hermailermaster.update_icon()
+	else
+		qdel(delivery)
+
+	if(owner.client)
+		owner.apply_status_effect(/datum/status_effect/ugotmail)
+
 /datum/manor/proc/get_readable_good_name(good_path, fallback = "Ресурс")
 	if(!good_path)
 		return fallback
@@ -275,7 +325,9 @@
 	var/list/produced_summary = list()
 	var/total_units = 0
 	var/total_profit_money = 0
+	var/total_foreign_income = 0
 
+	var/is_foreign = is_foreign_estate(owner)
 	for(var/datum/workstation/workstation in workstations)
 		if(workstation.workers_employed <= 0 || !length(workstation.produce))
 			continue
@@ -293,6 +345,7 @@
 			selected_produce += choice
 
 		var/this_workstation_units = 0
+		var/this_workstation_money = 0
 		for(var/i = 1; i <= workstation.workers_employed; i++)
 			var/selected_good = pick(selected_produce)
 			var/min_units = 0
@@ -305,13 +358,21 @@
 			if(!stockpile_entry)
 				continue
 
-			stockpile_entry.stockpile_amount += units
+			if(!is_foreign)
+				stockpile_entry.stockpile_amount += units
+			else
+				var/region_info = SSeconomy.get_best_import_region(stockpile_entry.trade_good_id)
+				var/unit_price = region_info ? region_info.unit_price : (GLOB.trade_goods[stockpile_entry.trade_good_id] ? GLOB.trade_goods[stockpile_entry.trade_good_id].base_price : 1)
+				this_workstation_money += unit_price * units
+
 			produced_summary[selected_good] = produced_summary[selected_good] ? produced_summary[selected_good] + units : units
 			this_workstation_units += units
 
 		this_workstation_units = ceil(this_workstation_units * workstation.production_modifier)
+		if(is_foreign)
+			total_foreign_income += ceil(this_workstation_money * workstation.production_modifier)
 		total_units += this_workstation_units
-		if(workstation.generate_profit)
+		if(!is_foreign && workstation.generate_profit)
 			if(patron == /datum/patron/inhumen/zizo)
 				total_profit_money += workstation.workers_employed
 			else
@@ -319,17 +380,27 @@
 
 	last_cycle_productivity = max(total_units, 0)
 
-	if(!total_units && !total_profit_money)
+	if(!total_units && !total_profit_money && !total_foreign_income)
 		return null
 
 	var/coin_income = 0
 	var/estate_levy = 0
-	if(SStreasury.has_account(owner))
+	var/import_tariff = 0
+	if(is_foreign)
+		coin_income = total_foreign_income
+	else if(SStreasury.has_account(owner))
 		if(total_units)
 			coin_income = ceil(total_units / 5)
 		if(total_profit_money)
 			coin_income += total_profit_money
-	if(coin_income > 0)
+	if(is_foreign)
+		if(coin_income > 0)
+			var/datum/fund/foreign_estate_fund = new("Foreign Estate Income for [owner.real_name]", owner, coin_income, CURRENCY_MAMMON)
+			estate_levy = SStreasury.apply_tax(foreign_estate_fund, coin_income, TAX_CATEGORY_ESTATE_LEVY, "Foreign estate production income")
+			import_tariff = SStreasury.apply_tax(foreign_estate_fund, foreign_estate_fund.balance, TAX_CATEGORY_IMPORT_TARIFF, "Foreign estate import tariff")
+			coin_income = foreign_estate_fund.balance
+			send_foreign_estate_income_mail(owner, coin_income, estate_levy, import_tariff)
+	else if(coin_income > 0)
 		var/datum/fund/owner_account = SStreasury.get_account(owner)
 		if(owner_account)
 			estate_levy = SStreasury.apply_tax(owner_account, coin_income, TAX_CATEGORY_ESTATE_LEVY, "Estate production income")
@@ -341,12 +412,22 @@
 		message += "[produced_summary[good]]x [get_readable_good_name(good)]; "
 
 	if(coin_income)
-		if(estate_levy)
+		if(is_foreign)
+			message += "чистая прибыль составила [coin_income] маммон"
+			if(estate_levy)
+				message += ", за вычетом крестьянского оброка в размере [estate_levy] маммон"
+			if(import_tariff)
+				message += (estate_levy ? " и " : ", за вычетом ") + "импортного тарифа в размере [import_tariff] маммон"
+			message += ". Средства отправлены вам по почте HERMES."
+		else if(estate_levy)
 			message += "чистая прибыль составила [coin_income] маммон, за вычетом крестьянского оброка в размере [estate_levy] маммон."
 		else
 			message += "чистая прибыль составила [coin_income] маммон."
 	else
-		message += "чистая прибыль от поместья отсутствует."
+		if(is_foreign)
+			message += "чистая прибыль от иностранного поместья отсутствует."
+		else
+			message += "чистая прибыль от поместья отсутствует."
 	if(owner.client)
 		to_chat(owner, span_notice(message))
 

@@ -97,6 +97,9 @@
 		if((J.department_flag & COURTIERS) && is_noble)
 			return TRUE
 
+	if(HAS_TRAIT(user, TRAIT_NOBLE) && HAS_TRAIT(user, TRAIT_OUTLANDER) && !user.mind?.has_antag_datum(/datum/antagonist))
+		return TRUE
+
 	if(is_noble  && is_resident) 
 		return TRUE
 
