@@ -24,6 +24,24 @@ const GOD_ICONS: Record<string, string> = {
   'zizo': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgBAMAAACBVGfHAAAAFVBMVEX///+2AAB6GCJTIiIqICkqEh0VEBFHJGzoAAAAAXRSTlMAQObYZgAAAItJREFUKJG90cENgzAMBdB4g5g4A1DRAShZwAF6d+kCiP13aHMJsbn0VF8sPX1bjuLcPwvRQNcbCBcY7cgF2ILYHRZsAjrxGvJq4JU04Dbrx8Qpq0MgDHlsZ/B2rAnbwP3gjc8IPCQwNREckCTONQKBPQnSVCHtjvbvLRWeWACWCm/vogL05RtK+6U+2LwQ/m2bzxwAAAAASUVORK5CYII=',
 };
 
+const GOD_TOOLTIPS: Record<string, string> = {
+  'abyssor': 'Абиссор благословляет водоемы поблизости от вашего имения, наполняя их косяками рыб.',
+  'astrata': '',
+  'baotha': '',
+  'dendor': '',
+  'eora': '',
+  'graggar': '',
+  'malum': 'Малум благословляет холмы и горы поблизости от вашего имения. Шахты изобилуют рудами и драгоценностями.',
+  'matthios': '',
+  'necra': '',
+  'noc': 'Рабочие вашего имения бодрствуют ночью и спят денем, поставляя плоды своего труда на рассвете. Ночная охота обильнее дневной, но уход за полями и садами становится сложнее. Для хранения дарованных Нок знаний на ваших землях была возведена башня магов.',
+  'pestra': '',
+  'psydon': 'Каждый День Солнца, ваши крестьяне возносят хвалу Всеотцу в церквушке, возведенной на ваших землях. Вдохновленные на свершения Его примером, они трудятся с высочайшей самоотдачей.',
+  'ravox': '',
+  'undivided': '',
+  'xylix': 'Торговцы часто прибывают к вашему имению, и прибыль от сделок течет рекой. Возможно, в этом замешана благосклонность Ксайликса.',
+  'zizo': 'Благодаря Её благословению, рабочие вашего имения не знают усталости, поставляя плоды своего труда дважды в день, на закате и на рассвете. Для хранения дарованных Ею запретных познаний на ваших землях была возведена башня магов. Торговля со смертными требует маскировки, что значительно снижает её эффективность.',
+};
 
 const clamp = (value: number, min = 0, max = 100) => Math.max(min, Math.min(max, value));
 
@@ -193,12 +211,14 @@ const workerButton: React.CSSProperties = {
 
 const PatronMedallion = ({ patronKey }: { patronKey: string }) => {
   const icon = GOD_ICONS[patronKey] || GOD_ICONS.astrata;
+  const godtooltip = GOD_TOOLTIPS[patronKey] || GOD_TOOLTIPS.astrata;
   return (
     <div style={{
       width: '104px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
+      tooltip: {godtooltip},
     }}>
       <div style={{
         width: '92px',
