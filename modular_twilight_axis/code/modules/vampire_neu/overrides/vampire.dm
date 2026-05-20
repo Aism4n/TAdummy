@@ -9,7 +9,7 @@
 /datum/antagonist/vampire/on_gain()
 	. = ..()
 
-	research_points += 3
+	research_points += 3 // Part of Transfix exeperents, delete it
 
 	var/mob/living/carbon/human/H = owner?.current
 	if(!istype(H) || !H.mind)
@@ -19,7 +19,7 @@
 	H.mind.RemoveSpell(/obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
 	H.RemoveSpell(/obj/effect/proc_holder/spell/targeted/transfix_neu)
 	H.RemoveSpell(/obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
-//	H.AddSpell(new /obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
+//	H.AddSpell(new /obj/effect/proc_holder/spell/targeted/TA_transfix_neu) // Part of Transfix exeperents, delete it
 
 	var/static/list/thrall_caps = alist(
 		GENERATION_METHUSELAH = THRALLS_METHUSELAH,
