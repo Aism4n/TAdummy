@@ -10,6 +10,9 @@
 	var/int_divisor = 3.3
 	var/blood_dice = 9
 	var/will_dice = 6
+	var/drowsyness_gain = 50
+	var/eora_empathic_bond_drowsyness_multiplier = 1.5
+	var/eora_empathic_bond_bloodroll_bonus = 1
 	var/transfix_msg
 
 /datum/status_effect/debuff/transfix_paste_int
@@ -106,7 +109,8 @@
 
 		var/willpower = round(target.STAINT / int_divisor, 1)
 		var/willroll = roll(willpower, current_will_dice)
-		var/knowledgable = (willroll - bloodroll) >= 3
+		var/target_bloodroll = bloodroll + get_bloodroll_bonus(target, user)
+		var/knowledgable = (willroll - target_bloodroll) >= 3
 
 		if(!powerful)
 			if(ishuman(target))
@@ -119,8 +123,8 @@
 					to_chat(user, span_userdanger("У [target] моя ПОГИБЕЛЬ! Я не могу опутать разум!"))
 					continue
 
-		if(bloodroll >= willroll)
-			target.drowsyness = min(target.drowsyness + 50, 150)
+		if(target_bloodroll >= willroll)
+			target.drowsyness = min(target.drowsyness + get_drowsyness_gain(target, user), 150)
 			switch(target.drowsyness)
 				if(0 to 50)
 					to_chat(target, span_warning("Мой разум словно застилает пелена..."))
@@ -143,7 +147,7 @@
 			var/holypower = target.get_skill_level(/datum/skill/magic/holy)
 			var/magicpower = round(target.get_skill_level(/datum/skill/magic/arcane) * 0.6, 1)
 			var/counterroll = roll(1 + holypower + magicpower, 5)
-			if(counterroll > bloodroll)
+			if(counterroll > target_bloodroll)
 				to_chat(target, span_warning("Нечестивая магия... Кажется, она исходит от [user]."))
 
 		to_chat(user, span_userdanger("Мне не удалось опутать разум [target]!"))
@@ -155,6 +159,27 @@
 	if(target.hud_used)
 		for(var/atom/movable/screen/eye_intent/eyet in target.hud_used.static_inventory)
 			eyet.update_icon(target)
+
+/obj/effect/proc_holder/spell/targeted/TA_transfix_neu/proc/get_drowsyness_gain(mob/living/carbon/human/target, mob/user)
+	if(has_eora_empathic_bond_from(user, target))
+		return round(drowsyness_gain * eora_empathic_bond_drowsyness_multiplier)
+	return drowsyness_gain
+
+/obj/effect/proc_holder/spell/targeted/TA_transfix_neu/proc/get_bloodroll_bonus(mob/living/carbon/human/target, mob/user)
+	if(has_eora_empathic_bond_from(user, target))
+		return eora_empathic_bond_bloodroll_bonus
+	return 0
+
+/obj/effect/proc_holder/spell/targeted/TA_transfix_neu/proc/has_eora_empathic_bond_from(mob/user, mob/living/carbon/human/target)
+	if(!user || !target)
+		return FALSE
+
+	var/datum/component/empathic_obsession/obsession = user.GetComponent(/datum/component/empathic_obsession)
+	if(!obsession || obsession.obsession_target != target)
+		return FALSE
+
+	// Empathic Bond creates a 2-minute obsession; Beauty's Restoration uses the same component for 5 minutes.
+	return obsession.obsession_duration == 2 MINUTES
 
 /obj/effect/proc_holder/spell/targeted/TA_transfix_neu/proc/transfix_exceeds_input_speed(transfix_msg_length, transfix_input_elapsed)
 	return (transfix_msg_length * (1 MINUTES)) > (TA_TRANSFIX_CHARS_PER_MINUTE * transfix_input_elapsed)
@@ -189,3 +214,35 @@
 		return
 
 	SEND_SIGNAL(H, COMSIG_FORCE_UNDISGUISE)
+
+/mob/living/carbon/human/proc/ta_grant_eora_transfix()
+	if(!mind)
+		return FALSE
+
+	mind.RemoveSpell(/obj/effect/proc_holder/spell/targeted/transfix_neu)
+	RemoveSpell(/obj/effect/proc_holder/spell/targeted/transfix_neu)
+
+	if(mind.has_spell(/obj/effect/proc_holder/spell/targeted/TA_transfix_neu) || HasSpell(/obj/effect/proc_holder/spell/targeted/TA_transfix_neu))
+		return FALSE
+
+	AddSpell(new /obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
+	to_chat(src, span_notice("Eora's embrace deepens, and I learn to transfix mortal minds."))
+	return TRUE
+
+/datum/coven_power/eora/familial_bond/post_gain()
+	. = ..()
+
+	var/mob/living/carbon/human/H = owner
+	if(!istype(H))
+		return
+
+	H.ta_grant_eora_transfix()
+
+/mob/living/carbon/human/pre_coven_removal(datum/coven/coven)
+	. = ..()
+
+	if(!istype(coven, /datum/coven/eora))
+		return
+
+	mind?.RemoveSpell(/obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
+	RemoveSpell(/obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
