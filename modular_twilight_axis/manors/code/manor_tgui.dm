@@ -62,6 +62,9 @@
 			if(workstation.workers_employed >= workstation.workstation_size)
 				return TRUE
 			workstation.workers_employed += 1
+			if(workstation.production_increase_per_job)
+				for(var/datum/workstation/ws in manor.workstations)
+					ws.production_modifier += workstation.production_increase_per_job
 			SStgui.update_uis(src)
 			return TRUE
 
@@ -69,6 +72,9 @@
 			if(workstation.workers_employed <= 0)
 				return TRUE
 			workstation.workers_employed -= 1
+			if(workstation.production_increase_per_job)
+				for(var/datum/workstation/ws in manor.workstations)
+					ws.production_modifier -= workstation.production_increase_per_job
 			SStgui.update_uis(src)
 			return TRUE
 
@@ -188,7 +194,7 @@
 		"produce" = produce_names,
 		"kind" = workstation.get_theme_key(),
 		"generate_profit" = workstation.generate_profit,
-		"production_bonus" = workstation.production_increase
+		"production_bonus" = workstation.production_modifier
 	)
 
 /datum/manor_panel/ui_data(mob/user)
@@ -218,6 +224,6 @@
 		"total_workers" = manor.total_workers,
 		"workers_assigned" = manor.get_assigned_workers(),
 		"workers_free" = manor.get_free_workers(),
-		"productivity_last_cycle" = manor.get_last_cycle_productivity(),
+		"productivity_last_cycle" = manor.last_cycle_productivity,
 		"workstations" = workstations_data
 	)

@@ -4,8 +4,8 @@
 	var/workstation_size = 5
 	var/workers_employed = 0
 	var/generate_profit = FALSE
-	var/production_increase = 1
-	var/last_cycle_productivity = 0
+	var/production_increase_per_job = 0
+	var/production_modifier = 1
 	var/workstation_theme = "field"
 
 /datum/workstation/proc/get_theme_key()
@@ -182,3 +182,22 @@
 
 /datum/workstation/forest/big
 	workstation_size = 20
+
+//Special patron-related workstations
+/datum/workstation/mage_tower
+	workstation_name = "Башня магов"
+	workstation_theme = "mage_tower"
+	produce = list(
+		/datum/roguestock/stockpile/cinnabar,
+		/datum/roguestock/stockpile/calendula,
+		/datum/roguestock/stockpile/viscera,
+		/datum/roguestock/stockpile/dendor_essence,
+		/datum/roguestock/stockpile/gem_toper,
+		/datum/roguestock/stockpile/gem_gemerald,
+	)
+
+/datum/workstation/cathedral
+	workstation_name = "Церковь Всеотца"
+	workstation_theme = "cathedral"
+	produce = list()
+	production_increase_per_job = 0.05

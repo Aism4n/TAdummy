@@ -41,6 +41,10 @@
 
 /datum/manor/proc/set_up_patron_bonuses(workers_limit)
 	switch(patron)
+		if(/datum/patron/old_god)
+			var/datum/workstation/cathedral/new_cathedral = new /datum/workstation/cathedral()
+			workstations += cathedral
+			workers_limit += cathedral.workstation_size
 		if(/datum/patron/divine/xylix)
 			var/has_trade_district = FALSE
 			for(var/datum/workstation/ws in workstations)
@@ -54,14 +58,21 @@
 				workers_limit += new_trade.workstation_size
 		if(/datum/patron/divine/noc)
 			for(var/datum/workstation/ws in workstations)
-				if(istype(ws, /datum/workstation/farm))
-					ws.production_increase = 0.8
+				ws.production_modifier = 1.1
+				if(istype(ws, /datum/workstation/field) || istype(ws, /datum/workstation/fruit))
+					ws.production_modifier = 0.8
 				else if(istype(ws, /datum/workstation/hunt))
-					ws.production_increase = 1.2
+					ws.production_modifier = 1.3
+			var/datum/workstation/mage_tower/new_mage_tower = new /datum/workstation/mage_tower()
+			workstations += mage_tower
+			workers_limit += mage_tower.workstation_size
 		if(/datum/patron/inhumen/zizo)
 			for(var/datum/workstation/ws in workstations)
 				if(istype(ws, /datum/workstation/trade))
-					ws.production_increase = 0.5
+					ws.production_modifier = 0.5
+			var/datum/workstation/mage_tower/new_mage_tower = new /datum/workstation/mage_tower()
+			workstations += mage_tower
+			workers_limit += mage_tower.workstation_size
 		if(/datum/patron/divine/malum)
 			var/has_mine_district = FALSE
 			for(var/datum/workstation/ws in workstations)
@@ -73,6 +84,17 @@
 				var/datum/workstation/mining/new_mining = new /datum/workstation/mining()
 				workstations += new_mining
 				workers_limit += new_mining.workstation_size
+		if(/datum/patron/divine/abyssor)
+			var/has_fish_district = FALSE
+			for(var/datum/workstation/ws in workstations)
+				if(istype(ws, /datum/workstation/fish))
+					ws.workstation_size += 5
+					workers_limit += 5
+					has_fish_district = TRUE
+			if(!has_fish_district)
+				var/datum/workstation/fish/new_fish = new /datum/workstation/fish()
+				workstations += new_fish
+				workers_limit += new_fish.workstation_size
 	return workers_limit
 
 /datum/manor/proc/update_workstation_types(type = "manor", manor_size = "big")
@@ -220,12 +242,6 @@
 /datum/manor/proc/get_free_workers()
 	return max(total_workers - get_assigned_workers(), 0)
 
-/datum/manor/proc/get_last_cycle_productivity()
-	. = max(last_cycle_productivity, 0)
-	for(var/datum/workstation/workstation in workstations)
-		. += max(workstation.last_cycle_productivity, 0)
-		. += max(workstation.production_increase, 0)
-
 /datum/manor/proc/get_stockpile_entry_for_good(good_path)
 	if(!good_path)
 		return null
@@ -268,7 +284,7 @@
 		if(is_dusk && patron == /datum/patron/divine/noc)
 			continue
 
-		var/list/available_produce = workstation.produce
+		var/list/available_produce = workstation.produce.Copy()
 		var/selected_count = min(length(available_produce), rand(2, 6))
 		var/list/selected_produce = list()
 		while(length(selected_produce) < selected_count)
@@ -279,8 +295,8 @@
 		var/this_workstation_units = 0
 		for(var/i = 1; i <= workstation.workers_employed; i++)
 			var/selected_good = pick(selected_produce)
-			var/min_units = patron == /datum/patron/divine/noc ? 1 : 0
-			var/max_units = patron == /datum/patron/divine/noc ? 3 : 2
+			var/min_units = 0
+			var/max_units = 2
 			var/units = rand(min_units, max_units)
 			if(units <= 0)
 				continue
@@ -293,9 +309,8 @@
 			produced_summary[selected_good] = produced_summary[selected_good] ? produced_summary[selected_good] + units : units
 			this_workstation_units += units
 
-		this_workstation_units = ceil(this_workstation_units * workstation.production_increase)
+		this_workstation_units = ceil(this_workstation_units * workstation.production_modifier)
 		total_units += this_workstation_units
-		workstation.last_cycle_productivity = max(this_workstation_units, 0)
 		if(workstation.generate_profit)
 			if(patron == /datum/patron/inhumen/zizo)
 				total_profit_money += workstation.workers_employed
