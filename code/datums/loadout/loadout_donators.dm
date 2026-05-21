@@ -152,6 +152,10 @@
 	name = "Donator Item - Royal Sleeves"
 	path = /obj/item/clothing/wrists/roguetown/royalsleeves
 
+/datum/loadout_item/donator/willmbrink/padded_dress
+	name = "Donator Item - Padded Dress"
+	path = /obj/item/clothing/suit/roguetown/shirt/dress/willmbrink
+
 /datum/loadout_item/donator/dasfox
 	name = "Donator Kit - Archaic Ceremonial Valkyrhelm"
 	path = /obj/item/enchantingkit/dasfox_helm
@@ -322,7 +326,7 @@
 /datum/loadout_item/donator/koruu_silver_kukri
 	name = "Donator Kit - Psydonic Leachwhacker"
 	path = /obj/item/enchantingkit/weapon/koruu_kukri_silver
-	ckeywhitelist = list("koruu")
+	ckeywhitelist = list("koruu", "pepperoniplayboy")
 
 /datum/loadout_item/donator/koruu_longsword
 	name = "Donator Kit - Excaliber"
