@@ -247,6 +247,8 @@
 
 /datum/component/ta_death_gift_berserk
 	var/active = FALSE
+	var/starting = FALSE
+	var/ending = FALSE
 	var/end_time = 0
 	var/applied_frenzy_visuals = FALSE
 	var/gibbing = FALSE
@@ -278,6 +280,8 @@
 		return
 
 	if(active)
+		if(ending)
+			return
 		if(owner.stat == DEAD || !owner.get_bodypart(BODY_ZONE_HEAD))
 			ta_bloody_gib(owner)
 			return
@@ -289,11 +293,11 @@
 		owner.clear_frenzy_cache()
 		return
 
-	if(can_start_berserk(owner))
+	if(!starting && can_start_berserk(owner))
 		start_berserk(owner)
 
 /datum/component/ta_death_gift_berserk/proc/can_start_berserk(mob/living/carbon/human/owner)
-	if(!istype(owner) || owner.stat == DEAD || active)
+	if(!istype(owner) || QDELETED(owner) || owner.stat == DEAD || active)
 		return FALSE
 	if(owner.has_status_effect(/datum/status_effect/debuff/sleepytime) || owner.has_status_effect(/datum/status_effect/debuff/ta_death_gift_tired))
 		return FALSE
@@ -302,7 +306,12 @@
 	return owner.InCritical()
 
 /datum/component/ta_death_gift_berserk/proc/start_berserk(mob/living/carbon/human/owner)
+	starting = FALSE
+	if(!can_start_berserk(owner))
+		return
+
 	active = TRUE
+	ending = FALSE
 	end_time = world.time + TA_DEATH_GIFT_BERSERK_DURATION
 	applied_frenzy_visuals = !HAS_TRAIT(owner, TRAIT_IN_FRENZY)
 	silver_hits_taken = 0
@@ -322,7 +331,15 @@
 	owner.visible_message(span_userdanger("[owner] поднимается в кровавой ярости!"), span_userdanger("Темная ярость окутала мой разум. Я ГОТОВ ПОГУБИТЬ ЭТОТ МИР."))
 
 /datum/component/ta_death_gift_berserk/proc/end_berserk(mob/living/carbon/human/owner, broken_by_silver = FALSE)
+	if(!active && !ending)
+		return
+	if(!istype(owner) || QDELETED(owner))
+		active = FALSE
+		ending = FALSE
+		return
+
 	active = FALSE
+	ending = FALSE
 	set_berserk_traits(owner, FALSE)
 	owner.ta_stabilize_death_gift_body(FALSE)
 	owner.apply_status_effect(/datum/status_effect/debuff/ta_death_gift_tired)
@@ -378,26 +395,28 @@
 
 /datum/component/ta_death_gift_berserk/proc/on_stat_change(mob/living/carbon/human/source, new_stat, old_stat)
 	SIGNAL_HANDLER
-	if(active || new_stat == DEAD)
+	if(active || starting || new_stat == DEAD)
 		return
 	if(can_start_berserk(source))
-		start_berserk(source)
+		starting = TRUE
+		INVOKE_ASYNC(src, PROC_REF(start_berserk), source)
 
 /datum/component/ta_death_gift_berserk/proc/on_death(mob/living/carbon/human/source, gibbed)
 	SIGNAL_HANDLER
 	if(active && !gibbed)
-		ta_bloody_gib(source)
+		INVOKE_ASYNC(src, PROC_REF(ta_bloody_gib), source)
 
 /datum/component/ta_death_gift_berserk/proc/on_item_attacked_success(mob/living/carbon/human/source, obj/item/weapon, mob/living/attacker)
 	SIGNAL_HANDLER
 	var/mob/living/carbon/human/owner = parent
-	if(!active || source != owner || !ta_is_silver_weapon(weapon))
+	if(!active || ending || source != owner || !ta_is_silver_weapon(weapon))
 		return
 	silver_hits_taken++
 	if(silver_hits_taken < silver_hits_to_break)
 		to_chat(owner, span_userdanger("Серебро вгрызается в темную ярость. Еще немного, и оно погасит ее."))
 		return
-	end_berserk(owner, TRUE)
+	ending = TRUE
+	INVOKE_ASYNC(src, PROC_REF(end_berserk), owner, TRUE)
 
 /datum/component/ta_death_gift_berserk/proc/ta_is_silver_weapon(obj/item/weapon)
 	var/static/list/silver_smeltresults = list(
@@ -415,12 +434,20 @@
 /datum/component/ta_death_gift_berserk/proc/on_unarmed_attack(mob/living/carbon/human/source, mob/living/carbon/human/attacker, mob/living/target, datum/martial_art/attacker_style)
 	SIGNAL_HANDLER
 	var/mob/living/carbon/human/owner = parent
-	if(!active || source != owner || attacker != owner || !isliving(target) || target == owner || target.stat == DEAD)
+	if(!active || ending || source != owner || attacker != owner || !isliving(target) || target == owner || target.stat == DEAD)
 		return
 	if(!istype(owner.used_intent, INTENT_HARM))
 		return
 
-	var/zone = check_zone(owner.zone_selected)
+	INVOKE_ASYNC(src, PROC_REF(handle_berserk_unarmed_attack), owner, target, owner.zone_selected)
+
+/datum/component/ta_death_gift_berserk/proc/handle_berserk_unarmed_attack(mob/living/carbon/human/owner, mob/living/target, selected_zone)
+	if(!active || ending || !istype(owner) || QDELETED(owner) || !isliving(target) || QDELETED(target) || target == owner || target.stat == DEAD)
+		return
+	if(!istype(owner.used_intent, INTENT_HARM))
+		return
+
+	var/zone = check_zone(selected_zone)
 	if(!zone)
 		zone = BODY_ZONE_CHEST
 	target.apply_damage(TA_DEATH_GIFT_BERSERK_PUNCH_DAMAGE, BRUTE, zone, forced = TRUE)

@@ -9,7 +9,7 @@
 /datum/antagonist/vampire/on_gain()
 	. = ..()
 
-	research_points += 3 // Part of Transfix exeperents, delete it
+	research_points += 2 // Part of Transfix exeperents, delete it
 
 	var/mob/living/carbon/human/H = owner?.current
 	if(!istype(H) || !H.mind)

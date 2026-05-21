@@ -10,9 +10,9 @@
 	var/int_divisor = 3.3
 	var/blood_dice = 9
 	var/will_dice = 6
-	var/drowsyness_gain = 50
-	var/eora_empathic_bond_drowsyness_multiplier = 1.5
-	var/eora_empathic_bond_bloodroll_bonus = 1
+	var/drowsyness_gain = 26
+	var/eora_empathic_bond_drowsyness_multiplier = 3.4
+	var/eora_empathic_bond_bloodroll_bonus = 2
 	var/transfix_msg
 
 /datum/status_effect/debuff/transfix_paste_int
