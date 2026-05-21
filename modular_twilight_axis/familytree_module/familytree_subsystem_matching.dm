@@ -180,6 +180,12 @@
 		familytree_found_new_house(H, "created new house; target house count not met")
 		return
 
+	var/can_fill_seeded_house = !relative_join_phase_open && join_create_phase_open && (family_mode & FAMILYTREE_MODE_JOIN) && (family_mode & FAMILYTREE_MODE_CREATE) && H.desired_relative_role == RELATIVE_ANY
+	if(can_fill_seeded_house && HasSuitableHouseForRelative(H))
+		ftlog("AddLocal: [H.real_name] target house count met; trying seeded house fill during join/create phase")
+		request_family_confirmation(H, CALLBACK(src, PROC_REF(do_assign_house), H, TRUE), "house", familytree_role_text_ru("relative"))
+		return
+
 	if(can_try_relative_join && H.desired_relative_role != RELATIVE_ANY)
 		ftlog("AddLocal: [H.real_name] desired_role=[H.desired_relative_role], trying role assign")
 		if(H.desired_relative_role == RELATIVE_SPOUSE)
@@ -245,12 +251,15 @@
 		ftlog("AddLocal: [H.real_name] -> FindFamilyMatch")
 		INVOKE_ASYNC(src, PROC_REF(find_and_confirm_family), H)
 
-/datum/controller/subsystem/familytree/proc/do_assign_house(mob/living/carbon/human/H)
+/datum/controller/subsystem/familytree/proc/do_assign_house(mob/living/carbon/human/H, allow_join_create_phase = FALSE)
 	if(!H || QDELETED(H) || H.family_datum)
 		return
 	if(!familytree_relative_join_phase_open())
-		wait_for_relative_join_phase(H, "house confirmation accepted before join phase")
-		return
+		if(allow_join_create_phase && familytree_join_create_phase_open())
+			ftlog("do_assign_house: [H.real_name] confirmed during join/create phase")
+		else
+			wait_for_relative_join_phase(H, "house confirmation accepted before join phase")
+			return
 	ftlog("do_assign_house: [H.real_name] confirmed, calling AssignToHouse")
 	AssignToHouse(H)
 	if(H.family_datum)
