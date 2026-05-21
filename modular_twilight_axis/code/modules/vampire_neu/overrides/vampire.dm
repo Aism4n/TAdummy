@@ -12,6 +12,27 @@
 	RemoveSpell(/obj/effect/proc_holder/spell/targeted/transfix_neu)
 	RemoveSpell(/obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
 
+/datum/component/ta_vampire_transfix_cleanup/Initialize()
+	if(!ishuman(parent))
+		return COMPONENT_INCOMPATIBLE
+
+	RegisterSignal(parent, COMSIG_HUMAN_LIFE, PROC_REF(on_human_life))
+
+/datum/component/ta_vampire_transfix_cleanup/Destroy()
+	UnregisterSignal(parent, COMSIG_HUMAN_LIFE)
+	return ..()
+
+/datum/component/ta_vampire_transfix_cleanup/proc/on_human_life(mob/living/carbon/human/source)
+	SIGNAL_HANDLER
+
+	if(!istype(source) || !source.mind?.has_antag_datum(/datum/antagonist/vampire))
+		qdel(src)
+		return
+
+	source.ta_remove_vampire_transfix()
+	if(source.clan)
+		qdel(src)
+
 /datum/antagonist/vampire/on_gain()
 	. = ..()
 
@@ -22,6 +43,8 @@
 		return
 
 	H.ta_remove_vampire_transfix()
+	if(!H.clan && !H.GetComponent(/datum/component/ta_vampire_transfix_cleanup))
+		H.AddComponent(/datum/component/ta_vampire_transfix_cleanup)
 //	H.AddSpell(new /obj/effect/proc_holder/spell/targeted/TA_transfix_neu) // Part of Transfix exeperents, delete it
 
 	var/static/list/thrall_caps = alist(
@@ -45,12 +68,6 @@
 		H.ta_remove_vampire_transfix()
 
 	return ..()
-
-/datum/clan/proc/setup_vampire_abilities(mob/living/carbon/human/H)
-	. = ..()
-
-	if(istype(H) && H.mind?.has_antag_datum(/datum/antagonist/vampire))
-		H.ta_remove_vampire_transfix()
 
 /datum/antagonist/vampire/proc/get_thrall_owner()
 	if(sire_vampire && !QDELETED(sire_vampire) && !QDELETED(sire_vampire.owner))
