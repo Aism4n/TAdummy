@@ -567,6 +567,23 @@
 		return species_type
 	return null
 
+/datum/controller/subsystem/familytree/proc/familytree_create_commoner_parent(datum/heritage/house, parent_name, parent_species_name, parent_gender, default_species_type, parent_generation)
+	if(!house || !istext(parent_name) || !length(parent_name))
+		return null
+	var/chosen_species_type = familytree_species_type_from_name(parent_species_name) || default_species_type
+	var/mob/living/carbon/human/dummy/parent_mob = new()
+	parent_mob.gender = parent_gender
+	parent_mob.age = AGE_MIDDLEAGED
+	parent_mob.real_name = parent_name
+	if(chosen_species_type)
+		set_species_type(parent_mob, chosen_species_type)
+
+	var/datum/family_member/parent_member = house.CreateCosmeticFamilyMember(parent_mob)
+	if(!parent_member)
+		return null
+	parent_member.generation = parent_generation
+	return parent_member
+
 /datum/controller/subsystem/familytree/proc/GenerateCommonerParents(datum/heritage/house, datum/family_member/founder_member)
 	if(!house || !founder_member?.person)
 		return
@@ -586,30 +603,21 @@
 
 	var/default_species_type = founder_human.dna?.species?.type
 	var/parent_generation = founder_member.generation - 1
+	var/list/created_parents = list()
 
-	var/spawn_father
-	if(length(father_name) && length(mother_name))
-		spawn_father = prob(50)
-	else
-		spawn_father = length(father_name) ? TRUE : FALSE
+	var/datum/family_member/father_member = familytree_create_commoner_parent(house, father_name, father_species_name, MALE, default_species_type, parent_generation)
+	if(father_member)
+		created_parents += father_member
 
-	var/chosen_name = spawn_father ? father_name : mother_name
-	var/chosen_species_name = spawn_father ? father_species_name : mother_species_name
-	var/chosen_gender = spawn_father ? MALE : FEMALE
-	var/chosen_species_type = familytree_species_type_from_name(chosen_species_name) || default_species_type
+	var/datum/family_member/mother_member = familytree_create_commoner_parent(house, mother_name, mother_species_name, FEMALE, default_species_type, parent_generation)
+	if(mother_member)
+		created_parents += mother_member
 
-	var/mob/living/carbon/human/dummy/parent_mob = new()
-	parent_mob.gender = chosen_gender
-	parent_mob.age = AGE_MIDDLEAGED
-	parent_mob.real_name = chosen_name
-	if(chosen_species_type)
-		set_species_type(parent_mob, chosen_species_type)
+	for(var/datum/family_member/parent_member as anything in created_parents)
+		founder_member.AddParent(parent_member)
 
-	var/datum/family_member/parent_member = house.CreateCosmeticFamilyMember(parent_mob)
-	if(!parent_member)
-		return
-	parent_member.generation = parent_generation
-	founder_member.AddParent(parent_member)
+	if(father_member && mother_member)
+		father_member.AddSpouse(mother_member)
 
 /datum/controller/subsystem/familytree/proc/familytree_get_or_create_shared_parent(datum/heritage/house, datum/family_member/anchor_member)
 	if(!house || !anchor_member)

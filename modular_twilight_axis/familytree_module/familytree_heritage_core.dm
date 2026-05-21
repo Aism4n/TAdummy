@@ -403,8 +403,6 @@
 	var/list/details = list()
 	if(member.phantom)
 		details += "Unrecorded ancestor"
-	else if(member.cosmetic)
-		details += "NPC"
 	if(member.person?.dna?.species?.name)
 		details += member.person.dna.species.name
 	var/list/parent_names = BuildFamilyTreeParentNames(member)
@@ -558,8 +556,6 @@
 		details += "Adopted"
 	if(root_member.phantom)
 		details += "Unrecorded ancestor"
-	if(root_member.cosmetic)
-		details += "NPC"
 	if(root_member.person?.dna?.species?.name)
 		details += root_member.person.dna.species.name
 	var/list/parent_names = BuildFamilyTreeParentNames(root_member)
