@@ -432,27 +432,7 @@ drinksomeblood()
 	return TRUE
 
 /mob/living/carbon/human/proc/apply_pallid_drain_effects()
-	suppress_bloodloss(TA_VAMP_DRAIN_STUN_TIME)
-
-	for(var/datum/wound/wound as anything in simple_wounds)
-		wound.set_bleed_rate(0)
-
-	for(var/obj/item/bodypart/bodypart as anything in bodyparts)
-		for(var/datum/wound/wound as anything in bodypart.wounds)
-			wound.set_bleed_rate(0)
-		bodypart.bleeding = 0
-
-	bleed_rate = 0
-	simple_bleeding = 0
-
-	if(blood_volume < TA_VAMP_DRAIN_MIN_BLOOD_VOLUME)
-		blood_volume = TA_VAMP_DRAIN_MIN_BLOOD_VOLUME
-		handle_blood()
-
-	remove_status_effect(/datum/status_effect/debuff/bleeding)
-	remove_status_effect(/datum/status_effect/debuff/bleedingworse)
-	remove_status_effect(/datum/status_effect/debuff/bleedingworst)
-
+	ta_stabilize_death_gift_body(FALSE)
 	apply_status_effect(/datum/status_effect/incapacitating/stun, TA_VAMP_DRAIN_STUN_TIME)
 	apply_status_effect(/datum/status_effect/incapacitating/knockdown, TA_VAMP_DRAIN_STUN_TIME)
 
@@ -531,7 +511,7 @@ drinksomeblood()
 	return TRUE
 
 /// SIRING TARGET VALIDATION
-/mob/living/carbon/human/proc/get_siring_block_reason(mob/living/carbon/victim)
+/mob/living/carbon/human/proc/get_siring_block_reason(mob/living/carbon/victim, allow_stabilized_drain = FALSE)
 	if(!ishuman(victim))
 		return "Только живых людей можно обратить в порождение."
 	if(victim.clan)
@@ -540,9 +520,9 @@ drinksomeblood()
 		return "[victim] уже иссушен и не может стать порождением."
 	if(!victim.mind)
 		return "У этой цели нет души, которую можно забрать."
-	if(victim.blood_volume > BLOOD_VOLUME_BAD)
+	if(victim.blood_volume > BLOOD_VOLUME_BAD && !allow_stabilized_drain)
 		return "В этой цели ещё слишком много крови."
-	if(victim.stat == DEAD)
+	if(victim.stat == DEAD && !allow_stabilized_drain)
 		return "Труп нельзя безопасно поднять как порождение."
 	if(HAS_TRAIT(victim, TRAIT_UNLYCKERABLE))
 		return "[victim] не может нести Солнечное проклятие."
@@ -571,19 +551,21 @@ drinksomeblood()
 		to_chat(src, span_warning("[victim] преодолел проклятие, я не смогу пленить его душу."))
 		return
 
-	if(!VDrinker.can_sire_thrall())
-		to_chat(src, span_warning("Клан достиг предела порождений."))
-		return
-
 	var/mob/living/carbon/human/H = victim
 	if(H.vampire_conversion_prompt_active)
 		to_chat(src, span_warning("[victim] уже находится под действием проклятия."))
 		return
 	H.vampire_conversion_prompt_active = TRUE
+	var/datum/mind/victim_original_mind = H.mind
 
 	// === DETERMINE AVAILABLE OPTIONS ===
 	var/can_force_convert = istype(VDrinker, /datum/antagonist/vampire/lord)
 	var/can_drain = !HAS_TRAIT(victim, TRAIT_PALLID) && !HAS_TRAIT(victim, TA_TRAIT_PALLID_DRAIN_IMMUNE) && !HAS_TRAIT(victim, TA_TRAIT_PALLID_DRAINED_ONCE)
+	var/can_sire_thrall = VDrinker.can_sire_thrall()
+	if(!can_sire_thrall && !can_drain)
+		to_chat(src, span_warning("Клан достиг предела порождений, а [victim] уже нельзя иссушить."))
+		H.vampire_conversion_prompt_active = FALSE
+		return
 
 	var/reward_maxbloodpool_cap = get_vampire_conversion_reward_maxbloodpool_cap(VDrinker)
 	var/remaining_maxbloodpool_reward = max(reward_maxbloodpool_cap - maxbloodpool, 0)
@@ -598,14 +580,16 @@ drinksomeblood()
 	var/force_price_text = "БЕСПЛАТНО"
 	var/invite_choice = "Приглашение в клан\nБЕСПЛАТНО / [offer_reward_text]"
 	var/force_choice = "Насильно обратить\n[force_price_text]"
-	var/drain_choice = "Иссушить\nБЕСПЛАТНО / [drain_reward_text]"
+	var/drain_choice = "Дар смерти: иссушить\nЦЕЛЬ ВЫЖИВЕТ / [drain_reward_text]"
 	var/cancel_choice = "Отмена"
 
 	var/prompt_text = "Как я поступлю с [victim]?"
 
-	var/list/options = list(invite_choice)
-	if(can_force_convert)
-		options += force_choice
+	var/list/options = list()
+	if(can_sire_thrall)
+		options += invite_choice
+		if(can_force_convert)
+			options += force_choice
 	if(can_drain)
 		options += drain_choice
 	options += cancel_choice
@@ -624,10 +608,18 @@ drinksomeblood()
 	if(choice == force_choice)
 		visible_message(span_danger("[src] преобразует тело [victim] тёмной энергией!"))
 	else if(choice == drain_choice)
-		visible_message(span_danger("[src] иссушает тело [victim], запечатывая проклятие в крови!"))
+		visible_message(span_danger("[src] окутывает тело темной силой [victim], пытаясь похитить часть его жизненных сил!"))
+		to_chat(src, span_notice("Дар смерти должен оставить [victim] живым. Я иссушаю душу, но удерживаю тело от окончательной гибели."))
 	else
 		visible_message(span_danger("[src] обволакивает [victim] тёмной энергией, предлагая проклятие Каина!"))
 	if(!do_mob(src, victim, 7 SECONDS, double_progress = TRUE, can_move = FALSE))
+		if(choice == drain_choice && !QDELETED(H) && H.stat == DEAD)
+			if(H.ta_stabilize_death_gift_body(TRUE, victim_original_mind))
+				to_chat(src, span_notice("Дар смерти возвращает душу [victim] в тело и смыкает кровоточащие раны."))
+			else
+				to_chat(src, span_warning("Дар смерти не смог удержать [victim] в живом теле."))
+			H.vampire_conversion_prompt_active = FALSE
+			return
 		to_chat(src, span_warning("Меня прервали во время обращения!"))
 		H.vampire_conversion_prompt_active = FALSE
 		return
@@ -638,7 +630,13 @@ drinksomeblood()
 			H.vampire_conversion_prompt_active = FALSE
 		return
 
-	block_reason = get_siring_block_reason(victim)
+	var/drain_restored_dead = FALSE
+	if(choice == drain_choice && H.stat == DEAD)
+		if(H.ta_stabilize_death_gift_body(TRUE, victim_original_mind))
+			drain_restored_dead = TRUE
+			to_chat(src, span_notice("Дар смерти возвращает душу [victim] в тело и смыкает кровоточащие раны."))
+
+	block_reason = get_siring_block_reason(victim, drain_restored_dead)
 	if(block_reason)
 		to_chat(src, span_warning(block_reason))
 		H.vampire_conversion_prompt_active = FALSE
@@ -649,7 +647,7 @@ drinksomeblood()
 		H.vampire_conversion_prompt_active = FALSE
 		return
 
-	if(!VDrinker.can_sire_thrall())
+	if(choice != drain_choice && !VDrinker.can_sire_thrall())
 		to_chat(src, span_warning("Клан достиг предела порождений."))
 		H.vampire_conversion_prompt_active = FALSE
 		return
@@ -673,6 +671,7 @@ drinksomeblood()
 			return
 		ADD_TRAIT(H, TA_TRAIT_PALLID_DRAINED_ONCE, TRAIT_GENERIC)
 		H.apply_pallid_drain_effects()
+		H.ta_offer_death_gift(src, VDrinker)
 		grant_pallid_drain_reward(VDrinker)
 		H.vampire_conversion_prompt_active = FALSE
 	else

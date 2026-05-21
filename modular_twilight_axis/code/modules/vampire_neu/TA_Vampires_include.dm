@@ -19,6 +19,7 @@
 #include "./coven_level_purchases.dm"
 #include "./crimson_crucible_ru_i18n.dm"
 #include "./overrides/pallid_addiction.dm"
+#include "./overrides/death_gifts.dm"
 #include "./overrides/pallid_spells.dm"
 #include "./overrides/quicksilver.dm"
 #include "./overrides/transfix.dm"

@@ -158,26 +158,20 @@
 	enhanced = enhanced_pallid
 	last_fed_time = world.time
 
-	var/mob/living/carbon/human/owner = parent
-
-	var/list/candidates = list(STATKEY_STR, STATKEY_SPD, STATKEY_INT)
-	extra_stat = pick(candidates)
-	extra_stat_amount = (extra_stat == STATKEY_INT) ? 2 : 1
-	buff_path = /datum/status_effect/buff/pallid_blood
+	buff_path = null
 
 	RegisterSignal(parent, COMSIG_LIVING_DRINKED_LIMB_BLOOD, PROC_REF(on_drink_blood))
 	RegisterSignal(parent, COMSIG_LIVING_DEATH, PROC_REF(on_death))
 
 	START_PROCESSING(SSprocessing, src)
 
-	apply_pallid_buff(owner, TRUE)
-
 /datum/component/pallid_addiction/Destroy()
 	UnregisterSignal(parent, list(COMSIG_LIVING_DRINKED_LIMB_BLOOD, COMSIG_LIVING_DEATH))
 	STOP_PROCESSING(SSprocessing, src)
 	var/mob/living/carbon/human/owner = parent
 	if(istype(owner))
-		owner.remove_status_effect(buff_path)
+		if(buff_path)
+			owner.remove_status_effect(buff_path)
 		owner.remove_status_effect(/datum/status_effect/debuff/pallid_withdrawal)
 	return ..()
 
@@ -238,7 +232,7 @@
 	if(withdrawal_active)
 		clear_pallid_withdrawal(owner)
 
-	if(!owner.has_status_effect(buff_path))
+	if(buff_path && !owner.has_status_effect(buff_path))
 		apply_pallid_buff(owner)
 
 /datum/component/pallid_addiction/proc/handle_blood_drink_reaction(mob/living/carbon/human/drinker, mob/living/carbon/victim)
