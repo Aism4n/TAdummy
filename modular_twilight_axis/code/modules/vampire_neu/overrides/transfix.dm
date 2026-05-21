@@ -226,10 +226,10 @@
 		return FALSE
 
 	AddSpell(new /obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
-	to_chat(src, span_notice("Eora's embrace deepens, and I learn to transfix mortal minds."))
+	to_chat(src, span_notice("Объятия Эоры становятся все крепче, и я учусь завораживать умы смертных."))
 	return TRUE
 
-/datum/coven_power/eora/familial_bond/post_gain()
+/datum/coven_power/eora/beautys_restoration/post_gain()
 	. = ..()
 
 	var/mob/living/carbon/human/H = owner
