@@ -2,7 +2,6 @@ import { useState } from 'react';
 
 import { Box, NoticeBox, Section, Stack } from 'tgui-core/components';
 
-import { useBackend } from '../../backend';
 import type { FamilyDisplayEntry, FamilyDisplaySection } from './types';
 
 const DEFAULT_ACCENT = '#9370DB';
@@ -43,13 +42,11 @@ const tooltipStyle = {
 } as const;
 
 const FamilyEntry = ({ entry }: { entry: FamilyDisplayEntry }) => {
-  const { act } = useBackend();
   const accentColor = entry.accentColor || DEFAULT_ACCENT;
   const details = entry.details || [];
   const [hovered, setHovered] = useState(false);
 
   const ref = entry.personRef;
-  const clickable = !!ref;
   const cacheKey = ref || entry.name;
   if (entry.descriptor && cacheKey) {
     entryDescriptorCache[cacheKey] = entry.descriptor;
@@ -62,13 +59,8 @@ const FamilyEntry = ({ entry }: { entry: FamilyDisplayEntry }) => {
       mb={1.5}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={() => {
-        if (clickable) {
-          act('examine', { ref });
-        }
-      }}
       style={{
-        cursor: clickable ? 'pointer' : 'default',
+        cursor: 'default',
         position: 'relative',
       }}>
       <Box

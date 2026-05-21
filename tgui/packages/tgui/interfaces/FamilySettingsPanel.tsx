@@ -539,6 +539,8 @@ export const FamilySettingsPanel = () => {
   const fatherSpeciesPickerRef = useRef<HTMLDivElement | null>(null);
   const motherSpeciesPickerRef = useRef<HTMLDivElement | null>(null);
   const didInitFromBackendRef = useRef<boolean>(!!settings);
+  const hasNpcParent =
+    fatherName.trim().length > 0 || motherName.trim().length > 0;
 
   useEffect(() => {
     if (!speciesPickerOpen) return;
@@ -603,9 +605,14 @@ export const FamilySettingsPanel = () => {
   }, [settings]);
 
   useEffect(() => {
-    if (!isAdult) return;
-    if (desiredRelativeRole === 2) setDesiredRelativeRole(0);
-  }, [isAdult, desiredRelativeRole]);
+    if (isAdult && desiredRelativeRole === 2) {
+      setDesiredRelativeRole(0);
+      return;
+    }
+    if (hasNpcParent && desiredRelativeRole === 3) {
+      setDesiredRelativeRole(0);
+    }
+  }, [hasNpcParent, isAdult, desiredRelativeRole]);
 
   const toggleSpecies = (species: string) => {
     setPreferredSpeciesTypes((prev) =>
@@ -615,13 +622,16 @@ export const FamilySettingsPanel = () => {
     );
   };
 
-  const relativeRoleOptions = useMemo(
-    () =>
-      isAdult
-        ? RELATIVE_ROLE_OPTIONS.filter((o) => o.value !== 2)
-        : RELATIVE_ROLE_OPTIONS,
-    [isAdult],
-  );
+  const relativeRoleOptions = useMemo(() => {
+    let options = RELATIVE_ROLE_OPTIONS;
+    if (isAdult) {
+      options = options.filter((o) => o.value !== 2);
+    }
+    if (hasNpcParent) {
+      options = options.filter((o) => o.value !== 3);
+    }
+    return options;
+  }, [hasNpcParent, isAdult]);
 
   const showPreferences = familyType !== 'none';
   const isMemberMode = familyType === 'member';
@@ -679,6 +689,10 @@ export const FamilySettingsPanel = () => {
   };
 
   const handleSave = () => {
+    const savedDesiredRelativeRole =
+      usesRelativeRole && !(hasNpcParent && desiredRelativeRole === 3)
+        ? desiredRelativeRole
+        : 0;
     act('save', {
       familyType,
       speciesPreferenceMode,
@@ -687,7 +701,7 @@ export const FamilySettingsPanel = () => {
       genderPreference,
       favoriteName,
       polygamyMode,
-      desiredRelativeRole: usesRelativeRole ? desiredRelativeRole : 0,
+      desiredRelativeRole: savedDesiredRelativeRole,
       allowLowStatusMarriage,
       allowRelativesInFamily,
       knowYourFate,

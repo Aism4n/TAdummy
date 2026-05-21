@@ -661,29 +661,32 @@ GLOBAL_LIST_INIT(familytree_title_prefixes, list(
 	if(!member?.person)
 		return null
 	var/mob/living/carbon/human/H = member.person
-	var/list/parts = list()
-	if(member.cosmetic)
-		parts += "Вымышленный родственник, существующий лишь в семейных преданиях."
-	var/species_name = H.dna?.species?.name
-	if(species_name)
-		parts += "Раса: [species_name]."
-	if(H.age)
-		parts += "Возраст: [H.age]."
-	var/gender_text
-	switch(H.gender)
-		if(MALE)
-			gender_text = "мужской"
-		if(FEMALE)
-			gender_text = "женский"
-		if(PLURAL)
-			gender_text = "множественный"
-		if(NEUTER)
-			gender_text = "средний"
-	if(gender_text)
-		parts += "Пол: [gender_text]."
-	if(!member.cosmetic && istext(H.flavortext_cached) && length(H.flavortext_cached))
-		parts += H.flavortext_cached
-	return parts.Join("\n")
+	var/list/descriptors = H.get_mob_descriptors(FALSE, H)
+	if(!descriptors?.len)
+		return null
+
+	var/list/lines = list()
+	var/list/desc_copy = descriptors.Copy()
+
+	var/first_line = build_coalesce_description(desc_copy, H, list(MOB_DESCRIPTOR_SLOT_HEIGHT, MOB_DESCRIPTOR_SLOT_BODY, MOB_DESCRIPTOR_SLOT_STATURE, MOB_DESCRIPTOR_SLOT_FACE_SHAPE, MOB_DESCRIPTOR_SLOT_FACE_EXPRESSION), "You see %DESC1%, %DESC2% %DESC3% with %DESC4%, %DESC5%.")
+	if(first_line)
+		lines += first_line
+
+	var/second_line = build_coalesce_description(desc_copy, H, list(MOB_DESCRIPTOR_SLOT_AGE, MOB_DESCRIPTOR_SLOT_SKIN, MOB_DESCRIPTOR_SLOT_VOICE), "%THEY% %DESC1%, %DESC2% and %DESC3%.")
+	if(second_line)
+		lines += second_line
+
+	var/third_line = build_coalesce_description(desc_copy, H, list(MOB_DESCRIPTOR_SLOT_PROMINENT, MOB_DESCRIPTOR_SLOT_PROMINENT), "%THEY% %DESC1% and %DESC2%.")
+	if(third_line)
+		lines += third_line
+
+	var/fourth_line = build_coalesce_description(desc_copy, H, list(MOB_DESCRIPTOR_SLOT_PROMINENT, MOB_DESCRIPTOR_SLOT_PROMINENT), "%THEY% %DESC1% and %DESC2%.")
+	if(fourth_line)
+		lines += fourth_line
+
+	if(!lines.len)
+		return null
+	return lines.Join("\n")
 
 /datum/controller/subsystem/familytree/proc/familytree_format_fate_reveal(mob/living/carbon/human/partner)
 	if(!partner)

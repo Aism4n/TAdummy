@@ -246,6 +246,9 @@
 	else
 		familytree_mother_name = copytext(familytree_mother_name, 1, 65)
 
+	if(desired_relative_role == RELATIVE_CHILD && (length(familytree_father_name) || length(familytree_mother_name)))
+		desired_relative_role = RELATIVE_ANY
+
 	if(!istext(familytree_father_species) || !(familytree_father_species in valid_species))
 		familytree_father_species = ""
 	if(!istext(familytree_mother_species) || !(familytree_mother_species in valid_species))
@@ -393,20 +396,6 @@
 	. = ..()
 	if(.)
 		return
-
-	if(!viewer || ui?.user != viewer)
-		return FALSE
-
-	switch(action)
-		if("examine")
-			var/target_ref = params["ref"]
-			if(!istext(target_ref) || !length(target_ref))
-				return FALSE
-			var/atom/target = locate(target_ref)
-			if(!ishuman(target))
-				return FALSE
-			viewer.examinate(target)
-			return TRUE
 
 	return FALSE
 

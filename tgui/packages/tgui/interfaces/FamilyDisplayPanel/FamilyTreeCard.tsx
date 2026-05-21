@@ -2,7 +2,6 @@ import { useRef, useState } from 'react';
 
 import { Box } from 'tgui-core/components';
 
-import { useBackend } from '../../backend';
 import type { FamilyTreeNode } from './types';
 
 const DEFAULT_ACCENT = '#9370DB';
@@ -60,7 +59,6 @@ export const FamilyTreeCard = ({
   node: FamilyTreeNode;
   isSpouse?: boolean;
 }) => {
-  const { act } = useBackend();
   const accentColor = node.accentColor || DEFAULT_ACCENT;
   const details = node.details || [];
   const parents = node.parents || [];
@@ -76,7 +74,6 @@ export const FamilyTreeCard = ({
   const cacheKeyRef = useRef<string | null>(null);
 
   const ref = node.personRef;
-  const clickable = !!ref;
   const rawDescriptor = node.descriptor;
   const cacheKey = ref || node.name;
 
@@ -91,11 +88,6 @@ export const FamilyTreeCard = ({
     <Box
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={() => {
-        if (clickable) {
-          act('examine', { ref });
-        }
-      }}
       style={{
         backgroundColor,
         border: `1px solid ${accentColor}`,
@@ -112,10 +104,10 @@ export const FamilyTreeCard = ({
         maxWidth: '180px',
         padding: '8px 10px',
         textAlign: 'center',
-        cursor: clickable ? 'pointer' : 'default',
+        cursor: 'default',
         position: 'relative',
         transition: 'box-shadow 0.15s ease, transform 0.15s ease',
-        transform: hovered && clickable ? 'translateY(-1px)' : 'none',
+        transform: 'none',
         width: '100%',
       }}>
       <Box
