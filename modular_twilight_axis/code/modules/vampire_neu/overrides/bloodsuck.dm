@@ -539,6 +539,12 @@ drinksomeblood()
 
 	return null
 
+/mob/living/carbon/human/proc/can_offer_pallid_drain(mob/living/carbon/victim)
+	if(!ishuman(victim))
+		return FALSE
+
+	return !HAS_TRAIT(victim, TRAIT_PALLID) && !HAS_TRAIT(victim, TA_TRAIT_PALLID_DRAIN_IMMUNE) && !HAS_TRAIT(victim, TA_TRAIT_PALLID_DRAINED_ONCE)
+
 /// SIRING
 /mob/living/carbon/human/proc/attempt_siring_prompt(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker)
 	// === PRE-ALERT VALIDATION (hard blocks — nothing shown if impossible) ===
@@ -560,7 +566,7 @@ drinksomeblood()
 
 	// === DETERMINE AVAILABLE OPTIONS ===
 	var/can_force_convert = istype(VDrinker, /datum/antagonist/vampire/lord)
-	var/can_drain = !HAS_TRAIT(victim, TRAIT_PALLID) && !HAS_TRAIT(victim, TA_TRAIT_PALLID_DRAIN_IMMUNE) && !HAS_TRAIT(victim, TA_TRAIT_PALLID_DRAINED_ONCE)
+	var/can_drain = can_offer_pallid_drain(victim)
 	var/can_sire_thrall = VDrinker.can_sire_thrall()
 	if(!can_sire_thrall && !can_drain)
 		to_chat(src, span_warning("Клан достиг предела порождений, а [victim] уже нельзя иссушить."))
@@ -828,7 +834,7 @@ drinksomeblood()
 		if(HAS_TRAIT_FROM(H, TRAIT_REFUSED_VAMP_CONVERT, REF(src)))
 			return
 
-	if(!VDrinker.can_sire_thrall())
+	if(!VDrinker.can_sire_thrall() && !can_offer_pallid_drain(victim))
 		return
 
 	attempt_siring_prompt(victim, VDrinker)

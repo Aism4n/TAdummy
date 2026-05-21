@@ -6,6 +6,12 @@
 /datum/antagonist/vampire
 	var/datum/antagonist/vampire/sire_vampire
 
+/mob/living/carbon/human/proc/ta_remove_vampire_transfix()
+	mind?.RemoveSpell(/obj/effect/proc_holder/spell/targeted/transfix_neu)
+	mind?.RemoveSpell(/obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
+	RemoveSpell(/obj/effect/proc_holder/spell/targeted/transfix_neu)
+	RemoveSpell(/obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
+
 /datum/antagonist/vampire/on_gain()
 	. = ..()
 
@@ -15,10 +21,7 @@
 	if(!istype(H) || !H.mind)
 		return
 
-	H.mind.RemoveSpell(/obj/effect/proc_holder/spell/targeted/transfix_neu)
-	H.mind.RemoveSpell(/obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
-	H.RemoveSpell(/obj/effect/proc_holder/spell/targeted/transfix_neu)
-	H.RemoveSpell(/obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
+	H.ta_remove_vampire_transfix()
 //	H.AddSpell(new /obj/effect/proc_holder/spell/targeted/TA_transfix_neu) // Part of Transfix exeperents, delete it
 
 	var/static/list/thrall_caps = alist(
@@ -39,10 +42,15 @@
 /datum/antagonist/vampire/on_removal()
 	var/mob/living/carbon/human/H = owner?.current
 	if(istype(H))
-		H.mind?.RemoveSpell(/obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
-		H.RemoveSpell(/obj/effect/proc_holder/spell/targeted/TA_transfix_neu)
+		H.ta_remove_vampire_transfix()
 
 	return ..()
+
+/datum/clan/proc/setup_vampire_abilities(mob/living/carbon/human/H)
+	. = ..()
+
+	if(istype(H) && H.mind?.has_antag_datum(/datum/antagonist/vampire))
+		H.ta_remove_vampire_transfix()
 
 /datum/antagonist/vampire/proc/get_thrall_owner()
 	if(sire_vampire && !QDELETED(sire_vampire) && !QDELETED(sire_vampire.owner))
@@ -52,11 +60,6 @@
 /datum/antagonist/vampire/proc/can_sire_thrall()
 	if(generation <= GENERATION_THINBLOOD)
 		return FALSE
-
-	var/mob/living/carbon/human/H = owner?.current
-	if(istype(H) && H.clan_position)
-		if(H.clan_position.subordinates.len >= H.clan_position.max_subordinates)
-			return FALSE
 
 	var/datum/antagonist/vampire/owner_vamp = get_thrall_owner()
 	return owner_vamp.thrall_count < owner_vamp.max_thralls
