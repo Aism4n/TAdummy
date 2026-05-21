@@ -592,13 +592,18 @@ drinksomeblood()
 	var/prompt_text = "Как я поступлю с [victim]?"
 
 	var/list/options = list()
-	if(can_sire_thrall)
-		options += invite_choice
-		if(can_force_convert)
+	if(can_force_convert)
+		if(can_sire_thrall)
 			options += force_choice
-	if(can_drain)
-		options += drain_choice
-	options += cancel_choice
+		options += cancel_choice
+		if(can_drain)
+			options += drain_choice
+	else
+		if(can_sire_thrall)
+			options += invite_choice
+		if(can_drain)
+			options += drain_choice
+		options += cancel_choice
 
 	var/choice = tgui_alert(src, prompt_text, "ПРОКЛЯТИЕ КАИНА", options)
 
