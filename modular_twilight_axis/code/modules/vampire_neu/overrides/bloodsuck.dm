@@ -57,8 +57,8 @@ drinksomeblood()
 */
 
 #define TA_VAMP_BLOODDRINK_INITIAL_BLOOD_LOSS 3
-#define TA_VAMP_BLOODDRINK_VITAE_BLOOD_LOSS 27
 #define TA_VAMP_BLOODDRINK_VITAE_DRAIN 250
+#define TA_VAMP_BLOODDRINK_TARGET_FINAL_BLOOD 200
 
 /// VISUALS
 /mob/living/carbon/human/add_bite_animation()
@@ -183,7 +183,7 @@ drinksomeblood()
 /mob/living/carbon/human/proc/consume_vitae(mob/living/carbon/victim)
 	var/used_vitae = TA_VAMP_BLOODDRINK_VITAE_DRAIN
 
-	victim.blood_volume = max(victim.blood_volume - TA_VAMP_BLOODDRINK_VITAE_BLOOD_LOSS, 0)
+	victim.blood_volume = max(victim.blood_volume - get_vitae_blood_loss(victim), 0)
 
 	if(victim.bloodpool < used_vitae)
 		used_vitae = victim.bloodpool
@@ -197,6 +197,10 @@ drinksomeblood()
 
 	adjust_bloodpool(used_vitae)
 	adjust_hydration(used_vitae * 0.1)
+
+/mob/living/carbon/human/proc/get_vitae_blood_loss(mob/living/carbon/victim)
+	var/full_drain_bites = max(victim.maxbloodpool / TA_VAMP_BLOODDRINK_VITAE_DRAIN, 1)
+	return max(((BLOOD_VOLUME_NORMAL - TA_VAMP_BLOODDRINK_TARGET_FINAL_BLOOD) / full_drain_bites) - TA_VAMP_BLOODDRINK_INITIAL_BLOOD_LOSS, 0)
 
 /// DIABLERIE
 /mob/living/carbon/human/proc/handle_diablerie(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
@@ -878,5 +882,5 @@ drinksomeblood()
 	resolve_blooddrink_consequences(victim)
 
 #undef TA_VAMP_BLOODDRINK_INITIAL_BLOOD_LOSS
-#undef TA_VAMP_BLOODDRINK_VITAE_BLOOD_LOSS
 #undef TA_VAMP_BLOODDRINK_VITAE_DRAIN
+#undef TA_VAMP_BLOODDRINK_TARGET_FINAL_BLOOD

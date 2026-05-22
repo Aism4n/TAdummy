@@ -1,10 +1,12 @@
-#define TA_DEATH_GIFT_DARKSIGHT_NAME "Дар темного прозрения"
-#define TA_DEATH_GIFT_POWER_NAME "Дар силы"
-#define TA_DEATH_GIFT_BERSERK_NAME "Дар берсерка"
-#define TA_DEATH_GIFT_SOURCE "ta_death_gift"
+#define TA_DEATH_GIFT_DARKSIGHT_SEE_IN_DARK 15
+#define TA_DEATH_GIFT_DARKSIGHT_LIGHTING_ALPHA LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
 #define TA_DEATH_GIFT_BERSERK_DURATION (1 MINUTES)
 #define TA_DEATH_GIFT_TIRED_DURATION (10 MINUTES)
+#define TA_DEATH_GIFT_BERSERK_SLEEP_DURATION (3 MINUTES)
 #define TA_DEATH_GIFT_BERSERK_PUNCH_DAMAGE 30
+#define TA_DEATH_GIFT_BERSERK_HIT_CHANCE 75
+#define TA_DEATH_GIFT_BERSERK_ATTACK_DELAY (CLICK_CD_MELEE * 0.75)
+#define TA_DEATH_GIFT_BERSERK_BITE_INTERVAL 5
 #define TA_DEATH_GIFT_BERSERK_PUSH_DISTANCE 3
 #define TA_DEATH_GIFT_BERSERK_SILVER_HITS_MIN 2
 #define TA_DEATH_GIFT_BERSERK_SILVER_HITS_MAX 3
@@ -37,6 +39,63 @@
 	if(limit != INFINITY)
 		ta_death_gifts_given++
 	return TRUE
+
+/proc/ta_tgui_tooltip_alert(mob/user, message = "", title, list/buttons = list("Ok"), timeout = 0, autofocus = TRUE, strict_byond = FALSE, ui_state = GLOB.tgui_always_state, list/button_tooltips = null)
+	if(istext(buttons))
+		stack_trace("ta_tgui_tooltip_alert() received text for buttons instead of list")
+		return
+	if(istext(user))
+		stack_trace("ta_tgui_tooltip_alert() received text for user instead of mob")
+		return
+	if(!user)
+		user = usr
+	if(!istype(user))
+		if(istype(user, /client))
+			var/client/client = user
+			user = client.mob
+		else
+			return null
+
+	if(isnull(user.client))
+		return null
+
+	if((!user.client.prefs.tgui_pref || strict_byond) && length(buttons))
+		switch(length(buttons))
+			if(1)
+				return alert(user, message, title, buttons[1])
+			if(2)
+				return alert(user, message, title, buttons[1], buttons[2])
+			if(3)
+				return alert(user, message, title, buttons[1], buttons[2], buttons[3])
+
+	var/datum/tgui_alert/ta_tooltip/alert = new(user, message, title, buttons, timeout, autofocus, ui_state, button_tooltips)
+	alert.ui_interact(user)
+	alert.wait()
+	if(alert)
+		. = alert.choice
+		qdel(alert)
+
+/datum/tgui_alert/ta_tooltip
+	var/list/button_tooltips
+
+/datum/tgui_alert/ta_tooltip/New(mob/user, message, title, list/buttons, timeout, autofocus, ui_state, list/button_tooltips)
+	..(user, message, title, buttons, timeout, autofocus, ui_state)
+	src.button_tooltips = button_tooltips?.Copy()
+
+/datum/tgui_alert/ta_tooltip/Destroy(force, ...)
+	button_tooltips?.Cut()
+	return ..()
+
+/datum/tgui_alert/ta_tooltip/ui_interact(mob/user, datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "TwilightTooltipAlertModal")
+		ui.open()
+
+/datum/tgui_alert/ta_tooltip/ui_static_data(mob/user)
+	var/list/data = ..()
+	data["button_tooltips"] = button_tooltips ? button_tooltips : list()
+	return data
 
 /mob/living/carbon/human/proc/ta_stabilize_death_gift_body(revive_if_dead = FALSE, datum/mind/original_mind = null)
 	if(QDELETED(src))
@@ -83,26 +142,34 @@
 	if(QDELETED(src) || !mind || !istype(VDrinker) || !VDrinker.ta_can_offer_death_gift())
 		return FALSE
 
-	var/list/options = list()
+	var/list/available_gifts = list()
 	if(!has_status_effect(/datum/status_effect/buff/ta_death_gift_darksight))
-		options += TA_DEATH_GIFT_DARKSIGHT_NAME
+		available_gifts += "Дар темного прозрения"
 	if(!has_status_effect(/datum/status_effect/buff/ta_death_gift_power))
-		options += TA_DEATH_GIFT_POWER_NAME
+		available_gifts += "Дар силы"
 	if(!has_status_effect(/datum/status_effect/buff/ta_death_gift_berserk))
-		options += TA_DEATH_GIFT_BERSERK_NAME
+		available_gifts += "Дар берсерка"
 
-	if(!length(options))
+	if(!length(available_gifts))
 		return FALSE
 
+	var/static/list/death_gift_descriptions = list(
+		"Дар темного прозрения" = "Усиливает зрение в темноте почти до предела глаз умертвия.",
+		"Дар силы" = "+1 ко всем статам и дополнительно +1 к силе/скорости или +2 к интеллекту.",
+		"Дар берсерка" = "При тяжелых ранах пробуждает минуту ярости: автоатаки, усиленные удары и каждый пятый удар укусом.",
+	)
+
 	var/use_byond_alert = stat != CONSCIOUS || InCritical()
-	var/choice = tgui_alert(
+	var/list/options = available_gifts.Copy()
+	var/choice = ta_tgui_tooltip_alert(
 		src,
 		"Темное создание иссушило вашу душу и тело, но ваша воля позволила вам преодолеть его проклятье.\n\nВыберите темный дар, который вы похитите.",
 		"ДАР СМЕРТИ",
 		options,
 		2 MINUTES,
 		strict_byond = use_byond_alert,
-		ui_state = GLOB.tgui_always_state
+		ui_state = GLOB.tgui_always_state,
+		button_tooltips = death_gift_descriptions
 	)
 
 	if(QDELETED(src) || !mind || !istype(VDrinker) || !VDrinker.ta_can_offer_death_gift())
@@ -119,19 +186,19 @@
 
 /mob/living/carbon/human/proc/ta_apply_death_gift(choice, mob/living/carbon/human/sire)
 	switch(choice)
-		if(TA_DEATH_GIFT_DARKSIGHT_NAME)
+		if("Дар темного прозрения")
 			if(has_status_effect(/datum/status_effect/buff/ta_death_gift_darksight))
 				return FALSE
 			apply_status_effect(/datum/status_effect/buff/ta_death_gift_darksight)
 			to_chat(src, span_notice("Мои глаза раскрываются для ночи. Темнота больше не прячет от меня мир."))
 			return TRUE
-		if(TA_DEATH_GIFT_POWER_NAME)
+		if("Дар силы")
 			if(has_status_effect(/datum/status_effect/buff/ta_death_gift_power))
 				return FALSE
 			apply_status_effect(/datum/status_effect/buff/ta_death_gift_power)
 			to_chat(src, span_notice("Темная сила наполняет мое тело и разум."))
 			return TRUE
-		if(TA_DEATH_GIFT_BERSERK_NAME)
+		if("Дар берсерка")
 			if(has_status_effect(/datum/status_effect/buff/ta_death_gift_berserk))
 				return FALSE
 			apply_status_effect(/datum/status_effect/buff/ta_death_gift_berserk)
@@ -160,10 +227,10 @@
 /datum/status_effect/buff/ta_death_gift_darksight/proc/apply_undead_sight(mob/living/source)
 	SIGNAL_HANDLER
 	var/obj/item/organ/eyes/night_vision/zombie/undead_eyes = /obj/item/organ/eyes/night_vision/zombie
-	source.see_in_dark = max(source.see_in_dark, initial(undead_eyes.see_in_dark))
+	source.see_in_dark = max(source.see_in_dark, initial(undead_eyes.see_in_dark), TA_DEATH_GIFT_DARKSIGHT_SEE_IN_DARK)
 	var/undead_lighting_alpha = initial(undead_eyes.lighting_alpha)
 	if(!isnull(undead_lighting_alpha))
-		source.lighting_alpha = min(source.lighting_alpha, undead_lighting_alpha)
+		source.lighting_alpha = min(source.lighting_alpha, undead_lighting_alpha, TA_DEATH_GIFT_DARKSIGHT_LIGHTING_ALPHA)
 
 /atom/movable/screen/alert/status_effect/buff/ta_death_gift_darksight
 	name = "Дар темного прозрения"
@@ -254,12 +321,16 @@
 	var/gibbing = FALSE
 	var/silver_hits_taken = 0
 	var/silver_hits_to_break = 0
+	var/next_berserk_attack = 0
+	var/berserk_attack_count = 0
+	var/datum/component/after_image/berserk_after_image
 
 /datum/component/ta_death_gift_berserk/Initialize()
 	if(!ishuman(parent))
 		return COMPONENT_INCOMPATIBLE
 
 	RegisterSignal(parent, COMSIG_MOB_STATCHANGE, PROC_REF(on_stat_change))
+	RegisterSignal(parent, COMSIG_LIVING_HEALTH_UPDATE, PROC_REF(on_health_update))
 	RegisterSignal(parent, COMSIG_LIVING_DEATH, PROC_REF(on_death))
 	RegisterSignal(parent, COMSIG_MOB_ATTACK_HAND, PROC_REF(on_unarmed_attack))
 	RegisterSignal(parent, COMSIG_ITEM_ATTACKED_SUCCESS, PROC_REF(on_item_attacked_success))
@@ -269,7 +340,9 @@
 	var/mob/living/carbon/human/owner = parent
 	if(active && istype(owner))
 		set_berserk_traits(owner, FALSE)
-	UnregisterSignal(parent, list(COMSIG_MOB_STATCHANGE, COMSIG_LIVING_DEATH, COMSIG_MOB_ATTACK_HAND, COMSIG_ITEM_ATTACKED_SUCCESS))
+	if(istype(owner))
+		clear_berserk_overlay(owner)
+	UnregisterSignal(parent, list(COMSIG_MOB_STATCHANGE, COMSIG_LIVING_HEALTH_UPDATE, COMSIG_LIVING_DEATH, COMSIG_MOB_ATTACK_HAND, COMSIG_ITEM_ATTACKED_SUCCESS))
 	STOP_PROCESSING(SSprocessing, src)
 	return ..()
 
@@ -289,8 +362,7 @@
 		if(world.time >= end_time)
 			end_berserk(owner)
 			return
-		owner.frenzy_target = find_berserk_target(owner)
-		owner.clear_frenzy_cache()
+		drive_berserk(owner)
 		return
 
 	if(!starting && can_start_berserk(owner))
@@ -303,7 +375,7 @@
 		return FALSE
 	if(!owner.get_bodypart(BODY_ZONE_HEAD))
 		return FALSE
-	return owner.InCritical()
+	return owner.InCritical() || owner.health <= owner.crit_threshold || ((owner.blood_volume in -INFINITY to BLOOD_VOLUME_SURVIVE) && !HAS_TRAIT(owner, TRAIT_BLOODLOSS_IMMUNE))
 
 /datum/component/ta_death_gift_berserk/proc/start_berserk(mob/living/carbon/human/owner)
 	starting = FALSE
@@ -316,8 +388,11 @@
 	applied_frenzy_visuals = !HAS_TRAIT(owner, TRAIT_IN_FRENZY)
 	silver_hits_taken = 0
 	silver_hits_to_break = rand(TA_DEATH_GIFT_BERSERK_SILVER_HITS_MIN, TA_DEATH_GIFT_BERSERK_SILVER_HITS_MAX)
+	next_berserk_attack = 0
+	berserk_attack_count = 0
 
 	set_berserk_traits(owner, TRUE)
+	apply_berserk_overlay(owner)
 
 	if(applied_frenzy_visuals)
 		owner.add_client_colour(/datum/client_colour/glass_colour/red)
@@ -328,6 +403,8 @@
 	keep_berserk_upright(owner)
 	owner.frenzy_target = find_berserk_target(owner)
 	owner.clear_frenzy_cache()
+	drive_berserk(owner)
+	schedule_berserk_loop(owner)
 	owner.visible_message(span_userdanger("[owner] поднимается в кровавой ярости!"), span_userdanger("Темная ярость окутала мой разум. Я ГОТОВ ПОГУБИТЬ ЭТОТ МИР."))
 
 /datum/component/ta_death_gift_berserk/proc/end_berserk(mob/living/carbon/human/owner, broken_by_silver = FALSE)
@@ -341,8 +418,10 @@
 	active = FALSE
 	ending = FALSE
 	set_berserk_traits(owner, FALSE)
+	clear_berserk_overlay(owner)
 	owner.ta_stabilize_death_gift_body(FALSE)
 	owner.apply_status_effect(/datum/status_effect/debuff/ta_death_gift_tired)
+	owner.Sleeping(TA_DEATH_GIFT_BERSERK_SLEEP_DURATION, ignore_canstun = TRUE)
 	owner.clear_frenzy_cache()
 	if(broken_by_silver)
 		owner.visible_message(span_warning("Серебро гасит темную ярость [owner]."), span_userdanger("Серебро прожигает мою ярость и бросает меня обратно в слабость."))
@@ -358,24 +437,91 @@
 		TRAIT_NOHARDCRIT,
 		TRAIT_NOCRITDAMAGE,
 		TRAIT_IGNOREDAMAGESLOWDOWN,
+		TRAIT_NOLIMBDISABLE,
 	)
 	for(var/trait in berserk_traits)
 		if(enabled)
-			ADD_TRAIT(owner, trait, TA_DEATH_GIFT_SOURCE)
+			ADD_TRAIT(owner, trait, "ta_death_gift")
 		else
-			REMOVE_TRAIT(owner, trait, TA_DEATH_GIFT_SOURCE)
+			REMOVE_TRAIT(owner, trait, "ta_death_gift")
+	owner.update_disabled_bodyparts()
 	if(applied_frenzy_visuals && !HAS_TRAIT(owner, TRAIT_IN_FRENZY))
 		owner.remove_client_colour(/datum/client_colour/glass_colour/red)
 		GLOB.frenzy_list -= owner
 	if(!enabled)
 		applied_frenzy_visuals = FALSE
 
+/datum/component/ta_death_gift_berserk/proc/apply_berserk_overlay(mob/living/carbon/human/owner)
+	if(!owner.GetComponent(/datum/component/after_image))
+		berserk_after_image = owner.AddComponent(/datum/component/after_image)
+	if(!owner.get_filter("ta_death_gift_berserk"))
+		owner.add_filter("ta_death_gift_berserk", 2, list("type" = "outline", "color" = "#7a0000", "alpha" = 120, "size" = 1))
+
+/datum/component/ta_death_gift_berserk/proc/clear_berserk_overlay(mob/living/carbon/human/owner)
+	if(istype(owner))
+		owner.remove_filter("ta_death_gift_berserk")
+	if(berserk_after_image && !QDELETED(berserk_after_image))
+		qdel(berserk_after_image)
+	berserk_after_image = null
+
 /datum/component/ta_death_gift_berserk/proc/keep_berserk_upright(mob/living/carbon/human/owner)
 	owner.remove_CC(FALSE)
+	owner.SetSleeping(0, FALSE, TRUE)
+	owner.SetUnconscious(0, FALSE, TRUE)
+	owner.SetParalyzed(0, FALSE, TRUE)
+	owner.SetImmobilized(0, FALSE, TRUE)
+	owner.SetStun(0, FALSE, TRUE)
+	owner.SetKnockdown(0, FALSE, TRUE)
 	owner.setStaminaLoss(0)
 	owner.a_intent = INTENT_HARM
 	owner.updatehealth()
 	owner.update_mobility()
+	if(owner.resting && (owner.mobility_flags & MOBILITY_CANSTAND))
+		owner.set_resting(FALSE, TRUE)
+
+/datum/component/ta_death_gift_berserk/proc/drive_berserk(mob/living/carbon/human/owner)
+	if(!active || ending || !istype(owner) || QDELETED(owner) || owner.stat == DEAD)
+		return
+	var/mob/living/target = owner.frenzy_target
+	if(!is_valid_berserk_target(owner, target))
+		target = find_berserk_target(owner)
+		owner.frenzy_target = target
+		owner.clear_frenzy_cache()
+	if(!target)
+		return
+	owner.face_atom(target)
+	if(get_dist(owner, target) <= 1)
+		try_berserk_attack(owner, target)
+		return
+	owner.frenzy_pathfind_to_target()
+
+/datum/component/ta_death_gift_berserk/proc/schedule_berserk_loop(mob/living/carbon/human/owner)
+	if(!active || ending || !istype(owner) || QDELETED(owner))
+		return
+	addtimer(CALLBACK(src, PROC_REF(berserk_loop), WEAKREF(owner)), TA_DEATH_GIFT_BERSERK_ATTACK_DELAY)
+
+/datum/component/ta_death_gift_berserk/proc/berserk_loop(datum/weakref/owner_ref)
+	if(!active || ending)
+		return
+	var/mob/living/carbon/human/owner = owner_ref?.resolve()
+	if(!istype(owner) || QDELETED(owner))
+		return
+	if(owner.stat == DEAD || !owner.get_bodypart(BODY_ZONE_HEAD))
+		ta_bloody_gib(owner)
+		return
+	keep_berserk_upright(owner)
+	if(world.time >= end_time)
+		end_berserk(owner)
+		return
+	drive_berserk(owner)
+	schedule_berserk_loop(owner)
+
+/datum/component/ta_death_gift_berserk/proc/is_valid_berserk_target(mob/living/carbon/human/owner, mob/living/target)
+	if(!istype(owner) || !isliving(target) || QDELETED(target))
+		return FALSE
+	if(target == owner || target.stat == DEAD)
+		return FALSE
+	return get_dist(owner, target) <= 7
 
 /datum/component/ta_death_gift_berserk/proc/find_berserk_target(mob/living/carbon/human/owner, mob/living/excluded_target = null)
 	var/mob/living/best_target = null
@@ -393,9 +539,50 @@
 		return excluded_target
 	return null
 
+/datum/component/ta_death_gift_berserk/proc/pick_berserk_zone(mob/living/target, prefer_accessible = FALSE)
+	if(!iscarbon(target))
+		return BODY_ZONE_CHEST
+	var/mob/living/carbon/carbon_target = target
+	var/static/list/possible_zones = list(
+		BODY_ZONE_HEAD,
+		BODY_ZONE_PRECISE_NECK,
+		BODY_ZONE_PRECISE_MOUTH,
+		BODY_ZONE_CHEST,
+		BODY_ZONE_PRECISE_STOMACH,
+		BODY_ZONE_L_ARM,
+		BODY_ZONE_R_ARM,
+		BODY_ZONE_PRECISE_L_HAND,
+		BODY_ZONE_PRECISE_R_HAND,
+		BODY_ZONE_L_LEG,
+		BODY_ZONE_R_LEG,
+		BODY_ZONE_PRECISE_L_FOOT,
+		BODY_ZONE_PRECISE_R_FOOT,
+	)
+	var/list/available_zones = list()
+	var/list/accessible_zones = list()
+	for(var/zone in possible_zones)
+		if(!carbon_target.get_bodypart(check_zone(zone)))
+			continue
+		available_zones += zone
+		if(get_location_accessible(carbon_target, zone, grabs = TRUE))
+			accessible_zones += zone
+	if(prefer_accessible && length(accessible_zones))
+		return pick(accessible_zones)
+	if(length(available_zones))
+		return pick(available_zones)
+	return BODY_ZONE_CHEST
+
 /datum/component/ta_death_gift_berserk/proc/on_stat_change(mob/living/carbon/human/source, new_stat, old_stat)
 	SIGNAL_HANDLER
 	if(active || starting || new_stat == DEAD)
+		return
+	if(can_start_berserk(source))
+		starting = TRUE
+		INVOKE_ASYNC(src, PROC_REF(start_berserk), source)
+
+/datum/component/ta_death_gift_berserk/proc/on_health_update(mob/living/carbon/human/source)
+	SIGNAL_HANDLER
+	if(active || starting || source.stat == DEAD)
 		return
 	if(can_start_berserk(source))
 		starting = TRUE
@@ -436,15 +623,34 @@
 	var/mob/living/carbon/human/owner = parent
 	if(!active || ending || source != owner || attacker != owner || !isliving(target) || target == owner || target.stat == DEAD)
 		return
-	if(!istype(owner.used_intent, INTENT_HARM))
+
+	INVOKE_ASYNC(src, PROC_REF(try_berserk_attack), owner, target)
+
+/datum/component/ta_death_gift_berserk/proc/try_berserk_attack(mob/living/carbon/human/owner, mob/living/target)
+	if(!active || ending || !istype(owner) || QDELETED(owner) || !is_valid_berserk_target(owner, target) || get_dist(owner, target) > 1)
+		return
+	if(world.time < next_berserk_attack)
 		return
 
-	INVOKE_ASYNC(src, PROC_REF(handle_berserk_unarmed_attack), owner, target, owner.zone_selected)
+	next_berserk_attack = world.time + TA_DEATH_GIFT_BERSERK_ATTACK_DELAY
+	owner.changeNext_move(TA_DEATH_GIFT_BERSERK_ATTACK_DELAY)
+	owner.setStaminaLoss(0)
+	owner.a_intent = INTENT_HARM
+	owner.face_atom(target)
+	berserk_attack_count++
+
+	var/bite_attack = !(berserk_attack_count % TA_DEATH_GIFT_BERSERK_BITE_INTERVAL)
+	var/selected_zone = pick_berserk_zone(target, bite_attack)
+	if(!prob(TA_DEATH_GIFT_BERSERK_HIT_CHANCE))
+		owner.visible_message(span_danger("[owner] рвется к [target], но промахивается!"), span_warning("Ярость ведет меня мимо цели."))
+		return
+	if(bite_attack)
+		handle_berserk_bite(owner, target, selected_zone)
+	else
+		handle_berserk_unarmed_attack(owner, target, selected_zone)
 
 /datum/component/ta_death_gift_berserk/proc/handle_berserk_unarmed_attack(mob/living/carbon/human/owner, mob/living/target, selected_zone)
 	if(!active || ending || !istype(owner) || QDELETED(owner) || !isliving(target) || QDELETED(target) || target == owner || target.stat == DEAD)
-		return
-	if(!istype(owner.used_intent, INTENT_HARM))
 		return
 
 	var/zone = check_zone(selected_zone)
@@ -466,6 +672,33 @@
 	owner.frenzy_target = find_berserk_target(owner, target)
 	owner.clear_frenzy_cache()
 
+/datum/component/ta_death_gift_berserk/proc/handle_berserk_bite(mob/living/carbon/human/owner, mob/living/target, selected_zone)
+	if(!active || ending || !istype(owner) || QDELETED(owner) || !isliving(target) || QDELETED(target) || target == owner || target.stat == DEAD)
+		return
+
+	var/zone = check_zone(selected_zone)
+	if(!zone)
+		zone = BODY_ZONE_CHEST
+	owner.do_attack_animation(target, "bite")
+	if(iscarbon(target))
+		var/mob/living/carbon/carbon_target = target
+		var/obj/item/bodypart/affecting = carbon_target.get_bodypart(zone)
+		if(!affecting)
+			return
+		carbon_target.next_attack_msg.Cut()
+		carbon_target.apply_damage(TA_DEATH_GIFT_BERSERK_PUNCH_DAMAGE, BRUTE, zone, forced = TRUE)
+		affecting.bodypart_attacked_by(BCLASS_BITE, TA_DEATH_GIFT_BERSERK_PUNCH_DAMAGE, owner, selected_zone, crit_message = TRUE, armor = 0)
+		carbon_target.visible_message(span_danger("[owner] вгрызается в [parse_zone(selected_zone)] [carbon_target]![carbon_target.next_attack_msg.Join()]"), span_userdanger("[owner] вгрызается в мой [parse_zone(selected_zone)]![carbon_target.next_attack_msg.Join()]"), span_hear("Слышно мокрое рвущее жевание!"), COMBAT_MESSAGE_RANGE, owner)
+		carbon_target.next_attack_msg.Cut()
+	else
+		target.apply_damage(TA_DEATH_GIFT_BERSERK_PUNCH_DAMAGE, BRUTE, zone, forced = TRUE)
+		target.simple_woundcritroll(BCLASS_BITE, TA_DEATH_GIFT_BERSERK_PUNCH_DAMAGE, owner, zone, crit_message = TRUE)
+		target.visible_message(span_danger("[owner] вгрызается в [target]!"), span_userdanger("[owner] вгрызается в меня!"), span_hear("Слышно мокрое рвущее жевание!"), COMBAT_MESSAGE_RANGE, owner)
+
+	playsound(target, 'sound/gore/flesh_eat_01.ogg', vol = 50, vary = FALSE, extrarange = -2, ignore_walls = FALSE, quiet = TRUE)
+	owner.frenzy_target = find_berserk_target(owner, target)
+	owner.clear_frenzy_cache()
+
 /datum/component/ta_death_gift_berserk/proc/ta_bloody_gib(mob/living/carbon/human/owner)
 	if(gibbing || !istype(owner) || QDELETED(owner))
 		return
@@ -473,13 +706,15 @@
 	owner.visible_message(span_userdanger("[owner] разрывается кровавыми ошметками, когда темная ярость пожирает тело!"))
 	owner.gib(FALSE, FALSE, FALSE)
 
-#undef TA_DEATH_GIFT_DARKSIGHT_NAME
-#undef TA_DEATH_GIFT_POWER_NAME
-#undef TA_DEATH_GIFT_BERSERK_NAME
-#undef TA_DEATH_GIFT_SOURCE
+#undef TA_DEATH_GIFT_DARKSIGHT_SEE_IN_DARK
+#undef TA_DEATH_GIFT_DARKSIGHT_LIGHTING_ALPHA
 #undef TA_DEATH_GIFT_BERSERK_DURATION
 #undef TA_DEATH_GIFT_TIRED_DURATION
+#undef TA_DEATH_GIFT_BERSERK_SLEEP_DURATION
 #undef TA_DEATH_GIFT_BERSERK_PUNCH_DAMAGE
+#undef TA_DEATH_GIFT_BERSERK_HIT_CHANCE
+#undef TA_DEATH_GIFT_BERSERK_ATTACK_DELAY
+#undef TA_DEATH_GIFT_BERSERK_BITE_INTERVAL
 #undef TA_DEATH_GIFT_BERSERK_PUSH_DISTANCE
 #undef TA_DEATH_GIFT_BERSERK_SILVER_HITS_MIN
 #undef TA_DEATH_GIFT_BERSERK_SILVER_HITS_MAX
