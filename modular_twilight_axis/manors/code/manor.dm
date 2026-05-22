@@ -354,6 +354,8 @@
 			var/units = rand(min_units, max_units)
 			if(units <= 0)
 				continue
+			
+			units = ceil(units * workstation.production_modifier)
 
 			var/datum/roguestock/stockpile_entry = get_stockpile_entry_for_good(selected_good)
 			if(!stockpile_entry)
@@ -370,7 +372,6 @@
 			produced_summary[selected_good] = produced_summary[selected_good] ? produced_summary[selected_good] + units : units
 			this_workstation_units += units
 
-		this_workstation_units = ceil(this_workstation_units * workstation.production_modifier)
 		if(is_foreign)
 			total_foreign_income += ceil(this_workstation_money * workstation.production_modifier)
 		total_units += this_workstation_units
