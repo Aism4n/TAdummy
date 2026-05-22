@@ -7,6 +7,7 @@
 #define TA_DEATH_GIFT_BERSERK_HIT_CHANCE 75
 #define TA_DEATH_GIFT_BERSERK_ATTACK_DELAY (CLICK_CD_MELEE * 0.75)
 #define TA_DEATH_GIFT_BERSERK_BITE_INTERVAL 5
+#define TA_DEATH_GIFT_BERSERK_MOVE_SPEED_STAT 15
 #define TA_DEATH_GIFT_BERSERK_PUSH_DISTANCE 3
 #define TA_DEATH_GIFT_BERSERK_SILVER_HITS_MIN 2
 #define TA_DEATH_GIFT_BERSERK_SILVER_HITS_MAX 3
@@ -156,7 +157,7 @@
 	var/static/list/death_gift_descriptions = list(
 		"Дар темного прозрения" = "Усиливает зрение в темноте почти до предела глаз умертвия.",
 		"Дар силы" = "+1 ко всем статам и дополнительно +1 к силе/скорости или +2 к интеллекту.",
-		"Дар берсерка" = "При тяжелых ранах пробуждает минуту ярости: автоатаки, усиленные удары и каждый пятый удар укусом.",
+		"Дар берсерка" = "Сильные раны могут сорвать разум в темную ярость: я поднимусь через боль и переломы, потеряю контроль и минуту буду бросаться на ближайших живых. Удары станут страшнее, каждый пятый выпад обратится звериным укусом. После - изнуряющий сон.",
 	)
 
 	var/use_byond_alert = stat != CONSCIOUS || InCritical()
@@ -362,7 +363,6 @@
 		if(world.time >= end_time)
 			end_berserk(owner)
 			return
-		drive_berserk(owner)
 		return
 
 	if(!starting && can_start_berserk(owner))
@@ -430,7 +430,7 @@
 
 /datum/component/ta_death_gift_berserk/proc/set_berserk_traits(mob/living/carbon/human/owner, enabled)
 	var/static/list/berserk_traits = list(
-		TRAIT_IN_FRENZY,
+		TRAIT_MOVEMENT_BLOCKED,
 		TRAIT_SLEEPIMMUNE,
 		TRAIT_STUNIMMUNE,
 		TRAIT_NOSOFTCRIT,
@@ -479,6 +479,10 @@
 	if(owner.resting && (owner.mobility_flags & MOBILITY_CANSTAND))
 		owner.set_resting(FALSE, TRUE)
 
+/datum/component/ta_death_gift_berserk/proc/get_berserk_move_delay()
+	var/berserk_run_delay = CONFIG_GET(number/movedelay/run_delay) + ((10 - TA_DEATH_GIFT_BERSERK_MOVE_SPEED_STAT) * SPEED_MOVSPD_MOD)
+	return max(world.tick_lag, berserk_run_delay)
+
 /datum/component/ta_death_gift_berserk/proc/drive_berserk(mob/living/carbon/human/owner)
 	if(!active || ending || !istype(owner) || QDELETED(owner) || owner.stat == DEAD)
 		return
@@ -493,12 +497,13 @@
 	if(get_dist(owner, target) <= 1)
 		try_berserk_attack(owner, target)
 		return
+	owner.set_glide_size(DELAY_TO_GLIDE_SIZE(get_berserk_move_delay()))
 	owner.frenzy_pathfind_to_target()
 
 /datum/component/ta_death_gift_berserk/proc/schedule_berserk_loop(mob/living/carbon/human/owner)
 	if(!active || ending || !istype(owner) || QDELETED(owner))
 		return
-	addtimer(CALLBACK(src, PROC_REF(berserk_loop), WEAKREF(owner)), TA_DEATH_GIFT_BERSERK_ATTACK_DELAY)
+	addtimer(CALLBACK(src, PROC_REF(berserk_loop), WEAKREF(owner)), get_berserk_move_delay())
 
 /datum/component/ta_death_gift_berserk/proc/berserk_loop(datum/weakref/owner_ref)
 	if(!active || ending)
@@ -715,6 +720,7 @@
 #undef TA_DEATH_GIFT_BERSERK_HIT_CHANCE
 #undef TA_DEATH_GIFT_BERSERK_ATTACK_DELAY
 #undef TA_DEATH_GIFT_BERSERK_BITE_INTERVAL
+#undef TA_DEATH_GIFT_BERSERK_MOVE_SPEED_STAT
 #undef TA_DEATH_GIFT_BERSERK_PUSH_DISTANCE
 #undef TA_DEATH_GIFT_BERSERK_SILVER_HITS_MIN
 #undef TA_DEATH_GIFT_BERSERK_SILVER_HITS_MAX
