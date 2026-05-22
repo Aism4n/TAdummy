@@ -123,12 +123,17 @@ Reel teleports the attached atom to the grabbed turf.
 				user.visible_message(span_info("[user] gets interrupted!"))
 	else if(istype(user.used_intent, /datum/intent/reel))	//Alternative to clicking on an empty tile. You can self-use it to reel instead.
 		if(attached && in_use)
-			if(get_dist(attached, grappled_turf) <= (user.z != grappled_turf.z ? max_range_z : max_range_noz))
+			var/reason = grapple_path_block_reason(grappled_turf, attached, attached)
+			if(!reason)
 				user.visible_message("[user] reels in the [src]!")
 				if(do_after(user, 10))
-					reel()
+					reason = grapple_path_block_reason(grappled_turf, attached, attached)
+					if(!reason)
+						reel()
+					else
+						to_chat(user, span_info(reason))
 			else
-				to_chat(user, span_info("[attached] is too far!"))
+				to_chat(user, span_info(reason))
 	else if(!is_loaded && in_use && grappled_turf && tile_effect)	//Reset option.
 		user.visible_message("[user] unhooks from the tile.")
 		reset_tile()
@@ -154,7 +159,14 @@ Reel teleports the attached atom to the grabbed turf.
 	in_use = FALSE
 	update_icon()
 
-/obj/item/grapplinghook/proc/check_path(turf/Tu, turf/Tt, state)
+/obj/item/grapplinghook/proc/check_path(turf/Tu, turf/Tt, state, track_destroyables = TRUE, atom/ignore_atom = null)
+	if(!Tu || !Tt)
+		return FALSE
+
+	// Do not allow cross-z grappling through a solid floor/ceiling.
+	if((state == GRAPPLER_ZDOWN || state == GRAPPLER_ZUP) && !istransparentturf(Tu) && !istransparentturf(Tt))
+		return FALSE
+
 	var/dist = get_dist(Tt, Tu)
 	var/last_dir
 	var/turf/last_step
@@ -165,23 +177,36 @@ Reel teleports the attached atom to the grabbed turf.
 			last_step = get_step_multiz(Tu, DOWN)
 		if(GRAPPLER_NOZ)
 			last_step = Tu
+
+	if(!last_step)
+		return FALSE
+
 	var/success = FALSE
+
 	if(state == GRAPPLER_ZDOWN || state == GRAPPLER_ZUP)
 		for(var/i = 0, i <= dist, i++)
 			last_dir = get_dir(last_step, Tt)
 			var/turf/Tstep = get_step(last_step, last_dir)
+			if(!Tstep)
+				return FALSE
+
 			if(!Tstep.density)
 				success = TRUE
 				var/list/cont = Tstep.GetAllContents()
 				for(var/obj/structure/roguewindow/W in cont)
+					if(W == ignore_atom)
+						continue
 					if(W.climbable && !W.opacity)	//It's climable and can be seen through
 						success = TRUE
-						LAZYADD(obj_to_destroy, W)
+						if(track_destroyables)
+							LAZYADD(obj_to_destroy, W)
 						continue
 					else if(!W.climbable)
 						success = FALSE
 						return success
 				for(var/obj/structure/fluff/railing/fence/F in cont)
+					if(F == ignore_atom)
+						continue
 					if(F)
 						success = FALSE
 						return success
@@ -189,21 +214,53 @@ Reel teleports the attached atom to the grabbed turf.
 				success = FALSE
 				return success
 			last_step = Tstep
+
 	if(state == GRAPPLER_NOZ)
 		success = TRUE
 		var/list/visible = getline(Tu, Tt)
 		for(var/turf/T in visible)
-			if(T.opacity || T.density && T != Tu)	//Any dense or opaque turfs
+			if(T.opacity || (T.density && T != Tu))	//Any dense or opaque turfs
 				success = FALSE
 				return success
 			for(var/obj/O in (T.contents + Tt.contents))
-				if(O)
-					if(O.density || O.opacity)	//ANY dense or opaque objects. It's strict, but it's also a teleport, so. 
-						success = FALSE
-						return success
+				if(O == ignore_atom)
+					continue
+				if(O.density || O.opacity)	//ANY dense or opaque objects. It's strict, but it's also a teleport, so. 
+					success = FALSE
+					return success
+
 	return success
 
-	
+/obj/item/grapplinghook/proc/grapple_path_block_reason(turf/source_turf, atom/target, atom/ignore_atom = null)
+	if(!source_turf || !target)
+		return "The path is blocked!"
+
+	var/turf/target_turf = get_turf(target)
+	if(!target_turf)
+		return "The path is blocked!"
+
+	if(source_turf == target_turf)
+		return null
+
+	var/state
+	var/allowed_range
+	if(source_turf.z == target_turf.z)
+		state = GRAPPLER_NOZ
+		allowed_range = max_range_noz
+	else if(target_turf.z > source_turf.z)
+		state = GRAPPLER_ZUP
+		allowed_range = max_range_z
+	else
+		state = GRAPPLER_ZDOWN
+		allowed_range = max_range_z
+
+	if(get_dist(source_turf, target_turf) > allowed_range)
+		return "[target] is too far!"
+
+	if(!check_path(source_turf, target_turf, state, FALSE, ignore_atom))
+		return "The path is blocked!"
+
+	return null
 
 //Successful reel, complete reset.
 /obj/item/grapplinghook/proc/reel()
@@ -280,8 +337,19 @@ Reel teleports the attached atom to the grabbed turf.
 				to_chat(user, span_info("Incorrect target! It needs a clear floor tile to grapple onto."))
 		else if(!is_loaded)
 			to_chat(user, span_info("It's been used already."))
+
 	if(istype(user.used_intent, /datum/intent/attach))	//Second step. Once we have a turf we've grappled onto, we can use this to attach to an entity.
 		if(in_use && !istype(target, /turf/))	//Can't use the feature unless it's grappled already
+			var/reason = grapple_path_block_reason(get_turf(user), target, target)
+			if(reason)
+				to_chat(user, span_info(reason))
+				return
+
+			reason = grapple_path_block_reason(grappled_turf, target, target)
+			if(reason)
+				to_chat(user, span_info(reason))
+				return
+
 			var/safe_to_teleport = TRUE
 			if(isobj(target))
 				var/obj/O = target
@@ -295,6 +363,16 @@ Reel teleports the attached atom to the grabbed turf.
 			if(safe_to_teleport)
 				to_chat(user, span_info("I begin to attach the hook..."))
 				if(do_after(user, 30))
+					reason = grapple_path_block_reason(get_turf(user), target, target)
+					if(reason)
+						to_chat(user, span_info(reason))
+						return
+
+					reason = grapple_path_block_reason(grappled_turf, target, target)
+					if(reason)
+						to_chat(user, span_info(reason))
+						return
+
 					if(target != user)
 						user.visible_message(span_warning("[user] attaches the hook to [target]."))
 					if(target == user)
@@ -304,14 +382,20 @@ Reel teleports the attached atom to the grabbed turf.
 				to_chat(user, span_warning("[target] is too large or unwieldy to attach!"))
 		else
 			to_chat(user, span_info("I need to have it hooked onto a tile first."))
+
 	if(istype(user.used_intent, /datum/intent/reel))	//Last step, we reel in the attached entity to the grappled turf.
 		if(attached && in_use)
-			if(get_dist(attached, grappled_turf) <= (user.z != grappled_turf.z ? max_range_z : max_range_noz))
+			var/reason = grapple_path_block_reason(grappled_turf, attached, attached)
+			if(!reason)
 				user.visible_message("[user] reels in \the [src]!")
 				if(do_after(user, 10))
-					reel()
+					reason = grapple_path_block_reason(grappled_turf, attached, attached)
+					if(!reason)
+						reel()
+					else
+						to_chat(user, span_info(reason))
 			else
-				to_chat(user, span_info("[target] is too far!"))
+				to_chat(user, span_info(reason))
 		else
 			to_chat(user, span_info("I need to have something attached."))
 	. = ..()
