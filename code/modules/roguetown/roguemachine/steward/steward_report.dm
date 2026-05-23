@@ -68,7 +68,7 @@
 		if(length(outpost_manors))
 			body += "<b>The following estates mobilized against banditry:</b><br>"
 			for(var/manor in outpost_manors)
-				body += "&nbsp;&nbsp;- [manor]<br>"
+				body += "&nbsp;&nbsp;- [manor], owned by [outpost_manors[manor]]<br>"
 		if(diff["outpost_threat_reduced"])
 			body += "<b>Threat relief:</b> [diff["outpost_threat_reduced"]] danger reduced by [diff["outpost_threat_reduction_amount"]] points.<br>" //TA EDIT END
 		if(banditry_debt_accrued > 0)

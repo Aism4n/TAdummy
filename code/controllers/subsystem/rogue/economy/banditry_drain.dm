@@ -33,7 +33,7 @@
 	return result
 
 /datum/controller/subsystem/economy/proc/get_outpost_banditry_support() //TA EDIT START
-	var/list/info = list("workers" = 0, "manors" = list(), "owners" = list())
+	var/list/info = list("workers" = 0, "manors" = list(), "owners" = list(), "owner_names" = list())
 	for(var/mob/living/carbon/human/H in GLOB.human_list)
 		if(!H || !H.mind)
 			continue
@@ -44,8 +44,7 @@
 		if(num_workers <= 0)
 			continue
 		info["workers"] += num_workers
-		info["manors"] += manor.manor_name
-		info["owners"] += H
+		info["manors"] += list("[manor.manor_name]" = "[H.real_name]")
 	return info //TA EDIT END
 
 /datum/controller/subsystem/economy/proc/tick_banditry_drain()
@@ -73,6 +72,7 @@
 		if(preview["outpost_reduction"]) //TA EDIT START
 			daily_report_diff["outpost_reduction"] = preview["outpost_reduction"]
 			daily_report_diff["outpost_manors"] = preview["outpost_manors"]
+			daily_report_diff["outpost_owners"] = preview["outpost_owners"]
 
 	var/outpost_reduction = preview["outpost_reduction"] || 0
 	for(var/mob/living/carbon/human/H in GLOB.human_list)
