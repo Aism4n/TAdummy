@@ -113,28 +113,24 @@
 	if(inqcoins)
 		to_chat(user, span_warning("The machine doesn't respond."))
 		return
-	ui_interact(user)
-
-/obj/structure/roguemachine/mail/ui_interact(mob/user, datum/tgui/ui)
-	// TA EDIT START
-	if(coin_loaded)
+	if(coin_loaded) //TA EDIT START
 		if(ishuman(user))
 			var/mob/living/carbon/human/H = user
 			if(can_open_manor_panel(H))
 				var/choice = tgui_alert(user, "What would you like to do?", "HERMES Terminal", list("Send Mail", "Correspond with Manor"))
 				switch(choice)
 					if("Send Mail")
-						open_hermes_panel(user)
+						ui_interact(user)
 					if("Correspond with Manor")
 						open_manor_panel(user)
 				return FALSE
-	open_hermes_panel(user)
+	ui_interact(user) //TA EDIT END
 
-/obj/structure/roguemachine/mail/proc/open_hermes_panel(mob/user, datum/tgui/ui)
+/obj/structure/roguemachine/mail/ui_interact(mob/user, datum/tgui/ui)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
 		ui = new(user, src, "Hermes", "HERMES")
-		ui.open() // TA EDIT END
+		ui.open()
 
 /obj/structure/roguemachine/mail/ui_static_data(mob/user)
 	var/list/data = list()
@@ -658,6 +654,16 @@
 		qdel(C)
 		playsound(src, 'sound/misc/coininsert.ogg', 100, FALSE, -1)
 		update_icon()
+		if(ishuman(user)) //TA EDIT START
+			var/mob/living/carbon/human/H = user
+			if(can_open_manor_panel(H))
+				var/choice = tgui_alert(user, "What would you like to do?", "HERMES Terminal", list("Send Mail", "Correspond with Manor"))
+				switch(choice)
+					if("Send Mail")
+						ui_interact(user)
+					if("Correspond with Manor")
+						open_manor_panel(user)
+				return FALSE //TA EDIT END
 		ui_interact(user)
 		return
 	..()

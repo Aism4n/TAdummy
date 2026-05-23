@@ -120,7 +120,7 @@
 				var/datum/workstation/fish/new_fish = new /datum/workstation/fish()
 				workstations += new_fish
 				workers_limit += new_fish.workstation_size
-		if(/datum/patron/divine/astrata || /datum/patron/divine/ravox)
+		if(/datum/patron/divine/astrata, /datum/patron/divine/ravox)
 			var/has_outpost = FALSE
 			for(var/datum/workstation/ws in workstations)
 				if(istype(ws, /datum/workstation/outpost))

@@ -53,7 +53,7 @@ const getKindTheme = (kind: string) => {
         border: 'transparent',
         card: 'transparent',
         overlay: 'transparent',
-        chip: 'rgba(244, 213, 151, 0.12)',
+        chip: 'rgba(24, 14, 8, 0.33)',
         subtitle: 'Злаки и овощи',
       };
     case 'orchard':
@@ -62,7 +62,7 @@ const getKindTheme = (kind: string) => {
         border: 'transparent',
         card: 'transparent',
         overlay: 'transparent',
-        chip: 'rgba(193, 243, 161, 0.12)',
+        chip: 'rgba(24, 14, 8, 0.33)',
         subtitle: 'Фрукты и ягоды',
       };
     case 'hunt':
@@ -71,7 +71,7 @@ const getKindTheme = (kind: string) => {
         border: 'transparent',
         card: 'transparent',
         overlay: 'transparent',
-        chip: 'rgba(180, 203, 248, 0.11)',
+        chip: 'rgba(24, 14, 8, 0.33)',
         subtitle: 'Мех, шкуры и дичь',
       };
     case 'farm':
@@ -80,7 +80,7 @@ const getKindTheme = (kind: string) => {
         border: 'transparent',
         card: 'transparent',
         overlay: 'transparent',
-        chip: 'rgba(245, 216, 172, 0.11)',
+        chip: 'rgba(24, 14, 8, 0.33)',
         subtitle: 'Скот и припасы',
       };
     case 'trade':
@@ -89,7 +89,7 @@ const getKindTheme = (kind: string) => {
         border: 'transparent',
         card: 'transparent',
         overlay: 'transparent',
-        chip: 'rgba(222, 191, 248, 0.11)',
+        chip: 'rgba(24, 14, 8, 0.33)',
         subtitle: 'Товары и прибыль',
       };
     case 'fish':
@@ -98,7 +98,7 @@ const getKindTheme = (kind: string) => {
         border: 'transparent',
         card: 'transparent',
         overlay: 'transparent',
-        chip: 'rgba(203, 191, 248, 0.11)',
+        chip: 'rgba(24, 14, 8, 0.33)',
         subtitle: 'Рыба и морские сокровища',
       };
     case 'mining':
@@ -107,7 +107,7 @@ const getKindTheme = (kind: string) => {
         border: 'transparent',
         card: 'transparent',
         overlay: 'transparent',
-        chip: 'rgba(222, 191, 248, 0.11)',
+        chip: 'rgba(24, 14, 8, 0.33)',
         subtitle: 'Руды и ископаемые',
       };
     case 'forest':
@@ -116,7 +116,7 @@ const getKindTheme = (kind: string) => {
         border: 'transparent',
         card: 'transparent',
         overlay: 'transparent',
-        chip: 'rgba(222, 191, 248, 0.11)',
+        chip: 'rgba(24, 14, 8, 0.33)',
         subtitle: 'Древисина и уголь',
       };
     case 'mage_tower':
@@ -125,7 +125,7 @@ const getKindTheme = (kind: string) => {
         border: 'transparent',
         card: 'transparent',
         overlay: 'transparent',
-        chip: 'rgba(222, 191, 248, 0.11)',
+        chip: 'rgba(24, 14, 8, 0.33)',
         subtitle: 'Магические реагенты',
       };
     case 'cathedral':
@@ -134,7 +134,7 @@ const getKindTheme = (kind: string) => {
         border: 'transparent',
         card: 'transparent',
         overlay: 'transparent',
-        chip: 'rgba(222, 191, 248, 0.11)',
+        chip: 'rgba(24, 14, 8, 0.33)',
         subtitle: 'Вознесем хвалу Ему',
       };
     case 'outpost':
@@ -143,7 +143,7 @@ const getKindTheme = (kind: string) => {
         border: 'transparent',
         card: 'transparent',
         overlay: 'transparent',
-        chip: 'rgba(222, 191, 248, 0.11)',
+        chip: 'rgba(24, 14, 8, 0.33)',
         subtitle: 'На страже мира и порядка',
       };
     default:
@@ -152,7 +152,7 @@ const getKindTheme = (kind: string) => {
         border: 'rgba(238, 220, 185, 0.28)',
         card: 'linear-gradient(180deg, rgba(97,70,43,0.96), rgba(47,32,18,0.98))',
         overlay: 'linear-gradient(135deg, rgba(240,210,160,0.12), rgba(0,0,0,0.08) 70%)',
-        chip: 'rgba(244, 226, 195, 0.10)',
+        chip: 'rgba(24, 14, 8, 0.33)',
         subtitle: 'Хозяйственное угодье',
       };
   }
