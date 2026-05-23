@@ -77,16 +77,16 @@
 					ws.production_modifier = 0.8
 				else if(istype(ws, /datum/workstation/hunt))
 					ws.production_modifier = 1.3
-			var/datum/workstation/mage_tower/new_mage_tower = new /datum/workstation/mage_tower()
-			workstations += new_mage_tower
-			workers_limit += new_mage_tower.workstation_size
+			//var/datum/workstation/mage_tower/new_mage_tower = new /datum/workstation/mage_tower()
+			//workstations += new_mage_tower
+			//workers_limit += new_mage_tower.workstation_size
 		if(/datum/patron/inhumen/zizo)
 			for(var/datum/workstation/ws in workstations)
 				if(istype(ws, /datum/workstation/trade))
 					ws.production_modifier = 0.5
-			var/datum/workstation/mage_tower/new_mage_tower = new /datum/workstation/mage_tower()
-			workstations += new_mage_tower
-			workers_limit += new_mage_tower.workstation_size
+			//var/datum/workstation/mage_tower/new_mage_tower = new /datum/workstation/mage_tower()
+			//workstations += new_mage_tower
+			//workers_limit += new_mage_tower.workstation_size
 		if(/datum/patron/divine/malum)
 			var/has_mine_district = FALSE
 			for(var/datum/workstation/ws in workstations)
@@ -109,6 +109,15 @@
 				var/datum/workstation/fish/new_fish = new /datum/workstation/fish()
 				workstations += new_fish
 				workers_limit += new_fish.workstation_size
+		if(/datum/patron/divine/astrata || /datum/patron/divine/ravox)
+			var/has_outpost = FALSE
+			for(var/datum/workstation/ws in workstations)
+				if(istype(ws, /datum/workstation/outpost))
+					has_outpost = TRUE
+			if(!has_outpost)
+				var/datum/workstation/outpost/new_outpost = new /datum/workstation/outpost()
+				workstations += new_outpost
+				workers_limit += new_outpost.workstation_size
 	return workers_limit
 
 /datum/manor/proc/update_workstation_types(type = "manor", manor_size = "big")
@@ -255,6 +264,13 @@
 
 /datum/manor/proc/get_free_workers()
 	return max(total_workers - get_assigned_workers(), 0)
+
+/datum/manor/proc/get_outpost_workers()
+	var/total = 0
+	for(var/datum/workstation/ws in workstations)
+		if(istype(ws, /datum/workstation/outpost))
+			total += ws.workers_employed
+	return total
 
 /datum/manor/proc/get_stockpile_entry_for_good(good_path)
 	if(!good_path)

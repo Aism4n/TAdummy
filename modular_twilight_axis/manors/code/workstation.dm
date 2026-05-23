@@ -99,6 +99,14 @@
 /datum/workstation/farm/big
 	workstation_size = 20
 
+/datum/workstation/outpost
+	workstation_name = "Outpost"
+	workstation_theme = "outpost"
+	produce = list()
+	workstation_size = 6
+	production_increase_per_job = 0
+	type_of_produce = "Defense"
+
 /datum/workstation/trade
 	workstation_name = "Торговые ряды"
 	workstation_theme = "trade"
