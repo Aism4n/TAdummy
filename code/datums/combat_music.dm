@@ -23,8 +23,13 @@ GLOBAL_LIST_EMPTY(cmode_tracks_by_name)
 /proc/is_valid_custom_combat_music_path(path)
 	if(!istext(path) || !length(path))
 		return FALSE
-	if(findtext(path, "data/custom_cmode_") != 1)
+
+	if(findtext(path, "data/combat_music_uploads/") != 1)
 		return FALSE
+
+	if(findtext(path, "..") || findtext(path, ascii2text(92)))
+		return FALSE
+
 	return get_custom_combat_music_extension(path) == ".ogg"
 
 /proc/sanitize_custom_combat_music_filename(filename)

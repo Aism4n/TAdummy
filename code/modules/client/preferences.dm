@@ -425,7 +425,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	var/upload_ckey = user.ckey
 	if(parent?.ckey)
 		upload_ckey = parent.ckey
-	var/upload_path = "data/custom_cmode_[upload_ckey]_[default_slot]_[world.realtime]_[filename]"
+	var/upload_path = "data/combat_music_uploads/[upload_ckey]/custom_cmode_[default_slot]_[world.realtime]_[filename]"
 
 	if(custom_cmode_file && is_valid_custom_combat_music_path(custom_cmode_file) && fexists(custom_cmode_file))
 		fdel(custom_cmode_file)
