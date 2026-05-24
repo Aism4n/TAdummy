@@ -428,6 +428,7 @@
 
 /datum/loadout_item/triumph_fermented_crab
 	name = "Fermented Crab"
+	desc = "A man thinks he's done, drinks a mouthful of this. Five minutes later he's back in the race."
 	path = /obj/item/reagent_containers/glass/bottle/alchemical/fermented_crab
 	triumph_cost = 5
 	sort_category = "Triumphs"
