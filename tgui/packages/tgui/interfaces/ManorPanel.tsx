@@ -48,7 +48,6 @@ const GOD_TOOLTIPS: Record<string, string> = {
   'zizo': 'Благодаря Её благословению, рабочие вашего имения не знают усталости, поставляя плоды своего труда дважды в день, на закате и на рассвете. Торговля со смертными требует маскировки, что значительно снижает её эффективность.',
 };
 
-const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
 const HoverCard = ({ data }: { data: HoverCardData | null }) => {
   if (!data) {
@@ -297,7 +296,13 @@ const workerButton: React.CSSProperties = {
   boxShadow: '0 6px 14px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.05)',
 };
 
-const PatronMedallion = ({ patronKey }: { patronKey: string }) => {
+const PatronMedallion = ({
+  patronKey,
+  setHoveredItem,
+}: {
+  patronKey: string;
+  setHoveredItem: (value: HoverCardData | null) => void;
+}) => {
   const icon = GOD_ICONS[patronKey] || GOD_ICONS.astrata;
   const godtooltip = GOD_TOOLTIPS[patronKey] || GOD_TOOLTIPS.astrata;
   return (
@@ -322,7 +327,7 @@ const PatronMedallion = ({ patronKey }: { patronKey: string }) => {
       }}
       onMouseEnter={() =>
         setHoveredItem({
-          text: {godtooltip},
+          text: godtooltip,
         })
       }
       onMouseLeave={() => setHoveredItem(null)}>
@@ -508,6 +513,7 @@ const WorkstationCard = ({ ws, act }: { ws: WorkstationData; act: (action: strin
 
 export const ManorPanel = () => {
   const { act, data } = useBackend<ManorPanelData>();
+  const [hoveredItem, setHoveredItem] = useState<HoverCardData | null>(null);
   const {
     manor_name,
     manor_type,
@@ -576,7 +582,7 @@ export const ManorPanel = () => {
                 </div>
               </div>
 
-              <PatronMedallion patronKey={manor_patron_key} />
+              <PatronMedallion patronKey={manor_patron_key} setHoveredItem={setHoveredItem} />
             </div>
           </div>
 
