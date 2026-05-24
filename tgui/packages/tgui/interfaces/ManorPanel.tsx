@@ -65,8 +65,9 @@ const HoverCard = ({ data }: { data: HoverCardData | null }) => {
         maxWidth: 'calc(100vw - 48px)',
         padding: '10px 12px',
         borderRadius: '8px',
-        background: 'rgba(10, 12, 22, 0.96)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        background: 'radial-gradient(circle at top, rgba(154,108,49,0.18), transparent 26%),' +
+        'linear-gradient(180deg, rgba(24,14,8,1) 0%, rgba(14,9,5,1) 100%)',
+        border: '1px solid rgba(226,191,141,0.08)',
         boxShadow: '0 8px 20px rgba(0,0,0,0.45)',
         zIndex: 1000,
         pointerEvents: 'none',
