@@ -381,7 +381,6 @@
 			available_produce -= choice
 
 		var/this_workstation_units = 0
-		var/this_workstation_money = 0
 		for(var/i = 1; i <= workstation.workers_employed; i++)
 			var/selected_good = pick(selected_produce)
 			var/min_units = 0
@@ -406,14 +405,13 @@
 				units = ceil(units * resources_multiplier)
 			if(!is_foreign)
 				stockpile_entry.stockpile_amount += units
+				total_profit_money += max(ceil(process_goods_sold_to_market(stockpile_entry, units)/3), 1)
 			else
-				this_workstation_money += process_goods_sold_to_market(stockpile_entry, units)
+				total_profit_money += process_goods_sold_to_market(stockpile_entry, units)
 
 			produced_summary[selected_good] = produced_summary[selected_good] ? produced_summary[selected_good] + units : units
 			this_workstation_units += units
 
-		if(is_foreign)
-			total_profit_money += ceil(this_workstation_money * workstation.production_modifier)
 		total_units += this_workstation_units
 		if(workstation.type_of_produce == "Profit")
 			if(patron == /datum/patron/inhumen/zizo)
@@ -455,7 +453,7 @@
 	if(coin_income > 0)
 		if(is_foreign)
 			var/datum/fund/foreign_estate_fund = new("Foreign Estate Income for [owner.real_name]", owner, coin_income, CURRENCY_MAMMON)
-			estate_levy = SStreasury.apply_tax(foreign_estate_fund, coin_income, TAX_CATEGORY_ESTATE_LEVY, "Foreign estate production income")
+			estate_levy = SStreasury.apply_tax(foreign_estate_fund, coin_income, TAX_CATEGORY_ESTATE_LEVY, "Foreign estate levy income")
 			import_tariff = SStreasury.apply_tax(foreign_estate_fund, foreign_estate_fund.balance, TAX_CATEGORY_IMPORT_TARIFF, "Foreign estate import tariff")
 			coin_income = foreign_estate_fund.balance
 			qdel(foreign_estate_fund)
@@ -464,7 +462,7 @@
 			var/datum/fund/owner_account = SStreasury.get_account(owner)
 			if(owner_account)
 				if(patron != /datum/patron/inhumen/matthios) //FREEDOM OF TRANSACTION
-					estate_levy = SStreasury.apply_tax(owner_account, coin_income, TAX_CATEGORY_ESTATE_LEVY, "Estate production income")
+					estate_levy = SStreasury.apply_tax(owner_account, coin_income, TAX_CATEGORY_ESTATE_LEVY, "Estate levy income")
 					coin_income -= estate_levy
 				SStreasury.generate_money_account(coin_income, owner)
 
