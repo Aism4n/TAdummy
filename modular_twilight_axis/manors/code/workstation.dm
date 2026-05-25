@@ -143,7 +143,6 @@
 		/datum/roguestock/stockpile/clam,
 		/datum/roguestock/stockpile/lobster,
 		/datum/roguestock/stockpile/shrimp,
-		/datum/roguestock/stockpile/gold,
 		/datum/roguestock/stockpile/salt,
 	)
 
