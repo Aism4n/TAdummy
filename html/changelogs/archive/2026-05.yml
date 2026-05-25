@@ -1758,6 +1758,8 @@
   - admin: remove MUTE from player LOOC
   psyendrocronologicalwarfare:
   - spellcheck: removes mention of caine/kaine because they are not real
+  rarytech:
+  - balance: added battleward rune owner for caster
   saltprjak:
   - balance: Rogue Mages receive dagger skill, some utility skills, and innate Message
       and Mindlink spells.
