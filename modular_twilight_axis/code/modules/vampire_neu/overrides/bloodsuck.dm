@@ -59,6 +59,8 @@ drinksomeblood()
 #define TA_VAMP_BLOODDRINK_INITIAL_BLOOD_LOSS 3
 #define TA_VAMP_BLOODDRINK_VITAE_DRAIN 250
 #define TA_VAMP_BLOODDRINK_TARGET_FINAL_BLOOD 200
+// Temporarily disabled. Uncomment to restore Vampire Lord forced conversion.
+//#define TA_VAMP_LORD_FORCE_CONVERT
 
 /// VISUALS
 /mob/living/carbon/human/add_bite_animation()
@@ -569,7 +571,10 @@ drinksomeblood()
 	var/datum/mind/victim_original_mind = H.mind
 
 	// === DETERMINE AVAILABLE OPTIONS ===
-	var/can_force_convert = istype(VDrinker, /datum/antagonist/vampire/lord)
+	var/can_force_convert = FALSE
+#ifdef TA_VAMP_LORD_FORCE_CONVERT
+	can_force_convert = istype(VDrinker, /datum/antagonist/vampire/lord)
+#endif
 	var/can_drain = can_offer_pallid_drain(victim)
 	var/can_sire_thrall = VDrinker.can_sire_thrall()
 	if(!can_sire_thrall && !can_drain)

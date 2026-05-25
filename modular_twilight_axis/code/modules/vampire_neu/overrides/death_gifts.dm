@@ -157,7 +157,7 @@
 	var/static/list/death_gift_descriptions = list(
 		"Дар темного прозрения" = "Усиливает зрение в темноте почти до предела глаз умертвия.",
 		"Дар силы" = "+1 ко всем статам и дополнительно +1 к силе/скорости или +2 к интеллекту.",
-		"Дар берсерка" = "Сильные раны могут сорвать разум в темную ярость: я поднимусь через боль и переломы, потеряю контроль и минуту буду бросаться на ближайших живых. Удары станут страшнее, каждый пятый выпад обратится звериным укусом. После - изнуряющий сон.",
+		"Дар берсерка" = "Сильные раны могут сорвать остатки воли и выпустить темную ярость. Тело поднимется через боль и переломы, разум утонет в голоде, а ближайшие живые станут добычей. После придет изнуряющий сон.",
 	)
 
 	var/use_byond_alert = stat != CONSCIOUS || InCritical()
@@ -324,6 +324,7 @@
 	var/silver_hits_to_break = 0
 	var/next_berserk_attack = 0
 	var/berserk_attack_count = 0
+	var/datum/previous_click_intercept
 	var/datum/component/after_image/berserk_after_image
 
 /datum/component/ta_death_gift_berserk/Initialize()
@@ -340,6 +341,7 @@
 /datum/component/ta_death_gift_berserk/Destroy()
 	var/mob/living/carbon/human/owner = parent
 	if(active && istype(owner))
+		set_berserk_click_intercept(owner, FALSE)
 		set_berserk_traits(owner, FALSE)
 	if(istype(owner))
 		clear_berserk_overlay(owner)
@@ -392,6 +394,7 @@
 	berserk_attack_count = 0
 
 	set_berserk_traits(owner, TRUE)
+	set_berserk_click_intercept(owner, TRUE)
 	apply_berserk_overlay(owner)
 
 	if(applied_frenzy_visuals)
@@ -417,6 +420,7 @@
 
 	active = FALSE
 	ending = FALSE
+	set_berserk_click_intercept(owner, FALSE)
 	set_berserk_traits(owner, FALSE)
 	clear_berserk_overlay(owner)
 	owner.ta_stabilize_death_gift_body(FALSE)
@@ -450,6 +454,20 @@
 		GLOB.frenzy_list -= owner
 	if(!enabled)
 		applied_frenzy_visuals = FALSE
+
+/datum/component/ta_death_gift_berserk/proc/set_berserk_click_intercept(mob/living/carbon/human/owner, enabled)
+	if(enabled)
+		if(owner.click_intercept == src)
+			return
+		previous_click_intercept = owner.click_intercept
+		owner.click_intercept = src
+		return
+	if(owner.click_intercept == src)
+		owner.click_intercept = previous_click_intercept
+	previous_click_intercept = null
+
+/datum/component/ta_death_gift_berserk/proc/InterceptClickOn(mob/living/clicker, params, atom/target)
+	return active && !ending
 
 /datum/component/ta_death_gift_berserk/proc/apply_berserk_overlay(mob/living/carbon/human/owner)
 	if(!owner.GetComponent(/datum/component/after_image))
