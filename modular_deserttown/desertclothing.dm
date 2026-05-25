@@ -69,8 +69,7 @@
 	desc = "Fine armor made of treated animal scales, denoting an esteemd career in the dunes."
 	icon_state = "huus"
 	item_state = "huus"
-	armor = ARMOR_LEATHER_STUDDED
-	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_CHOP, BCLASS_BLUNT, BCLASS_TWIST)
+	//здесь были строчки защиты, вырезаны т.к. айтем наследует статы защиты от бригандины
 	blocksound = SOFTHIT
 	slot_flags = ITEM_SLOT_ARMOR
 	blade_dulling = DULLING_BASHCHOP
@@ -104,15 +103,15 @@
 	body_parts_covered = HEAD|HAIR|EARS
 	flags_inv = HIDEEARS|HIDEHAIR
 
-// /obj/item/clothing/head/roguetown/helmet/janissary
-// 	name = "Janissaries Helm"
-// 	desc = "A helmet with too much style."
-// 	icon_state = "atgervi_raider"
-// 	item_state = "atgervi_raider"
-// 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/head32x48.dmi'
-// 	max_integrity = 250
-// 	body_parts_covered = HEAD|HAIR|EARS|NOSE
-// 	flags_inv = HIDEEARS|HIDEHAIR|HIDEFACE|HIDEFACIALHAIR
+/* /obj/item/clothing/head/roguetown/helmet/janissary // НЕ ИСПОЛЬЗОВАТЬ - ДУБЛИКАТ ПРЕДМЕТА ВЫШЕ
+name = "Janissaries Helm"		
+	desc = "A helmet with too much style."
+	icon_state = "atgervi_raider"
+	item_state = "atgervi_raider"
+	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/head32x48.dmi'
+	max_integrity = 250
+	body_parts_covered = HEAD|HAIR|EARS|NOSE
+	flags_inv = HIDEEARS|HIDEHAIR|HIDEFACE|HIDEFACIALHAIR */
 	
 ///VEST
 
@@ -738,8 +737,8 @@
 	icon_state = "shalal"//change when I get around to it
 	item_state = "shalal"
 	color = "#d4c7bf"
-	armor = ARMOR_LEATHER_GOOD
-	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_BLUNT, BCLASS_TWIST)	//Same as gloves
+	/* armor = ARMOR_LEATHER_GOOD
+	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_BLUNT, BCLASS_TWIST)	*/
 	max_integrity = 100			//Half that of iron boots
 
 	
