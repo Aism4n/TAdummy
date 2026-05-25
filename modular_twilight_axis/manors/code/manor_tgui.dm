@@ -91,7 +91,7 @@
 /datum/manor_panel/proc/is_allowed_manor_role(mob/user)
 	var/datum/job/J = SSjob.GetJob(user.job)
 	var/is_noble = HAS_TRAIT_FROM(user, TRAIT_NOBLE, JOB_TRAIT) || HAS_TRAIT_FROM(user, TRAIT_NOBLE, ADVENTURER_TRAIT) //For now, no nobility for virtue nobles
-	var/is_resident = HAS_TRAIT(user, TRAIT_RESIDENT)
+	var/is_resident = !(HAS_TRAIT(user, TRAIT_OUTLANDER))
 
 	if(J)
 		if((J.department_flag & RETINUE) && is_noble)
@@ -100,11 +100,11 @@
 		if((J.department_flag & COURTIERS) && is_noble)
 			return TRUE
 
+		if((J.department_flag & SIDEFOLK) && is_noble && is_resident && !(TRAIT_OUTLANDER in J.job_traits)) //Basically just the Veteran
+			return TRUE
+
 	//if(is_noble && HAS_TRAIT(user, TRAIT_OUTLANDER) && !user.mind?.has_antag_datum(/datum/antagonist)) //Postponed for now
 		//return TRUE
-
-	if(is_noble  && is_resident) 
-		return TRUE
 
 	return FALSE
 

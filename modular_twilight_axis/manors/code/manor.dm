@@ -50,9 +50,7 @@
 			return "big"
 		if(owner.mind?.assigned_role in list("Councillor", "Knight", "Royal Knight"))
 			return "medium"
-		if(HAS_TRAIT(owner, TRAIT_NOBLE) && HAS_TRAIT(owner, TRAIT_RESIDENT))
-			return "small"
-	return manor_size
+	return "small"
 
 /datum/manor/proc/set_up_patron_bonuses(max_workers)
 	switch(patron)
