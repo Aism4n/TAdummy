@@ -24471,10 +24471,6 @@
 	color = "#d4ffcf"
 	},
 /area/rogue/under/cave/skeletoncrypt)
-"kkA" = (
-/obj/machinery/light/rogue/candle/off,
-/turf/open/lava,
-/area/rogue/under/town/basement/desert)
 "kkB" = (
 /obj/structure/gate/bars{
 	gid = "keepin1";
@@ -69797,10 +69793,10 @@ mrU
 wsz
 wsz
 qXD
+qTP
 eti
-wsz
 qXD
-kkA
+stI
 stI
 stI
 stI
@@ -188049,7 +188045,7 @@ kvr
 kvr
 kvr
 kvr
-dJU
+eBo
 eBo
 eBo
 eBo
@@ -188362,7 +188358,7 @@ kvr
 kvr
 eBo
 eBo
-eBo
+dJU
 eBo
 eBo
 eBo
