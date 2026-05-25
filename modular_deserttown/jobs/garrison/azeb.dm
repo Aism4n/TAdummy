@@ -5,16 +5,12 @@
 	faction = "Station"
 	total_positions = 8
 	spawn_positions = 8
-	selection_color = JCOLOR_SOLDIER
 	allowed_sexes = list(MALE, FEMALE)
-	allowed_races = ACCEPTED_RACES
-	allowed_ages = list(AGE_ADULT, AGE_MIDDLEAGED, AGE_OLD)
+	allowed_races = list(ALL_RACES_TYPES)
 	tutorial = "Beholden to the royal family as property, you where raised from birth as a slave soldier. \
 		Sent to guard the border and keep the city safe as your more esteemed counterparts live lavishly within the city\
 		 walls yours is a thankless duty but one that must be upheld."
-	
-	display_order = JDO_TOWNGUARD
-	whitelist_req = TRUE
+	display_order = JDO_GUARD
 
 	outfit = /datum/outfit/job/roguetown/azeb
 	advclass_cat_rolls = list(CTAG_AZEB = 20)
@@ -23,11 +19,10 @@
 	min_pq = 0
 	max_pq = null
 	round_contrib_points = 2
-	cmode_music = 'sound/music/combat_desert1.ogg'
-	social_rank = SOCIAL_RANK_PEASANT
+//	cmode_music = 'sound/music/combat_desert1.ogg'
 	job_traits = list(TRAIT_OUTDOORSMAN, TRAIT_WOODSMAN, TRAIT_SURVIVAL_EXPERT)
 	job_subclasses = list(
-		/datum/advclass/azeb/ranger,
+		// /datum/advclass/azeb/ranger,
 		/datum/advclass/azeb/footman
 	)
 
@@ -89,7 +84,7 @@
 
 /datum/outfit/job/roguetown/azeb/ranger/pre_equip(mob/living/carbon/human/H)
 	..()
-	head = /obj/item/clothing/head/roguetown/helmet/sallet/zyb
+	/* head = /obj/item/clothing/head/roguetown/helmet/sallet/zyb
 	mask = /obj/item/clothing/head/roguetown/roguehood/shalal/nomad
 	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/zyb
 	pants = /obj/item/clothing/under/roguetown/trou/leather/pontifex/zyb
@@ -102,12 +97,12 @@
 	neck = /obj/item/clothing/neck/roguetown/coif/padded
 	backl = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve/warden
 	beltr = /obj/item/quiver/arrows
-	beltl = /obj/item/rogueweapon/huntingknife/idagger/steel
+	beltl = /obj/item/rogueweapon/huntingknife/idagger/steel */
 	backpack_contents = list(
-		/obj/item/storage/keyring/guard = 1,
+//		/obj/item/storage/keyring/guard = 1,
 		/obj/item/flashlight/flare/torch/lantern = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1,
-		/obj/item/reagent_containers/glass/bottle/rogue/healthpot = 1,
+		// /obj/item/reagent_containers/glass/bottle/rogue/healthpot = 1,
 		/obj/item/signal_horn = 1
 		)
 	H.verbs |= /mob/proc/haltyell
@@ -155,7 +150,7 @@
 
 /datum/outfit/job/roguetown/azeb/footman/pre_equip(mob/living/carbon/human/H)
 	..()
-	head = /obj/item/clothing/head/roguetown/helmet/sallet/zyb
+	/* head = /obj/item/clothing/head/roguetown/helmet/sallet/zyb
 	mask = /obj/item/clothing/head/roguetown/roguehood/shalal/nomad
 	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/zyb
 	pants = /obj/item/clothing/under/roguetown/trou/leather/pontifex/zyb
@@ -170,9 +165,9 @@
 	backl = /obj/item/rogueweapon/scabbard/gwstrap
 	beltr = /obj/item/rogueweapon/sword/sabre/iron
 	beltl = /obj/item/rogueweapon/huntingknife
-	r_hand = /obj/item/rogueweapon/halberd/bardiche
+	r_hand = /obj/item/rogueweapon/halberd/bardiche */
 	backpack_contents = list(
-		/obj/item/storage/keyring/guard = 1,
+		// /obj/item/storage/keyring/guard = 1,
 		/obj/item/flashlight/flare/torch/lantern = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1,
 		/obj/item/signal_horn = 1

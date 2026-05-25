@@ -5,7 +5,7 @@
 	faction = "Station"
 	total_positions = 3
 	spawn_positions = 3
-	allowed_races = RACES_TOLERATED_UP
+	allowed_races = list(RACES_RESPECTED)
 	allowed_sexes = list(MALE, FEMALE)
 	allowed_ages = list(AGE_ADULT, AGE_MIDDLEAGED)
 	tutorial = "A Cataphract with expert training; \
@@ -22,8 +22,7 @@
 	max_pq = null
 	round_contrib_points = 2
 
-	cmode_music = 'sound/music/combat_desert2.ogg'
-	social_rank = SOCIAL_RANK_MINOR_NOBLE
+//	cmode_music = 'sound/music/combat_desert2.ogg'
 	job_subclasses = list(
 		/datum/advclass/cataphract/greatweapon,
 		/datum/advclass/cataphract/shieldmaster,
@@ -57,7 +56,7 @@
 	id = /obj/item/scomstone/bad/garrison
 
 	backpack_contents = list(
-		/obj/item/storage/keyring/guardknight = 1,
+//		/obj/item/storage/keyring/guardknight = 1,
 		/obj/item/reagent_containers/glass/bottle/rogue/healthpot = 1,
 	)
 
@@ -407,22 +406,22 @@
 			if("Whip + Crossbow")
 				beltl = /obj/item/rogueweapon/whip
 				backl = /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow
-				beltr = /obj/item/quiver/bolts
+				// beltr = /obj/item/quiver/bolts
 				H.adjust_skillrank_up_to(/datum/skill/combat/whipsflails, SKILL_LEVEL_MASTER, TRUE)
 
 		switch(armor_choice)
 			if("Light Coat")
-				shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/zyb
+				// shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/zyb
 				pants = /obj/item/clothing/under/roguetown/heavy_leather_pants
 				armor = /obj/item/clothing/suit/roguetown/armor/leather/heavy/coat
 			if("Light Brigandine")
-				shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/zyb
+				// shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/zyb
 				pants = /obj/item/clothing/under/roguetown/splintlegs
 				armor = /obj/item/clothing/suit/roguetown/armor/brigandine/light/retinue
 			if("Scalemail")
 				shirt = /obj/item/clothing/suit/roguetown/armor/chainmail
 				pants = /obj/item/clothing/under/roguetown/chainlegs
-				armor = /obj/item/clothing/suit/roguetown/armor/plate/half/fluted
+//				armor = /obj/item/clothing/suit/roguetown/armor/plate/half
 	head = /obj/item/clothing/head/roguetown/helmet/heavy/cataphract
 	neck = /obj/item/clothing/neck/roguetown/chaincoif/chainmantle
 	wrists = /obj/item/clothing/wrists/roguetown/bracers

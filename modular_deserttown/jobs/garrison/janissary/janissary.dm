@@ -7,11 +7,11 @@
 	spawn_positions = 7
 
 	allowed_sexes = list(MALE, FEMALE)
-	allowed_races = ACCEPTED_RACES
+	allowed_races = list(RACES_RESPECTED)
 	allowed_ages = list(AGE_ADULT, AGE_MIDDLEAGED)
 	job_traits = list(TRAIT_GUARDSMAN, TRAIT_STEELHEARTED, TRAIT_MEDIUMARMOR)
 	tutorial = "You are a member of the Sultans Guard. Ensure the safety of the City and her subjects, defend the powers that be from the horrors of the outside world, and keep the Sultanate alive."
-	display_order = JDO_CASTLEGUARD
+	display_order = JDO_ROYALGUARD
 	whitelist_req = TRUE
 
 	outfit = /datum/outfit/job/roguetown/janissary
@@ -21,13 +21,12 @@
 	min_pq = 3
 	max_pq = null
 	round_contrib_points = 2
-	social_rank = SOCIAL_RANK_YEOMAN
-	cmode_music = 'sound/music/combat_desert1.ogg'
+//	cmode_music = 'sound/music/combat_desert1.ogg'
 	job_subclasses = list(
 		/datum/advclass/janissary/footman,
 		/datum/advclass/janissary/zephyr,
 		/datum/advclass/janissary/jezail,
-		/datum/advclass/janissary/flagbearer,
+//		/datum/advclass/janissary/flagbearer,
 	)
 
 /datum/outfit/job/roguetown/janissary

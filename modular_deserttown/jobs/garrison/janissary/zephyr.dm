@@ -35,14 +35,14 @@
 	..()
 	neck = /obj/item/clothing/neck/roguetown/chaincoif/chainmantle
 	pants = /obj/item/clothing/under/roguetown/splintlegs
-	wrists = /obj/item/clothing/wrists/roguetown/splintarms
+	// wrists = /obj/item/clothing/wrists/roguetown/splintarms
 	gloves = /obj/item/clothing/gloves/roguetown/fingerless_leather
-	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/zyb
+	// shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/zyb
 	head = /obj/item/clothing/head/roguetown/helmet/janissaryhelm
 	backpack_contents = list(
 		/obj/item/rogueweapon/huntingknife/idagger/steel/special = 1,
 		/obj/item/rope/chain = 1,
-		/obj/item/storage/keyring/guardcastle = 1,
+	//	/obj/item/storage/keyring/guardcastle = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1,
 		/obj/item/reagent_containers/glass/bottle/rogue/healthpot = 1,
 		)
@@ -56,7 +56,7 @@
 		H.set_blindness(0)
 		switch(weapon_choice)
 			if("Crossbow")
-				beltr = /obj/item/quiver/bolts
+		//		beltr = /obj/item/quiver/bolts
 				r_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow
 			if("Bow") // They can head down to the armory to sideshift into one of the other bows.
 				beltr = /obj/item/quiver/arrows
@@ -70,7 +70,7 @@
 		switch(weapon_choice2)
 			if("Scimitar")
 				beltl = /obj/item/rogueweapon/scabbard/sword
-				l_hand = /obj/item/rogueweapon/sword/sabre/iron
+			//	l_hand = /obj/item/rogueweapon/sword/sabre/iron
 			if("Whip") // They can head down to the armory to sideshift into one of the other bows.
 				beltl = /obj/item/rogueweapon/whip
 			if("Club")
@@ -78,7 +78,7 @@
 
 		switch(armor_choice)
 			if("Light Armor")
-				armor = /obj/item/clothing/suit/roguetown/armor/leather/heavy/coat/zyb
+			//	armor = /obj/item/clothing/suit/roguetown/armor/leather/heavy/coat/zyb
 				ADD_TRAIT(H, TRAIT_DODGEEXPERT, TRAIT_GENERIC)
 			if("Medium Armor")
 				armor = /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/janissary
@@ -86,4 +86,4 @@
 
 		H.verbs |= /mob/proc/haltyell
 		//Skirmishers get funny spells. Wowzers.
-		H.mind.AddSpell(new /obj/effect/proc_holder/spell/targeted/skirmisher_trap)
+	//	H.mind.AddSpell(new /obj/effect/proc_holder/spell/targeted/skirmisher_trap)

@@ -6,16 +6,14 @@
 	total_positions = 1
 	spawn_positions = 1
 	allowed_sexes = list(MALE, FEMALE)
-	allowed_races = ACCEPTED_RACES
+	allowed_races = list(ALL_RACES_TYPES)
 	allowed_ages = list(AGE_ADULT, AGE_MIDDLEAGED, AGE_OLD)
 	tutorial = "An experienced soldier of the Sultan's Azeb Corp you have been tasked with overseeing the newly constructed border. \
 				You report to the Royal Family and their sheikhs, \
 				and your job is to keep the younger Janissaries in line and to ensure the routes to the city remain safe.\
 				The Border must not fall."
 	display_order = JDO_SERGEANT
-	whitelist_req = TRUE
 	round_contrib_points = 3
-	social_rank = SOCIAL_RANK_YEOMAN
 
 	outfit = /datum/outfit/job/roguetown/azebagha
 	advclass_cat_rolls = list(CTAG_AZEBAGHA = 20)
@@ -23,8 +21,8 @@
 	give_bank_account = 50
 	min_pq = 6
 	max_pq = null
-	cmode_music = 'sound/music/combat_hornofthebeast.ogg'
-	job_traits = list(TRAIT_OUTDOORSMAN, TRAIT_WOODSMAN, TRAIT_SURVIVAL_EXPERT, TRAIT_STEELHEARTED, TRAIT_MEDIUMARMOR, TRAIT_FUSILIER)
+//	cmode_music = 'sound/music/combat_hornofthebeast.ogg'
+	job_traits = list(TRAIT_OUTDOORSMAN, TRAIT_WOODSMAN, TRAIT_SURVIVAL_EXPERT, TRAIT_STEELHEARTED, TRAIT_MEDIUMARMOR)
 	job_subclasses = list(
 		/datum/advclass/azebagha/azebagha
 	)
@@ -48,7 +46,7 @@
 //All skills/traits are on the loadouts. All are identical. Welcome to the stupid way we have to make sub-classes...
 /datum/outfit/job/roguetown/azebagha
 	armor = /obj/item/clothing/suit/roguetown/armor/brigandine/agha
-	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/zyb
+//	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/zyb
 	pants = /obj/item/clothing/under/roguetown/chainlegs/kilt
 	cloak = /obj/item/clothing/cloak/dunestalker
 	neck = /obj/item/clothing/neck/roguetown/bevor
@@ -87,7 +85,7 @@
 		/datum/skill/combat/shields = 4,
 		/datum/skill/combat/crossbows = 3,
 		/datum/skill/combat/bows = 4,
-		/datum/skill/combat/firearms = 4,
+//		/datum/skill/combat/firearms = 4,
 		/datum/skill/combat/wrestling = 4,
 		/datum/skill/combat/unarmed = 3,
 		/datum/skill/misc/climbing = 4,
@@ -105,13 +103,13 @@
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/order/takeaim)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/order/onfeet)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/order/hold)
-		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/order/focustarget)
+		// H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/order/focustarget)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/self/convertrole/azeb)
 	H.verbs |= list(/mob/living/carbon/human/proc/request_outlaw, /mob/proc/haltyell, /mob/living/carbon/human/mind/proc/setorders)
 	backpack_contents = list(
 		/obj/item/rogueweapon/huntingknife/idagger/steel/special = 1,
 		/obj/item/rope/chain = 1,
-		/obj/item/storage/keyring/guardsergeant = 1,
+		// /obj/item/storage/keyring/guardsergeant = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1,
 		/obj/item/reagent_containers/glass/bottle/rogue/healthpot = 1,
 		/obj/item/signal_horn = 1
@@ -145,7 +143,7 @@
 			if("Blackhorn Longbow")
 				beltr = /obj/item/quiver/arrows
 				backl = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/longbow/warden
-			if("Handgonne")//okay I can remove this later but I think it would be... just... so based
+			/* if("Handgonne")//okay I can remove this later but I think it would be... just... so based
 				backl = /obj/item/gun/ballistic/firearm/handgonne
 				r_hand = /obj/item/powderflask
-				beltr = /obj/item/quiver/bullet/lead
+				beltr = /obj/item/quiver/bullet/lead */

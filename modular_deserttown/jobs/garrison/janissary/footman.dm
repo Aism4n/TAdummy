@@ -37,7 +37,7 @@
 	..()
 
 	armor = /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/janissary
-	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/zyb
+	// shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/zyb
 	head = /obj/item/clothing/head/roguetown/helmet/janissaryhelm
 	neck = /obj/item/clothing/neck/roguetown/chaincoif/chainmantle
 	gloves = /obj/item/clothing/gloves/roguetown/chain
@@ -47,7 +47,7 @@
 	backpack_contents = list(
 		/obj/item/rogueweapon/huntingknife/idagger/steel/special = 1,
 		/obj/item/rope/chain = 1,
-		/obj/item/storage/keyring/guardcastle = 1,
+		// /obj/item/storage/keyring/guardcastle = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1,
 		/obj/item/reagent_containers/glass/bottle/rogue/healthpot = 1,
 		)

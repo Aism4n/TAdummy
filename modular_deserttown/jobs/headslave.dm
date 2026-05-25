@@ -1,27 +1,20 @@
-/datum/job/roguetown/headslave // really need to re-name all these when the codebase isn't a fork and search will update for the peasants...
+/datum/job/roguetown/headslave
 	title = "Head Slave"
 	flag = HEADSLAVE
 	department_flag = COURTIERS
 	faction = "Station"
 	total_positions = 1
 	spawn_positions = 1
-
-	allowed_races = ACCEPTED_RACES
-
-	tutorial = "Servitude unto death; that is your motto. You are the manor's head slave, commanding over the lesser slaves and seeing to the administrative affairs,\
-	 day to day of the estate. While you will always be understood as what you are - a slave - your many years of hard work have proven you to be a loyal, trusted, valuable,\
-	  and, to a certain degree, respected member of the court, trained far beyond need of the whip. Indeed, you are entrusted to take the whip to those slaves beneath you.\
-	  You love your masters."
+	allowed_races = list(RACES_RESPECTED)
 	outfit = /datum/outfit/job/roguetown/headslave
 	advclass_cat_rolls = list(CTAG_HEADSLAVE = 20)
-	display_order = JDO_BUTLER
+	display_order = JDO_SENESCHAL
 	give_bank_account = 30
 	min_pq = 3
 	max_pq = null
 	round_contrib_points = 3
-	social_rank = SOCIAL_RANK_YEOMAN
 	allowed_ages = list(AGE_MIDDLEAGED, AGE_OLD)
-	cmode_music = 'sound/music/combat_desert2.ogg'
+//	cmode_music = 'sound/music/combat_desert2.ogg'
 	job_subclasses = list(
 		/datum/advclass/headslave,
 	)
@@ -31,7 +24,6 @@
 	traits_applied = list(TRAIT_CICERONE, TRAIT_HOMESTEAD_EXPERT, TRAIT_SEWING_EXPERT, TRAIT_ROYALSERVANT, TRAIT_FOOD_STIPEND) // They have Expert Sewing
 	category_tags = list(CTAG_HEADSLAVE)
 	name = "Head Slave"
-	tutorial = "While still expected to fill in for the duties of the household slaves as needed, you have styled yourself as a figure beyond them."
 	outfit = /datum/outfit/job/roguetown/headslave/headslave
 	subclass_stats = list(
 		STATKEY_INT = 2,
@@ -84,13 +76,13 @@
 	else
 		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb/beige
 		armor = /obj/item/clothing/suit/roguetown/armor/leather/vest/open
-		neck = /obj/item/clothing/neck/roguetown/collar/catbell
+		// neck = /obj/item/clothing/neck/roguetown/collar/catbell
 		pants = /obj/item/clothing/under/roguetown/trou/leathertights
 		belt = /obj/item/storage/belt/rogue/leather/black
 		shoes = /obj/item/clothing/shoes/roguetown/sandals
 
 	backl = /obj/item/storage/backpack/rogue/satchel
-	beltr = /obj/item/storage/keyring/servant
+	// beltr = /obj/item/storage/keyring/servant
 	beltl = /obj/item/storage/belt/rogue/pouch/coins/mid
 	id = /obj/item/scomstone/bad
 

@@ -2,13 +2,11 @@
 	title = "Palace Slave"
 	f_title = "Palace Slave"
 	flag = SLAVE
-	department_flag = YOUNGFOLK
 	faction = "Station"
 	total_positions = 8//need more slaves!!
 	spawn_positions = 8
 
-	allowed_races = ACCEPTED_RACES
-	allowed_ages = ALL_AGES_LIST
+	allowed_races = list(ALL_RACES_TYPES)
 
 	tutorial = "Whether you were once a free soul or were born into chattel servitude, you're one of the many abused and mistreated slaves whipped by the Task Master to keep the Sultan's palace running smooth. Each day is marked by a scar on your back, and it is your back that carries the dirty, menial work required to keep the royal family content and decadent."
 	
@@ -22,7 +20,7 @@
 	round_contrib_points = 2
 	advjob_examine = TRUE
 	cmode_music = 'sound/music/cmode/towner/combat_towner.ogg'
-	social_rank = SOCIAL_RANK_DIRT
+	// social_rank = SOCIAL_RANK_DIRT
 	job_subclasses = list(
 		/datum/advclass/slave/servant,
 		/datum/advclass/slave/pleasure,
@@ -71,7 +69,7 @@
 	neck = /obj/item/clothing/neck/roguetown/gorget/cursed_collar
 	backl = /obj/item/storage/backpack/rogue/satchel
 	belt = /obj/item/storage/belt/rogue/leather/rope
-	beltr = /obj/item/storage/keyring/servant
+	// beltr = /obj/item/storage/keyring/servant
 	beltl = /obj/item/storage/belt/rogue/pouch/coins/poor
 	if(H.age == AGE_MIDDLEAGED)
 		H.adjust_skillrank(/datum/skill/craft/cooking, 1, TRUE)
@@ -110,7 +108,7 @@
 	..()
 	beltr = /obj/item/storage/belt/rogue/pouch/coins/poor
 	backl = /obj/item/storage/backpack/rogue/satchel
-	beltr = /obj/item/storage/keyring/servant
+	// beltr = /obj/item/storage/keyring/servant
 	backpack_contents = list(
 		/obj/item/candle/eora = 1,
 	)

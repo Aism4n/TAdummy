@@ -2,7 +2,6 @@
 	title = "Enslaved Adventurer"
 	flag = ADVENTURER
 	display_order = JDO_COURTAGENT
-	allowed_races = RACES_ALL_KINDS
 	total_positions = 3
 	spawn_positions = 3
 	round_contrib_points = 2
@@ -14,7 +13,7 @@
 	advclass_cat_rolls = list(CTAG_COURTAGENT = 20)
 	obsfuscated_job = FALSE
 	class_setup_examine = FALSE
-	social_rank = SOCIAL_RANK_DIRT
+	//social_rank = SOCIAL_RANK_DIRT
 
 // //Hooking in here does not mess with their equipment procs
 // /datum/job/roguetown/adventurer/courtagent/after_spawn(mob/living/L, mob/M, latejoin = TRUE)

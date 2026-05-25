@@ -6,10 +6,10 @@
 	total_positions = 1
 	spawn_positions = 1
 
-	allowed_races = ACCEPTED_RACES
+	allowed_races = list(RACES_RESPECTED)
 	allowed_sexes = list(MALE, FEMALE)
 
-	job_traits = list(TRAIT_STEELHEARTED, TRAIT_DUNGEONMASTER, TRAIT_GUARDSMAN, TRAIT_DEATHBYSNUSNU, TRAIT_PURITAN_ADVENTURER, TRAIT_MEDIUMARMOR, TRAIT_XENOPHOBIC, TRAIT_NOBLE, TRAIT_DUNGEONMASTER_LABOR_CAMP) //'PURITAN_ADVENTURER' is the codename. Presents as 'INTERROGATOR', in-game. Doesn't provide any Inquisition-related boons, but gives instrucitons on how to use certain mechanics.
+	job_traits = list(TRAIT_STEELHEARTED, TRAIT_DUNGEONMASTER, TRAIT_GUARDSMAN, /*TRAIT_DEATHBYSNUSNU,*/ TRAIT_PURITAN_ADVENTURER, TRAIT_MEDIUMARMOR, TRAIT_XENOPHOBIC, TRAIT_NOBLE) //'PURITAN_ADVENTURER' is the codename. Presents as 'INTERROGATOR', in-game. Doesn't provide any Inquisition-related boons, but gives instrucitons on how to use certain mechanics.
 	display_order = JDO_DUNGEONEER
 	advclass_cat_rolls = list(CTAG_SLAVEMASTER = 2)
 
@@ -21,8 +21,7 @@
 	min_pq = 0
 	max_pq = null
 	round_contrib_points = 2
-	social_rank = SOCIAL_RANK_MINOR_NOBLE
-	cmode_music = 'sound/music/combat_zybantine.ogg'
+//	cmode_music = 'sound/music/combat_zybantine.ogg'
 	job_subclasses = list(
 		/datum/advclass/slavemaster
 	)
@@ -78,7 +77,7 @@
 	// adv_stat_ceiling = list(STAT_STRENGTH = 16, STAT_CONSTITUTION = 16, STAT_WILLPOWER = 16)
 
 /datum/outfit/job/roguetown/slavemaster/base/pre_equip(mob/living/carbon/human/H)
-	..()
+	. = ..()
 	H.adjust_blindness(-3)
 	H.verbs |= /mob/living/carbon/human/proc/faith_test
 	H.verbs |= /mob/living/carbon/human/proc/torture_victim
@@ -90,7 +89,7 @@
 	pants = /obj/item/clothing/under/roguetown/chainlegs/kilt
 	wrists = /obj/item/clothing/wrists/roguetown/bracers
 	gloves = /obj/item/clothing/gloves/roguetown/angle
-	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/zyb
+//	shirt = // /obj/item/clothing/suit/roguetown/armor/gambeson/zyb
 	belt = /obj/item/storage/belt/rogue/leather/shalal/purple
 	armor = /obj/item/clothing/suit/roguetown/armor/plate/scale
 	cloak = /obj/item/clothing/cloak/cape/purple
@@ -99,7 +98,7 @@
 	beltl = /obj/item/storage/keyring/dungeoneer
 	backr = /obj/item/storage/backpack/rogue/satchel
 	id = /obj/item/scomstone/bad/garrison
-	backpack_contents = list(/obj/item/flashlight/flare/torch/lantern, /obj/item/reagent_containers/glass/bottle/rogue/healthpot = 2, /obj/item/rope/chain = 1, /obj/item/flint = 1, /obj/item/clothing/neck/roguetown/collar/leather = 2, /obj/item/clothing/neck/roguetown/psicross/silver = 1, /obj/item/rogueweapon/surgery/cautery/branding = 1,)
+	backpack_contents = list(/obj/item/flashlight/flare/torch/lantern, /obj/item/reagent_containers/glass/bottle/rogue/healthpot = 2, /obj/item/rope/chain = 1, /obj/item/flint = 1, /obj/item/clothing/neck/roguetown/collar/leather = 2, /obj/item/clothing/neck/roguetown/psicross/silver = 1/*, /obj/item/rogueweapon/surgery/cautery/branding = 1,*/)
 
-	H.dna.species.soundpack_m = new /datum/voicepack/male/warrior()
+	/*H.dna.species.soundpack_m = new /datum/voicepack/male/warrior()*/
 	//Torture victim is for inquisition - doesn't even work without a psicross anymore so maybe come up with a variant for him specifically?

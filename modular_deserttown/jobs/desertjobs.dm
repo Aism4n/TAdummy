@@ -31,7 +31,7 @@
 #define JANISSARY	(1<<1)
 #define SLAVEMASTER	(1<<2)
 // #define SQUIRE		(1<<3)
-// #define BOGGUARD	(1<<4)
+#define BOGGUARD	(1<<4)
 #define AZEB	(1<<4)
 // #define SERGEANT	(1<<5)
 #define AZEBAGHA	(1<<5)
@@ -114,7 +114,7 @@
 // #define TAILOR		(1<<3)
 
 
-/datum/job/roguetown/lord/after_spawn(mob/living/L, mob/M, latejoin = TRUE)//
+/*/datum/job/roguetown/lord/after_spawn(mob/living/L, mob/M, latejoin = TRUE)//
 	if(SSmapping.config.map_name == "Desert Town")
 		spells = list( /obj/effect/proc_holder/spell/self/convertrole/slave,
 		/obj/effect/proc_holder/spell/self/convertrole/azeb,
@@ -143,14 +143,14 @@
 /datum/job/roguetown/squire/after_spawn(mob/living/L, mob/M, latejoin = TRUE)//
 	if(SSmapping.config.map_name == "Desert Town")
 		cmode_music = 'sound/music/combat_desert2.ogg'
-	..()
+	..()*/
 
 /datum/outfit/job/roguetown/squire/pre_equip(mob/living/carbon/human/H)
 	. = ..()
 	if(SSmapping.config.map_name == "Desert Town")
 		cloak = /obj/item/clothing/cloak/citywatch/janissary
 		shoes = /obj/item/clothing/shoes/roguetown/shalal
-		shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/zyb
+		// shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/zyb
 
 /obj/effect/proc_holder/spell/self/convertrole/slave
 	name = "Recruit Slave"

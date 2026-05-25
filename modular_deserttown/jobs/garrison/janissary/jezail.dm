@@ -17,7 +17,7 @@
 		)
 
 	subclass_skills = list(
-		/datum/skill/combat/firearms = 5,//Your entire point is GUN.
+//		/datum/skill/combat/firearms = 5,//Your entire point is GUN.
 		/datum/skill/combat/crossbows = 3,
 		/datum/skill/combat/bows = 2,
 		/datum/skill/combat/slings = 2,
@@ -39,20 +39,20 @@
 	..()
 	neck = /obj/item/clothing/neck/roguetown/chaincoif/chainmantle
 	pants = /obj/item/clothing/under/roguetown/splintlegs
-	wrists = /obj/item/clothing/wrists/roguetown/splintarms
+	// wrists = /obj/item/clothing/wrists/roguetown/splintarms
 	gloves = /obj/item/clothing/gloves/roguetown/fingerless_leather
 	armor = /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/janissary
-	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/zyb
+	// shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/zyb
 	head = /obj/item/clothing/head/roguetown/helmet/janissaryhelm
-	beltr = /obj/item/quiver/bullet/lead//nice to have variety but blunderbus might not fit the vibe
-	r_hand = /obj/item/gun/ballistic/firearm/arquebus
+	// beltr = /obj/item/quiver/bullet/lead//nice to have variety but blunderbus might not fit the vibe
+	// r_hand = /obj/item/gun/ballistic/firearm/arquebus
 	backpack_contents = list(
 		/obj/item/rogueweapon/huntingknife/idagger/steel/special = 1,
 		/obj/item/rope/chain = 1,
-		/obj/item/storage/keyring/guardcastle = 1,
+		// /obj/item/storage/keyring/guardcastle = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1,
 		/obj/item/reagent_containers/glass/bottle/alchemical/healthpot = 1,
-		/obj/item/powderflask,
+		// /obj/item/powderflask,
 		/obj/item/impact_grenade/smoke/blind_gas,
 		)
 
@@ -74,7 +74,7 @@
 		switch(weapon_choice2)
 			if("Scimitar")
 				beltl = /obj/item/rogueweapon/scabbard/sword
-				l_hand = /obj/item/rogueweapon/sword/sabre/iron
+				// l_hand = /obj/item/rogueweapon/sword/sabre/iron
 			if("Whip") 
 				beltl = /obj/item/rogueweapon/whip
 			if("Club")
