@@ -308,8 +308,9 @@
 /obj/item/enchantingkit/strudel1
 	name = "'Grenzelhoft Mage Vest' morphing elixir"
 	desc = "A small container of special morphing dust, perfect to make a specifc item. Required: Robe"
-	target_items = list(/obj/item/clothing/suit/roguetown/shirt/robe)
-	result_item = /obj/item/clothing/suit/roguetown/shirt/robe/sofiavest
+	target_items = list(/obj/item/clothing/suit/roguetown/shirt/robe,
+						/obj/item/clothing/suit/roguetown/shirt/robe)
+	result_item = /obj/item/clothing/suit/roguetown/shirt/sofiavest
 
 /obj/item/enchantingkit/strudel2
 	name = "'Xylixian Fasching Leotard' morphing elixir"
