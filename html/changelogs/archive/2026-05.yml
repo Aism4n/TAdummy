@@ -1763,3 +1763,10 @@
   saltprjak:
   - balance: Rogue Mages receive dagger skill, some utility skills, and innate Message
       and Mindlink spells.
+2026-05-26:
+  BurpleBineapple:
+  - balance: The kanabo is a steel goden instead of an iron goden.
+  Rannoooo:
+  - rscadd: Adds hack to doubleheads
+  kiwedespars:
+  - bugfix: fixed siegebow slowdown to actually be 6 seconds
