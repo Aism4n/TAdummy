@@ -7,6 +7,12 @@
 /datum/map_adjustment/template/deserttown
 	map_file_name = "deserttown.dmm"
 	realm_name = "Al-Ashur"
+	// BEGIN DESERT TOWN CONTRACTS (Rollback by removing this list)
+	threat_regions = list(
+		THREAT_REGION_DESERT_NEAR,
+		THREAT_REGION_DESERT_DEEP
+	)
+	// END DESERT TOWN CONTRACTS
 	slot_adjust = list(
 		// /datum/job/roguetown/mercenary = 7, //haha fuck you one less slot!!
 		// /datum/job/roguetown/apothecary = 1, //remodelled the building for more room
