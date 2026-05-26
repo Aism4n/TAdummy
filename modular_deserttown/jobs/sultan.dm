@@ -127,6 +127,7 @@
 	Warrior Lord subclass. An evolution from the Daring Twit. This is the original Lord Class.
 */
 /datum/advclass/sultan/dtwarrior
+	name = "Sultan Warrior"
 	tutorial = "You're a noble warrior. You rose to your rank through your own strength and skill, whether by leading your men or by fighting alongside them. Or perhaps you are none of that, but simply a well-trained heir elevated to the position of Lord. You're trained in the usage of heavy armor, and knows swordsmanship well."
 	outfit = /datum/outfit/job/roguetown/sultan/warrior
 	category_tags = list(CTAG_SULTAN)
