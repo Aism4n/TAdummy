@@ -411,6 +411,13 @@
 /datum/job/proc/get_outfit(mob/living/carbon/human/wearer, visualsOnly = FALSE, announce = TRUE, latejoin = FALSE, preference_source = null)
 	return outfit
 
+// TA EDIT - DESERT TOWN - BEGIN
+/datum/outfit/job/pre_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town" && !(HAS_TRAIT(H, TRAIT_OUTLANDER)))
+		H.grant_language(/datum/language/celestial)
+// TA EDIT - DESERT TOWN - END
+
 //Don't override this unless the job transforms into a non-human (Silicons do this for example)
 /datum/job/proc/equip(mob/living/carbon/human/H, visualsOnly = FALSE, announce = TRUE, latejoin = FALSE, datum/outfit/outfit_override = null, client/preference_source)
 	if(!H)

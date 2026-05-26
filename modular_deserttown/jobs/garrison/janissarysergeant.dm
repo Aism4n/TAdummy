@@ -38,7 +38,7 @@
 	neck = /obj/item/clothing/neck/roguetown/bevor
 	head = /obj/item/clothing/head/roguetown/helmet/janissaryhelm
 	armor = /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/janissary
-//	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/zyb
+	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/raneshen
 	pants = /obj/item/clothing/under/roguetown/chainlegs/kilt
 	shoes = /obj/item/clothing/shoes/roguetown/boots/armor/shalal
 	belt = /obj/item/storage/belt/rogue/leather/shalal
