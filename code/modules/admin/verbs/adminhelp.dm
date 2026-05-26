@@ -29,35 +29,12 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	// Track selected ticket per user
 	var/list/selected_tickets = list()  // Maps ckey -> ticket_id
 
-	/// Ckeys of admins who have opted to hide their character name in ticket messages. Persisted to disk.
-	var/list/admin_hide_charname = list()
-
 	var/obj/effect/statclick/ticket_list/astatclick = new(null, null, AHELP_ACTIVE)
 	var/obj/effect/statclick/ticket_list/cstatclick = new(null, null, AHELP_CLOSED)
 	var/obj/effect/statclick/ticket_list/rstatclick = new(null, null, AHELP_RESOLVED)
 
-/datum/admin_help_tickets/New()
-	var/json_data = file2text("data/admin_hide_charname.json")
-	if(json_data)
-		var/list/loaded = safe_json_decode(json_data)
-		if(islist(loaded))
-			admin_hide_charname = loaded
-	. = ..()
-
 /datum/admin_help_tickets/proc/IsAdminInHideCharname(ckey)
-// TA EDIT BEGIN
-	if(ckey in admin_hide_charname)
-		return TRUE
-	var/client/C = GLOB.directory[ckey]
-	if(C && C.holder && C.holder.fakekey)
-		return TRUE
-	return FALSE
-// TA EDIT END
-
-/datum/admin_help_tickets/proc/SaveHideCharname()
-	var/path = "data/admin_hide_charname.json"
-	fdel(path)
-	WRITE_FILE(path, json_encode(admin_hide_charname))
+	return TRUE
 
 /datum/admin_help_tickets/Destroy()
 	QDEL_LIST(active_tickets)
@@ -208,8 +185,8 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 			full_ticket["initiator_connected"] = selected.initiator ? TRUE : FALSE
 			data["selected_ticket"] = full_ticket
 
-	// Whether this admin has opted to hide their character name in ticket messages
-	data["admin_hide_charname"] = (user.ckey in admin_hide_charname)
+	// Whether this admin is currently in stealth mode
+	data["admin_hide_charname"] = user.client?.holder?.fakekey ? TRUE : FALSE
 
 	return data
 
@@ -237,12 +214,8 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 			return TRUE
 
 		if("toggle_charname")
-			// Toggle whether this admin's character name is hidden in ticket messages.
-			if(user.ckey in admin_hide_charname)
-				admin_hide_charname -= user.ckey
-			else
-				admin_hide_charname += user.ckey
-			SaveHideCharname()
+			if(user.client)
+				INVOKE_ASYNC(user.client, TYPE_PROC_REF(/client, stealth))
 			return TRUE
 
 		if("send_message")
