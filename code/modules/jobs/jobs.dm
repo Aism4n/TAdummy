@@ -97,6 +97,10 @@ GLOBAL_LIST_INIT(noble_positions, list( //Royal family only
 	"Grand Duke",
 	"Consort",
 	"Prince",
+	// Desert Town
+	"Sultan",
+	"Sheikh",
+	"Slave Master",
 ))
 
 GLOBAL_LIST_INIT(courtier_positions, list( //Anyone that is officially part of the court
@@ -110,6 +114,9 @@ GLOBAL_LIST_INIT(courtier_positions, list( //Anyone that is officially part of t
 	"Archivist",
 	"Seneschal",
 	"Suitor",
+	// Desert Town
+	"Vizier",
+	"Head Slave",
 ))
 
 GLOBAL_LIST_INIT(retinue_positions, list( //Manorites
@@ -117,6 +124,8 @@ GLOBAL_LIST_INIT(retinue_positions, list( //Manorites
 	"Knight",
 	"Royal Knight",
 	"Squire",
+	// Desert Town
+	"Cataphract",
 ))
 
 GLOBAL_LIST_INIT(garrison_positions, list( //Guards
@@ -126,6 +135,12 @@ GLOBAL_LIST_INIT(garrison_positions, list( //Guards
 	"Royal Guard",
 	"Warden",
 	"Watchman",
+	// Desert Town
+	"Janissary Sergeant",
+	"Janissary",
+	"Flagbearer",
+	"Azeb Agha",
+	"Azeb",
 ))
 
 GLOBAL_LIST_INIT(citywatch_positions, list( //Guards
@@ -186,12 +201,16 @@ GLOBAL_LIST_INIT(sidefolk_positions, list( //Weerdoes who hang around the town
 	"Pilgrim",
 	"Mercenary",	
 	"Veteran",
+	// Desert Town
+	"Court Slave",
 ))
 
 GLOBAL_LIST_INIT(wanderer_positions, list( //Homeless
 	"Adventurer",
 	"Court Agent",
 	"Trader",
+	// Desert Town
+	"Desert Slave",
 ))
 
 GLOBAL_LIST_INIT(antagonist_positions, list( //Mostly lesser antagonists

@@ -1,4 +1,4 @@
-/datum/job/roguetown/prince/after_spawn(mob/living/H, mob/M, latejoin = TRUE)
+/* /datum/job/roguetown/prince/after_spawn(mob/living/H, mob/M, latejoin = TRUE)
 	..()
 	if(!ishuman(H))
 		return
@@ -50,4 +50,4 @@
 				else
 					to_chat(player, span_notice("No choice detected. Picking a random compatible origin."))
 					new_origin = pick(/datum/virtue/origin/raneshen, /datum/virtue/origin/naledi, /datum/virtue/origin/zybantian)
-				change_origin(H, new_origin, "Royal line")
+				change_origin(H, new_origin, "Royal line") */
