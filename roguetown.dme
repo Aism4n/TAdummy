@@ -3987,6 +3987,7 @@
 #include "modular_deserttown\desertareas.dm"
 #include "modular_deserttown\desertclothing.dm"
 #include "modular_deserttown\desertfloor.dm"
+#include "modular_deserttown\desert_origins.dm"
 #include "modular_deserttown\desertmapgen.dm"
 #include "modular_deserttown\desertspawns.dm"
 #include "modular_deserttown\desertstuff.dm"

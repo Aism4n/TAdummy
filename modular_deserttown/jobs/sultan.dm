@@ -28,7 +28,6 @@
 	max_pq = null
 	round_contrib_points = 4
 	give_bank_account = 1000
-	required = TRUE
 	cmode_music = 'sound/music/combat_noble.ogg'
 	// Can't use the Throat when you can't talk properly or.. at all for that matter.
 	vice_restrictions = list(/datum/charflaw/mute, /datum/charflaw/unintelligible)
@@ -60,8 +59,29 @@
 		SSticker.regentmob = null //Time for regent to give up the position.
 
 		addtimer(CALLBACK(L, TYPE_PROC_REF(/mob, lord_marriage_choice)), 50)
-		// if(STATION_TIME_PASSED() <= 10 MINUTES) //Late to the party? Stuck with default colors, sorry!
 		addtimer(CALLBACK(L, TYPE_PROC_REF(/mob, lord_color_choice)), 50)
+
+	if(ishuman(L))
+		var/mob/living/carbon/human/H = L
+		var/client/player = H.client
+		if(!player && M)
+			player = M.client
+		if(player?.prefs)
+			if(SSmapping.config.map_name == "Desert Town")
+				if(!istype(player.prefs.virtue_origin, /datum/virtue/origin/raneshen) && !istype(player.prefs.virtue_origin, /datum/virtue/origin/naledi) && !istype(player.prefs.virtue_origin, /datum/virtue/origin/zybantian))
+					var/list/new_origins = list("Raneshen" = /datum/virtue/origin/raneshen, 
+					"Naledi" = /datum/virtue/origin/naledi,
+					"Zybantu" = /datum/virtue/origin/zybantian)
+					var/new_origin
+					var/choice = input(player, "Your origins are not compatible with the Sultanat Where do you hail from?", "ANCESTRY") as anything in new_origins
+					if(choice)
+						new_origin = new_origins[choice]
+					else
+						to_chat(player, span_notice("No choice detected. Picking a random compatible origin."))
+						new_origin = pick(/datum/virtue/origin/raneshen, /datum/virtue/origin/naledi, /datum/virtue/origin/zybantian)
+					var/datum/virtue/origin/applied_origin = new new_origin()
+					player.prefs.virtue_origin = applied_origin
+					apply_virtue(H, applied_origin)
 
 /datum/outfit/job/roguetown/sultan
 	neck = /obj/item/storage/belt/rogue/pouch/coins/rich
