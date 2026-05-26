@@ -121,7 +121,29 @@
 				backl = /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow
 				r_hand = /obj/item/rogueweapon/sword/sabre
 				beltl = /obj/item/rogueweapon/scabbard/sword
-
+/datum/job/roguetown/janissarysergeant/janissarysergeant/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
+	..()
+	if(ishuman(L))
+		var/mob/living/carbon/human/H = L
+		var/client/player = H.client
+		if(!player && M)
+			player = M.client
+		if(player?.prefs)
+			if(SSmapping.config.map_name == "Desert Town")
+				if(!istype(player.prefs.virtue_origin, /datum/virtue/origin/raneshen) && !istype(player.prefs.virtue_origin, /datum/virtue/origin/naledi) && !istype(player.prefs.virtue_origin, /datum/virtue/origin/zybantian))
+					var/list/new_origins = list("Raneshen" = /datum/virtue/origin/raneshen, 
+					"Naledi" = /datum/virtue/origin/naledi,
+					"Zybantu" = /datum/virtue/origin/zybantian)
+					var/new_origin
+					var/choice = input(player, "Your origins are not compatible with the Sultanat Where do you hail from?", "ANCESTRY") as anything in new_origins
+					if(choice)
+						new_origin = new_origins[choice]
+					else
+						to_chat(player, span_notice("No choice detected. Picking a random compatible origin."))
+						new_origin = pick(/datum/virtue/origin/raneshen, /datum/virtue/origin/naledi, /datum/virtue/origin/zybantian)
+					var/datum/virtue/origin/applied_origin = new new_origin()
+					player.prefs.virtue_origin = applied_origin
+					apply_virtue(H, applied_origin)				
 /obj/item/clothing/cloak/catcloak/jancap
 	name = "janissary sergeant's cloak"
 	desc = "A most handsome cloak, of royal red, denoting the authority of a leader."
