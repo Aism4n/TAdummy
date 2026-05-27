@@ -98,7 +98,7 @@
 	cloak = /obj/item/clothing/cloak/cape/purple
 	backl = /obj/item/storage/backpack/rogue/backpack
 	beltr = /obj/item/rogueweapon/whip/antique
-	beltl = /obj/item/storage/keyring/dungeoneer
+	beltl = /obj/item/storage/keyring/warden
 	backr = /obj/item/storage/backpack/rogue/satchel
 	id = /obj/item/scomstone/bad/garrison
 	backpack_contents = list(/obj/item/flashlight/flare/torch/lantern, /obj/item/reagent_containers/glass/bottle/rogue/healthpot = 2, /obj/item/rope/chain = 1, /obj/item/flint = 1, /obj/item/clothing/neck/roguetown/collar/leather = 2, /obj/item/clothing/neck/roguetown/psicross/silver = 1/*, /obj/item/rogueweapon/surgery/cautery/branding = 1,*/)

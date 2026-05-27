@@ -24,7 +24,7 @@
 	job_subclasses = list(
 		/datum/advclass/slave/servant,
 		/datum/advclass/slave/pleasure,
-		// /datum/advclass/slave/worker
+		/datum/advclass/slave/worker
 	)
 
 /datum/advclass/slave/servant
@@ -66,10 +66,7 @@
 	neck = /obj/item/clothing/neck/roguetown/gorget/cursed_collar
 	backl = /obj/item/storage/backpack/rogue/satchel
 	belt = /obj/item/storage/belt/rogue/leather/rope
-	neck = /obj/item/clothing/neck/roguetown/gorget/cursed_collar
-	backl = /obj/item/storage/backpack/rogue/satchel
-	belt = /obj/item/storage/belt/rogue/leather/rope
-	// beltr = /obj/item/storage/keyring/servant
+	beltr = /obj/item/roguekey/manor
 	beltl = /obj/item/storage/belt/rogue/pouch/coins/poor
 	if(H.age == AGE_MIDDLEAGED)
 		H.adjust_skillrank(/datum/skill/craft/cooking, 1, TRUE)
@@ -108,7 +105,7 @@
 	..()
 	beltr = /obj/item/storage/belt/rogue/pouch/coins/poor
 	backl = /obj/item/storage/backpack/rogue/satchel
-	// beltr = /obj/item/storage/keyring/servant
+	beltr = /obj/item/roguekey/manor
 	backpack_contents = list(
 		/obj/item/candle/eora = 1,
 	)
@@ -160,50 +157,50 @@
 		H.adjust_skillrank(/datum/skill/labor/farming, 2, TRUE)
 		H.adjust_skillrank(/datum/skill/misc/medicine, 1, TRUE)
 
-// /datum/advclass/slave/worker
-// 	name = "Slave Laborer"
-// 	tutorial = "CHANGE THIS. You do HARD WORK!."
-// 	outfit = /datum/outfit/job/roguetown/slave/worker
-// 	category_tags = list(CTAG_PSLAVE)
-// 	subclass_stats = list(
-// 		STATKEY_STR = 2,
-// 		STATKEY_END = 3,
-// 		STATKEY_CON = 1,
-// 		STATKEY_SPE = -1,
-// 		STATKEY_PER = -1,
-// 		STATKEY_INT = -1
-// 	)
-// 	subclass_skills = list(
-// 		/datum/skill/combat/knives = SKILL_LEVEL_APPRENTICE,
-// 		/datum/skill/craft/cooking = SKILL_LEVEL_JOURNEYMAN,
-// 		/datum/skill/craft/crafting = SKILL_LEVEL_JOURNEYMAN,
-// 		/datum/skill/craft/sewing = SKILL_LEVEL_JOURNEYMAN,
-// 		/datum/skill/misc/medicine = SKILL_LEVEL_NOVICE,
-// 		/datum/skill/misc/reading = SKILL_LEVEL_NOVICE,
-// 		/datum/skill/misc/sneaking = SKILL_LEVEL_APPRENTICE,
-// 		/datum/skill/misc/stealing = SKILL_LEVEL_JOURNEYMAN,
-// 		/datum/skill/misc/lockpicking = SKILL_LEVEL_NOVICE,
-// 		/datum/skill/misc/climbing = SKILL_LEVEL_APPRENTICE,
-// 		/datum/skill/labor/mining = SKILL_LEVEL_JOURNEYMAN,
-// 		/datum/skill/labor/lumberjacking = SKILL_LEVEL_JOURNEYMAN,
-// 	)
+/datum/advclass/slave/worker
+	name = "Slave Laborer"
+	tutorial = "You are meant for heavy lifting, mining, and breaking rocks. Your life is defined by grueling manual labor."
+	outfit = /datum/outfit/job/roguetown/slave/worker
+	category_tags = list(CTAG_PSLAVE)
+	subclass_stats = list(
+		STATKEY_STR = 2,
+		STATKEY_END = 3,
+		STATKEY_CON = 1,
+		STATKEY_SPE = -1,
+		STATKEY_PER = -1,
+		STATKEY_INT = -1
+	)
+	subclass_skills = list(
+		/datum/skill/combat/knives = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/craft/cooking = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/craft/crafting = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/craft/sewing = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/medicine = SKILL_LEVEL_NOVICE,
+		/datum/skill/misc/reading = SKILL_LEVEL_NOVICE,
+		/datum/skill/misc/sneaking = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/misc/stealing = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/lockpicking = SKILL_LEVEL_NOVICE,
+		/datum/skill/misc/climbing = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/labor/mining = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/labor/lumberjacking = SKILL_LEVEL_JOURNEYMAN,
+	)
 
-// /datum/outfit/job/roguetown/slave/worker/pre_equip(mob/living/carbon/human/H)
-// 	..()
-// 	pants = /obj/item/clothing/under/roguetown/tights/black
-// 	shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt
-// 	shoes = /obj/item/clothing/shoes/roguetown/shortboots
-// 	backl = /obj/item/storage/backpack/rogue/satchel
-// 	belt = /obj/item/storage/belt/rogue/leather
-// 	beltr = /obj/item/storage/keyring/servant
-// 	beltl = /obj/item/storage/belt/rogue/pouch/coins/poor
-// 	armor = /obj/item/clothing/suit/roguetown/armor/leather/vest/black
-// 	if(H.age == AGE_MIDDLEAGED)
-// 		H.adjust_skillrank(/datum/skill/craft/cooking, 1, TRUE)
-// 		H.adjust_skillrank(/datum/skill/combat/knives, 1, TRUE)
-// 		H.adjust_skillrank(/datum/skill/labor/farming, 1, TRUE)
-// 	if(H.age == AGE_OLD)
-// 		H.adjust_skillrank(/datum/skill/craft/cooking, 2, TRUE)
-// 		H.adjust_skillrank(/datum/skill/combat/knives, 1, TRUE)
-// 		H.adjust_skillrank(/datum/skill/labor/farming, 2, TRUE)
-// 		H.adjust_skillrank(/datum/skill/misc/medicine, 1, TRUE)
+/datum/outfit/job/roguetown/slave/worker/pre_equip(mob/living/carbon/human/H)
+	..()
+	pants = /obj/item/clothing/under/roguetown/tights/black
+	shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt
+	shoes = /obj/item/clothing/shoes/roguetown/shortboots
+	backl = /obj/item/storage/backpack/rogue/satchel
+	belt = /obj/item/storage/belt/rogue/leather
+	beltr = /obj/item/roguekey/manor
+	beltl = /obj/item/storage/belt/rogue/pouch/coins/poor
+	armor = /obj/item/clothing/suit/roguetown/armor/leather/vest/black
+	if(H.age == AGE_MIDDLEAGED)
+		H.adjust_skillrank(/datum/skill/craft/cooking, 1, TRUE)
+		H.adjust_skillrank(/datum/skill/combat/knives, 1, TRUE)
+		H.adjust_skillrank(/datum/skill/labor/farming, 1, TRUE)
+	if(H.age == AGE_OLD)
+		H.adjust_skillrank(/datum/skill/craft/cooking, 2, TRUE)
+		H.adjust_skillrank(/datum/skill/combat/knives, 1, TRUE)
+		H.adjust_skillrank(/datum/skill/labor/farming, 2, TRUE)
+		H.adjust_skillrank(/datum/skill/misc/medicine, 1, TRUE)

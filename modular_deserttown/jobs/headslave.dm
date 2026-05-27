@@ -16,6 +16,8 @@
 	cmode_music = 'sound/music/combat_desert2.ogg'
 	job_subclasses = list(
 		/datum/advclass/headslave,
+		/datum/advclass/headslave/headmaid,
+		/datum/advclass/headslave/chiefbutler
 	)
 	spells = list(/obj/effect/proc_holder/spell/invoked/takeapprentice)
 
@@ -75,81 +77,83 @@
 	else
 		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb/beige
 		armor = /obj/item/clothing/suit/roguetown/armor/leather/vest/open
-		// neck = /obj/item/clothing/neck/roguetown/collar/catbell
+		neck = /obj/item/clothing/neck/roguetown/collar
 		pants = /obj/item/clothing/under/roguetown/trou/leathertights
 		belt = /obj/item/storage/belt/rogue/leather/black
 		shoes = /obj/item/clothing/shoes/roguetown/sandals
 
 	backl = /obj/item/storage/backpack/rogue/satchel
-	// beltr = /obj/item/storage/keyring/servant
+	beltr = /obj/item/storage/keyring/seneschal
 	beltl = /obj/item/storage/belt/rogue/pouch/coins/mid
 	id = /obj/item/scomstone/bad
 
-// /datum/advclass/headslave/headmaid
-// 	name = "Head Maid"
-// 	tutorial = "Whether you were promoted from one or just like the frills, you stylize yourself as a head maid. Your duties and talents remain the same, though."
-// 	outfit = /datum/outfit/job/roguetown/headslave/headmaid
-// 	subclass_stats = list(
-// 		STATKEY_INT = 2,
-// 		STATKEY_PER = 2,
-// 		STATKEY_LCK = 1, // Usual leadership carrot.
-// 		STATKEY_SPD = 1
-// 	)
-// 	subclass_skills = list(
-// 		/datum/skill/combat/knives = SKILL_LEVEL_JOURNEYMAN,
-// 		/datum/skill/misc/reading = SKILL_LEVEL_EXPERT,
-// 		/datum/skill/craft/cooking = SKILL_LEVEL_EXPERT,
-// 		/datum/skill/misc/medicine = SKILL_LEVEL_JOURNEYMAN,
-// 		/datum/skill/craft/sewing = SKILL_LEVEL_EXPERT,
-// 		/datum/skill/craft/crafting = SKILL_LEVEL_JOURNEYMAN,
-// 		/datum/skill/misc/sneaking = SKILL_LEVEL_JOURNEYMAN,
-// 		/datum/skill/misc/stealing = SKILL_LEVEL_JOURNEYMAN,
-// 		/datum/skill/misc/lockpicking = SKILL_LEVEL_APPRENTICE,
-// 		/datum/skill/misc/climbing = SKILL_LEVEL_APPRENTICE,
-// 	)
+/datum/advclass/headslave/headmaid
+	name = "Head Maid"
+	tutorial = "Whether you were promoted from one or just like the frills, you stylize yourself as a head maid. Your duties and talents remain the same, though."
+	outfit = /datum/outfit/job/roguetown/headslave/headmaid
+	category_tags = list(CTAG_HEADSLAVE)
+	subclass_stats = list(
+		STATKEY_INT = 2,
+		STATKEY_PER = 2,
+		STATKEY_LCK = 1, // Usual leadership carrot.
+		STATKEY_SPD = 1
+	)
+	subclass_skills = list(
+		/datum/skill/combat/knives = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/reading = SKILL_LEVEL_EXPERT,
+		/datum/skill/craft/cooking = SKILL_LEVEL_EXPERT,
+		/datum/skill/misc/medicine = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/craft/sewing = SKILL_LEVEL_EXPERT,
+		/datum/skill/craft/crafting = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/sneaking = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/stealing = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/lockpicking = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/misc/climbing = SKILL_LEVEL_APPRENTICE,
+	)
 
-// /datum/outfit/job/roguetown/headslave/headmaid/pre_equip(mob/living/carbon/human/H)
-// 	..()
-// 	armor = /obj/item/clothing/suit/roguetown/shirt/dress/gen/black
-// 	shoes = /obj/item/clothing/shoes/roguetown/simpleshoes
-// 	cloak = /obj/item/clothing/cloak/apron/waist
-// 	backl = /obj/item/storage/backpack/rogue/satchel
-// 	belt = /obj/item/storage/belt/rogue/leather
-// 	beltr = /obj/item/storage/keyring/servant
-// 	beltl = /obj/item/storage/belt/rogue/pouch/coins/mid
-// 	id = /obj/item/scomstone/bad
+/datum/outfit/job/roguetown/headslave/headmaid/pre_equip(mob/living/carbon/human/H)
+	..()
+	armor = /obj/item/clothing/suit/roguetown/shirt/dress/gen/black
+	shoes = /obj/item/clothing/shoes/roguetown/simpleshoes
+	cloak = /obj/item/clothing/cloak/apron/waist
+	backl = /obj/item/storage/backpack/rogue/satchel
+	belt = /obj/item/storage/belt/rogue/leather
+	beltr = /obj/item/storage/keyring/seneschal
+	beltl = /obj/item/storage/belt/rogue/pouch/coins/mid
+	id = /obj/item/scomstone/bad
 
-// /datum/advclass/headslave/chiefbutler
-// 	name = "Chief Butler"
-// 	tutorial = "You are the ruling class of butler and your ability to clear your throat and murmur 'I say' is without peer. Your duties and talents as headslave remain the same, though."
-// 	outfit = /datum/outfit/job/roguetown/headslave/chiefbutler
-// 	subclass_stats = list(
-// 		STATKEY_INT = 2,
-// 		STATKEY_PER = 2,
-// 		STATKEY_LCK = 1, // Usual leadership carrot.
-// 		STATKEY_SPD = 1
-// 	)
-// 	subclass_skills = list(
-// 		/datum/skill/combat/knives = SKILL_LEVEL_JOURNEYMAN,
-// 		/datum/skill/misc/reading = SKILL_LEVEL_EXPERT,
-// 		/datum/skill/craft/cooking = SKILL_LEVEL_EXPERT,
-// 		/datum/skill/misc/medicine = SKILL_LEVEL_JOURNEYMAN,
-// 		/datum/skill/craft/sewing = SKILL_LEVEL_EXPERT,
-// 		/datum/skill/craft/crafting = SKILL_LEVEL_JOURNEYMAN,
-// 		/datum/skill/misc/sneaking = SKILL_LEVEL_JOURNEYMAN,
-// 		/datum/skill/misc/stealing = SKILL_LEVEL_JOURNEYMAN,
-// 		/datum/skill/misc/lockpicking = SKILL_LEVEL_APPRENTICE,
-// 		/datum/skill/misc/climbing = SKILL_LEVEL_APPRENTICE,
-// 	)
+/datum/advclass/headslave/chiefbutler
+	name = "Chief Butler"
+	tutorial = "You are the ruling class of butler and your ability to clear your throat and murmur 'I say' is without peer. Your duties and talents as headslave remain the same, though."
+	outfit = /datum/outfit/job/roguetown/headslave/chiefbutler
+	category_tags = list(CTAG_HEADSLAVE)
+	subclass_stats = list(
+		STATKEY_INT = 2,
+		STATKEY_PER = 2,
+		STATKEY_LCK = 1, // Usual leadership carrot.
+		STATKEY_SPD = 1
+	)
+	subclass_skills = list(
+		/datum/skill/combat/knives = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/reading = SKILL_LEVEL_EXPERT,
+		/datum/skill/craft/cooking = SKILL_LEVEL_EXPERT,
+		/datum/skill/misc/medicine = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/craft/sewing = SKILL_LEVEL_EXPERT,
+		/datum/skill/craft/crafting = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/sneaking = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/stealing = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/misc/lockpicking = SKILL_LEVEL_APPRENTICE,
+		/datum/skill/misc/climbing = SKILL_LEVEL_APPRENTICE,
+	)
 
-// /datum/outfit/job/roguetown/headslave/chiefbutler/pre_equip(mob/living/carbon/human/H)
-// 	..() // They need a monocle.
-// 	pants = /obj/item/clothing/under/roguetown/tights/black
-// 	shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt
-// 	shoes = /obj/item/clothing/shoes/roguetown/shortboots
-// 	backl = /obj/item/storage/backpack/rogue/satchel
-// 	belt = /obj/item/storage/belt/rogue/leather
-// 	beltr = /obj/item/storage/keyring/servant
-// 	beltl = /obj/item/storage/belt/rogue/pouch/coins/mid
-// 	armor = /obj/item/clothing/suit/roguetown/armor/leather/vest/black
-// 	id = /obj/item/scomstone/bad
+/datum/outfit/job/roguetown/headslave/chiefbutler/pre_equip(mob/living/carbon/human/H)
+	..() // They need a monocle.
+	pants = /obj/item/clothing/under/roguetown/tights/black
+	shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt
+	shoes = /obj/item/clothing/shoes/roguetown/shortboots
+	backl = /obj/item/storage/backpack/rogue/satchel
+	belt = /obj/item/storage/belt/rogue/leather
+	beltr = /obj/item/storage/keyring/seneschal
+	beltl = /obj/item/storage/belt/rogue/pouch/coins/mid
+	armor = /obj/item/clothing/suit/roguetown/armor/leather/vest/black
+	id = /obj/item/scomstone/bad
