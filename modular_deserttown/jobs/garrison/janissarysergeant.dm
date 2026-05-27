@@ -123,7 +123,7 @@
 				backl = /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow
 				r_hand = /obj/item/rogueweapon/sword/sabre
 				beltl = /obj/item/rogueweapon/scabbard/sword
-/datum/job/roguetown/janissarysergeant/janissarysergeant/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
+/datum/job/roguetown/janissarysergeant/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
 	..()
 	if(ishuman(L))
 		var/mob/living/carbon/human/H = L
