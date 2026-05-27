@@ -55,7 +55,7 @@
 		/datum/job/roguetown/adventurer/courtagent,
 		// /datum/job/roguetown/adventurer//Adventurers (Could rename which are 'foreigners but who cares)'
 		// /datum/job/roguetown/wretch,
-		// /datum/job/roguetown/bandit,
+		/datum/job/roguetown/bandit,
 		// /datum/job/roguetown/pilgrim, //I have Nomads in the dtvillager.dm //actually this makes sense as a non-zyb foreigner!
 		// /datum/job/roguetown/trader,
 		// /datum/job/roguetown/assassin,

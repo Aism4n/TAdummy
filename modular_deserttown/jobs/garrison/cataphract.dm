@@ -87,6 +87,9 @@
     Ты довел до совершенства владение тяжелыми мечами, боевыми топорами, булавами и алебардами, что подобает истинному Фарису."
 	outfit = /datum/outfit/job/roguetown/cataphract/greatweapon
 
+	subclass_virtues = list(
+		/datum/virtue/utility/riding)
+
 	category_tags = list(CTAG_CATAPHRACT)
 	traits_applied = list(TRAIT_HEAVYARMOR)
 	subclass_stats = list(
@@ -173,6 +176,9 @@
 	tutorial = "Ты обучен традиционной пешей рати, мастерски владея мечами, кистенями или палицами. \
     Твоя стойкость и искусство сочетать надежный щит с клинком делают тебя противником, чью оборону почти невозможно сокрушить!"
 	outfit = /datum/outfit/job/roguetown/cataphract/shieldmaster
+	
+	subclass_virtues = list(
+		/datum/virtue/utility/riding)
 
 	category_tags = list(CTAG_CATAPHRACT)
 	traits_applied = list(TRAIT_HEAVYARMOR)
@@ -366,7 +372,10 @@
     Твои стремительные маневры и мастерское владение клинком приводят в восторг даже самую искушенную хассу, ведь ты отдаешь предпочтение быстрым и элегантным стальным клинкам. \
     Пусть ты вполне эффективен в средних доспехах, но твои навыки уклонения по-настоящему раскроются, лишь когда ты облачишься в более легкую защиту."
 	outfit = /datum/outfit/job/roguetown/cataphract/dervish
-
+	
+	subclass_virtues = list(
+		/datum/virtue/utility/riding)
+	
 	traits_applied = list(TRAIT_MEDIUMARMOR, TRAIT_DODGEEXPERT)
 	category_tags = list(CTAG_CATAPHRACT)
 	subclass_stats = list(

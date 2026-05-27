@@ -737,9 +737,8 @@ name = "Janissaries Helm"
 	icon_state = "shalal"//change when I get around to it
 	item_state = "shalal"
 	color = "#d4c7bf"
-	/* armor = ARMOR_LEATHER_GOOD
-	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_BLUNT, BCLASS_TWIST)	*/
-	max_integrity = 100			//Half that of iron boots
+	armor = ARMOR_LEATHER
+	max_integrity = 200			//Half that of iron boots
 
 	
 /obj/item/clothing/shoes/roguetown/boots/armor/shalal

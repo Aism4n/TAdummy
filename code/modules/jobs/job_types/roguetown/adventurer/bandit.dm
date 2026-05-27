@@ -136,8 +136,12 @@
 	var/current_players = (SSticker.current_state == GAME_STATE_PREGAME) ? ready_player_count : player_count
 
 	var/slots = 0
+	bandit_job.always_show_on_latechoices = TRUE
 
-	if(SSmapping.config.map_name == "Rockhill")
+	if(SSmapping.config.map_name == "Desert Town")
+		slots = 0
+		bandit_job.always_show_on_latechoices = FALSE
+	else if(SSmapping.config.map_name == "Rockhill")
 		if(current_players > 60)
 			// На Рокхилле - 5 бандитов с 60 онлайна и +1 слот за каждые 40 сверху
 			slots = 5 + round((current_players - 60) / 40)
@@ -148,3 +152,6 @@
 
 	bandit_job.total_positions = slots
 	bandit_job.spawn_positions = slots
+
+	update_freemans_slots()
+	update_lost_grenzel_slots()
