@@ -174,3 +174,127 @@
 	recruitment_message = "Serve the my will, %RECRUIT!"
 	accept_message = "FOR THE SULTAN!"
 	refuse_message = "I refuse."
+
+/datum/outfit/job/roguetown/adventurer/doctor/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		head = /obj/item/clothing/head/roguetown/turban
+		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb
+
+// Blacksmith override
+/datum/outfit/job/roguetown/blacksmith/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		pants = /obj/item/clothing/under/roguetown/sirwal/plainrandom
+		head = /obj/item/clothing/head/roguetown/turban/random
+		shoes = /obj/item/clothing/shoes/roguetown/sandals
+
+// Fisher override
+/datum/outfit/job/roguetown/fisher/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		shoes = /obj/item/clothing/shoes/roguetown/sandals
+		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb/random
+		armor = /obj/item/clothing/suit/roguetown/shirt/robe/bisht/random
+
+// Hunter override
+/datum/outfit/job/roguetown/hunter/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		shoes = /obj/item/clothing/shoes/roguetown/shalal
+		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb/random
+		armor = /obj/item/clothing/suit/roguetown/shirt/robe/bisht/bluegrey
+		head = /obj/item/clothing/head/roguetown/tagelmust
+
+// Miner override
+/datum/outfit/job/roguetown/miner/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		shoes = /obj/item/clothing/shoes/roguetown/sandals
+		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb/random
+		armor = /obj/item/clothing/suit/roguetown/shirt/robe/bisht/bluegrey
+		head = /obj/item/clothing/head/roguetown/tagelmust
+
+// Peasant override
+/datum/outfit/job/roguetown/peasant/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb/random
+		pants = /obj/item/clothing/under/roguetown/sirwal/plainrandom
+		shoes = /obj/item/clothing/shoes/roguetown/sandals
+
+// Potter override
+/datum/outfit/job/roguetown/potter/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb/random
+		pants = /obj/item/clothing/under/roguetown/sirwal/plainrandom
+		shoes = /obj/item/clothing/shoes/roguetown/sandals
+
+// Seamstress override
+/datum/outfit/job/roguetown/seamstress/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb/gold
+		armor = /obj/item/clothing/suit/roguetown/shirt/robe/bisht/purple
+		head = /obj/item/clothing/head/roguetown/turban/fancypurple
+		shoes = /obj/item/clothing/shoes/roguetown/gladiator
+
+// Woodcutter override
+/datum/outfit/job/roguetown/woodcutter/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb
+		armor = /obj/item/clothing/suit/roguetown/shirt/robe/bisht
+		head = /obj/item/clothing/head/roguetown/turban/random
+		shoes = /obj/item/clothing/shoes/roguetown/sandals
+
+// Magician override
+/datum/outfit/job/roguetown/magician/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		cloak = null
+		head = /obj/item/clothing/head/roguetown/jafar
+		armor = /obj/item/clothing/suit/roguetown/shirt/jafar
+		belt = /obj/item/storage/belt/rogue/leather/jafar
+		pants = /obj/item/clothing/under/roguetown/sirwal
+		shoes = /obj/item/clothing/shoes/roguetown/shalal
+		r_hand = /obj/item/rogueweapon/woodstaff/riddle_of_steel/serpent
+
+// Merchant override
+/datum/outfit/job/roguetown/merchant/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		head = /obj/item/clothing/head/roguetown/sultan/merchant
+		armor = /obj/item/clothing/suit/roguetown/armor/leather/vest/open
+		shirt = /obj/item/clothing/suit/roguetown/shirt/robe/bisht/merchantbisht
+		if(should_wear_masc_clothes(H))
+			shoes = /obj/item/clothing/shoes/roguetown/shalal
+			H.dna.species.soundpack_m = new /datum/voicepack/male/wizard()
+		else if(should_wear_femme_clothes(H))
+			shoes = /obj/item/clothing/shoes/roguetown/gladiator
+
+// Shophand override
+/datum/outfit/job/roguetown/shophand/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		if(should_wear_femme_clothes(H))
+			pants = /obj/item/clothing/under/roguetown/tights
+			shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt
+			armor = /obj/item/clothing/suit/roguetown/armor/leather/vest/open/random
+			shoes = /obj/item/clothing/shoes/roguetown/shalal
+			belt = /obj/item/storage/belt/rogue/leather/cloth/sash/random
+			beltr = /obj/item/storage/belt/rogue/pouch/coins/poor
+			beltl = /obj/item/storage/keyring/merchant
+			backr = /obj/item/storage/backpack/rogue/satchel
+		else if(should_wear_masc_clothes(H))
+			pants = /obj/item/clothing/under/roguetown/sirwal/fancy/random
+			belt = /obj/item/storage/belt/rogue/leather/cloth/sash/random
+			shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt
+			armor = /obj/item/clothing/suit/roguetown/armor/leather/vest/open/random
+			shoes = /obj/item/clothing/shoes/roguetown/shalal
+			beltr = /obj/item/storage/belt/rogue/pouch/coins/poor
+			beltl = /obj/item/storage/keyring/merchant
+			backr = /obj/item/storage/backpack/rogue/satchel
+			head = /obj/item/clothing/head/roguetown/turban/random
+
