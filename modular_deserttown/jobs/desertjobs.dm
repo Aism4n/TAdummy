@@ -298,3 +298,36 @@
 			backr = /obj/item/storage/backpack/rogue/satchel
 			head = /obj/item/clothing/head/roguetown/turban/random
 
+// Tailor override
+/datum/outfit/job/roguetown/tailor/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb/gold
+		armor = /obj/item/clothing/suit/roguetown/shirt/robe/bisht/purple
+		head = /obj/item/clothing/head/roguetown/turban/fancypurple
+		shoes = /obj/item/clothing/shoes/roguetown/gladiator
+
+// Guildsman override
+/datum/outfit/job/roguetown/guildsman/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		pants = /obj/item/clothing/under/roguetown/sirwal/plainrandom
+		head = /obj/item/clothing/head/roguetown/turban/random
+		shoes = /obj/item/clothing/shoes/roguetown/sandals
+
+// Barkeep override
+/datum/outfit/job/roguetown/barkeep/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb/random
+		pants = /obj/item/clothing/under/roguetown/sirwal/plainrandom
+		shoes = /obj/item/clothing/shoes/roguetown/gladiator
+
+// Archivist override
+/datum/outfit/job/roguetown/archivist/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		head = /obj/item/clothing/head/roguetown/tagelmust
+		shoes = /obj/item/clothing/shoes/roguetown/gladiator
+
+
