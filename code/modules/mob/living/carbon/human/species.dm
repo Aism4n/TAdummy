@@ -1282,6 +1282,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 		if(!target.lying_attack_check(user))
 			return 0
 
+		user.break_invisibility_from_combat()
 		var/armor_block = target.run_armor_check(selzone, "blunt", armor_penetration = PEN_NONE, blade_dulling = user.used_intent.blade_class, damage = damage, intdamfactor = user.used_intent?.intent_intdamage_factor)
 
 		target.lastattacker = user.real_name
@@ -1290,6 +1291,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 		target.lastattackerckey = user.ckey
 		target.lastattacker_weakref = WEAKREF(user)
 		user.dna.species.spec_unarmedattacked(user, target)
+		user.break_invisibility_from_combat()
 
 		target.next_attack_msg.Cut()
 
@@ -1554,6 +1556,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 		stander = FALSE
 	if(!get_dist(user, target))
 		if(!stander)
+			user.break_invisibility_from_combat()
 			target.lastattacker = user.real_name
 			target.lastattackerckey = user.ckey
 			target.lastattacker_weakref = WEAKREF(user)
@@ -1591,6 +1594,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 	else
 		if(!target.kick_attack_check(user))
 			return 0
+		user.break_invisibility_from_combat()
 		user.do_attack_animation_simple(target, ATTACK_EFFECT_KICK, TRUE)
 		playsound(target, 'sound/combat/hits/kick/kick.ogg', 100, TRUE, -1)
 
