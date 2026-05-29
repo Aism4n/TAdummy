@@ -7,7 +7,7 @@
 	spawn_positions = 0
 	antag_job = TRUE
 	
-	tutorial = "Long ago you did a crime worthy of your bounty being hung on the wall outside of the local inn. You now live with your fellow freemen in the bog, and generally get up to no good."
+	tutorial = "Да будет проклят Султан Аль-Ашура песками и Иблис! Когда-то вы владели этими землями: поля специй, торговые пути - всё это было частью вашего таваифа. Султан забрал ваши права и земли несколько лет назад - и теперь вы боретесь за свои права и свои земли, беспощадно убивая азебов и наёмных убийц. С тех самых пор как вы стали изгоем для цивилизации - вы стали куда более радикальных взглядов и нашли себе новых товарищей по вкусу. Быть может, вместе с ними вы сможете вернуть свои земли?"
 
 	outfit = null
 	outfit_female = null
@@ -20,7 +20,7 @@
 	max_pq = null
 	round_contrib_points = null
 
-	advclass_cat_rolls = list(CTAG_BANDIT = 20)
+	advclass_cat_rolls = list(CTAG_FREEMAN = 20)
 	PQ_boost_divider = 10
 
 	wanderer_examine = TRUE
@@ -30,11 +30,12 @@
 	job_traits = list(TRAIT_SELF_SUSTENANCE, TRAIT_STEELHEARTED)//Bandits and knaves truly though
 	vice_restrictions = list(/datum/charflaw/noeyer, /datum/charflaw/noeyel, /datum/charflaw/mute, /datum/charflaw/limbloss/arm_r, /datum/charflaw/limbloss/arm_l)
 	same_job_respawn_delay = 30 MINUTES
-	cmode_music = 'sound/music/cmode/antag/combat_deadlyshadows.ogg'
+	cmode_music = 'sound/music/combat_imperial_spellblade.ogg'
 	job_subclasses = list(
 		/datum/advclass/sahir_maradun,
-		/datum/advclass/twilight_afreet,
+		/datum/advclass/rih_al_sahra,
 		/datum/advclass/faris_sarid,
+		/datum/advclass/mujizat_musaid,
 	)
 
 /datum/job/roguetown/freeman/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
@@ -69,8 +70,9 @@
 	name = "Freeman Migration"
 	typepath = /datum/round_event/migrant_wave/freeman
 	wave_type = /datum/migrant_wave/bandit
+	track = EVENT_TRACK_INTERVENTION
 	max_occurrences = 2
-	weight = 0
+	weight = 8
 	earliest_start = 5 MINUTES
 	min_players = 30
 	tags = list(
@@ -93,9 +95,10 @@
 /datum/round_event/migrant_wave/freeman/start()
 	var/datum/job/freeman_job = SSjob.GetJob("Freeman")
 	var/freeman_maxcap = max(SSgamemode.story_antag_slot_cap(/datum/antagonist/bandit), freeman_job.total_positions)
+	var/old_positions = freeman_job.total_positions
 	freeman_job.total_positions = min(freeman_job.total_positions + 6, freeman_maxcap)
 	freeman_job.spawn_positions = min(freeman_job.spawn_positions + 6, freeman_maxcap)
-	if(freeman_job.total_positions < freeman_maxcap)
+	if(freeman_job.total_positions > old_positions)
 		SSmapping.retainer.bandit_goal += 1 * rand(200, 400)
 		SSrole_class_handler.bandits_in_round = TRUE
 		freeman_job.always_show_on_latechoices = TRUE

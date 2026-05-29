@@ -3,8 +3,8 @@
 	tutorial = "«... На самой же окраине, вдали от блеска султанских маммонов, обитают лишь те, кто отверг предопределенность - Сахи́р-мараду́ны, разбойные маги, выбравшие путь воли, а не долга ...»"
 	allowed_sexes = list(MALE, FEMALE)
 	
-	outfit = /datum/outfit/job/roguetown/bandit/sahir_maradun
-	category_tags = list(CTAG_BANDIT)
+	outfit = /datum/outfit/job/roguetown/freeman/sahir_maradun
+	category_tags = list(CTAG_FREEMAN)
 	cmode_music = 'sound/music/cmode/antag/combat_thewall.ogg'
 	maximum_possible_slots = 1
 	subclass_mage_aspects = list("mastery" = FALSE, "major" = 2, "minor" = 3, "utilities" = 9, "ward" = TRUE)
@@ -29,16 +29,17 @@
 		/datum/skill/craft/crafting = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/medicine = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/reading = SKILL_LEVEL_LEGENDARY,
+		/datum/skill/misc/tracking = SKILL_LEVEL_MASTER,		
 		/datum/skill/craft/alchemy = SKILL_LEVEL_EXPERT,
 		/datum/skill/magic/arcane = SKILL_LEVEL_MASTER,
 		/datum/skill/craft/cooking = SKILL_LEVEL_NOVICE,
 	)
 
-/datum/outfit/job/roguetown/bandit/sahir_maradun/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/roguetown/freeman/sahir_maradun/pre_equip(mob/living/carbon/human/H)
 	..()
 	shoes = /obj/item/clothing/shoes/roguetown/shalal/reinforced
 	pants = /obj/item/clothing/under/roguetown/sirwal/brown
-	shirt = /obj/item/clothing/suit/roguetown/shirt/dress/thawb/brown
+	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/hierophant
 	armor = /obj/item/clothing/suit/roguetown/armor/brigandine/agha
 	belt = /obj/item/storage/belt/rogue/leather/cloth/sash
 	beltr = /obj/item/reagent_containers/glass/bottle/rogue/manapot

@@ -7,7 +7,7 @@
 	spawn_positions = 0
 	antag_job = TRUE
 	
-	tutorial = "Long ago you did a crime worthy of your bounty being hung on the wall outside of the local inn. You now live with your fellow lost grenzels in the bog, and generally get up to no good."
+	tutorial = "Вы ненавидите пески - они ненавидят вас в ответ. Сумеречная Война стала для вас переломным моментом жизни: так или иначе вы были участником фронтов, вы видели ужасы войны в пустыне, вы видели как умирают неподготовленные к ней, вы видели как жестоки эти животные, что называют себя местными жителями, вы ненавидите их - они ненавидят вас. Ваш батальон несколько лет назад разбили в коротком сражении далеко отсюда, выжившие подались кто-куда, но вы с несколькими товарищами стали грабить и убивать местное население - совершать самые мерзкие поступки, лишь бы накопить денег и вернуться домой..."
 
 	outfit = null
 	outfit_female = null
@@ -20,7 +20,7 @@
 	max_pq = null
 	round_contrib_points = null
 
-	advclass_cat_rolls = list(CTAG_BANDIT = 20)
+	advclass_cat_rolls = list(CAT_LOSTGRENZEL = 20)
 	PQ_boost_divider = 10
 
 	wanderer_examine = TRUE
@@ -30,16 +30,9 @@
 	job_traits = list(TRAIT_SELF_SUSTENANCE, TRAIT_STEELHEARTED)
 	vice_restrictions = list(/datum/charflaw/noeyer, /datum/charflaw/noeyel, /datum/charflaw/mute, /datum/charflaw/limbloss/arm_r, /datum/charflaw/limbloss/arm_l)
 	same_job_respawn_delay = 30 MINUTES
-	cmode_music = 'sound/music/cmode/antag/combat_deadlyshadows.ogg'
+	cmode_music = 'sound/music/combat_lost_grenzel.ogg'
 	job_subclasses = list(
-		/datum/advclass/brigand,
-		/datum/advclass/hedgealchemist,
-		/datum/advclass/hedgeknight,
-		/datum/advclass/hedgemage,
-		/datum/advclass/iconoclast,
-		/datum/advclass/knave,
-		/datum/advclass/sellsword,
-		/datum/advclass/twilight_afreet
+	
 	)
 
 /datum/job/roguetown/lost_grenzel/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
@@ -74,8 +67,9 @@
 	name = "Lost Grenzel Migration"
 	typepath = /datum/round_event/migrant_wave/lost_grenzel
 	wave_type = /datum/migrant_wave/bandit
+	track = EVENT_TRACK_INTERVENTION
 	max_occurrences = 2
-	weight = 0
+	weight = 8
 	earliest_start = 5 MINUTES
 	min_players = 30
 	tags = list(
@@ -98,9 +92,10 @@
 /datum/round_event/migrant_wave/lost_grenzel/start()
 	var/datum/job/lg_job = SSjob.GetJob("Lost Grenzel")
 	var/lg_maxcap = max(SSgamemode.story_antag_slot_cap(/datum/antagonist/bandit), lg_job.total_positions)
+	var/old_positions = lg_job.total_positions
 	lg_job.total_positions = min(lg_job.total_positions + 4, lg_maxcap)
 	lg_job.spawn_positions = min(lg_job.spawn_positions + 4, lg_maxcap)
-	if(lg_job.total_positions < lg_maxcap)
+	if(lg_job.total_positions > old_positions)
 		SSmapping.retainer.bandit_goal += 1 * rand(200, 400)
 		SSrole_class_handler.bandits_in_round = TRUE
 		lg_job.always_show_on_latechoices = TRUE

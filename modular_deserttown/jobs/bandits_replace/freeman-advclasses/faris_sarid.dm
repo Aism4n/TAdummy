@@ -1,11 +1,11 @@
 /datum/advclass/faris_sarid
 	name = "Fāris-šārid"// Что означает "Фарис-изгой"
-	tutorial = "«... Так возникли Фа́рисы - каста стальных защитников, чей долг - быть оплотом чести и силы, когда вера других слабеет... »"
+	tutorial = "«... Так возникли Фа́рисы - каста стальных защитников, чей долг - быть оплотом чести и силы, когда вера других слабеет ...»"
 	allowed_sexes = list(MALE, FEMALE)
 	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED)
-	outfit = /datum/outfit/job/roguetown/bandit/faris_sarid
-	category_tags = list(CTAG_BANDIT)
-	maximum_possible_slots = 1 
+	outfit = /datum/outfit/job/roguetown/freeman/faris_sarid
+	category_tags = list(CTAG_FREEMAN)
+	maximum_possible_slots = 2 
 	cmode_music = 'sound/music/cmode/antag/combat_thewall.ogg' 
 	traits_applied = list(TRAIT_HEAVYARMOR, TRAIT_NOBLE)
 	subclass_stats = list(
@@ -17,6 +17,7 @@
 	)
 	subclass_skills = list(
 		/datum/skill/combat/swords = SKILL_LEVEL_EXPERT,
+		/datum/skill/misc/tracking = SKILL_LEVEL_MASTER,		
 		/datum/skill/combat/maces = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/axes = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/polearms = SKILL_LEVEL_JOURNEYMAN,
@@ -31,8 +32,10 @@
 		/datum/skill/craft/cooking = SKILL_LEVEL_NOVICE,
 		/datum/skill/labor/butchering = SKILL_LEVEL_NOVICE,
 	)
+	subclass_virtues = list(
+		/datum/virtue/utility/riding)
 
-/datum/outfit/job/roguetown/bandit/faris_sarid/pre_equip(mob/living/carbon/human/H)
+/datum/outfit/job/roguetown/freeman/faris_sarid/pre_equip(mob/living/carbon/human/H)
 	..()
 	head = /obj/item/clothing/head/roguetown/helmet/heavy/cataphract
 	gloves = /obj/item/clothing/gloves/roguetown/plate
