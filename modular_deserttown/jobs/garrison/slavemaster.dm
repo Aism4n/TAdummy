@@ -25,6 +25,7 @@
 	max_pq = null
 	round_contrib_points = 2
 	cmode_music = 'sound/music/combat_zybantine.ogg'
+	spells = list(/obj/effect/proc_holder/spell/self/convertrole/slave)
 	job_subclasses = list(
 		/datum/advclass/slavemaster
 	)

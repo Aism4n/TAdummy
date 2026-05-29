@@ -169,6 +169,11 @@
 	refuse_message = "I refuse."
 	recharge_time = 100
 
+/obj/effect/proc_holder/spell/self/convertrole/slave/convert(mob/living/carbon/human/recruit, mob/living/carbon/human/recruiter)
+	. = ..()
+	if(.)
+		ADD_TRAIT(recruit, TRAIT_SLAVE, TRAIT_GENERIC)
+
 /obj/effect/proc_holder/spell/self/convertrole/azeb
 	name = "Recruit Azeb"
 	new_role = "Azeb"
@@ -332,4 +337,24 @@
 		head = /obj/item/clothing/head/roguetown/tagelmust
 		shoes = /obj/item/clothing/shoes/roguetown/gladiator
 
+// Trait Slave for specific jobs in Desert Town
+/datum/job/roguetown/shophand/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
+	..()
+	if(SSmapping.config.map_name == "Desert Town")
+		ADD_TRAIT(L, TRAIT_SLAVE, TRAIT_GENERIC)
+
+/datum/job/roguetown/bathmaid/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
+	..()
+	if(SSmapping.config.map_name == "Desert Town")
+		ADD_TRAIT(L, TRAIT_SLAVE, TRAIT_GENERIC)
+
+/datum/job/roguetown/cook/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
+	..()
+	if(SSmapping.config.map_name == "Desert Town")
+		ADD_TRAIT(L, TRAIT_SLAVE, TRAIT_GENERIC)
+
+/datum/job/roguetown/tapster/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
+	..()
+	if(SSmapping.config.map_name == "Desert Town")
+		ADD_TRAIT(L, TRAIT_SLAVE, TRAIT_GENERIC)
 

@@ -12,11 +12,11 @@
 	advclass_cat_rolls = list(CTAG_SULTAN = 20)
 
 	spells = list(
-		/obj/effect/proc_holder/spell/self/grant_title,
+		/obj/effect/proc_holder/spell/self/grant_title/sultan,
 		/obj/effect/proc_holder/spell/self/convertrole/slave,
 		/obj/effect/proc_holder/spell/self/convertrole/azeb,
 		/obj/effect/proc_holder/spell/self/convertrole/guard,
-		/obj/effect/proc_holder/spell/self/grant_nobility,
+		/obj/effect/proc_holder/spell/self/grant_nobility/sultan,
 	)
 	outfit = /datum/outfit/job/roguetown/sultan
 	visuals_only_outfit = /datum/outfit/job/roguetown/sultan/visuals
@@ -298,136 +298,130 @@
 	..()
 	head = /obj/item/clothing/head/roguetown/crown/fakecrown //Prevents the crown of woe from happening again.
 
-// /proc/give_lord_surname(mob/living/carbon/human/family_guy, preserve_original = FALSE)
-// 	if(!GLOB.lordsurname)
-// 		return
-// 	if(preserve_original)
-// 		family_guy.fully_replace_character_name(family_guy.real_name, family_guy.real_name + " " + GLOB.lordsurname)
-// 		return family_guy.real_name
-// 	var/list/chopped_name = splittext(family_guy.real_name, " ")
-// 	if(length(chopped_name) > 1)
-// 		family_guy.fully_replace_character_name(family_guy.real_name, chopped_name[1] + " " + GLOB.lordsurname)
-// 	else
-// 		family_guy.fully_replace_character_name(family_guy.real_name, family_guy.real_name + " " + GLOB.lordsurname)
-// 	return family_guy.real_name
+/proc/give_sultan_surname(mob/living/carbon/human/family_guy, preserve_original = FALSE)
+	if(!GLOB.lordsurname)
+		return
+	if(preserve_original)
+		family_guy.fully_replace_character_name(family_guy.real_name, family_guy.real_name + " " + GLOB.lordsurname)
+		return family_guy.real_name
+	var/list/chopped_name = splittext(family_guy.real_name, " ")
+	if(length(chopped_name) > 1)
+		family_guy.fully_replace_character_name(family_guy.real_name, chopped_name[1] + " " + GLOB.lordsurname)
+	else
+		family_guy.fully_replace_character_name(family_guy.real_name, family_guy.real_name + " " + GLOB.lordsurname)
+	return family_guy.real_name
 
-// /obj/effect/proc_holder/spell/self/grant_title
-// 	name = "Grant Title"
-// 	desc = "Grant someone a title of honor... Or shame."
-// 	overlay_state = "recruit_titlegrant"
-// 	antimagic_allowed = TRUE
-// 	recharge_time = 100
-// 	/// Maximum range for title granting
-// 	var/title_range = 3
-// 	/// Maximum length for the title
-// 	var/title_length = 42
+/obj/effect/proc_holder/spell/self/grant_title/sultan
+	name = "Grant Title"
+	desc = "Grant someone a title of honor... Or shame."
+	overlay_state = "recruit_titlegrant"
+	antimagic_allowed = TRUE
+	recharge_time = 100
 
-// /obj/effect/proc_holder/spell/self/grant_title/cast(list/targets, mob/user = usr)
-// 	. = ..()
-// 	var/granted_title = input(user, "What title do you wish to grant?", "[name]") as null|text
-// 	granted_title = reject_bad_text(granted_title, title_length)
-// 	if(!granted_title)
-// 		return
-// 	var/list/recruitment = list()
-// 	for(var/mob/living/carbon/human/village_idiot in (get_hearers_in_view(title_range, user) - user))
-// 		//not allowed
-// 		if(!can_title(village_idiot))
-// 			continue
-// 		recruitment[village_idiot.name] = village_idiot
-// 	if(!length(recruitment))
-// 		to_chat(user, span_warning("There are no potential honoraries in range."))
-// 		return
-// 	var/inputty = input(user, "Select an honorary!", "[name]") as anything in recruitment
-// 	if(inputty)
-// 		var/mob/living/carbon/human/recruit = recruitment[inputty]
-// 		if(!QDELETED(recruit) && (recruit in get_hearers_in_view(title_range, user)))
-// 			INVOKE_ASYNC(src, PROC_REF(village_idiotify), recruit, user, granted_title)
-// 		else
-// 			to_chat(user, span_warning("Honorific failed!"))
-// 	else
-// 		to_chat(user, span_warning("Honorific cancelled."))
+/obj/effect/proc_holder/spell/self/grant_title/sultan/cast(list/targets, mob/user = usr)
+	. = ..()
+	var/granted_title = input(user, "What title do you wish to grant?", "[name]") as null|text
+	granted_title = reject_bad_text(granted_title, title_length)
+	if(!granted_title)
+		return
+	var/list/recruitment = list()
+	for(var/mob/living/carbon/human/village_idiot in (get_hearers_in_view(title_range, user) - user))
+		//not allowed
+		if(!can_title(village_idiot))
+			continue
+		recruitment[village_idiot.name] = village_idiot
+	if(!length(recruitment))
+		to_chat(user, span_warning("There are no potential honoraries in range."))
+		return
+	var/inputty = input(user, "Select an honorary!", "[name]") as anything in recruitment
+	if(inputty)
+		var/mob/living/carbon/human/recruit = recruitment[inputty]
+		if(!QDELETED(recruit) && (recruit in get_hearers_in_view(title_range, user)))
+			INVOKE_ASYNC(src, PROC_REF(village_idiotify), recruit, user, granted_title)
+		else
+			to_chat(user, span_warning("Honorific failed!"))
+	else
+		to_chat(user, span_warning("Honorific cancelled."))
 
-// /obj/effect/proc_holder/spell/self/grant_title/proc/can_title(mob/living/carbon/human/recruit)
-// 	//wtf
-// 	if(QDELETED(recruit))
-// 		return FALSE
-// 	//need a mind
-// 	if(!recruit.mind)
-// 		return FALSE
-// 	//need to see their damn face
-// 	if(!recruit.get_face_name(null))
-// 		return FALSE
-// 	return TRUE
+/obj/effect/proc_holder/spell/self/grant_title/sultan/can_title(mob/living/carbon/human/recruit)
+	//wtf
+	if(QDELETED(recruit))
+		return FALSE
+	//need a mind
+	if(!recruit.mind)
+		return FALSE
+	//need to see their damn face
+	if(!recruit.get_face_name(null))
+		return FALSE
+	return TRUE
 
-// /obj/effect/proc_holder/spell/self/grant_title/proc/village_idiotify(mob/living/carbon/human/recruit, mob/living/carbon/human/recruiter, granted_title)
-// 	if(QDELETED(recruit) || QDELETED(recruiter) || !granted_title)
-// 		return FALSE
-// 	if(GLOB.lord_titles[recruit.real_name])
-// 		recruiter.say("I HEREBY STRIP YOU, [uppertext(recruit.name)], OF THE TITLE OF [uppertext(GLOB.lord_titles[recruit.real_name])]!")
-// 		GLOB.lord_titles -= recruit.real_name
-// 		return FALSE
-// 	recruiter.say("I HEREBY GRANT YOU, [uppertext(recruit.name)], THE TITLE OF [uppertext(granted_title)]!")
-// 	REMOVE_TRAIT(recruit, TRAIT_OUTLANDER, ADVENTURER_TRAIT)
-// 	REMOVE_TRAIT(recruit, TRAIT_OUTLANDER, TRAIT_GENERIC)
-// 	GLOB.lord_titles[recruit.real_name] = granted_title
-// 	return TRUE
+/obj/effect/proc_holder/spell/self/grant_title/sultan/village_idiotify(mob/living/carbon/human/recruit, mob/living/carbon/human/recruiter, granted_title)
+	if(QDELETED(recruit) || QDELETED(recruiter) || !granted_title)
+		return FALSE
+	if(GLOB.lord_titles[recruit.real_name])
+		recruiter.say("I HEREBY STRIP YOU, [uppertext(recruit.name)], OF THE TITLE OF [uppertext(GLOB.lord_titles[recruit.real_name])]!")
+		GLOB.lord_titles -= recruit.real_name
+		return FALSE
+	recruiter.say("I HEREBY GRANT YOU, [uppertext(recruit.name)], THE TITLE OF [uppertext(granted_title)]!")
+	REMOVE_TRAIT(recruit, TRAIT_OUTLANDER, ADVENTURER_TRAIT)
+	REMOVE_TRAIT(recruit, TRAIT_OUTLANDER, TRAIT_GENERIC)
+	GLOB.lord_titles[recruit.real_name] = granted_title
+	return TRUE
 
-// /obj/effect/proc_holder/spell/self/grant_nobility
-// 	name = "Grant Nobility"
-// 	desc = "Make someone a noble, or strip them of their nobility."
-// 	overlay_state = "recruit_titlegrant"
-// 	antimagic_allowed = TRUE
-// 	recharge_time = 100
-// 	/// Maximum range for nobility granting
-// 	var/nobility_range = 3
+/obj/effect/proc_holder/spell/self/grant_nobility/sultan
+	name = "Grant Nobility"
+	desc = "Make someone a noble, or strip them of their nobility."
+	overlay_state = "recruit_titlegrant"
+	antimagic_allowed = TRUE
+	recharge_time = 100
 
-// /obj/effect/proc_holder/spell/self/grant_nobility/cast(list/targets, mob/user = usr)
-// 	. = ..()
-// 	var/list/recruitment = list()
-// 	for(var/mob/living/carbon/human/village_idiot in (get_hearers_in_view(nobility_range, user) - user))
-// 		//not allowed
-// 		if(!can_nobility(village_idiot))
-// 			continue
-// 		recruitment[village_idiot.name] = village_idiot
-// 	if(!length(recruitment))
-// 		to_chat(user, span_warning("There are no potential honoraries in range."))
-// 		return
-// 	var/inputty = input(user, "Select an honorary!", "[name]") as anything in recruitment
-// 	if(inputty)
-// 		var/mob/living/carbon/human/recruit = recruitment[inputty]
-// 		if(!QDELETED(recruit) && (recruit in get_hearers_in_view(nobility_range, user)))
-// 			INVOKE_ASYNC(src, PROC_REF(grant_nobility), recruit, user)
-// 		else
-// 			to_chat(user, span_warning("Honorific failed!"))
-// 	else
-// 		to_chat(user, span_warning("Honorific cancelled."))
+/obj/effect/proc_holder/spell/self/grant_nobility/sultan/cast(list/targets, mob/user = usr)
+	. = ..()
+	var/list/recruitment = list()
+	for(var/mob/living/carbon/human/village_idiot in (get_hearers_in_view(nobility_range, user) - user))
+		//not allowed
+		if(!can_nobility(village_idiot))
+			continue
+		recruitment[village_idiot.name] = village_idiot
+	if(!length(recruitment))
+		to_chat(user, span_warning("There are no potential honoraries in range."))
+		return
+	var/inputty = input(user, "Select an honorary!", "[name]") as anything in recruitment
+	if(inputty)
+		var/mob/living/carbon/human/recruit = recruitment[inputty]
+		if(!QDELETED(recruit) && (recruit in get_hearers_in_view(nobility_range, user)))
+			INVOKE_ASYNC(src, PROC_REF(grant_nobility), recruit, user)
+		else
+			to_chat(user, span_warning("Honorific failed!"))
+	else
+		to_chat(user, span_warning("Honorific cancelled."))
 
-// /obj/effect/proc_holder/spell/self/grant_nobility/proc/can_nobility(mob/living/carbon/human/recruit)
-// 	//wtf
-// 	if(QDELETED(recruit))
-// 		return FALSE
-// 	//need a mind
-// 	if(!recruit.mind)
-// 		return FALSE
-// 	//need to see their damn face
-// 	if(!recruit.get_face_name(null))
-// 		return FALSE
-// 	if(HAS_TRAIT(recruit, TRAIT_DEFILED_NOBLE)) // Their lux was tainted by evil matthios rite. They are utterly fucked.
-// 		return FALSE
-// 	return TRUE
+/obj/effect/proc_holder/spell/self/grant_nobility/sultan/can_nobility(mob/living/carbon/human/recruit)
+	//wtf
+	if(QDELETED(recruit))
+		return FALSE
+	//need a mind
+	if(!recruit.mind)
+		return FALSE
+	//need to see their damn face
+	if(!recruit.get_face_name(null))
+		return FALSE
+	if(HAS_TRAIT(recruit, TRAIT_DEFILED_NOBLE)) // Their lux was tainted by evil matthios rite. They are utterly fucked.
+		return FALSE
+	return TRUE
 
-// /obj/effect/proc_holder/spell/self/grant_nobility/proc/grant_nobility(mob/living/carbon/human/recruit, mob/living/carbon/human/recruiter)
-// 	if(QDELETED(recruit) || QDELETED(recruiter))
-// 		return FALSE
-// 	if(HAS_TRAIT(recruit, TRAIT_NOBLE))
-// 		if(!(recruit.job in GLOB.foreign_positions))
-// 			recruiter.say("I HEREBY STRIP YOU, [uppertext(recruit.name)], OF NOBILITY!!")
-// 			REMOVE_TRAIT(recruit, TRAIT_NOBLE, TRAIT_GENERIC)
-// 			REMOVE_TRAIT(recruit, TRAIT_NOBLE, TRAIT_VIRTUE)
-// 			return FALSE
-// 		else
-// 			to_chat(recruiter, span_warning("Their nobility is not mine to strip!"))
-// 			return FALSE
-// 	recruiter.say("I HEREBY GRANT YOU, [uppertext(recruit.name)], NOBILITY!")
-// 	ADD_TRAIT(recruit, TRAIT_NOBLE, TRAIT_GENERIC)
-// 	return TRUE
+/obj/effect/proc_holder/spell/self/grant_nobility/sultan/grant_nobility(mob/living/carbon/human/recruit, mob/living/carbon/human/recruiter)
+	if(QDELETED(recruit) || QDELETED(recruiter))
+		return FALSE
+	if(HAS_TRAIT(recruit, TRAIT_NOBLE))
+		if(!(recruit.job in GLOB.foreign_positions))
+			recruiter.say("I HEREBY STRIP YOU, [uppertext(recruit.name)], OF NOBILITY!!")
+			REMOVE_TRAIT(recruit, TRAIT_NOBLE, TRAIT_GENERIC)
+			REMOVE_TRAIT(recruit, TRAIT_NOBLE, TRAIT_VIRTUE)
+			return FALSE
+		else
+			to_chat(recruiter, span_warning("Their nobility is not mine to strip!"))
+			return FALSE
+	recruiter.say("I HEREBY GRANT YOU, [uppertext(recruit.name)], NOBILITY!")
+	ADD_TRAIT(recruit, TRAIT_NOBLE, TRAIT_GENERIC)
+	return TRUE
