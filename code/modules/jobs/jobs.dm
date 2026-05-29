@@ -111,12 +111,10 @@ GLOBAL_LIST_INIT(courtier_positions, list( //Anyone that is officially part of t
 	"Archivist",
 	"Seneschal",
 	"Suitor",
-	// Desert Town BEGIN
-	"Vizier",
-	"Head Slave",
-	"Slave Master",
-	"Sheikh",
-	// Desert Town END
+	"Vizier", //TA_EDIT
+	"Head Slave", //TA_EDIT
+	"Slave Master", //TA_EDIT
+	"Sheikh", //TA_EDIT
 ))
 
 GLOBAL_LIST_INIT(retinue_positions, list( //Manorites
@@ -124,8 +122,7 @@ GLOBAL_LIST_INIT(retinue_positions, list( //Manorites
 	"Knight",
 	"Royal Knight",
 	"Squire",
-	// Desert Town
-	"Cataphract",
+	"Cataphract", //TA_EDIT
 ))
 
 GLOBAL_LIST_INIT(garrison_positions, list( //Guards
@@ -135,13 +132,11 @@ GLOBAL_LIST_INIT(garrison_positions, list( //Guards
 	"Royal Guard",
 	"Warden",
 	"Watchman",
-	// Desert Town BEGIN
-	"Janissary Sergeant",
-	"Janissary",
-	"Flagbearer",
-	"Azeb Agha",
-	"Azeb",
-	// Desert Town END
+	"Janissary Sergeant", //TA_EDIT
+	"Janissary", //TA_EDIT
+	"Flagbearer", //TA_EDIT
+	"Azeb Agha", //TA_EDIT 
+	"Azeb", //TA_EDIT
 ))
 
 GLOBAL_LIST_INIT(citywatch_positions, list( //Guards
@@ -207,6 +202,7 @@ GLOBAL_LIST_INIT(peasant_positions, list( //Serfs / peasants / generic towners
 	"Servant",
 	"Soilson",
 	"Towner",
+	"Palace Slave", //TA_EDIT
 ))
 
 GLOBAL_LIST_INIT(sidefolk_positions, list( //Weerdoes who hang around the town
@@ -216,18 +212,13 @@ GLOBAL_LIST_INIT(sidefolk_positions, list( //Weerdoes who hang around the town
 	"Pilgrim",
 	"Mercenary",	
 	"Veteran",
-	// Desert Town BEGIN
-	"Court Slave",
-	// Desert Town END
+	"Court Slave", //TA_EDIT
 ))
 
 GLOBAL_LIST_INIT(wanderer_positions, list( //Homeless
 	"Adventurer",
 	"Court Agent",
 	"Trader",
-	// Desert Town BEGIN
-	"Desert Slave",
-	// Desert Town END
 ))
 
 GLOBAL_LIST_INIT(antagonist_positions, list( //Mostly lesser antagonists
