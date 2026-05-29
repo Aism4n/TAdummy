@@ -5,7 +5,6 @@
 	
 	outfit = /datum/outfit/job/roguetown/freeman/sahir_maradun
 	category_tags = list(CTAG_FREEMAN)
-	cmode_music = 'sound/music/cmode/antag/combat_thewall.ogg'
 	maximum_possible_slots = 1
 	subclass_mage_aspects = list("mastery" = FALSE, "major" = 2, "minor" = 3, "utilities" = 9, "ward" = TRUE)
 	traits_applied = list(TRAIT_ARCYNE, TRAIT_ALCHEMY_EXPERT)

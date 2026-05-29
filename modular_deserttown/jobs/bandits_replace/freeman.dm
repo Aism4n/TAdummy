@@ -45,6 +45,7 @@
 		if(!H.mind)
 			return
 		H.ambushable = FALSE
+		H.mind.AddSpell(new /obj/effect/proc_holder/spell/targeted/unconvert_slave)
 
 /datum/outfit/job/roguetown/freeman/pre_equip(mob/living/carbon/human/H)
 	. = ..()

@@ -5,8 +5,7 @@
 	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED)
 	outfit = /datum/outfit/job/roguetown/freeman/faris_sarid
 	category_tags = list(CTAG_FREEMAN)
-	maximum_possible_slots = 2 
-	cmode_music = 'sound/music/cmode/antag/combat_thewall.ogg' 
+	maximum_possible_slots = 2
 	traits_applied = list(TRAIT_HEAVYARMOR, TRAIT_NOBLE)
 	subclass_stats = list(
 		STATKEY_CON = 3, 

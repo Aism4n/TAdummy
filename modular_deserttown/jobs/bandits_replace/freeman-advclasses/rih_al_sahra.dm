@@ -12,7 +12,6 @@
 	allowed_sexes = list(MALE, FEMALE)
 	outfit = /datum/outfit/job/roguetown/freeman/rih_al_sahra
 	category_tags = list(CTAG_FREEMAN)
-	cmode_music = 'modular_twilight_axis/firearms/sound/music/combat_corsair.ogg'
 	maximum_possible_slots = 3
 	traits_applied = list(TRAIT_FIREARMS_MARKSMAN, TRAIT_STEELHEARTED)
 	classes = list("Jannisary Deserter" = "Вы предали своего собственного Султана ради свободы своего народа. Вы были стрелком - и стрелком отличным.", "Desert Raider" = "Вы грабили караваны Султана ещё задолго до восстания шейхов, однако теперь у вас есть удачная возможность пограбить ещё - и за праведное дело, кто-же от такого отказывается?")

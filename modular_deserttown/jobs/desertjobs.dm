@@ -159,21 +159,63 @@
 		shoes = /obj/item/clothing/shoes/roguetown/shalal
 		shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/raneshen
 
+// СПЕЛЛ КОНВЕРТА В РАБА
 /obj/effect/proc_holder/spell/self/convertrole/slave
 	name = "Recruit Slave"
+	desc = "Позволяет обратить цель в рабство. Примените на цель, чтобы предложить ей стать рабом добровольно. Для насильственного подчинения цель должна быть связана, а вы должны держать её в агрессивном захвате (hard grab). Насильственный процесс занимает 30 секунд."
 	new_role = "Slave"
 	overlay_state = "recruit_servant"
 	recruitment_faction = "Servants"
-	recruitment_message = "Serve the crown, %RECRUIT!"
-	accept_message = "I OBEY, MASTER!"
-	refuse_message = "I refuse."
+	recruitment_message = "Служи мне, %RECRUIT!"
+	accept_message = "ДА, МАСТЕР!"
+	refuse_message = "НЕТ!"
 	recharge_time = 100
 
 /obj/effect/proc_holder/spell/self/convertrole/slave/convert(mob/living/carbon/human/recruit, mob/living/carbon/human/recruiter)
+	if(QDELETED(recruit) || QDELETED(recruiter))
+		return FALSE
+
+	if(recruit.stat == DEAD)
+		to_chat(recruiter, span_warning("[recruit] is dead!"))
+		return FALSE
+
+	// Forceful recruitment
+	if(recruit.restrained() && recruiter.pulling == recruit && recruiter.grab_state >= GRAB_AGGRESSIVE)
+		recruiter.visible_message(span_warning("[recruiter] begins to forcefully enslave [recruit]!"), span_notice("You begin forcefully enslaving [recruit]..."))
+
+		if(!do_after(recruiter, 300, target = recruit))
+			to_chat(recruiter, span_warning("You fail to enslave [recruit]."))
+			return FALSE
+
+		if(QDELETED(recruit) || QDELETED(recruiter) || recruit.stat == DEAD)
+			return FALSE
+
+		if(!recruit.restrained())
+			to_chat(recruiter, span_warning("[recruit] managed to break free from restraints!"))
+			return FALSE
+
+		if(recruiter.pulling != recruit || recruiter.grab_state < GRAB_AGGRESSIVE)
+			to_chat(recruiter, span_warning("You lost your grip on [recruit]!"))
+			return FALSE
+
+		recruiter.say(replacetext(recruitment_message, "%RECRUIT", "[recruit]"), forced = "[name]")
+		
+		if(accept_message)
+			recruit.say(accept_message, forced = "[name]")
+			
+		if(new_role)
+			recruit.job = new_role
+			SEND_SIGNAL(SSdcs, COMSIG_GLOB_ROLE_CONVERTED, recruiter, recruit, new_role)
+			
+		ADD_TRAIT(recruit, TRAIT_SLAVE, TRAIT_GENERIC)
+		return TRUE
+
+	// Voluntary recruitment
 	. = ..()
 	if(.)
 		ADD_TRAIT(recruit, TRAIT_SLAVE, TRAIT_GENERIC)
 
+// СПЕЛЛ КОНВЕРТА В АЗЕБЫ 
 /obj/effect/proc_holder/spell/self/convertrole/azeb
 	name = "Recruit Azeb"
 	new_role = "Azeb"
@@ -182,6 +224,41 @@
 	accept_message = "FOR THE SULTAN!"
 	refuse_message = "I refuse."
 
+// СПЕЛЛ ОСВОБОЖДЕНИЯ РАБОВ
+/obj/effect/proc_holder/spell/targeted/unconvert_slave
+	name = "Unbind Slave"
+	desc = "Освобождает раба от его оков. Примените на цель, чтобы снять с неё статус раба. Этот процесс занимает 30 секунд."
+	action_icon = 'modular_twilight_axis/icons/mob/actions/matthios_miracles.dmi'
+	action_icon_state = "shacklebreaker"
+	recharge_time = 600
+	range = 1
+	antimagic_allowed = TRUE
+
+/obj/effect/proc_holder/spell/targeted/unconvert_slave/cast(list/targets, mob/living/carbon/human/user = usr)
+	for(var/mob/living/carbon/human/target in targets)
+		if(!HAS_TRAIT(target, TRAIT_SLAVE))
+			to_chat(user, span_warning("[target] не является рабом!"))
+			continue
+
+		if(target.stat == DEAD)
+			to_chat(user, span_warning("[target] мёртв!"))
+			continue
+
+		user.visible_message(span_notice("[user] начинает освобождать [target]..."), span_notice("Вы начинаете снимать оковы с [target]..."))
+
+		if(do_after(user, 300, target = target))
+			if(QDELETED(target) || QDELETED(user) || target.stat == DEAD)
+				continue
+			
+			REMOVE_TRAIT(target, TRAIT_SLAVE, TRAIT_GENERIC)
+			REMOVE_TRAIT(target, TRAIT_SLAVE, JOB_TRAIT)
+			to_chat(user, span_notice("Вы успешно освободили [target]!"))
+			to_chat(target, span_notice("Вы больше не раб! [user] даровал(а) вам свободу."))
+			target.job = "Freeman"
+		else
+			to_chat(user, span_warning("Вам не удалось освободить [target]."))
+
+// Doctor override (я ебу чё это за роль?)
 /datum/outfit/job/roguetown/adventurer/doctor/pre_equip(mob/living/carbon/human/H)
 	. = ..()
 	if(SSmapping.config.map_name == "Desert Town")
