@@ -166,7 +166,7 @@ SUBSYSTEM_DEF(vote)
 		if("Psydon")
 			return "Псайдон"
 		if("Ascendants")
-			return "Святая Экклезиархия"
+			return "Презренные"
 		if("The Ten")
 			return "Десять"
 	return pool_name

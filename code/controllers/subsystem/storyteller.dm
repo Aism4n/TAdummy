@@ -1009,7 +1009,7 @@ SUBSYSTEM_DEF(gamemode)
 		if(/datum/storyteller/psydon)
 			return "Псайдон"
 		if(/datum/storyteller/graggar, /datum/storyteller/matthios, /datum/storyteller/zizo, /datum/storyteller/baotha)
-			return "Святая Экклезиархия"
+			return "Презренные"
 	return "Десять"
 
 /datum/controller/subsystem/gamemode/proc/storyteller_is(storyteller_type, roundstart = FALSE)
