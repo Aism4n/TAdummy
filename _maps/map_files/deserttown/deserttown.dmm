@@ -510,13 +510,6 @@
 /obj/item/signal_horn,
 /turf/open/floor/rogue/herringbone,
 /area/rogue/indoors/town/desert/warden)
-"akG" = (
-/obj/structure/spider/stickyweb{
-	icon_state = "stickyweb2"
-	},
-/mob/living/simple_animal/hostile/retaliate/rogue/spider,
-/turf/open/floor/rogue/naturalstone/sandstone,
-/area/rogue/under/cavewet/bogcaves)
 "akZ" = (
 /obj/structure/mineral_door/bars{
 	locked = 1;
@@ -3178,6 +3171,13 @@
 	tavern_area = 1;
 	color = "#00ff33"
 	})
+"bkB" = (
+/obj/structure/spider/stickyweb{
+	icon_state = "stickyweb2"
+	},
+/mob/living/simple_animal/hostile/retaliate/rogue/spider,
+/turf/open/floor/rogue/naturalstone/sandstone,
+/area/rogue/under/cavewet/bogcaves)
 "bkN" = (
 /obj/machinery/tanningrack,
 /turf/open/floor/rogue/desert_grass,
@@ -7265,6 +7265,13 @@
 	},
 /turf/open/floor/rogue/naturalstone/sandstone,
 /area/rogue/under/cave)
+"cHc" = (
+/obj/structure/spider/stickyweb{
+	dir = 8;
+	icon_state = "stickyweb2"
+	},
+/turf/open/floor/rogue/naturalstone/sandstone,
+/area/rogue/under/cavewet/bogcaves)
 "cHe" = (
 /obj/structure/fluff/railing/border{
 	dir = 6
@@ -18825,6 +18832,15 @@
 	icon = 'modular_deserttown/icons/alt/roguefloor.dmi'
 	},
 /area/rogue/indoors/town/desert)
+"hdB" = (
+/obj/effect/decal/cobbleedge{
+	dir = 10;
+	pixel_x = 11
+	},
+/obj/effect/decal/remains/human,
+/obj/item/clothing/cloak/tabard/stabard/grenzelmage,
+/turf/open/floor/rogue/naturalstone/sandstone,
+/area/rogue/under/cavewet/bogcaves)
 "hdE" = (
 /obj/structure/chair/bench/church/smallbench{
 	pixel_y = 14;
@@ -19400,14 +19416,6 @@
 /obj/item/roguekey/garrison,
 /turf/open/floor/rogue/deserttile,
 /area/rogue/indoors/town/garrison/desert)
-"hok" = (
-/obj/effect/decal/cobbleedge{
-	dir = 10;
-	pixel_x = 11
-	},
-/obj/effect/decal/remains/human,
-/turf/open/floor/rogue/naturalstone/sandstone,
-/area/rogue/under/cavewet/bogcaves)
 "hon" = (
 /obj/structure/flora/ausbushes/brflowers,
 /obj/structure/flora/roguegrass,
@@ -22427,6 +22435,10 @@
 /obj/item/reagent_containers/powder/moondust,
 /turf/open/floor/rogue/naturalstone/sandstone,
 /area/rogue/under/cave)
+"iAU" = (
+/obj/item/clothing/head/roguetown/helmet/tricorn/grenzel,
+/turf/open/floor/rogue/naturalstone/sandstone,
+/area/rogue/under/cavewet/bogcaves)
 "iBb" = (
 /mob/living/simple_animal/hostile/retaliate/rogue/troll/axe{
 	faction = list("neutral")
@@ -28025,6 +28037,15 @@
 /obj/structure/roguewindow/openclose/reinforced,
 /turf/open/floor/rogue/sandbrick,
 /area/rogue/indoors/town/desert)
+"kJC" = (
+/obj/structure/fluff/customsign{
+	icon_state = "signwrote";
+	name = "Grenzelhof Embassy House";
+	pixel_y = 13;
+	pixel_x = -2
+	},
+/turf/open/floor/rogue/naturalstone/sandstone,
+/area/rogue/under/cavewet/bogcaves)
 "kJG" = (
 /obj/structure/curtain/red{
 	icon_state = "curtain-closed";
@@ -40057,6 +40078,19 @@
 	},
 /turf/open/floor/rogue/sandbrick,
 /area/rogue/indoors/town/desert/warden)
+"poX" = (
+/obj/effect/decal/cobbleedge{
+	dir = 10;
+	icon_state = "cobbleedge-w";
+	pixel_y = 8
+	},
+/obj/structure/spider/stickyweb{
+	dir = 4;
+	icon_state = "stickyweb2"
+	},
+/mob/living/simple_animal/hostile/retaliate/rogue/spider,
+/turf/open/floor/rogue/naturalstone/sandstone,
+/area/rogue/under/cavewet/bogcaves)
 "ppf" = (
 /obj/structure/rack/rogue,
 /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/janissary,
@@ -44320,6 +44354,26 @@
 	icon = 'modular_deserttown/icons/alt/roguefloor.dmi'
 	},
 /area/rogue/indoors/town/church)
+"qWg" = (
+/obj/structure/toilet{
+	pixel_x = 3;
+	pixel_y = 9
+	},
+/obj/effect/decal/cobbleedge{
+	dir = 10;
+	pixel_y = -12;
+	pixel_x = -15
+	},
+/obj/effect/decal/cobbleedge{
+	dir = 4;
+	pixel_x = 13;
+	pixel_y = -4
+	},
+/obj/effect/spawner/lootdrop/cheap_jewelry_spawner,
+/turf/open/floor/rogue/cobblerock{
+	smooth = 0
+	},
+/area/rogue/under/cavewet/bogcaves)
 "qWB" = (
 /turf/open/floor/rogue/citybrick/citybrick2,
 /area/rogue/under/cave)
@@ -45402,15 +45456,6 @@
 	},
 /turf/open/floor/carpet/royalblack,
 /area/rogue/under/dungeon)
-"rtH" = (
-/obj/structure/fluff/customsign{
-	icon_state = "signwrote";
-	name = "Grenzelhof Embassy House";
-	pixel_y = 13;
-	pixel_x = -2
-	},
-/turf/open/floor/rogue/naturalstone/sandstone,
-/area/rogue/under/cavewet/bogcaves)
 "rtL" = (
 /turf/open/floor/rogue/naturalstone/sandstone,
 /area/rogue/under)
@@ -52210,13 +52255,6 @@
 "tQP" = (
 /turf/open/floor/rogue/dirt/road/desert,
 /area/rogue/outdoors/town/desert)
-"tQS" = (
-/obj/structure/spider/stickyweb{
-	dir = 8;
-	icon_state = "stickyweb2"
-	},
-/turf/open/floor/rogue/naturalstone/sandstone,
-/area/rogue/under/cavewet/bogcaves)
 "tQV" = (
 /obj/structure/mineral_door/bars{
 	locked = 1;
@@ -60043,26 +60081,6 @@
 /mob/living/carbon/human/species/dwarfskeleton/ambush,
 /turf/open/floor/rogue/lightpath,
 /area/rogue/under/town/basement/desert)
-"wNV" = (
-/obj/structure/toilet{
-	pixel_x = 3;
-	pixel_y = 9
-	},
-/obj/effect/decal/cobbleedge{
-	dir = 10;
-	pixel_y = -12;
-	pixel_x = -15
-	},
-/obj/effect/decal/cobbleedge{
-	dir = 4;
-	pixel_x = 13;
-	pixel_y = -4
-	},
-/obj/effect/spawner/lootdrop/cheap_jewelry_spawner,
-/turf/open/floor/rogue/cobblerock{
-	smooth = 0
-	},
-/area/rogue/under/cavewet/bogcaves)
 "wOi" = (
 /obj/structure/chair/wood/zybantine{
 	dir = 8
@@ -62075,19 +62093,6 @@
 	},
 /turf/open/floor/carpet/royalblack,
 /area/rogue/under/dungeon)
-"xyY" = (
-/obj/effect/decal/cobbleedge{
-	dir = 10;
-	icon_state = "cobbleedge-w";
-	pixel_y = 8
-	},
-/obj/structure/spider/stickyweb{
-	dir = 4;
-	icon_state = "stickyweb2"
-	},
-/mob/living/simple_animal/hostile/retaliate/rogue/spider,
-/turf/open/floor/rogue/naturalstone/sandstone,
-/area/rogue/under/cavewet/bogcaves)
 "xzg" = (
 /obj/effect/decal/edge{
 	color = "655653"
@@ -268983,7 +268988,7 @@ und
 und
 und
 und
-rtH
+kJC
 kVm
 kVm
 und
@@ -269284,9 +269289,9 @@ und
 und
 und
 und
-hok
+hdB
 kVm
-akG
+bkB
 und
 und
 und
@@ -269596,13 +269601,13 @@ und
 und
 und
 und
-wNV
+qWg
 kVm
 kVm
 kVm
 kVm
 und
-tQS
+cHc
 und
 kVm
 und
@@ -269908,16 +269913,16 @@ und
 und
 und
 und
-xyY
+poX
 kVm
-kVm
+iAU
 und
 kVm
 kVm
 wRw
 wRw
-tQS
-tQS
+cHc
+cHc
 wRw
 und
 und
@@ -270225,7 +270230,7 @@ und
 und
 und
 lTy
-akG
+bkB
 und
 und
 und
