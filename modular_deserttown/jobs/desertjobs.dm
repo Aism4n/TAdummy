@@ -437,3 +437,9 @@
 	if(SSmapping.config.map_name == "Desert Town")
 		ADD_TRAIT(L, TRAIT_SLAVE, TRAIT_GENERIC)
 
+/datum/controller/subsystem/job/Initialize(timeofday)
+	. = ..()
+	if(SSmapping && SSmapping.config && SSmapping.config.map_name == "Desert Town")
+		GLOB.bounty_posters["AZURIA"] = "The Emirate of Al Ashur"
+		GLOB.bounty_posters["GRENZELHOFT"] = "The Exalted Church of Zibantia"
+
