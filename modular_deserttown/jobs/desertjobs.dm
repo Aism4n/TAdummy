@@ -152,13 +152,6 @@
 		cmode_music = 'sound/music/combat_desert2.ogg'
 	..()
 
-/datum/outfit/job/roguetown/squire/pre_equip(mob/living/carbon/human/H)
-	. = ..()
-	if(SSmapping.config.map_name == "Desert Town")
-		cloak = /obj/item/clothing/cloak/citywatch/janissary
-		shoes = /obj/item/clothing/shoes/roguetown/shalal
-		shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/raneshen
-
 // СПЕЛЛ КОНВЕРТА В РАБА
 /obj/effect/proc_holder/spell/self/convertrole/slave
 	name = "Recruit Slave"
@@ -413,6 +406,15 @@
 	if(SSmapping.config.map_name == "Desert Town")
 		head = /obj/item/clothing/head/roguetown/tagelmust
 		shoes = /obj/item/clothing/shoes/roguetown/gladiator
+
+//SQUIRE override
+/datum/outfit/job/roguetown/squire/pre_equip(mob/living/carbon/human/H)
+	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		cloak = /obj/item/clothing/cloak/citywatch/janissary
+		head = /obj/item/clothing/head/roguetown/helmet/janissaryhelm
+		shoes = /obj/item/clothing/shoes/roguetown/shalal/reinforced
+		shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/zyb
 
 // Trait Slave for specific jobs in Desert Town
 /datum/job/roguetown/shophand/after_spawn(mob/living/L, mob/M, latejoin = TRUE)

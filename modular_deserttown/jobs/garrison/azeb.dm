@@ -85,11 +85,11 @@
 	..()
 	head = /obj/item/clothing/head/roguetown/helmet/sallet/raneshen
 	mask = /obj/item/clothing/head/roguetown/roguehood/shalal/hijab/raneshen
-	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/raneshen
+	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/zyb
 	pants = /obj/item/clothing/under/roguetown/trou/leather/pontifex/raneshen
 	armor = /obj/item/clothing/suit/roguetown/armor/leather/heavy/coat/raneshen
 	cloak = /obj/item/clothing/cloak/dunestalker
-	shoes = /obj/item/clothing/shoes/roguetown/shalal
+	shoes = /obj/item/clothing/shoes/roguetown/shalal/reinforced
 	gloves = /obj/item/clothing/gloves/roguetown/leather
 	wrists = /obj/item/clothing/wrists/roguetown/bracers/leather
 	belt = /obj/item/storage/belt/rogue/leather

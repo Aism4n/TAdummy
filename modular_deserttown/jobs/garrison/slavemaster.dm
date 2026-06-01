@@ -89,7 +89,7 @@
 	head = /obj/item/clothing/head/roguetown/helmet/sallet/visored
 	mask = /obj/item/clothing/head/roguetown/roguehood/shalal/purple
 	neck = /obj/item/clothing/neck/roguetown/bevor
-	shoes = /obj/item/clothing/shoes/roguetown/shalal
+	shoes = /obj/item/clothing/shoes/roguetown/shalal/reinforced
 	pants = /obj/item/clothing/under/roguetown/chainlegs/kilt
 	wrists = /obj/item/clothing/wrists/roguetown/bracers
 	gloves = /obj/item/clothing/gloves/roguetown/angle

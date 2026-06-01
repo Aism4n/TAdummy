@@ -43,7 +43,7 @@
 	wrists = /obj/item/clothing/wrists/roguetown/bracers/brigandine
 	gloves = /obj/item/clothing/gloves/roguetown/fingerless_leather
 	armor = /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/janissary
-	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/raneshen
+	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/zyb
 	head = /obj/item/clothing/head/roguetown/helmet/janissaryhelm
 	backpack_contents = list(
 		/obj/item/rogueweapon/huntingknife/idagger/steel/special = 1,

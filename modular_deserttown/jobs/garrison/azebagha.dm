@@ -44,7 +44,7 @@
 //All skills/traits are on the loadouts. All are identical. Welcome to the stupid way we have to make sub-classes...
 /datum/outfit/job/roguetown/azebagha
 	armor = /obj/item/clothing/suit/roguetown/armor/brigandine/agha
-	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/raneshen
+	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/zyb
 	pants = /obj/item/clothing/under/roguetown/chainlegs/kilt
 	cloak = /obj/item/clothing/cloak/dunestalker
 	neck = /obj/item/clothing/neck/roguetown/bevor

@@ -26,9 +26,7 @@
 	body_parts_covered = COVERAGE_FULL
 	sleeved = 'modular_twilight_axis/icons/roguetown/clothing/onmob/helpers/sleeves_armor.dmi'
 	max_integrity = ARMOR_INT_CHEST_PLATE_STEEL
-	// anvilrepair = /datum/skill/craft/armorsmithing
-	// smeltresult = /obj/item/ingot/steel
-	// armor_class = ARMOR_CLASS_HEAVY
+	armor_class = ARMOR_CLASS_HEAVY
 	equip_delay_self = 4 SECONDS
 	smelt_bar_num = 2
 
@@ -751,3 +749,9 @@ name = "Janissaries Helm"
 	desc = "Sturdy boots stitched together from cured leather. Stylish, firm, and sport a satisfying 'squeek' with each step."
 	icon_state = "shalal"//change when I get around to it
 	item_state = "shalal"
+
+/obj/item/clothing/suit/roguetown/armor/gambeson/zyb
+	name = "desert coat"
+	desc = "A slim-fitting sherwani, a Zybantine-styled coat meant to endure in the desert's climate."
+	icon_state = "sherwani"
+	color = "#7c6d5c"
