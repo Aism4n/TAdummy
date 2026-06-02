@@ -198,12 +198,12 @@
 		
 		// TA EDIT BEGIN, в случае мёржконфликта просто переместите этот блок куда-нибудь в другое место.
 		if(SSmapping.config.map_name == "Desert Town")
-			if(src.dna?.species?.origin == "Grenzelhoft" && !HAS_TRAIT(user, TRAIT_OUTLANDER))
+			var/species_origin = src.dna?.species?.origin
+			if(species_origin == "Grenzelhoft" && !HAS_TRAIT(user, TRAIT_OUTLANDER))
 				. += span_userdanger("ИМПЕРСКИЙ КАФИР!")
 			if(ishuman(user))
 				var/mob/living/carbon/human/H_user = user
-				var/origin = src.dna?.species?.origin
-				if(H_user.dna?.species?.origin == "Grenzelhoft" && (origin == "Raneshan" || origin == "Naledi" || origin == "Zybantu"))
+				if(H_user.dna?.species?.origin == "Grenzelhoft" && (species_origin == "Raneshan" || species_origin == "Naledi" || species_origin == "Zybantu"))
 					. += span_userdanger("ЗИБАНТИЙСКИЙ ШВАЙХУНД!")
 		// TA EDIT END
 		
