@@ -27,7 +27,6 @@
 		/datum/advclass/vizier/dtspymaster,
 		/datum/advclass/vizier/dtadvisor
 	)
-	spells = list(/obj/effect/proc_holder/spell/self/convertrole/agent)//Hiring court agents
 	peopleiknow = list("Court Agent", "Enslaved kafir")
 	peopleknowme = list("Court Agent", "Enslaved kafir")
 
@@ -54,6 +53,9 @@
 		H.real_name = "[honorary] [prev_real_name]"
 		H.name = "[honorary] [prev_name]"
 		GLOB.court_spymaster += H.real_name
+		if(H.mind)
+			H.mind.AddSpell(new /obj/effect/proc_holder/spell/self/convertrole/agent)
+		H.verbs |= /datum/job/roguetown/vizier/proc/remember_agents
 
 	if(ishuman(L))
 		var/mob/living/carbon/human/H = L
@@ -245,7 +247,7 @@
 		H.change_stat(STATKEY_STR, -1)
 		H.change_stat(STATKEY_INT, 1)
 		H.change_stat(STATKEY_PER, 1) 
-//.		H.mind?.adjust_spellpoints(3) Поправить позже
+		H.adjust_skillrank(/datum/skill/magic/arcane, 1, TRUE)
 	//He gets far less spellpoints than any other equivalent caster. Give him a T4.
 	//Message, too. You'll be taking it anyways.
 	if(H.mind)
