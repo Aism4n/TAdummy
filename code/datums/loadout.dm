@@ -1618,14 +1618,6 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	category = list("Триумфы")
 	triumph_cost = 15
 
-// Beyond.
-
-/datum/loadout_item/triumph_buffpot
-	name = "Vial of Distilled Triumphance"
-	path = /obj/item/reagent_containers/glass/bottle/alchemical/tripot
-	category = list("Триумфы")
-	triumph_cost = 100
-
 //Donator Section
 //All these items are stored in the donator_fluff.dm in the azure modular folder for simplicity.
 //All should be subtypes of existing weapons/clothes/armor/gear, whatever, to avoid balance issues I guess. Idk, I'm not your boss.
