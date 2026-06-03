@@ -159,16 +159,6 @@
 /obj/effect/spawner/lootdrop/cheap_tableware_spawner,
 /turf/open/floor/rogue/twig,
 /area/rogue/outdoors/desertdeep)
-"adi" = (
-/obj/structure/chair/frankenstein{
-	plane = -3
-	},
-/turf/open/floor/rogue/tile/bath{
-	icon_state = "bathtileratwood"
-	},
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "adj" = (
 /obj/structure/flora/roguetree/palm,
 /obj/structure/flora/grass/jungle/b,
@@ -1227,12 +1217,6 @@
 	icon_state = "tiledrab2"
 	},
 /area/rogue/under/dungeon)
-"azs" = (
-/obj/structure/flora/roguegrass,
-/turf/open/floor/rogue/dirt/desert,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "azu" = (
 /obj/structure/table/wood/large_table/south_east,
 /turf/open/floor/carpet/purple,
@@ -3483,15 +3467,6 @@
 /obj/machinery/tanningrack,
 /turf/open/floor/rogue/desert_grass,
 /area/rogue/outdoors/desertdeep)
-"bkO" = (
-/obj/structure/mineral_door/wood{
-	locked = 1;
-	lockid = "royal"
-	},
-/turf/open/floor/rogue/wood,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "bkP" = (
 /obj/structure/table/wood{
 	dir = 1;
@@ -5172,14 +5147,6 @@
 	},
 /turf/open/floor/rogue/desert_grass/nospawn,
 /area/rogue/outdoors/town/manor/desert/roofs)
-"bNs" = (
-/obj/structure/fluff/railing/border,
-/obj/structure/flora/roguegrass,
-/obj/machinery/light/roguestreet/walllamp,
-/turf/open/floor/rogue/dirt/desert,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "bNt" = (
 /obj/structure/closet/dirthole/grave,
 /mob/living/simple_animal/hostile/retaliate/rogue/saiga/undead,
@@ -6581,28 +6548,6 @@
 /area/rogue/indoors/town/physician/desert{
 	keep_area = 1
 	})
-"ckb" = (
-/obj/structure/closet/crate/roguecloset/lord{
-	lockid = "physician"
-	},
-/obj/effect/spawner/lootdrop/potion_ingredient/herb,
-/obj/effect/spawner/lootdrop/potion_ingredient/herb,
-/obj/effect/spawner/lootdrop/potion_ingredient/herb,
-/obj/effect/spawner/lootdrop/potion_ingredient/herb,
-/obj/item/alch/viscera,
-/obj/item/alch/viscera,
-/obj/effect/spawner/lootdrop/potion_ingredient/herb,
-/obj/effect/spawner/lootdrop/potion_ingredient/herb,
-/obj/effect/spawner/lootdrop/potion_ingredient/herb,
-/obj/effect/spawner/lootdrop/potion_ingredient/herb,
-/obj/item/reagent_containers/powder/salt,
-/obj/item/reagent_containers/powder/salt,
-/obj/item/seeds/swampweed,
-/obj/item/seeds/pipeweed,
-/turf/open/floor/rogue/churchbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "ckj" = (
 /obj/structure/table/wood/fancy/red,
 /obj/item/rogueweapon/huntingknife/idagger/silver/elvish,
@@ -7783,17 +7728,6 @@
 /obj/effect/spawner/lootdrop/general_loot_low,
 /turf/open/floor/rogue/twig,
 /area/rogue/indoors/shelter/desertdeep)
-"cEu" = (
-/obj/item/reagent_containers/glass/mortar{
-	pixel_x = 10;
-	pixel_y = 6
-	},
-/obj/structure/table/church/m,
-/obj/item/pestle,
-/turf/open/floor/rogue/concrete,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "cEv" = (
 /obj/effect/spawner/lootdrop/iron_copper_weapon_spawner,
 /obj/effect/spawner/lootdrop/iron_copper_weapon_spawner,
@@ -8688,22 +8622,6 @@
 	},
 /turf/open/floor/carpet/stellar,
 /area/rogue/indoors/town/manor/desert)
-"cUC" = (
-/obj/item/organ/heart,
-/obj/item/organ/liver,
-/obj/item/organ/lungs,
-/obj/item/organ/stomach,
-/obj/item/organ/eyes,
-/obj/item/organ/eyes,
-/obj/item/organ/tongue,
-/obj/item/organ/tongue,
-/obj/structure/closet/crate/chest{
-	lockid = "physician"
-	},
-/turf/open/floor/rogue/church,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "cUE" = (
 /obj/effect/decal/edge{
 	color = "655653";
@@ -10850,19 +10768,6 @@
 	},
 /turf/open/floor/rogue/blocks/stonered/tiny,
 /area/rogue/indoors/town/manor/desert)
-"dHf" = (
-/obj/structure/closet/crate/chest{
-	lockid = "armory"
-	},
-/obj/item/rogueweapon/shovel,
-/obj/item/rogueweapon/sickle,
-/obj/item/rogueweapon/hoe,
-/obj/item/rogueweapon/thresher,
-/obj/machinery/light/rogue/candle,
-/turf/open/floor/rogue/churchbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "dHh" = (
 /obj/structure/spider/stickyweb/solo,
 /obj/effect/spawner/lootdrop/general_loot_low,
@@ -11403,21 +11308,6 @@
 	},
 /turf/open/floor/rogue/lightpath,
 /area/rogue/outdoors/desert/above)
-"dQh" = (
-/obj/structure/fluff/railing/border{
-	dir = 4
-	},
-/obj/structure/fluff/railing/border{
-	dir = 1
-	},
-/obj/structure/fluff/railing/border{
-	dir = 5
-	},
-/obj/structure/flora/roguegrass/herb/random,
-/turf/open/floor/rogue/dirt/desert,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "dQi" = (
 /obj/effect/decal/cleanable/blood/old{
 	icon_state = "floor5-old"
@@ -12360,20 +12250,6 @@
 	},
 /turf/open/floor/rogue/dunes,
 /area/rogue/outdoors/desert)
-"egE" = (
-/obj/structure/closet/crate/drawer{
-	keylock = 1;
-	lockid = "Cphysician";
-	pixel_y = 5
-	},
-/obj/item/roguekey/physician,
-/obj/item/roguekey/physician,
-/obj/item/roguekey/physician,
-/obj/item/roguekey/courtphysician,
-/turf/open/floor/rogue/church,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "egP" = (
 /obj/effect/decal/duneedge{
 	dir = 1
@@ -16240,15 +16116,6 @@
 	},
 /turf/open/floor/rogue/sandbrick,
 /area/rogue/outdoors/desert)
-"fCS" = (
-/obj/structure/table/wood{
-	icon_state = "tablewood3"
-	},
-/obj/item/storage/roguebag,
-/turf/open/floor/rogue/churchbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "fCW" = (
 /turf/open/floor/rogue/dirt/desert,
 /area/rogue/outdoors/desert/river)
@@ -17657,35 +17524,6 @@
 	},
 /turf/open/floor/rogue/darkpath,
 /area/rogue/outdoors/desert/above)
-"geq" = (
-/obj/structure/closet/crate/roguecloset,
-/obj/item/reagent_containers/glass/bottle/rogue,
-/obj/item/reagent_containers/glass/bottle/rogue,
-/obj/item/reagent_containers/glass/bottle/rogue,
-/obj/item/reagent_containers/glass/bottle/rogue,
-/obj/item/reagent_containers/glass/bottle/rogue,
-/obj/item/reagent_containers/glass/bottle/rogue,
-/obj/item/reagent_containers/glass/bottle/rogue,
-/obj/item/reagent_containers/glass/bottle/rogue,
-/obj/item/reagent_containers/glass/bottle/rogue,
-/obj/item/reagent_containers/glass/bottle/rogue,
-/obj/item/reagent_containers/glass/bottle/rogue,
-/obj/item/reagent_containers/glass/bottle/alchemical,
-/obj/item/reagent_containers/glass/bottle/alchemical,
-/obj/item/reagent_containers/glass/bottle/alchemical,
-/obj/item/reagent_containers/glass/bottle/alchemical,
-/obj/item/reagent_containers/glass/bottle/alchemical,
-/obj/item/reagent_containers/glass/bottle/alchemical,
-/obj/item/reagent_containers/glass/bottle/alchemical,
-/obj/item/reagent_containers/glass/bottle/alchemical,
-/obj/item/reagent_containers/glass/bottle/alchemical,
-/obj/item/reagent_containers/glass/bottle/alchemical,
-/obj/item/reagent_containers/glass/bottle/alchemical,
-/obj/item/reagent_containers/glass/bottle/alchemical,
-/turf/open/floor/rogue/churchbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "gev" = (
 /obj/structure/mineral_door/wood{
 	locked = 1;
@@ -17801,15 +17639,6 @@
 /obj/machinery/light/rogue/candle/off,
 /turf/open/floor/rogue/ruinedwood/herringbone_clear,
 /area/rogue/indoors/shelter/desertdeep)
-"ggq" = (
-/obj/structure/fluff/statue/small{
-	pixel_x = 31;
-	pixel_y = 0
-	},
-/turf/open/floor/rogue/churchbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "ggt" = (
 /obj/structure/fluff/railing/border/west{
 	dir = 2
@@ -18023,14 +17852,6 @@
 	},
 /turf/open/floor/rogue/ruinedwood/herringbone,
 /area/rogue/indoors/town/manor/desert)
-"gkx" = (
-/obj/structure/curtain/blue{
-	color = "#415e96"
-	},
-/turf/open/floor/rogue/church,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "gky" = (
 /turf/open/floor/carpet/red,
 /area/rogue/indoors/town/desert/warden)
@@ -19728,26 +19549,6 @@
 	icon = 'modular_deserttown/icons/alt/roguefloor.dmi'
 	},
 /area/rogue/indoors/town/desert)
-"gNx" = (
-/obj/structure/rack/rogue/shelf/big,
-/obj/item/storage/belt/rogue/surgery_bag/full/physician,
-/obj/structure/rack/rogue/shelf,
-/obj/item/reagent_containers/glass/bucket{
-	pixel_x = 10;
-	pixel_y = 35
-	},
-/obj/item/reagent_containers/glass/bucket{
-	pixel_x = 5;
-	pixel_y = 37
-	},
-/obj/item/reagent_containers/glass/bucket{
-	pixel_x = -6;
-	pixel_y = 34
-	},
-/turf/open/floor/rogue/churchbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "gNy" = (
 /obj/structure/fluff/railing/border/west{
 	dir = 1
@@ -20192,12 +19993,6 @@
 /obj/effect/decal/cleanable/blood/gibs,
 /turf/open/floor/rogue/darkpath,
 /area/rogue/outdoors/desertdeep)
-"gXz" = (
-/obj/structure/flora/roguegrass/herb/random,
-/turf/open/floor/rogue/dirt/desert,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "gXO" = (
 /obj/structure/fluff/walldeco/psybanner/red,
 /turf/closed/wall/mineral/rogue/stonebrick,
@@ -20752,15 +20547,8 @@
 /turf/open/floor/rogue/herringbone,
 /area/rogue/indoors/town/tavern/desert)
 "hgO" = (
-/obj/effect/decal/cobbleedge{
-	icon_state = "borderfall";
-	dir = 1;
-	pixel_y = 8
-	},
-/turf/open/floor/rogue/tile/harem1,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
+/turf/closed/wall/mineral/rogue/wood,
+/area/rogue/outdoors/town/desert)
 "hgQ" = (
 /obj/effect/decal/cobbleedge{
 	dir = 1;
@@ -21033,12 +20821,6 @@
 /obj/item/natural/rock/desert,
 /turf/open/floor/rogue/lightpath,
 /area/rogue/outdoors/desert/above)
-"hlP" = (
-/obj/structure/table/wood,
-/turf/open/floor/rogue/tile/brownbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "hlQ" = (
 /obj/structure/mineral_door/wood{
 	lockid = "physician";
@@ -21914,12 +21696,6 @@
 	},
 /turf/open/floor/rogue/dunes,
 /area/rogue/indoors/town/desert/warden)
-"hEC" = (
-/obj/item/roguebin/water,
-/turf/open/floor/rogue/churchbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "hEH" = (
 /obj/structure/stairs/desert{
 	dir = 8
@@ -22164,12 +21940,6 @@
 /obj/effect/decal/cleanable/debris/stony,
 /turf/open/floor/rogue/naturalstone/sandstone,
 /area/rogue/under/dungeon)
-"hIj" = (
-/obj/structure/fermentation_keg/fancypot/water,
-/turf/open/floor/rogue/churchbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "hIq" = (
 /obj/structure/table/church,
 /obj/machinery/light/rogue/candle{
@@ -23842,15 +23612,6 @@
 /obj/item/clothing/cloak/dunestalker,
 /turf/open/floor/carpet/royalblack,
 /area/rogue/indoors/town/desert/warden)
-"ioC" = (
-/obj/structure/roguemachine/withdraw{
-	pixel_x = 32;
-	pixel_y = 0
-	},
-/turf/open/floor/rogue/churchbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "ioI" = (
 /obj/structure/mineral_door/wood{
 	icon_state = "wcv";
@@ -23944,13 +23705,6 @@
 	color = "#b8ae9e"
 	},
 /area/rogue/indoors/town/manor/desert)
-"iqp" = (
-/obj/structure/chair/stool/rogue,
-/obj/effect/landmark/start/physician,
-/turf/open/floor/rogue/church,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "iqw" = (
 /obj/structure/stairs/stone{
 	dir = 2;
@@ -24212,18 +23966,6 @@
 	},
 /turf/open/floor/rogue/darkpath,
 /area/rogue/outdoors/town/desert)
-"ivU" = (
-/obj/item/rogueweapon/surgery/hemostat,
-/obj/item/rogueweapon/surgery/hemostat,
-/obj/item/rogueweapon/surgery/retractor,
-/obj/structure/table/wood{
-	icon_state = "tablewood3"
-	},
-/obj/machinery/light/rogue/torchholder/c,
-/turf/open/floor/rogue/churchbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "ivY" = (
 /obj/structure/curtain/magenta{
 	color = "#a1254a"
@@ -26231,19 +25973,6 @@
 /obj/machinery/light/rogue/candle/floorcandle,
 /turf/open/floor/rogue/sandbrick,
 /area/rogue/under/cave/dungeon1)
-"jla" = (
-/obj/structure/fluff/railing/border,
-/obj/structure/fluff/railing/border{
-	dir = 4
-	},
-/obj/structure/fluff/railing/border{
-	dir = 6
-	},
-/obj/structure/flora/roguegrass/herb/random,
-/turf/open/floor/rogue/dirt/desert,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "jlk" = (
 /obj/structure/bars/passage{
 	density = 0;
@@ -26712,16 +26441,6 @@
 /obj/machinery/light/rogue/candle,
 /turf/open/floor/rogue/ruinedwood/spiral,
 /area/rogue/indoors/town/desert/warden)
-"jrX" = (
-/obj/structure/mineral_door/wood/donjon/stone{
-	locked = 1;
-	lockid = "cphysician";
-	name = "Physician's Bedroom"
-	},
-/turf/open/floor/rogue/tile/harem1,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "jrY" = (
 /obj/structure/winch{
 	gid = "lichdoor";
@@ -27147,37 +26866,6 @@
 	},
 /turf/open/floor/rogue/darkpath,
 /area/rogue/under/cave/rhgoblinencampment)
-"jzz" = (
-/obj/item/reagent_containers/powder/ozium,
-/obj/item/reagent_containers/powder/ozium,
-/obj/item/reagent_containers/powder/ozium,
-/obj/item/reagent_containers/powder/ozium,
-/obj/item/reagent_containers/powder/ozium{
-	pixel_x = -5;
-	pixel_y = -8
-	},
-/obj/item/reagent_containers/powder/moondust_purest{
-	pixel_x = -2;
-	pixel_y = -4
-	},
-/obj/item/reagent_containers/powder/ozium{
-	pixel_x = -3;
-	pixel_y = -1
-	},
-/obj/item/reagent_containers/powder/ozium{
-	pixel_x = 5;
-	pixel_y = -6
-	},
-/obj/item/reagent_containers/powder/ozium{
-	pixel_x = -6;
-	pixel_y = -7
-	},
-/obj/structure/closet/crate/roguecloset,
-/obj/machinery/light/rogue/candle/blue,
-/turf/open/floor/rogue/church,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "jzA" = (
 /obj/effect/decal/cleanable/blood/splatter,
 /turf/open/floor/rogue/lightpath,
@@ -27969,13 +27657,6 @@
 	icon_state = "tiledrab2"
 	},
 /area/rogue/indoors/shelter/desertdeep)
-"jNu" = (
-/obj/structure/bed/rogue/inn,
-/obj/structure/rack/rogue/shelf,
-/turf/open/floor/rogue/churchbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "jNz" = (
 /obj/effect/decal/remains/human,
 /turf/open/floor/rogue/naturalstone/sandstone,
@@ -29855,9 +29536,6 @@
 	},
 /turf/open/floor/rogue/cobble,
 /area/rogue/under/town/basement/desert/town)
-"kvT" = (
-/turf/closed/wall/mineral/rogue/wood,
-/area/rogue/outdoors/town/roofs/desert)
 "kvY" = (
 /obj/effect/decal/cleanable/blood/old,
 /turf/open/floor/rogue/dirt/road/desert,
@@ -30425,12 +30103,6 @@
 "kHE" = (
 /turf/closed/wall/mineral/rogue/sandbrick,
 /area/rogue/indoors/inq/office)
-"kHL" = (
-/obj/machinery/light/rogue/candle/weak/l,
-/turf/open/floor/rogue/metal/barograte,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "kHN" = (
 /obj/structure/bed/rogue/shit,
 /turf/open/floor/rogue/twig,
@@ -32372,16 +32044,6 @@
 /obj/structure/pillory/double,
 /turf/open/floor/rogue/darkpath,
 /area/rogue/under/cave/rhgoblinencampment)
-"ltx" = (
-/obj/machinery/light/roguestreet/walllamp{
-	dir = 4;
-	pixel_x = 0;
-	pixel_y = 20
-	},
-/turf/open/floor/rogue/dirt/desert,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "ltE" = (
 /obj/machinery/light/rogue/campfire/fireplace/desert{
 	pixel_y = 30
@@ -35780,21 +35442,9 @@
 	},
 /turf/open/floor/rogue/hay,
 /area/rogue/indoors/town/desert/warden)
-"mDR" = (
-/obj/structure/roguemachine/scomm/r,
-/turf/open/floor/rogue/churchbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "mEh" = (
 /turf/open/floor/rogue/dunes,
 /area/rogue/outdoors/desertdeep/above)
-"mEm" = (
-/obj/machinery/light/rogue/candle/blue,
-/turf/open/floor/rogue/church,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "mEn" = (
 /obj/structure/chair/stool/rogue{
 	pixel_x = -3;
@@ -39060,11 +38710,8 @@
 /turf/open/floor/rogue/wood,
 /area/rogue/indoors/town/tavern/desert)
 "nOM" = (
-/obj/machinery/light/rogue/candle/weak/r,
-/turf/closed/wall/mineral/rogue/sandbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
+/turf/closed/wall/mineral/rogue/wood,
+/area/rogue/outdoors/town/roofs/desert)
 "nOP" = (
 /obj/effect/landmark/start/dt/slave,
 /turf/open/floor/rogue/tile/checkeralt,
@@ -40871,12 +40518,6 @@
 	},
 /turf/open/floor/rogue/woodturned,
 /area/rogue/indoors/town/tavern/desert)
-"oud" = (
-/obj/machinery/light/rogue/candle/l,
-/turf/open/floor/rogue/church,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "ouh" = (
 /obj/structure/stairs,
 /turf/open/floor/rogue/ruinedwood/turned,
@@ -42291,18 +41932,6 @@
 	},
 /turf/open/floor/rogue/church,
 /area/rogue/indoors/town/church/chapel)
-"oRN" = (
-/obj/structure/fluff/railing/border{
-	dir = 1
-	},
-/obj/structure/flora/roguegrass,
-/obj/machinery/light/roguestreet/walllamp{
-	dir = 1
-	},
-/turf/open/floor/rogue/dirt/desert,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "oRV" = (
 /obj/structure/stationary_bell,
 /obj/structure/bars/grille,
@@ -42514,16 +42143,6 @@
 /obj/machinery/light/rogue/candle/r,
 /turf/open/floor/rogue/ruinedwood/spiral,
 /area/rogue/indoors/town/desert)
-"oUP" = (
-/obj/structure/fluff/alch{
-	pixel_y = 7;
-	pixel_x = 2
-	},
-/obj/machinery/light/rogue/candle,
-/turf/open/floor/rogue/churchbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "oUT" = (
 /obj/item/reagent_containers/glass/bowl,
 /obj/item/reagent_containers/glass/bowl,
@@ -44527,10 +44146,6 @@
 	icon = 'modular_deserttown/icons/alt/roguefloor.dmi'
 	},
 /area/rogue/indoors/town/tavern/desert)
-"pFj" = (
-/obj/structure/trap/quicksand,
-/turf/open/floor/rogue/dunes,
-/area/rogue/outdoors/desert)
 "pFm" = (
 /obj/structure/fluff/railing/wood{
 	dir = 1;
@@ -44889,15 +44504,6 @@
 "pLh" = (
 /obj/structure/table/wood/long_table/north_east,
 /turf/open/floor/rogue/church,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
-"pLm" = (
-/obj/structure/mineral_door/wood{
-	locked = 1;
-	lockid = "physician"
-	},
-/turf/open/floor/rogue/wood,
 /area/rogue/indoors/town/physician/desert{
 	keep_area = 1
 	})
@@ -46091,12 +45697,6 @@
 /obj/machinery/light/rogue/firebowl/church,
 /turf/open/floor/rogue/church,
 /area/rogue/under/cave/licharena/bossroom)
-"qgM" = (
-/obj/machinery/light/rogue/candle/l,
-/turf/closed/wall/mineral/rogue/sandbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "qgO" = (
 /obj/item/cushion/desert2,
 /turf/open/floor/carpet/royalblack,
@@ -54152,12 +53752,6 @@
 /obj/structure/bookcase/random,
 /turf/open/floor/rogue/twig,
 /area/rogue/indoors/town/grove)
-"sVC" = (
-/obj/structure/bed/rogue/inn,
-/turf/open/floor/rogue/churchbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "sVF" = (
 /obj/structure/gate/bars/preopen{
 	gid = "mountaindungeon"
@@ -57434,12 +57028,6 @@
 /obj/structure/stairs/desert,
 /turf/open/floor/rogue/darkpath,
 /area/rogue/outdoors/town/desert)
-"tYc" = (
-/obj/structure/fluff/railing/border/west,
-/turf/open/floor/rogue/church,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "tYi" = (
 /turf/closed/wall/mineral/rogue/decostone/long/east_west,
 /area/rogue/indoors/town/church)
@@ -57717,11 +57305,6 @@
 	},
 /turf/open/water/bath,
 /area/rogue/outdoors/town/manor/desert)
-"ucs" = (
-/turf/open/floor/rogue/dirt/desert,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "uct" = (
 /obj/structure/table/wood{
 	icon_state = "tablewood1"
@@ -58367,19 +57950,6 @@
 /mob/living/simple_animal/hostile/rogue/skeleton/bow,
 /turf/open/floor/carpet/royalblack,
 /area/rogue/under/town/basement/desert)
-"uoy" = (
-/obj/structure/rack/rogue/shelf/big,
-/obj/item/natural/bundle/cloth,
-/obj/item/natural/bundle/cloth,
-/obj/item/reagent_containers/glass/bottle/rogue/healthpot,
-/obj/item/reagent_containers/glass/bottle/rogue/healthpot,
-/obj/item/bedroll,
-/obj/item/reagent_containers/glass/bottle/rogue/healthpot,
-/obj/structure/rack/rogue/shelf,
-/turf/open/floor/rogue/churchbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "uoD" = (
 /mob/living/simple_animal/pet/cat/rogue/archibald,
 /turf/open/floor/rogue/desert_grass,
@@ -58962,15 +58532,6 @@
 	},
 /turf/open/floor/rogue/tile/harem,
 /area/rogue/indoors/town/desert)
-"uxR" = (
-/obj/structure/roguemachine/mail{
-	mailtag = "Physician's Office"
-	},
-/obj/structure/rack/rogue/shelf/big,
-/turf/open/floor/rogue/churchbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "uxT" = (
 /obj/structure/curtain/red,
 /turf/open/floor/rogue/tile/harem2{
@@ -59791,9 +59352,6 @@
 	},
 /turf/open/floor/rogue/lightpath,
 /area/rogue/outdoors/town/desert)
-"uNH" = (
-/turf/closed/wall/mineral/rogue/wood,
-/area/rogue/outdoors/town/desert)
 "uNK" = (
 /obj/effect/decal/edge/desert_gray,
 /obj/structure/fluff/walldeco/customflag/deserttown{
@@ -60024,26 +59582,6 @@
 /obj/item/dye_brush,
 /turf/open/floor/rogue/blocks/stonered/tiny,
 /area/rogue/indoors/town/bath/desert)
-"uRe" = (
-/obj/item/rope/chain,
-/obj/item/rope/chain,
-/obj/item/impact_grenade/smoke/poison_gas,
-/obj/item/reagent_containers/glass/bottle/rogue/poison,
-/obj/item/reagent_containers/glass/bottle/rogue/poison,
-/obj/item/rogueweapon/huntingknife/cleaver,
-/obj/item/clothing/glasses/blindfold,
-/obj/item/reagent_containers/powder/sleep_powder,
-/obj/item/reagent_containers/powder/sleep_powder,
-/obj/item/reagent_containers/powder/sleep_powder,
-/obj/item/reagent_containers/powder/sleep_powder,
-/obj/item/reagent_containers/powder/sleep_powder,
-/obj/item/reagent_containers/powder/sleep_powder,
-/obj/structure/closet/crate/roguecloset,
-/obj/machinery/light/rogue/candle/blue,
-/turf/open/floor/rogue/church,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "uRf" = (
 /obj/structure/fluff/walldeco/chains,
 /turf/open/floor/rogue/naturalstone/sandstone,
@@ -61229,26 +60767,6 @@
 /obj/structure/spider/cocoon,
 /turf/open/floor/rogue/sandbrick,
 /area/rogue/under/town/basement/desert)
-"vnh" = (
-/obj/effect/decal/cobbleedge{
-	dir = 8;
-	icon_state = "borderfall";
-	pixel_x = -8
-	},
-/obj/effect/decal/cobbleedge{
-	dir = 4;
-	icon_state = "borderfall";
-	pixel_x = 8
-	},
-/obj/structure/mineral_door/wood/donjon/stone{
-	locked = 1;
-	lockid = "cphysician";
-	name = "Reanimation Chamber"
-	},
-/turf/open/floor/rogue/tile/brownbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "vnk" = (
 /obj/structure/fluff/walldeco/chains{
 	icon_state = "chains3"
@@ -62411,12 +61929,6 @@
 /obj/machinery/light/rogue/candle,
 /turf/open/floor/rogue/twig,
 /area/rogue/indoors/town/grove)
-"vIO" = (
-/obj/machinery/light/rogue/campfire/fireplace,
-/turf/closed/wall/mineral/rogue/sandbrick,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "vIP" = (
 /obj/structure/table/wood{
 	dir = 1;
@@ -68601,15 +68113,9 @@
 /turf/closed/wall/mineral/rogue/sandstone,
 /area/rogue/under/cave/rhgoblinencampment)
 "xRI" = (
-/obj/effect/decal/cobbleedge{
-	dir = 4;
-	icon_state = "borderfall";
-	pixel_x = 8
-	},
-/turf/open/floor/rogue/tile/harem1,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
+/obj/structure/trap/quicksand,
+/turf/open/floor/rogue/dunes,
+/area/rogue/outdoors/desert)
 "xRL" = (
 /obj/structure/fluff/railing/border{
 	dir = 4;
@@ -69730,12 +69236,6 @@
 /obj/machinery/light/rogue/campfire/fireplace/desert,
 /turf/closed/wall/mineral/rogue/sandbrick,
 /area/rogue/indoors/town/tavern/desert)
-"yke" = (
-/obj/structure/table/vtable,
-/turf/open/floor/rogue/tile/harem1,
-/area/rogue/indoors/town/physician/desert{
-	keep_area = 1
-	})
 "ykl" = (
 /turf/open/floor/rogue/darkpath,
 /area/rogue/outdoors/town/roofs/desert)
@@ -376328,8 +375828,8 @@ cRY
 cRY
 adk
 eMy
-pFj
-pFj
+xRI
+xRI
 eMy
 eMy
 eMy
@@ -376640,8 +376140,8 @@ cRY
 cRY
 cRY
 eMy
-pFj
-pFj
+xRI
+xRI
 eMy
 eMy
 eMy
@@ -399449,7 +398949,7 @@ qGE
 atX
 icQ
 icQ
-uNH
+hgO
 oqm
 dQA
 eMy
@@ -399761,8 +399261,8 @@ atX
 atX
 icQ
 icQ
-uNH
-uNH
+hgO
+hgO
 eMy
 eMy
 eMy
@@ -400073,8 +399573,8 @@ pAf
 pAf
 icQ
 icQ
-uNH
-uNH
+hgO
+hgO
 eMy
 eMy
 eMy
@@ -400385,8 +399885,8 @@ uNG
 xxZ
 icQ
 icQ
-uNH
-uNH
+hgO
+hgO
 eMy
 eMy
 eMy
@@ -410682,7 +410182,7 @@ rmD
 icQ
 icQ
 oqm
-uNH
+hgO
 eMy
 eMy
 eMy
@@ -410994,7 +410494,7 @@ ttU
 icQ
 icQ
 oqm
-uNH
+hgO
 eMy
 eMy
 eMy
@@ -411305,8 +410805,8 @@ icI
 ttU
 icQ
 icQ
-uNH
-uNH
+hgO
+hgO
 eMy
 eMy
 eMy
@@ -411617,8 +411117,8 @@ ttU
 ttU
 icQ
 icQ
-uNH
-uNH
+hgO
+hgO
 eMy
 eMy
 eMy
@@ -411929,8 +411429,8 @@ llQ
 ttU
 icQ
 icQ
-uNH
-uNH
+hgO
+hgO
 eMy
 eMy
 eMy
@@ -412241,8 +411741,8 @@ imH
 ttU
 icQ
 icQ
-uNH
-uNH
+hgO
+hgO
 eMy
 eMy
 eMy
@@ -412553,7 +412053,7 @@ sSb
 rmD
 icQ
 icQ
-uNH
+hgO
 oqm
 eMy
 eMy
@@ -417234,7 +416734,7 @@ sTc
 icQ
 icQ
 oqm
-uNH
+hgO
 eMy
 eMy
 eMy
@@ -417545,8 +417045,8 @@ sTc
 sTc
 icQ
 icQ
-uNH
-uNH
+hgO
+hgO
 eMy
 eMy
 eMy
@@ -417858,7 +417358,7 @@ iZc
 rrW
 icQ
 oqm
-uNH
+hgO
 eMy
 eMy
 eMy
@@ -503545,11 +503045,11 @@ rsN
 vTa
 vTa
 vTa
-wTh
-wTh
-wTh
-wTh
-wTh
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -503857,11 +503357,11 @@ rsN
 vTa
 vTa
 vTa
-wTh
-gXz
-ucs
-ltx
-azs
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -504169,11 +503669,11 @@ rsN
 vTa
 vTa
 vTa
-wTh
-bNs
-tYc
-tYc
-oRN
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -504481,11 +503981,11 @@ rsN
 vTa
 vTa
 vTa
-wTh
-jla
-wCA
-wCA
-dQh
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -504793,11 +504293,11 @@ rsN
 vTa
 vTa
 vTa
-wTh
-lMe
-wCA
-wCA
-cnJ
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -505105,11 +504605,11 @@ rsN
 vTa
 vTa
 vTa
-wTh
-dHf
-wCA
-wCA
-vNb
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -505417,11 +504917,11 @@ rsN
 vTa
 vTa
 vTa
-wTh
-wTh
-gkx
-gkx
-wTh
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -505729,14 +505229,14 @@ rsN
 vTa
 vTa
 vTa
-wTh
-uxR
-wCA
-wCA
-hIj
-wTh
-wTh
-wTh
+res
+res
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -506041,14 +505541,14 @@ rsN
 vTa
 vTa
 vTa
-pLm
-wCA
-wCA
-wCA
-wCA
-oud
-ckb
-wTh
+res
+res
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -506353,14 +505853,14 @@ rsN
 vTa
 vTa
 vTa
-wTh
-oUP
-wCA
-mcQ
-jdz
-wCA
-wCA
-bkO
+res
+res
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -506665,14 +506165,14 @@ rsN
 vTa
 vTa
 vTa
-wTh
-jNu
-wCA
-iqp
-cEu
-wCA
-sVC
-wTh
+res
+res
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -506977,14 +506477,14 @@ rsN
 vTa
 vTa
 vTa
-wTh
-ivU
-wCA
-mcQ
-uxE
-wCA
-fCS
-wTh
+res
+res
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -507289,14 +506789,14 @@ rsN
 vTa
 vTa
 vTa
-wTh
-gNx
-wCA
-wCA
-wCA
-wCA
-geq
-wTh
+res
+res
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -507601,14 +507101,14 @@ rsN
 vTa
 vTa
 vTa
-wTh
-uoy
-mDR
-ioC
-ggq
-wCA
-hEC
-wTh
+res
+res
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -507913,16 +507413,16 @@ rsN
 vTa
 vTa
 vTa
-wTh
-wTh
-wTh
-wTh
-wTh
-gkx
-wTh
-wTh
-wTh
-wTh
+res
+res
+res
+res
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -508226,15 +507726,15 @@ vTa
 vTa
 vTa
 vTa
-wTh
-fFV
-kHL
-wTh
-mEm
-wTh
-uRe
-cUC
-wTh
+res
+res
+res
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -508538,15 +508038,15 @@ vTa
 vTa
 vTa
 vTa
-wTh
-adi
-dWd
-vnh
-wCA
-ecV
-wCA
-wCA
-kBN
+res
+res
+res
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -508850,15 +508350,15 @@ vTa
 vTa
 vTa
 vTa
-wTh
-qQP
-dWd
-wTh
-mEm
-wTh
-jzz
-egE
-wTh
+res
+res
+res
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -509162,15 +508662,15 @@ vTa
 vTa
 vTa
 vTa
-nOM
-uGV
-hlP
-wTh
-jrX
-wTh
-wTh
-wTh
-wTh
+res
+res
+res
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -509474,15 +508974,15 @@ vTa
 vTa
 vTa
 vTa
-wTh
-wTh
-wTh
-qgM
-xdG
-jVl
-jDT
-gLm
-wTh
+res
+res
+res
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -509789,12 +509289,12 @@ vTa
 vTa
 vTa
 vTa
-wTh
-hRe
-cDl
-eto
-yke
-wTh
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -510101,12 +509601,12 @@ vTa
 vTa
 vTa
 vTa
-vIO
-hgO
-vcX
-jDF
-jsV
-wTh
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -510413,12 +509913,12 @@ vTa
 vTa
 vTa
 vTa
-wTh
-qhJ
-iyS
-xRI
-xrj
-wTh
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -510725,12 +510225,12 @@ vTa
 vTa
 vTa
 vTa
-wTh
-wTh
-wTh
-wTh
-wTh
-wTh
+res
+res
+res
+res
+res
+res
 vTa
 vTa
 vTa
@@ -518010,7 +517510,7 @@ fSY
 atX
 tyc
 tyc
-kvT
+nOM
 fzI
 kFh
 kFh
@@ -518322,8 +517822,8 @@ atX
 atX
 tyc
 tyc
-kvT
-kvT
+nOM
+nOM
 kFh
 kFh
 kFh
@@ -518634,8 +518134,8 @@ kdC
 kdC
 kdC
 kdC
-kvT
-kvT
+nOM
+nOM
 kFh
 kFh
 kFh
@@ -518946,8 +518446,8 @@ kdC
 kdC
 kdC
 kdC
-kvT
-kvT
+nOM
+nOM
 kFh
 kFh
 kFh
@@ -519258,8 +518758,8 @@ kdC
 kdC
 kdC
 kdC
-kvT
-kvT
+nOM
+nOM
 kFh
 kFh
 kFh
@@ -528618,7 +528118,7 @@ vQe
 ttU
 kdC
 kdC
-kvT
+nOM
 fzI
 kFh
 kFh
@@ -528930,7 +528430,7 @@ iMs
 pmN
 kdC
 kdC
-kvT
+nOM
 fzI
 kFh
 kFh
@@ -529242,8 +528742,8 @@ pcu
 ttU
 kdC
 kdC
-kvT
-kvT
+nOM
+nOM
 kFh
 kFh
 kFh
@@ -529554,8 +529054,8 @@ ttU
 ttU
 kdC
 kdC
-kvT
-kvT
+nOM
+nOM
 kFh
 kFh
 kFh
@@ -529866,8 +529366,8 @@ uSS
 ttU
 kdC
 kdC
-kvT
-kvT
+nOM
+nOM
 kFh
 kFh
 kFh
@@ -530178,8 +529678,8 @@ iMs
 pmN
 kdC
 kdC
-kvT
-kvT
+nOM
+nOM
 kFh
 kFh
 kFh
@@ -530490,7 +529990,7 @@ tUT
 ttU
 kdC
 kdC
-kvT
+nOM
 fzI
 kFh
 kFh
@@ -535794,8 +535294,8 @@ kOu
 kOu
 kdC
 kdC
-kvT
-kvT
+nOM
+nOM
 kFh
 kFh
 kFh
@@ -536106,8 +535606,8 @@ kOu
 kOu
 kdC
 kdC
-kvT
-kvT
+nOM
+nOM
 kFh
 kFh
 kFh
