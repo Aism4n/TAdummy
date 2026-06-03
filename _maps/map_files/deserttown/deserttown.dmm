@@ -5765,6 +5765,10 @@
 	icon = 'modular_deserttown/icons/alt/roguefloor.dmi'
 	},
 /area/rogue/outdoors/desert)
+"bXl" = (
+/obj/structure/stairs/desert,
+/turf/open/floor/rogue/dunes,
+/area/rogue/druidsgrove)
 "bXo" = (
 /obj/effect/decal/cleanable/blood/splatter,
 /obj/structure/fluff/statue/tdummy,
@@ -15143,6 +15147,13 @@
 	},
 /turf/open/floor/rogue/herringbone,
 /area/rogue/indoors/town/bath/desert)
+"fiq" = (
+/obj/structure/sandrock/sandrock4{
+	pixel_x = -62;
+	pixel_y = -23
+	},
+/turf/open/floor/rogue/lightpath,
+/area/rogue/outdoors/desertdeep)
 "fir" = (
 /turf/closed/wall/mineral/rogue/sandstone,
 /area/rogue/indoors/town/academy/desert)
@@ -19555,6 +19566,14 @@
 	icon = 'modular_deserttown/icons/alt/roguefloor.dmi'
 	},
 /area/rogue/indoors/town/desert)
+"gNg" = (
+/obj/item/natural/rock/desert{
+	icon_state = "sandrock2";
+	pixel_x = 22;
+	pixel_y = 9
+	},
+/turf/open/floor/rogue/lightpath,
+/area/rogue/outdoors/desertdeep)
 "gNy" = (
 /obj/structure/fluff/railing/border/west{
 	dir = 1
@@ -21705,6 +21724,12 @@
 	},
 /turf/open/floor/rogue/darkpath,
 /area/rogue/indoors/town/garrison/desert)
+"hEK" = (
+/obj/structure/stairs{
+	dir = 4
+	},
+/turf/open/floor/rogue/wood/nosmooth,
+/area/rogue/indoors/town/desert/warden)
 "hEL" = (
 /obj/item/grown/log/tree/small,
 /turf/open/floor/rogue/dunes,
@@ -23159,6 +23184,13 @@
 	},
 /turf/open/floor/rogue/twig,
 /area/rogue/indoors/town/manor/desert)
+"igD" = (
+/obj/item/natural/rock/desert{
+	pixel_x = -24;
+	pixel_y = -3
+	},
+/turf/open/floor/rogue/lightpath,
+/area/rogue/outdoors/desertdeep)
 "igG" = (
 /turf/open/floor/rogue/wood,
 /area/rogue/under/town/basement/desert/town{
@@ -28579,6 +28611,12 @@
 	icon = 'modular_deserttown/icons/alt/roguefloor.dmi'
 	},
 /area/rogue/indoors/town/desert)
+"keH" = (
+/obj/structure/stairs/desert{
+	dir = 8
+	},
+/turf/open/floor/rogue/lightpath,
+/area/rogue/outdoors/desertdeep)
 "keN" = (
 /obj/structure/table/wood{
 	icon_state = "longtable"
@@ -35638,6 +35676,12 @@
 /obj/structure/fluff/walldeco/vinez/offset,
 /turf/open/floor/rogue/desert_grass,
 /area/rogue/outdoors/town/desert)
+"mIR" = (
+/obj/structure/stairs/desert{
+	dir = 4
+	},
+/turf/open/floor/rogue/desert_grass,
+/area/rogue/outdoors/desert)
 "mIT" = (
 /obj/effect/decal/cleanable/dirt/cobweb{
 	dir = 8
@@ -45418,6 +45462,12 @@
 /obj/item/burial_shroud,
 /turf/open/floor/rogue/citybrick/citybrick1,
 /area/rogue/under/town/basement/desert)
+"qaZ" = (
+/obj/structure/stairs/desert{
+	dir = 8
+	},
+/turf/open/floor/rogue/dunes,
+/area/rogue/druidsgrove)
 "qbh" = (
 /obj/structure/rack/rogue,
 /turf/open/floor/rogue/tile/brownbrick{
@@ -59437,6 +59487,12 @@
 	},
 /turf/open/floor/rogue/tile/harem,
 /area/rogue/under/town/basement/desert)
+"uPi" = (
+/obj/structure/stairs/desert{
+	dir = 4
+	},
+/turf/open/floor/rogue/dunes,
+/area/rogue/druidsgrove)
 "uPq" = (
 /obj/structure/table/wood{
 	dir = 5;
@@ -255494,8 +255550,8 @@ cdM
 cdM
 cdM
 cdM
-cdM
-cdM
+qaZ
+qaZ
 cdM
 cdM
 cdM
@@ -255807,10 +255863,10 @@ wIF
 wIF
 wIF
 wIF
+fQY
 wIF
 wIF
-wIF
-wIF
+fQY
 wIF
 wIF
 wIF
@@ -256118,14 +256174,14 @@ vUW
 vUW
 wIF
 wIF
+fQY
+wIF
+fQY
+fQY
 wIF
 wIF
 wIF
-wIF
-wIF
-wIF
-wIF
-wIF
+fQY
 wIF
 wIF
 wIF
@@ -265821,7 +265877,7 @@ wIF
 wIF
 wIF
 wIF
-wIF
+bXl
 cdM
 cdM
 kvr
@@ -266133,7 +266189,7 @@ wIF
 wIF
 wIF
 wIF
-wIF
+bXl
 cdM
 cdM
 kvr
@@ -273276,8 +273332,8 @@ wOy
 wOy
 wOy
 cdM
-wIF
-wIF
+uPi
+uPi
 vUW
 vUW
 vUW
@@ -273589,7 +273645,7 @@ kvr
 kvr
 cdM
 cdM
-wIF
+cdM
 wIF
 vUW
 vUW
@@ -373431,7 +373487,7 @@ ydN
 ydN
 mVA
 mVA
-mVA
+vmB
 mVA
 ydN
 ydN
@@ -373740,11 +373796,11 @@ mVA
 mVA
 mVA
 mVA
+vmB
 mVA
 mVA
-mVA
-mVA
-mVA
+keH
+keH
 ydN
 ydN
 ydN
@@ -374052,11 +374108,11 @@ mVA
 mVA
 mVA
 mVA
+ydN
+ydN
 mVA
-mVA
-mVA
-mVA
-mVA
+isT
+isT
 mVA
 mVA
 mVA
@@ -384073,7 +384129,7 @@ isT
 ydN
 ydN
 ydN
-ydN
+fiq
 ydN
 ydN
 ydN
@@ -384383,16 +384439,16 @@ isT
 isT
 isT
 isT
-ydN
-ydN
-ydN
-ydN
-ydN
-ydN
-ydN
+cjj
+vmB
+mVA
+vmB
+igD
+vmB
+vmB
 mVA
 mVA
-mVA
+vmB
 mVA
 mVA
 mVA
@@ -384695,19 +384751,19 @@ isT
 isT
 isT
 isT
-ydN
-ydN
-ydN
-ydN
-ydN
-ydN
+cjj
+vmB
+gNg
+vmB
+mVA
+vmB
+vmB
 mVA
 mVA
 mVA
 mVA
-mVA
-mVA
-mVA
+vmB
+vmB
 mVA
 mVA
 mVA
@@ -385014,14 +385070,14 @@ ydN
 ydN
 ydN
 ydN
+vmB
 mVA
 mVA
 mVA
 mVA
 mVA
 mVA
-mVA
-mVA
+vmB
 mVA
 mVA
 mVA
@@ -385648,7 +385704,7 @@ mVA
 mVA
 mVA
 mVA
-mVA
+vmB
 mVA
 mVA
 mVA
@@ -386273,7 +386329,7 @@ mVA
 mVA
 mVA
 mVA
-mVA
+vmB
 mVA
 mVA
 mVA
@@ -386588,7 +386644,7 @@ mVA
 mVA
 mVA
 mVA
-mVA
+vmB
 mVA
 mVA
 mVA
@@ -389392,7 +389448,7 @@ mVA
 mVA
 mVA
 mVA
-mVA
+cjj
 mVA
 mVA
 mVA
@@ -392149,8 +392205,8 @@ eMy
 eMy
 mGA
 mGA
-dQA
-isT
+mIR
+mIR
 isT
 isT
 isT
@@ -503026,11 +503082,11 @@ rsN
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -503338,11 +503394,11 @@ rsN
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -503650,11 +503706,11 @@ rsN
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -503962,11 +504018,11 @@ rsN
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -504274,11 +504330,11 @@ rsN
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -504586,11 +504642,11 @@ rsN
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -504898,11 +504954,11 @@ rsN
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -505210,14 +505266,14 @@ rsN
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -505522,14 +505578,14 @@ rsN
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -505834,14 +505890,14 @@ rsN
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -506146,14 +506202,14 @@ rsN
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -506458,14 +506514,14 @@ rsN
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -506770,14 +506826,14 @@ rsN
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -507082,14 +507138,14 @@ rsN
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -507394,16 +507450,16 @@ rsN
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -507707,15 +507763,15 @@ vTa
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -508019,15 +508075,15 @@ vTa
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -508331,15 +508387,15 @@ vTa
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -508643,15 +508699,15 @@ vTa
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -508955,15 +509011,15 @@ vTa
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -509270,12 +509326,12 @@ vTa
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -509582,12 +509638,12 @@ vTa
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -509894,12 +509950,12 @@ vTa
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -510206,12 +510262,12 @@ vTa
 vTa
 vTa
 vTa
-res
-res
-res
-res
-res
-res
+vTa
+vTa
+vTa
+vTa
+vTa
+vTa
 vTa
 vTa
 vTa
@@ -511301,7 +511357,7 @@ kFh
 kFh
 kFh
 sNM
-itu
+hEK
 mKh
 itu
 sNM
@@ -511458,12 +511514,12 @@ vTa
 vTa
 vTa
 vTa
-meZ
-meZ
-meZ
-meZ
-meZ
-meZ
+qGA
+qGA
+qGA
+qGA
+qGA
+qGA
 vTa
 vTa
 vTa
