@@ -26838,6 +26838,10 @@
 /obj/structure/roguemachine/scomm,
 /turf/open/floor/rogue/sandbrick,
 /area/rogue/indoors/inq/basement)
+"juw" = (
+/obj/structure/trap/quicksand,
+/turf/open/floor/rogue/dunes,
+/area/rogue/outdoors/desert)
 "jux" = (
 /obj/structure/fluff/railing/border{
 	dir = 9
@@ -64032,6 +64036,9 @@
 	},
 /turf/open/floor/rogue/darkpath,
 /area/rogue/under/cave/rhgoblinencampment)
+"wlu" = (
+/turf/closed/wall/mineral/rogue/wood,
+/area/rogue/outdoors/town/desert)
 "wlv" = (
 /obj/structure/bars{
 	max_integrity = 2000;
@@ -65403,6 +65410,9 @@
 	icon = 'modular_deserttown/icons/alt/roguefloor.dmi'
 	},
 /area/rogue/indoors/town/tavern/desert)
+"wNF" = (
+/turf/closed/wall/mineral/rogue/wood,
+/area/rogue/outdoors/town/roofs/desert)
 "wNI" = (
 /turf/closed/wall/mineral/rogue/sandstone,
 /area/rogue/indoors/town/cell{
@@ -376312,8 +376322,8 @@ cRY
 cRY
 adk
 eMy
-eMy
-eMy
+juw
+juw
 eMy
 eMy
 eMy
@@ -376624,8 +376634,8 @@ cRY
 cRY
 cRY
 eMy
-eMy
-eMy
+juw
+juw
 eMy
 eMy
 eMy
@@ -399433,7 +399443,7 @@ qGE
 atX
 icQ
 icQ
-oqm
+wlu
 oqm
 dQA
 eMy
@@ -399745,8 +399755,8 @@ atX
 atX
 icQ
 icQ
-oqm
-oqm
+wlu
+wlu
 eMy
 eMy
 eMy
@@ -400057,8 +400067,8 @@ pAf
 pAf
 icQ
 icQ
-oqm
-oqm
+wlu
+wlu
 eMy
 eMy
 eMy
@@ -400369,8 +400379,8 @@ uNG
 xxZ
 icQ
 icQ
-oqm
-oqm
+wlu
+wlu
 eMy
 eMy
 eMy
@@ -410666,7 +410676,7 @@ rmD
 icQ
 icQ
 oqm
-oqm
+wlu
 eMy
 eMy
 eMy
@@ -410978,7 +410988,7 @@ ttU
 icQ
 icQ
 oqm
-oqm
+wlu
 eMy
 eMy
 eMy
@@ -411289,8 +411299,8 @@ icI
 ttU
 icQ
 icQ
-oqm
-oqm
+wlu
+wlu
 eMy
 eMy
 eMy
@@ -411601,8 +411611,8 @@ ttU
 ttU
 icQ
 icQ
-oqm
-oqm
+wlu
+wlu
 eMy
 eMy
 eMy
@@ -411913,8 +411923,8 @@ llQ
 ttU
 icQ
 icQ
-oqm
-oqm
+wlu
+wlu
 eMy
 eMy
 eMy
@@ -412225,8 +412235,8 @@ imH
 ttU
 icQ
 icQ
-oqm
-oqm
+wlu
+wlu
 eMy
 eMy
 eMy
@@ -412537,7 +412547,7 @@ sSb
 rmD
 icQ
 icQ
-oqm
+wlu
 oqm
 eMy
 eMy
@@ -417218,7 +417228,7 @@ sTc
 icQ
 icQ
 oqm
-oqm
+wlu
 eMy
 eMy
 eMy
@@ -417529,8 +417539,8 @@ sTc
 sTc
 icQ
 icQ
-oqm
-oqm
+wlu
+wlu
 eMy
 eMy
 eMy
@@ -417842,7 +417852,7 @@ iZc
 rrW
 icQ
 oqm
-oqm
+wlu
 eMy
 eMy
 eMy
@@ -517994,7 +518004,7 @@ fSY
 atX
 tyc
 tyc
-fzI
+wNF
 fzI
 kFh
 kFh
@@ -518306,8 +518316,8 @@ atX
 atX
 tyc
 tyc
-fzI
-fzI
+wNF
+wNF
 kFh
 kFh
 kFh
@@ -518618,8 +518628,8 @@ kdC
 kdC
 kdC
 kdC
-fzI
-fzI
+wNF
+wNF
 kFh
 kFh
 kFh
@@ -518930,8 +518940,8 @@ kdC
 kdC
 kdC
 kdC
-fzI
-fzI
+wNF
+wNF
 kFh
 kFh
 kFh
@@ -519242,8 +519252,8 @@ kdC
 kdC
 kdC
 kdC
-fzI
-fzI
+wNF
+wNF
 kFh
 kFh
 kFh
@@ -528602,7 +528612,7 @@ vQe
 ttU
 kdC
 kdC
-fzI
+wNF
 fzI
 kFh
 kFh
@@ -528914,7 +528924,7 @@ iMs
 pmN
 kdC
 kdC
-fzI
+wNF
 fzI
 kFh
 kFh
@@ -529226,8 +529236,8 @@ pcu
 ttU
 kdC
 kdC
-fzI
-fzI
+wNF
+wNF
 kFh
 kFh
 kFh
@@ -529538,8 +529548,8 @@ ttU
 ttU
 kdC
 kdC
-fzI
-fzI
+wNF
+wNF
 kFh
 kFh
 kFh
@@ -529850,8 +529860,8 @@ uSS
 ttU
 kdC
 kdC
-fzI
-fzI
+wNF
+wNF
 kFh
 kFh
 kFh
@@ -530162,8 +530172,8 @@ iMs
 pmN
 kdC
 kdC
-fzI
-fzI
+wNF
+wNF
 kFh
 kFh
 kFh
@@ -530474,7 +530484,7 @@ tUT
 ttU
 kdC
 kdC
-fzI
+wNF
 fzI
 kFh
 kFh
@@ -535778,8 +535788,8 @@ kOu
 kOu
 kdC
 kdC
-fzI
-fzI
+wNF
+wNF
 kFh
 kFh
 kFh
@@ -536090,8 +536100,8 @@ kOu
 kOu
 kdC
 kdC
-fzI
-fzI
+wNF
+wNF
 kFh
 kFh
 kFh
@@ -636555,9 +636565,9 @@ vBS
 kOu
 kdC
 kdC
+eAk
 vBS
-vBS
-kOu
+kdC
 kFh
 kFh
 kFh
@@ -636867,9 +636877,9 @@ kOu
 eMj
 kdC
 kdC
-vBS
-vBS
-fzI
+eAk
+eAk
+kdC
 kFh
 kFh
 kFh
@@ -637179,9 +637189,9 @@ kdC
 kdC
 kdC
 kdC
-vBS
-vBS
-kOu
+eAk
+eAk
+kdC
 kFh
 kFh
 kFh
@@ -637491,9 +637501,9 @@ kdC
 kdC
 kdC
 kdC
-vBS
-vBS
-fzI
+eAk
+eAk
+kdC
 kFh
 kFh
 kFh
@@ -637803,9 +637813,9 @@ kdC
 kdC
 kdC
 kdC
-vBS
-vBS
-kOu
+eAk
+eAk
+kdC
 kFh
 kFh
 kFh
@@ -638117,7 +638127,7 @@ kdC
 kdC
 vBS
 vBS
-fzI
+kdC
 kFh
 kFh
 kFh
@@ -647163,7 +647173,7 @@ sjF
 bCO
 kdC
 kdC
-vBS
+eAk
 vBS
 fzI
 kFh
@@ -647475,9 +647485,9 @@ sjF
 bCO
 kdC
 kdC
+eAk
 vBS
-vBS
-vBS
+kdC
 kFh
 kFh
 kFh
@@ -647787,9 +647797,9 @@ sjF
 bCO
 kdC
 kdC
-vBS
-vBS
-fzI
+eAk
+eAk
+kdC
 kFh
 kFh
 kFh
@@ -648099,9 +648109,9 @@ sjF
 bCO
 kdC
 kdC
-vBS
-vBS
-vBS
+eAk
+eAk
+kdC
 kFh
 kFh
 kFh
@@ -648411,9 +648421,9 @@ sjF
 bCO
 kdC
 kdC
-vBS
-vBS
-fzI
+eAk
+eAk
+kdC
 kFh
 kFh
 kFh
@@ -648724,8 +648734,8 @@ bCO
 kdC
 kdC
 rtn
-vBS
-vBS
+eAk
+kdC
 kFh
 kFh
 kFh
@@ -649037,7 +649047,7 @@ kdC
 kdC
 vBS
 vBS
-fzI
+kdC
 kFh
 kFh
 kFh
@@ -654029,7 +654039,7 @@ kdC
 kdC
 vBS
 vBS
-fzI
+kdC
 kFh
 kFh
 kFh
@@ -654339,9 +654349,9 @@ kdC
 kdC
 kdC
 kdC
-vBS
-vBS
-vBS
+eAk
+eAk
+kdC
 kFh
 kFh
 kFh
@@ -654651,9 +654661,9 @@ kdC
 kdC
 kdC
 kdC
-vBS
-vBS
-fzI
+eAk
+eAk
+kdC
 kFh
 kFh
 kFh
