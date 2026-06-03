@@ -481,7 +481,7 @@
 				var/no
 				var/accused
 				var/stopfarming
-				var/bonuses = 2
+				var/bonuses = 4
 				var/cursedblood
 				var/indexed
 				var/selfreport
@@ -550,12 +550,12 @@
 						if(cursedblood)
 							bonuses = bonuses + bonuses * I.paired.cursedblood
 							if(I.waxed)
-								bonuses += 2
+								bonuses += 4
 							budget2change(bonuses, user, "MARQUE")
 							record_round_statistic(STATS_MARQUES_MADE, bonuses)
 						if(I.paired && !indexed && !correct && !cursedblood)
 							if(I.waxed)
-								bonuses += 2
+								bonuses += 4	
 						budget2change(bonuses, user, "MARQUE")
 						record_round_statistic(STATS_MARQUES_MADE, bonuses)
 					else
@@ -604,7 +604,7 @@
 					var/specialno
 					var/stopfarming
 					var/indexed
-					var/bonuses = 2
+					var/bonuses = 4
 					var/correct
 					var/cursedblood
 					var/selfreport
@@ -649,7 +649,7 @@
 					if(cursedblood)
 						bonuses = bonuses + bonuses * I.paired.cursedblood
 						if(I.waxed)
-							bonuses += 2
+							bonuses += 4
 						budget2change(bonuses, user, "MARQUE")
 						record_round_statistic(STATS_MARQUES_MADE, bonuses)
 					if(no || selfreport || stopfarming)

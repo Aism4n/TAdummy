@@ -2,7 +2,15 @@ import { useState } from 'react';
 import { Button, NumberInput } from 'tgui-core/components';
 
 import { useBackend } from '../../backend';
-import { bannerStyle, INK, INK_FAINT, SEAL_AMBER, SEAL_RED_SOFT } from '../common/parchment';
+import {
+  bannerStyle,
+  FONT_BODY,
+  FONT_TITLE,
+  INK,
+  INK_FAINT,
+  SEAL_AMBER,
+  SEAL_RED_SOFT,
+} from '../common/parchment';
 import type { AtcLoanState, Data } from './types';
 
 export const ATCLoanBanner = (props: { atc_loan: AtcLoanState }) => {
@@ -44,9 +52,8 @@ export const ATCLoanBanner = (props: { atc_loan: AtcLoanState }) => {
     >
       <div
         style={{
-          fontSize: '15px',
+          fontSize: FONT_TITLE,
           fontWeight: 'bold',
-          fontVariant: 'small-caps',
           marginBottom: '4px',
           color: accent,
         }}
@@ -72,7 +79,7 @@ export const ATCLoanBanner = (props: { atc_loan: AtcLoanState }) => {
         <div
           style={{
             color: SEAL_RED_SOFT,
-            fontSize: '12px',
+            fontSize: FONT_BODY,
             marginBottom: '6px',
           }}
         >
@@ -83,7 +90,7 @@ export const ATCLoanBanner = (props: { atc_loan: AtcLoanState }) => {
         </div>
       )}
       {atc_loan.loans_drawn > 0 && (
-        <div style={{ color: INK_FAINT, fontSize: '11px', marginBottom: '6px' }}>
+        <div style={{ color: INK_FAINT, fontSize: FONT_BODY, marginBottom: '6px' }}>
           Loans drawn this week: {atc_loan.loans_drawn}.
         </div>
       )}
@@ -114,7 +121,7 @@ export const ATCLoanBanner = (props: { atc_loan: AtcLoanState }) => {
             onChange={(v: number) => setAmount(v)}
           />
           <span>m</span>
-          <span style={{ color: SEAL_RED_SOFT, fontStyle: 'italic' }}>
+          <span style={{ color: SEAL_RED_SOFT }}>
             (owe {Math.round(amount * (1 + atc_loan.interest_pct / 100))}m)
           </span>
           <Button.Confirm
