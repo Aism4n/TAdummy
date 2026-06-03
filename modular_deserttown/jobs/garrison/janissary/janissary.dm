@@ -7,6 +7,7 @@
 	spawn_positions = 7
 
 	allowed_sexes = list(MALE, FEMALE)
+	forbidden_races = list(RACES_DESPISED)
 	allowed_ages = list(AGE_ADULT, AGE_MIDDLEAGED)
 	job_traits = list(TRAIT_GUARDSMAN, TRAIT_STEELHEARTED, TRAIT_MEDIUMARMOR)
 	tutorial = "Ты — член свиты Султана. Обеспечивай безопасность Султана и его подданных, защищай власть предержащих от ужасов внешнего мира и делай всё возможное, чтобы Султанат продолжал жить."
@@ -17,7 +18,7 @@
 	advclass_cat_rolls = list(CTAG_JANISSARY = 20)
 
 	give_bank_account = 22
-	min_pq = 3
+	min_pq = 5
 	max_pq = null
 	round_contrib_points = 2
 	cmode_music = 'sound/music/combat_desert1.ogg'
@@ -27,6 +28,7 @@
 		/datum/advclass/janissary/jezail,
 		/datum/advclass/janissary/flagbearer
 	)
+	same_job_respawn_delay = 30 MINUTES
 
 /datum/outfit/job/roguetown/janissary
 	job_bitflag = BITFLAG_GARRISON

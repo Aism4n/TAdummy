@@ -6,6 +6,7 @@
 	total_positions = 1
 	spawn_positions = 1
 	allowed_sexes = list(MALE, FEMALE)
+	forbidden_races = list(RACES_DESPISED)
 	allowed_ages = list(AGE_ADULT, AGE_MIDDLEAGED, AGE_OLD)
 	tutorial = "Ты — один из самых опытных воинов Султанской гвардии, ведущий янычар в поддержании порядка и борьбе с угрозами, \
         которые еще не достигли внимания Дворца. \
@@ -18,13 +19,14 @@
 	advclass_cat_rolls = list(CTAG_JANISSARYSERGEANT = 20)
 
 	give_bank_account = 50
-	min_pq = 6
+	min_pq = 8
 	max_pq = null
 	cmode_music = 'sound/music/combat_desert1.ogg'
 	job_traits = list(TRAIT_GUARDSMAN, TRAIT_STEELHEARTED, TRAIT_MEDIUMARMOR)
 	job_subclasses = list(
 		/datum/advclass/janissarysergeant/janissarysergeant
 	)
+	same_job_respawn_delay = 30 MINUTES
 
 /datum/outfit/job/roguetown/janissarysergeant
 	job_bitflag = BITFLAG_GARRISON

@@ -6,6 +6,7 @@
 	total_positions = 1
 	spawn_positions = 1
 	allowed_sexes = list(MALE, FEMALE)
+	forbidden_races = list(RACES_DESPISED)
 	tutorial = "Как опытный воин султанского корпуса азебов, ты получил приказ принять командование над нововозведенным фронтиром. \
                 Ты держишь ответ перед султанской династией и их благородными шейхами, \
                 а твоя задача - держать в узде молодых азебов и обеспечивать безопасность караванных путей к сердцу града. \
@@ -17,13 +18,15 @@
 	advclass_cat_rolls = list(CTAG_AZEBAGHA = 20)
 
 	give_bank_account = 50
-	min_pq = 6
+	min_pq = 10
 	max_pq = null
 	cmode_music = 'sound/music/combat_hornofthebeast.ogg'
 	job_traits = list(TRAIT_OUTDOORSMAN, TRAIT_WOODSMAN, TRAIT_SURVIVAL_EXPERT, TRAIT_STEELHEARTED, TRAIT_MEDIUMARMOR, TRAIT_FIREARMS_MARKSMAN, TRAIT_SLAVE)
 	job_subclasses = list(
 		/datum/advclass/azebagha/azebagha
 	)
+	same_job_respawn_delay = 30 MINUTES
+
 /datum/outfit/job/roguetown/azebagha
 	job_bitflag = BITFLAG_GARRISON
 

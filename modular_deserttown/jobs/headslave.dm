@@ -9,6 +9,7 @@
 	outfit = /datum/outfit/job/roguetown/headslave
 	advclass_cat_rolls = list(CTAG_HEADSLAVE = 20)
 	job_traits = list(TRAIT_SLAVE)
+	forbidden_races = list(RACES_DESPISED)
 	display_order = JDO_SENESCHAL
 	give_bank_account = 30
 	min_pq = 3

@@ -6,6 +6,7 @@
 	total_positions = 8
 	spawn_positions = 8
 	allowed_sexes = list(MALE, FEMALE)
+	forbidden_races = list(RACES_DESPISED)
 	tutorial = "Будучи живой собственностью правящей династии, ты с младенчества воспитывался как воин-невольник. \
         Тебя отправили охранять рубежи и беречь покой града, пока высокородная хасса купается в роскоши за неприступными \
         городскими стенами. Твой долг неблагодарен, но эта священная ноша должна быть пронесена до конца."
@@ -24,6 +25,7 @@
 		/datum/advclass/azeb/ranger,
 		/datum/advclass/azeb/footman
 	)
+	same_job_respawn_delay = 30 MINUTES
 
 	
 /datum/job/roguetown/azeb/after_spawn(mob/living/L, mob/M, latejoin = TRUE)

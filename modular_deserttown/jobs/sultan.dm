@@ -8,6 +8,7 @@
 	spawn_positions = 1
 	selection_color = JCOLOR_NOBLE
 	allowed_sexes = list(MALE, FEMALE)
+	forbidden_races = list(RACES_DESPISED)
 	advclass_cat_rolls = list(CTAG_SULTAN = 20)
 
 	spells = list(

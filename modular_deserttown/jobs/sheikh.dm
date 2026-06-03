@@ -7,6 +7,7 @@
 	spawn_positions = 3
 	allowed_ages = ALL_AGES_LIST
 	allowed_sexes = list(MALE, FEMALE)
+	forbidden_races = list(RACES_DESPISED)
 	display_order = JDO_COUNCILLOR
 	tutorial = "Возможно, ты унаследовал этот чин, выкупил его за щедрые маммоны или был назначен самой султанской династией; \
             независимо от происхождения, отныне ты служишь помощником, распорядителем и заседателем при Вазире. \

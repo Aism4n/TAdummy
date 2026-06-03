@@ -7,6 +7,7 @@
 	spawn_positions = 3
 	allowed_sexes = list(MALE, FEMALE)
 	allowed_ages = list(AGE_ADULT, AGE_MIDDLEAGED)
+	forbidden_races = list(RACES_DESPISED)
 	tutorial = "Ты — Фарис, катафрактарий высочайшей выучки. \
         Ты был рожден в семье мелкой хассы и с малых лет воспитывался как радиф, ныне же ты стоишь в страже у трона Султанской династии, внимая их приказам и являясь последним оплотом рыцарской чести в эти темные времена. \
         Твой взор устремлен лишь на правящего Султана, а твоя жизнь принадлежит его безопасности. Не подведи."
@@ -17,7 +18,7 @@
 	job_traits = list(TRAIT_NOBLE, TRAIT_STEELHEARTED, TRAIT_GUARDSMAN)
 	give_bank_account = 22
 	noble_income = 10
-	min_pq = 8
+	min_pq = 10
 	max_pq = null
 	round_contrib_points = 2
 
@@ -27,6 +28,7 @@
 		/datum/advclass/cataphract/shieldmaster,
 		/datum/advclass/cataphract/dervish,
 		)
+	same_job_respawn_delay = 30 MINUTES
 
 /datum/outfit/job/roguetown/cataphract
 	job_bitflag = BITFLAG_GARRISON

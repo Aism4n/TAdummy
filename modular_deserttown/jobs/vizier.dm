@@ -6,6 +6,7 @@
 	total_positions = 1
 	spawn_positions = 1
 	allowed_sexes = list(MALE, FEMALE)
+	forbidden_races = list(RACES_DESPISED)
 	outfit = /datum/outfit/job/roguetown/vizier
 	advclass_cat_rolls = list(CTAG_VIZIER = 20)
 	display_order = JDO_HAND
