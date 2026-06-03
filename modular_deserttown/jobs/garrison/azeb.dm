@@ -16,7 +16,7 @@
 	advclass_cat_rolls = list(CTAG_AZEB = 20)
 
 	give_bank_account = 16
-	min_pq = 0
+	min_pq = 5
 	max_pq = null
 	round_contrib_points = 2
 	cmode_music = 'sound/music/combat_desert1.ogg'
