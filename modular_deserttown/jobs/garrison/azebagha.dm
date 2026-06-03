@@ -6,7 +6,7 @@
 	total_positions = 1
 	spawn_positions = 1
 	allowed_sexes = list(MALE, FEMALE)
-	forbidden_races = list(RACES_DESPISED)
+	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED RACES_OOZE)
 	tutorial = "Как опытный воин султанского корпуса азебов, ты получил приказ принять командование над нововозведенным фронтиром. \
                 Ты держишь ответ перед султанской династией и их благородными шейхами, \
                 а твоя задача - держать в узде молодых азебов и обеспечивать безопасность караванных путей к сердцу града. \

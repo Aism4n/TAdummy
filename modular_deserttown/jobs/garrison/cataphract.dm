@@ -7,7 +7,7 @@
 	spawn_positions = 3
 	allowed_sexes = list(MALE, FEMALE)
 	allowed_ages = list(AGE_ADULT, AGE_MIDDLEAGED)
-	forbidden_races = list(RACES_DESPISED)
+	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED RACES_OOZE)
 	tutorial = "Ты — Фарис, катафрактарий высочайшей выучки. \
         Ты был рожден в семье мелкой хассы и с малых лет воспитывался как радиф, ныне же ты стоишь в страже у трона Султанской династии, внимая их приказам и являясь последним оплотом рыцарской чести в эти темные времена. \
         Твой взор устремлен лишь на правящего Султана, а твоя жизнь принадлежит его безопасности. Не подведи."

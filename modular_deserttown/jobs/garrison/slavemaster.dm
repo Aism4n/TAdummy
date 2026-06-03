@@ -6,7 +6,7 @@
 	total_positions = 1
 	spawn_positions = 1
 	allowed_sexes = list(MALE, FEMALE)
-	forbidden_races = list(RACES_DESPISED)
+	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED RACES_OOZE)
 	job_traits = list(TRAIT_STEELHEARTED, TRAIT_DUNGEONMASTER, TRAIT_GUARDSMAN, TRAIT_PURITAN_ADVENTURER, TRAIT_MEDIUMARMOR, TRAIT_XENOPHOBIC, TRAIT_NOBLE) //'PURITAN_ADVENTURER' is the codename. Presents as 'INTERROGATOR', in-game. Doesn't provide any Inquisition-related boons, but gives instrucitons on how to use certain mechanics.
 	display_order = JDO_DUNGEONEER
 	advclass_cat_rolls = list(CTAG_SLAVEMASTER = 2)
@@ -27,6 +27,7 @@
 	job_subclasses = list(
 		/datum/advclass/slavemaster
 	)
+	same_job_respawn_delay = 30 MINUTES
 
 /datum/job/roguetown/slavemaster/New()
 	. = ..()

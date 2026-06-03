@@ -6,7 +6,7 @@
 	total_positions = 1
 	spawn_positions = 1
 	allowed_sexes = list(MALE, FEMALE)
-	forbidden_races = list(RACES_DESPISED)
+	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED RACES_OOZE)
 	outfit = /datum/outfit/job/roguetown/vizier
 	advclass_cat_rolls = list(CTAG_VIZIER = 20)
 	display_order = JDO_HAND
@@ -17,7 +17,7 @@
 	whitelist_req = TRUE
 	give_bank_account = 44
 	noble_income = 22
-	min_pq = 9 //The second most powerful person in the realm...
+	min_pq = 17 //The second most powerful person in the realm...
 	max_pq = null
 	round_contrib_points = 3
 	cmode_music = 'sound/music/combat_desert2.ogg'
@@ -29,6 +29,7 @@
 	)
 	peopleiknow = list("Court Agent", "Enslaved kafir")
 	peopleknowme = list("Court Agent", "Enslaved kafir")
+	same_job_respawn_delay = 30 MINUTES
 
 /datum/outfit/job/roguetown/vizier
 	backr = /obj/item/storage/backpack/rogue/satchel/short

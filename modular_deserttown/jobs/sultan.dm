@@ -8,7 +8,7 @@
 	spawn_positions = 1
 	selection_color = JCOLOR_NOBLE
 	allowed_sexes = list(MALE, FEMALE)
-	forbidden_races = list(RACES_DESPISED)
+	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED RACES_OOZE)
 	advclass_cat_rolls = list(CTAG_SULTAN = 20)
 
 	spells = list(
@@ -38,6 +38,7 @@
 		/datum/advclass/sultan/dtwizard,
 		/datum/advclass/sultan/dtinbred
 	)
+	same_job_respawn_delay = 30 MINUTES
 
 /datum/outfit/job/roguetown/sultan
 	job_bitflag = BITFLAG_ROYALTY
