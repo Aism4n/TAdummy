@@ -67,15 +67,36 @@
 			if("I am a nobody") //Nothing ever happens
 				return
 
+/datum/migrant_role/lost_grenzel
+	name = "Lost Grenzel"
+	greet_text = "Оставшись в одиночестве посреди окровавленных песков вас сплотила ненависть. Вас сплотила жажда мести. Вы - один из потерянных грензельхофтцев."
+	outfit = /datum/outfit/job/roguetown/lost_grenzel
+	allowed_ages = list(AGE_MIDDLEAGED, AGE_OLD)
+	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED RACES_OOZE)
+	advclass_cat_rolls = list(CTAG_LOSTGRENZEL = 20)
+
+/datum/migrant_role/lost_grenzel/after_spawn(mob/living/carbon/human/character)
+	. = ..()
+	character.ambushable = FALSE
+
+/datum/migrant_wave/lost_grenzel
+	name = "Lost Grenzels"
+	can_roll = FALSE
+	roles = list(
+		/datum/migrant_role/lost_grenzel = 4,
+	)
+	spawn_landmark = "Bandit"
+	greet_text = "Из залитых кровью песков выходят потерянные грензельхофтцы. Город запомнит их в крови и пепле."
+
 /datum/round_event_control/antagonist/migrant_wave/lost_grenzel
 	name = "Lost Grenzel Migration"
 	typepath = /datum/round_event/migrant_wave/lost_grenzel
-	wave_type = /datum/migrant_wave/bandit
+	wave_type = /datum/migrant_wave/lost_grenzel
 	track = EVENT_TRACK_INTERVENTION
 	max_occurrences = 2
 	weight = 8
 	earliest_start = 5 MINUTES
-	min_players = 30
+	min_players = 80
 	tags = list(
 		TAG_COMBAT,
 		TAG_VILLIAN,
@@ -84,21 +105,38 @@
 /datum/round_event_control/antagonist/migrant_wave/lost_grenzel/canSpawnEvent(players_amt, gamemode, fake_check)
 	if(SSmapping.config.map_name != "Desert Town")
 		return FALSE
-	if(!istype(SSgamemode.current_storyteller, /datum/storyteller/astrata))
+
+	var/datum/job/lg_job = SSjob.GetJob("Lost Grenzel")
+	if(!lg_job)
 		return FALSE
+	if(lg_job.total_positions >= 4)
+		return FALSE
+
 	return ..()
 
 /datum/round_event_control/antagonist/migrant_wave/lost_grenzel/preRunEvent()
 	if(is_storyteller_soft_antag_blocked())
 		return EVENT_CANT_RUN
+
+	var/datum/job/lg_job = SSjob.GetJob("Lost Grenzel")
+	if(!lg_job)
+		return EVENT_CANT_RUN
+	if(lg_job.total_positions >= 4)
+		return EVENT_CANT_RUN
+
 	return ..()
 
 /datum/round_event/migrant_wave/lost_grenzel/start()
 	var/datum/job/lg_job = SSjob.GetJob("Lost Grenzel")
-	var/lg_maxcap = max(SSgamemode.story_antag_slot_cap(/datum/antagonist/bandit), lg_job.total_positions)
+	if(!lg_job)
+		return
+	if(lg_job.total_positions >= 4)
+		return
+
 	var/old_positions = lg_job.total_positions
-	lg_job.total_positions = min(lg_job.total_positions + 5, lg_maxcap)
-	lg_job.spawn_positions = min(lg_job.spawn_positions + 5, lg_maxcap)
+	lg_job.total_positions = max(lg_job.total_positions, 4)
+	lg_job.spawn_positions = max(lg_job.spawn_positions, 4)
+
 	if(lg_job.total_positions > old_positions)
 		SSmapping.retainer.bandit_goal += 1 * rand(200, 400)
 		SSrole_class_handler.bandits_in_round = TRUE
@@ -106,7 +144,9 @@
 		for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 			if(!player.client)
 				continue
-			to_chat(player, span_danger("Astrata calls for justice! The degenerates who dared to deny her right to rule the Pantheon must be subdued!"))
+			to_chat(player, span_danger("Потерянные грензельхофтцы выходят из залитых кровью песков. Четыре слота для потерянных грензельхофтцев были открыты."))
+
+	..()
 
 /proc/update_lost_grenzel_slots()
 	var/datum/job/lost_grenzel_job = SSjob.GetJob("Lost Grenzel")
