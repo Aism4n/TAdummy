@@ -67,10 +67,31 @@
 			if("I am a nobody") //Nothing ever happens
 				return
 
+/datum/migrant_role/freeman
+	name = "Freeman"
+	greet_text = "Да будет проклят Султан Аль-Ашура песками и Иблис! Вы - один из фрименов, лишённых земель и прав. Настало время вернуть своё кровью."
+	outfit = /datum/outfit/job/roguetown/freeman
+	advclass_cat_rolls = list(CTAG_FREEMAN = 20)
+
+/datum/migrant_role/freeman/after_spawn(mob/living/carbon/human/character)
+	. = ..()
+	character.ambushable = FALSE
+	if(character.mind)
+		character.mind.AddSpell(new /obj/effect/proc_holder/spell/targeted/unconvert_slave)
+
+/datum/migrant_wave/freeman
+	name = "Freemen"
+	can_roll = FALSE
+	roles = list(
+		/datum/migrant_role/freeman = 6,
+	)
+	spawn_landmark = "Bandit"
+	greet_text = "Фримены выходят из-за дюн. Враги Султана собрались, чтобы вернуть то, что у них отняли."
+
 /datum/round_event_control/antagonist/migrant_wave/freeman
 	name = "Freeman Migration"
 	typepath = /datum/round_event/migrant_wave/freeman
-	wave_type = /datum/migrant_wave/bandit
+	wave_type = /datum/migrant_wave/freeman
 	track = EVENT_TRACK_INTERVENTION
 	max_occurrences = 2
 	weight = 8
@@ -84,21 +105,35 @@
 /datum/round_event_control/antagonist/migrant_wave/freeman/canSpawnEvent(players_amt, gamemode, fake_check)
 	if(SSmapping.config.map_name != "Desert Town")
 		return FALSE
-	if(!istype(SSgamemode.current_storyteller, /datum/storyteller/matthios))
+
+	var/datum/job/freeman_job = SSjob.GetJob("Freeman")
+	if(!freeman_job)
 		return FALSE
+	if(freeman_job.total_positions >= 6)
+		return FALSE
+
 	return ..()
 
 /datum/round_event_control/antagonist/migrant_wave/freeman/preRunEvent()
-	if(is_storyteller_soft_antag_blocked())
+	var/datum/job/freeman_job = SSjob.GetJob("Freeman")
+	if(!freeman_job)
 		return EVENT_CANT_RUN
+	if(freeman_job.total_positions >= 6)
+		return EVENT_CANT_RUN
+
 	return ..()
 
 /datum/round_event/migrant_wave/freeman/start()
 	var/datum/job/freeman_job = SSjob.GetJob("Freeman")
-	var/freeman_maxcap = max(SSgamemode.story_antag_slot_cap(/datum/antagonist/bandit), freeman_job.total_positions)
+	if(!freeman_job)
+		return
+	if(freeman_job.total_positions >= 6)
+		return
+
 	var/old_positions = freeman_job.total_positions
-	freeman_job.total_positions = min(freeman_job.total_positions + 6, freeman_maxcap)
-	freeman_job.spawn_positions = min(freeman_job.spawn_positions + 6, freeman_maxcap)
+	freeman_job.total_positions = max(freeman_job.total_positions, 6)
+	freeman_job.spawn_positions = max(freeman_job.spawn_positions, 6)
+
 	if(freeman_job.total_positions > old_positions)
 		SSmapping.retainer.bandit_goal += 1 * rand(200, 400)
 		SSrole_class_handler.bandits_in_round = TRUE
@@ -106,4 +141,6 @@
 		for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 			if(!player.client)
 				continue
-			to_chat(player, span_danger("Al-Matthios calls for jihad! The infidels who took our lands will be killed in the most brutal manner!"))
+			to_chat(player, span_danger("Аль-Маттиос зовёт к джихаду! Неверные, отнявшие наши земли, будут убиты самым жестоким образом! Открыто шесть слотов фрименов."))
+
+	..()
