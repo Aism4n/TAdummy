@@ -445,3 +445,7 @@
 		GLOB.bounty_posters["AZURIA"] = "The Emirate of Al Ashur"
 		GLOB.bounty_posters["GRENZELHOFT"] = "The Exalted Church of Zibantia"
 
+/datum/job/roguetown/veteran/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
+	..()
+	if(SSmapping.config.map_name == "Desert Town")
+		beltr = /obj/item/storage/keyring/veteran_d
