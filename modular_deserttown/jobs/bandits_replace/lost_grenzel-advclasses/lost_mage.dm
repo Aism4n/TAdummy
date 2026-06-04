@@ -1,14 +1,13 @@
 /datum/advclass/lost_grenzel/lost_mage
-	name = "Gefechtsgelehrter"
+	name = "Lost Gefechtsgelehrter"
 	tutorial = "Когда-то вы гордо называли себя магом. Теперь же вы ещё более жалки чем местные пустынные крысы - единственное, что вас отличает от них - это язык и остатки гордости выпускника Имперской Академии."
 	allowed_sexes = list(MALE, FEMALE)
 	
 	outfit = /datum/outfit/job/roguetown/lost_grenzel/lost_mage
-	class_select_category = CTAG_LOSTGRENZEL
 	category_tags = list(CTAG_LOSTGRENZEL)
 	subclass_languages = list(/datum/language/grenzelhoftian)
 	traits_applied = list(TRAIT_INTELLECTUAL, TRAIT_STEELHEARTED, TRAIT_ALCHEMY_EXPERT)
-	subclass_mage_aspects = list("mastery" = FALSE, "major" = 2, "minor" = 2, "utilities" = 6, "variants" = list(/datum/magic_aspect/pyromancy = "grenzelhoftian"), "post_aspect_spells" = list(/datum/action/cooldown/spell/message, /datum/action/cooldown/spell/magicians_brick), "ward" = TRUE)
+	subclass_mage_aspects = list("mastery" = FALSE, "major" = 2, "minor" = 3, "utilities" = 6, "variants" = list(/datum/magic_aspect/pyromancy = "grenzelhoftian"), "post_aspect_spells" = list(/datum/action/cooldown/spell/message, /datum/action/cooldown/spell/magicians_brick), "ward" = TRUE)
 	subclass_stats = list(
 		STATKEY_INT = 4,
 		STATKEY_WIL = 4,

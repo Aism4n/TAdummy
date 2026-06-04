@@ -20,7 +20,7 @@
 	max_pq = null
 	round_contrib_points = null
 	allowed_ages = list(AGE_MIDDLEAGED, AGE_OLD)
-	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED RACES_OOZE)
+	forbidden_races = list(RACES_CONSTRUCT, RACES_DESPISED, RACES_OOZE)
 	advclass_cat_rolls = list(CTAG_LOSTGRENZEL = 20)
 	PQ_boost_divider = 10
 
@@ -37,6 +37,7 @@
 		/datum/advclass/lost_grenzel/lost_mage,
 		/datum/advclass/lost_grenzel/lost_jager,
 		/datum/advclass/lost_grenzel/lost_doppelsoldner,
+		/datum/advclass/lost_grenzel/lost_imperial_knight,
 	)
 
 /datum/job/roguetown/lost_grenzel/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
@@ -72,7 +73,7 @@
 	greet_text = "Оставшись в одиночестве посреди окровавленных песков вас сплотила ненависть. Вас сплотила жажда мести. Вы - один из потерянных грензельхофтцев."
 	outfit = /datum/outfit/job/roguetown/lost_grenzel
 	allowed_ages = list(AGE_MIDDLEAGED, AGE_OLD)
-	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED RACES_OOZE)
+	forbidden_races = list(RACES_CONSTRUCT, RACES_DESPISED, RACES_OOZE)
 	advclass_cat_rolls = list(CTAG_LOSTGRENZEL = 20)
 
 /datum/migrant_role/lost_grenzel/after_spawn(mob/living/carbon/human/character)

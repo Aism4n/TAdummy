@@ -4128,8 +4128,10 @@
 #include "modular_deserttown\jobs\bandits_replace\freeman-advclasses\faris_sarid.dm"
 #include "modular_deserttown\jobs\bandits_replace\freeman-advclasses\rih_al_sahra.dm"
 #include "modular_deserttown\jobs\bandits_replace\freeman-advclasses\mujizat-musaid.dm"
+#include "modular_deserttown\jobs\bandits_replace\freeman-advclasses\sayyaf_hurr.dm"
 #include "modular_deserttown\jobs\bandits_replace\lost_grenzel-advclasses\lost_halberdier.dm"
 #include "modular_deserttown\jobs\bandits_replace\lost_grenzel-advclasses\lost_mage.dm"
 #include "modular_deserttown\jobs\bandits_replace\lost_grenzel-advclasses\lost_jager.dm"
 #include "modular_deserttown\jobs\bandits_replace\lost_grenzel-advclasses\lost_doppelsoldner.dm"
+#include "modular_deserttown\jobs\bandits_replace\lost_grenzel-advclasses\lost_imperial_knight.dm"
 // END_INCLUDE

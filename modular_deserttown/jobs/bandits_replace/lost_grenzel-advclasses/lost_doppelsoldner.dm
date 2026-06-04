@@ -1,10 +1,9 @@
 /datum/advclass/lost_grenzel/lost_doppelsoldner
-	name = "Doppelsoldner"
+	name = "Lost Doppelsoldner"
 	tutorial = "В пустынях Зибантии вы приобрели бессмертные навыки выживания. Ваша тактика сражения с двуручным мечом не раз спасла вашу и товарищей жизни."
 	allowed_sexes = list(MALE, FEMALE)
 	
 	outfit = /datum/outfit/job/roguetown/lost_grenzel/lost_doppelsoldner
-	class_select_category = CTAG_LOSTGRENZEL
 	category_tags = list(CTAG_LOSTGRENZEL)
 	subclass_languages = list(/datum/language/grenzelhoftian)
 	traits_applied = list(TRAIT_HEAVYARMOR)

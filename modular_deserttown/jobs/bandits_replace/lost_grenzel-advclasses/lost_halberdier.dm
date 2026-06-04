@@ -1,10 +1,9 @@
 /datum/advclass/lost_grenzel/lost_halberdier
-	name = "Halberdier"
+	name = "Lost Halberdier"
 	tutorial = "С детства вы отличались немалой силой и немалой выносливостью, быть может именно поэтому вы выжили в песках Зибантии? В Аль-Ашур вы прибываете как опытный владелец копья и алебарды. У вас почти нет снабжения - и единственное на что приходится рассчитывать, так это на грабёж местного населения."
 	allowed_sexes = list(MALE, FEMALE)
 	
 	outfit = /datum/outfit/job/roguetown/lost_grenzel/lost_halberdier
-	class_select_category = CTAG_LOSTGRENZEL
 	category_tags = list(CTAG_LOSTGRENZEL)
 	subclass_languages = list(/datum/language/grenzelhoftian)
 	traits_applied = list(TRAIT_HEAVYARMOR)
@@ -51,9 +50,9 @@
 	head = /obj/item/clothing/head/roguetown/roguehood/shalal
 	cloak = /obj/item/clothing/cloak/cape/crusader
 	pants = /obj/item/clothing/under/roguetown/chainlegs/grenzelhoft
-	shoes = /obj/item/clothing/shoes/roguetown/grenzelhoft
+	shoes = /obj/item/clothing/shoes/roguetown/boots/armor/blacksteel/modern
 	mask = /obj/item/clothing/mask/rogue/ragmask
-	gloves = /obj/item/clothing/gloves/roguetown/plate
+	gloves = /obj/item/clothing/gloves/roguetown/plate/blacksteel/modern
 	backr = /obj/item/storage/backpack/rogue/satchel/black
 	backpack_contents = list(
 		/obj/item/clothing/head/roguetown/grenzelhofthat = 1,
