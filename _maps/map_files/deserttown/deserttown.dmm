@@ -14163,6 +14163,18 @@
 /obj/machinery/light/rogue/firebowl,
 /turf/open/floor/rogue/naturalstone/sandstone,
 /area/rogue/outdoors/desertdeep)
+"eRb" = (
+/obj/structure/fluff/walldeco/church/line{
+	dir = 8
+	},
+/obj/structure/fluff/walldeco/church/line{
+	dir = 4
+	},
+/obj/structure/roguemachine/headeater,
+/turf/open/floor/rogue/concrete{
+	icon = 'modular_deserttown/icons/alt/roguefloor.dmi'
+	},
+/area/rogue/outdoors/town/desert)
 "eRs" = (
 /obj/structure/bed/rogue/inn,
 /obj/structure/rack/rogue/shelf,
@@ -63192,6 +63204,19 @@
 "wna" = (
 /obj/machinery/light/rogue/firebowl,
 /turf/open/floor/rogue/citybrick/citybrick6,
+/area/rogue/outdoors/town/desert)
+"wne" = (
+/obj/structure/fluff/walldeco/church/line{
+	dir = 4;
+	layer = 2
+	},
+/obj/structure/fluff/walldeco/church/line{
+	dir = 8
+	},
+/obj/structure/roguemachine/headeater,
+/turf/open/floor/rogue/concrete{
+	icon = 'modular_deserttown/icons/alt/roguefloor.dmi'
+	},
 /area/rogue/outdoors/town/desert)
 "wni" = (
 /obj/structure/fluff/railing/border{
@@ -396574,7 +396599,7 @@ rJC
 rJC
 rJC
 rJC
-boW
+eRb
 boW
 sNY
 uUl
@@ -400006,7 +400031,7 @@ rJC
 rJC
 rJC
 rJC
-bra
+wne
 bra
 kIY
 uTM
