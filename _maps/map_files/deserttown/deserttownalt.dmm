@@ -771,13 +771,13 @@
 /turf/closed/wall/mineral/rogue/sandstone,
 /area/rogue/indoors/banditcamp/desert)
 "eY" = (
-/obj/effect/landmark/start/wretchlate,
 /obj/effect/decal/duneedge{
 	dir = 1
 	},
 /obj/effect/decal/duneedge{
 	dir = 4
 	},
+/obj/effect/landmark/start/wretchlate,
 /turf/open/floor/rogue/darkpath,
 /area/rogue/outdoors/desertdeep/safe)
 "ff" = (
@@ -922,6 +922,13 @@
 	},
 /turf/open/floor/rogue/dunes,
 /area/rogue/outdoors/desert)
+"gc" = (
+/obj/effect/decal/duneedge{
+	dir = 8
+	},
+/obj/effect/landmark/start/wretchlate,
+/turf/open/floor/rogue/darkpath,
+/area/rogue/outdoors/desertdeep/safe)
 "ge" = (
 /obj/structure/fluff/railing/border{
 	dir = 8
@@ -61633,7 +61640,7 @@ Pa
 qg
 Oh
 Gt
-Gt
+gc
 Gt
 Gt
 Pa
@@ -61799,7 +61806,7 @@ LO
 Pa
 qg
 TM
-In
+vM
 In
 vM
 In
@@ -61967,7 +61974,7 @@ Pa
 qg
 Oh
 TM
-In
+vM
 In
 In
 In
