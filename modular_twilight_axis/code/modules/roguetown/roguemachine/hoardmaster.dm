@@ -15,7 +15,7 @@
 
 	var/list/unlocked_cats = list("Things")
 	switch(usr.advjob)
-		if("Brigand")
+		if("Brigand", "Sayyaf-Hurr")
 			unlocked_cats+="Brigand"
 		if("Sellsword")
 			unlocked_cats+="Sellsword"

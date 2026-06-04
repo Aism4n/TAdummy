@@ -96,7 +96,7 @@
 
 	var/list/unlocked_cats = list("Things")
 	switch(usr.advjob)
-		if("Brigand", "Rih-Al-Sahra") // TA EDIT
+		if("Brigand", "Sayyaf-Hurr") // TA EDIT
 			unlocked_cats+="Brigand"
 		if("Sellsword")
 			unlocked_cats+="Sellsword"
