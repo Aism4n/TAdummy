@@ -166,7 +166,7 @@
 	beltl = /obj/item/rogueweapon/huntingknife
 	r_hand = /obj/item/rogueweapon/halberd/bardiche
 	backpack_contents = list(
-		/obj/item/storage/keyring/manatarms = 1,
+		/obj/item/storage/keyring/azeb = 1,
 		/obj/item/flashlight/flare/torch/lantern = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1,
 		/obj/item/signal_horn = 1
