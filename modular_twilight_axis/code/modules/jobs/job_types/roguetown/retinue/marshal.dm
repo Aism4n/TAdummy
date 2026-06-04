@@ -37,7 +37,7 @@
 				"Naledi" = /datum/virtue/origin/naledi,
 				"Zybantu" = /datum/virtue/origin/zybantian)
 				var/new_origin
-				var/choice = input(player, "Your origins are not compatible with the Sultanat. Where do you hail from?", "ANCESTRY") as anything in new_origins
+				var/choice = input(player, "Your origins are not compatible with the Sultanate. Where do you hail from?", "ANCESTRY") as anything in new_origins
 				if(choice)
 					new_origin = new_origins[choice]
 				else

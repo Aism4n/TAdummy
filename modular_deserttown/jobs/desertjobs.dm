@@ -442,10 +442,17 @@
 /datum/controller/subsystem/job/Initialize(timeofday)
 	. = ..()
 	if(SSmapping && SSmapping.config && SSmapping.config.map_name == "Desert Town")
-		GLOB.bounty_posters["AZURIA"] = "The Emirate of Al Ashur"
-		GLOB.bounty_posters["GRENZELHOFT"] = "The Exalted Church of Zibantia"
+		GLOB.bounty_posters["AZURIA"] = "The Sultanate of Al-Ashur"
+		GLOB.bounty_posters["GRENZELHOFT"] = "The Exalted Church of Zybantia"
 
 /datum/job/roguetown/veteran/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
 	..()
 	if(SSmapping.config.map_name == "Desert Town")
-		beltr = /obj/item/storage/keyring/veteran_d
+		if(ishuman(L))
+			var/mob/living/carbon/human/H = L
+			for(var/obj/item/roguekey/veteran/old_key in H.get_all_contents())
+				qdel(old_key)
+			var/obj/item/storage/keyring/veteran_d/keys = new(H)
+			if(!H.equip_to_appropriate_slot(keys))
+				if(!H.put_in_hands(keys))
+					keys.forceMove(H.drop_location())
