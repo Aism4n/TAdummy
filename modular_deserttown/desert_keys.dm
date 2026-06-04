@@ -12,3 +12,6 @@
 
 /obj/item/storage/keyring/veteran_d
 	keys = list(/obj/item/roguekey/manor, /obj/item/roguekey/veteran)
+
+/obj/item/storage/keyring/slave
+	keys = list(/obj/item/roguekey/manor, /obj/item/roguekey/dungeon)

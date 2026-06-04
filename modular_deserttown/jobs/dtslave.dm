@@ -60,7 +60,7 @@
 	neck = /obj/item/clothing/neck/roguetown/gorget/cursed_collar
 	backl = /obj/item/storage/backpack/rogue/satchel
 	belt = /obj/item/storage/belt/rogue/leather/rope
-	beltr = /obj/item/roguekey/manor
+	beltr = /obj/item/storage/keyring/slave
 	beltl = /obj/item/storage/belt/rogue/pouch/coins/poor
 	if(H.age == AGE_MIDDLEAGED)
 		H.adjust_skillrank(/datum/skill/craft/cooking, 1, TRUE)
@@ -99,7 +99,7 @@
 	..()
 	beltr = /obj/item/storage/belt/rogue/pouch/coins/poor
 	backl = /obj/item/storage/backpack/rogue/satchel
-	beltr = /obj/item/roguekey/manor
+	beltr = /obj/item/storage/keyring/slave
 	backpack_contents = list(
 		/obj/item/candle/eora = 1,
 	)
@@ -186,7 +186,7 @@
 	shoes = /obj/item/clothing/shoes/roguetown/shortboots
 	backl = /obj/item/storage/backpack/rogue/satchel
 	belt = /obj/item/storage/belt/rogue/leather
-	beltr = /obj/item/roguekey/manor
+	beltr = /obj/item/storage/keyring/slave
 	beltl = /obj/item/storage/belt/rogue/pouch/coins/poor
 	armor = /obj/item/clothing/suit/roguetown/armor/leather/vest/black
 	if(H.age == AGE_MIDDLEAGED)
