@@ -7,7 +7,7 @@
 	category_tags = list(CTAG_FREEMAN)
 	maximum_possible_slots = 1
 	subclass_mage_aspects = list("mastery" = FALSE, "major" = 2, "minor" = 3, "utilities" = 9, "ward" = TRUE)
-	traits_applied = list(TRAIT_ARCYNE, TRAIT_ALCHEMY_EXPERT)
+	traits_applied = list(TRAIT_ARCYNE, TRAIT_ALCHEMY_EXPERT, TRAIT_MEDIUMARMOR)
 	subclass_stats = list(
 		STATKEY_INT = 3,
 		STATKEY_WIL = 3,
