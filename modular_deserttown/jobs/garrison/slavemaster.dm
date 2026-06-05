@@ -7,8 +7,7 @@
 	spawn_positions = 1
 	allowed_sexes = list(MALE, FEMALE)
 	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED RACES_OOZE)
-	job_traits = list(TRAIT_STEELHEARTED, TRAIT_DUNGEONMASTER, TRAIT_GUARDSMAN, TRAIT_PURITAN_ADVENTURER, TRAIT_MEDIUMARMOR, TRAIT_XENOPHOBIC, TRAIT_NOBLE) //'PURITAN_ADVENTURER' is the codename. Presents as 'INTERROGATOR', in-game. Doesn't provide any Inquisition-related boons, but gives instrucitons on how to use certain mechanics.
-	display_order = JDO_DUNGEONEER
+	job_traits = list(TRAIT_STEELHEARTED, TRAIT_DUNGEONMASTER, TRAIT_GUARDSMAN, TRAIT_MEDIUMARMOR, TRAIT_XENOPHOBIC, TRAIT_NOBLE)
 	advclass_cat_rolls = list(CTAG_SLAVEMASTER = 2)
 
 	tutorial = "Твоя рука карает кнутом, дабы держать чернь в узде, и лишь твоя воля заставляет ленивых рабов трудиться на благо Султана. \
@@ -46,6 +45,18 @@
 		H.advsetup = 1
 		H.invisibility = INVISIBILITY_MAXIMUM
 		H.become_blind("advsetup")
+		var/index = findtext(H.real_name, " ")
+		if(index)
+			index = copytext(H.real_name, 1,index)
+		if(!index)
+			index = H.real_name
+		var/prev_real_name = H.real_name
+		var/prev_name = H.name
+		var/honorary = "Nazir"
+		if(H.gender == FEMALE)
+			honorary = "Nazirah"
+		H.real_name = "[honorary] [prev_real_name]"
+		H.name = "[honorary] [prev_name]"
 
 /datum/outfit/job/roguetown/slavemaster
 	job_bitflag = BITFLAG_GARRISON
@@ -61,9 +72,10 @@
 	category_tags = list(CTAG_SLAVEMASTER)
 	subclass_stats = list(
 		STATKEY_STR = 2,
+		STATKEY_PER = 2,
 		STATKEY_CON = 2,
-		STATKEY_WIL = 1,
-		STATKEY_SPD = 1,//slave chasin'
+		STATKEY_WIL = 2,
+		STATKEY_SPD = 2,//slave chasin'
 	)
 	subclass_skills = list(
 		/datum/skill/combat/whipsflails = SKILL_LEVEL_EXPERT,//slave whippin
@@ -80,7 +92,6 @@
 		/datum/skill/misc/tracking = SKILL_LEVEL_JOURNEYMAN, //slave detection
 		/datum/skill/misc/riding = SKILL_LEVEL_JOURNEYMAN
 	)
-	// adv_stat_ceiling = list(STAT_STRENGTH = 16, STAT_CONSTITUTION = 16, STAT_WILLPOWER = 16)
 
 /datum/outfit/job/roguetown/slavemaster/base/pre_equip(mob/living/carbon/human/H)
 	. = ..()
@@ -104,7 +115,4 @@
 	beltl = /obj/item/storage/keyring/slavemaster
 	backr = /obj/item/storage/backpack/rogue/satchel
 	id = /obj/item/scomstone/bad/garrison
-	backpack_contents = list(/obj/item/flashlight/flare/torch/lantern, /obj/item/reagent_containers/glass/bottle/rogue/healthpot = 2, /obj/item/rope/chain = 1, /obj/item/flint = 1, /obj/item/clothing/neck/roguetown/collar/leather = 2, /obj/item/clothing/neck/roguetown/psicross/silver = 1/*, /obj/item/rogueweapon/surgery/cautery/branding = 1,*/)
-
-	/*H.dna.species.soundpack_m = new /datum/voicepack/male/warrior()*/
-	//Torture victim is for inquisition - doesn't even work without a psicross anymore so maybe come up with a variant for him specifically?
+	backpack_contents = list(/obj/item/flashlight/flare/torch/lantern, /obj/item/reagent_containers/glass/bottle/rogue/healthpot = 2, /obj/item/rope/chain = 1, /obj/item/flint = 1, /obj/item/clothing/neck/roguetown/collar/leather = 2, /obj/item/clothing/neck/roguetown/psicross/silver = 1)
