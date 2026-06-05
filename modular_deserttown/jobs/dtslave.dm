@@ -104,11 +104,11 @@
 		/obj/item/candle/eora = 1,
 	)
 	if(should_wear_femme_clothes(H))
-		mask = /obj/item/clothing/mask/rogue/exoticsilkmask
+		mask = /obj/item/clothing/mask/rogue/silkmask
 		neck = /obj/item/clothing/neck/roguetown/gorget/cursed_collar
-		shirt = /obj/item/clothing/suit/roguetown/shirt/exoticsilkbra
+		shirt = /obj/item/clothing/suit/roguetown/shirt/silkbra
 		shoes = /obj/item/clothing/shoes/roguetown/anklets
-		belt = /obj/item/storage/belt/rogue/leather/exoticsilkbelt
+		belt = /obj/item/storage/belt/rogue/leather/silkbelt
 	else
 		shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt/lowcut
 		neck = /obj/item/clothing/neck/roguetown/gorget/cursed_collar
