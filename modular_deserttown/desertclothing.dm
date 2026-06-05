@@ -1,7 +1,3 @@
-//can sort these into other folders later if we really wanna
-
-//armor
-//Common workhorse armour for men at arms? Seems like it should be decent alround basic protection, like a hauberk (but not underarmour)
 /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/janissary
 	slot_flags = ITEM_SLOT_ARMOR
 	name = "janissary chainmail"
@@ -12,10 +8,6 @@
 	icon_state = "mamaluke"
 	item_state = "mamaluke"
 
-//I remember cataphracts were supposed to be knights and that this is supposed to be heavy armour.
-//Judging by the sprite it feels like the torso should be more heavily armoured but idk how to do that
-//Some good clean -all-over protection again. Like scalemail but all-over. That'll do it right?
-//Actually nah plate heavy armour should be heavier than that...
 /obj/item/clothing/suit/roguetown/armor/plate/cataphract
 	slot_flags = ITEM_SLOT_ARMOR
 	name = "cataphract armor"
@@ -23,12 +15,18 @@
 	icon = 'modular_deserttown/icons/clothing/armor.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/armor.dmi'
 	icon_state = "cataphract"
-	body_parts_covered = COVERAGE_FULL
-	sleeved = 'modular_twilight_axis/icons/roguetown/clothing/onmob/helpers/sleeves_armor.dmi'
+	icon_state = "cataphract"
+	sleeved = null
+	sleevetype = null
+	body_parts_covered = COVERAGE_ALL_BUT_HANDFEET | NECK
+	equip_delay_self = 12 SECONDS
+	unequip_delay_self = 12 SECONDS
+	equip_delay_other = 3 SECONDS
+	strip_delay = 6 SECONDS
 	max_integrity = ARMOR_INT_CHEST_PLATE_STEEL
+	smelt_bar_num = 4
 	armor_class = ARMOR_CLASS_HEAVY
-	equip_delay_self = 4 SECONDS
-	smelt_bar_num = 2
+	armor = ARMOR_PLATE
 
 /obj/item/clothing/suit/roguetown/armor/plate/cataphract/sultan
 	name = "sultan scale"
@@ -45,20 +43,6 @@
 	armor = ARMOR_PLATE_BSTEEL
 	max_integrity = ARMOR_INT_CHEST_PLATE_BLACKSTEEL
 	smeltresult = /obj/item/ingot/blacksteel
-
-// /obj/item/clothing/suit/roguetown/armor/chainmail/janissary //SPRITE ALREADY USED BY ATGERVI STUFF!
-// 	slot_flags = ITEM_SLOT_ARMOR|ITEM_SLOT_SHIRT
-// 	name = "Janissary Mail"
-// 	desc = "A longer steel maille that protects the legs, still doesn't protect against arrows though."
-// 	body_parts_covered = COVERAGE_FULL
-// 	icon_state = "atgervi_raider_mail"
-// 	item_state = "atgervi_raider_mail"
-// 	max_integrity = 220
-// 	armor = ARMOR_CUIRASS
-// 	anvilrepair = /datum/skill/craft/blacksmithing
-// 	smeltresult = /obj/item/ingot/steel
-// 	armor_class = ARMOR_CLASS_MEDIUM
-// 	w_class = WEIGHT_CLASS_BULKY
 
 /obj/item/clothing/suit/roguetown/armor/brigandine/agha
 	name = "Agha Scale"
@@ -99,16 +83,6 @@
 	body_parts_covered = HEAD|HAIR|EARS
 	flags_inv = HIDEEARS|HIDEHAIR
 
-/* /obj/item/clothing/head/roguetown/helmet/janissary // НЕ ИСПОЛЬЗОВАТЬ - ДУБЛИКАТ ПРЕДМЕТА ВЫШЕ
-name = "Janissaries Helm"		
-	desc = "A helmet with too much style."
-	icon_state = "atgervi_raider"
-	item_state = "atgervi_raider"
-	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/head32x48.dmi'
-	max_integrity = 250
-	body_parts_covered = HEAD|HAIR|EARS|NOSE
-	flags_inv = HIDEEARS|HIDEHAIR|HIDEFACE|HIDEFACIALHAIR */
-	
 ///VEST
 
 /obj/item/clothing/suit/roguetown/armor/leather/vest/open
