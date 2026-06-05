@@ -14,10 +14,9 @@
 	desc = "Metal scales interwoven intricately to form flexible protection!"
 	icon = 'modular_deserttown/icons/clothing/armor.dmi'
 	mob_overlay_icon = 'modular_deserttown/icons/clothing/onmob/armor.dmi'
+	sleeved = 'modular_twilight_axis/icons/roguetown/clothing/onmob/helpers/sleeves_armor.dmi'
 	icon_state = "cataphract"
 	icon_state = "cataphract"
-	sleeved = null
-	sleevetype = null
 	body_parts_covered = COVERAGE_ALL_BUT_HANDFEET | NECK
 	equip_delay_self = 12 SECONDS
 	unequip_delay_self = 12 SECONDS

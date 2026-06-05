@@ -54,6 +54,7 @@
 		shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/chargah
 		shoes = /obj/item/clothing/shoes/roguetown/shalal/reinforced
 		cloak = /obj/item/clothing/cloak/dunestalker
+		neck = /obj/item/clothing/neck/roguetown/psicross/inhumen/matthios
 		H.adjust_skillrank_up_to(/datum/skill/combat/maces, SKILL_LEVEL_JOURNEYMAN, TRUE)
 		H.adjust_skillrank_up_to(/datum/skill/combat/staves, SKILL_LEVEL_JOURNEYMAN, TRUE)
 		H.adjust_skillrank_up_to(/datum/skill/combat/shields, SKILL_LEVEL_JOURNEYMAN, TRUE)
