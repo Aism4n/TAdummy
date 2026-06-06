@@ -1,4 +1,3 @@
-// In exchange for martial skills beyond ranged, they can now set traps, too.
 /datum/advclass/janissary/jezail
 	name = "Janissary Jezail"
 	tutorial = "Ты — профессиональный солдат Султанского воинства, чей талант раскрывается в обращении с пороховым оружием. \
@@ -6,20 +5,18 @@
         используя мощь кулеврин и аркебуз, чтобы сеять погибель во имя порядка."
 	outfit = /datum/outfit/job/roguetown/janissary/jezail
 
-	maximum_possible_slots = 2//One always tells the truth, the other only lies. Guess wrong and they both shoot you.
+	maximum_possible_slots = 2
 
 	category_tags = list(CTAG_JANISSARY)
-	//Garrison ranged/speed class. Time to go wild
 	subclass_stats = list(
-		STATKEY_SPD = 1,// probably objectively worse stats than skirmisher but the price ye pay
-		STATKEY_PER = 2,
-		STATKEY_WIL = 2,
-		STATKEY_INT = 1,
+		STATKEY_SPD = 2,
+		STATKEY_PER = 3,
+		STATKEY_WIL = 2
 	)
 	traits_applied = list(TRAIT_FIREARMS_MARKSMAN, TRAIT_DODGEEXPERT)
 
 	subclass_skills = list(
-		/datum/skill/combat/twilight_firearms = SKILL_LEVEL_MASTER,//Your entire point is GUN.
+		/datum/skill/combat/twilight_firearms = SKILL_LEVEL_MASTER,
 		/datum/skill/combat/crossbows = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/bows = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/slings = SKILL_LEVEL_APPRENTICE,
@@ -28,7 +25,7 @@
 		/datum/skill/combat/maces = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/swords = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/whipsflails = SKILL_LEVEL_JOURNEYMAN,
-		/datum/skill/misc/climbing = SKILL_LEVEL_JOURNEYMAN,//not as acrobatic
+		/datum/skill/misc/climbing = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/athletics = SKILL_LEVEL_EXPERT,
 		/datum/skill/misc/sneaking = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/unarmed = SKILL_LEVEL_JOURNEYMAN,

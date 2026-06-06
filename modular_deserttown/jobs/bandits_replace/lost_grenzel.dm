@@ -16,8 +16,128 @@
 	ADD_TRAIT(H, TRAIT_STEELHEARTED, TRAIT_GENERIC)
 	ADD_TRAIT(H, TRAIT_OUTLANDER, TRAIT_GENERIC)
 	ADD_TRAIT(H, TRAIT_OUTLAW, TRAIT_GENERIC)
+	ADD_TRAIT(H, TRAIT_PSYCHOSIS, TRAIT_GENERIC)
 	to_chat(H, span_alertsyndie("Я - ПОТЕРЯННЫЙ ГРЕНЗЕЛЬХОФТЕЦ!"))
 	to_chat(H, span_boldwarning("Оставшись в одиночестве посреди окровавленных песков вас сплотила ненависть. Вас сплотила жажда мести. Вы - один из потерянных грензельхофтцев. Ваша цель - убивать, грабить и мстить."))
+	H.AddComponent(/datum/component/lost_grenzel_hate)
+
+// ненависть грензелей
+/datum/stressevent/lost_grenzel_hate
+	desc = span_boldred("Я ненавижу всех этих гнид! Убить! Разорвать на куски!")
+	stressadd = 50
+	timer = INFINITY
+
+/datum/component/lost_grenzel_hate
+	var/time_near_others = 0
+	var/last_process_time = 0
+	var/last_message_time = 0
+	var/has_debuff = FALSE
+
+/datum/component/lost_grenzel_hate/Initialize()
+	if(!isliving(parent))
+		return COMPONENT_INCOMPATIBLE
+	START_PROCESSING(SSprocessing, src)
+	last_process_time = world.time
+
+/datum/component/lost_grenzel_hate/Destroy()
+	STOP_PROCESSING(SSprocessing, src)
+	return ..()
+
+/datum/component/lost_grenzel_hate/process()
+	var/mob/living/carbon/human/L = parent
+	if(!istype(L) || L.stat == DEAD)
+		return
+		
+	var/current_time = world.time
+	var/delta = current_time - last_process_time
+	last_process_time = current_time
+	
+	var/found_visible = FALSE
+	for(var/mob/living/carbon/human/H in oview(10, L))
+		if(H.stat == DEAD)
+			continue
+		var/is_grenzel = FALSE
+		if(H.mind && H.mind.has_antag_datum(/datum/antagonist/bandit/lost_grenzel))
+			is_grenzel = TRUE
+		if(!is_grenzel)
+			found_visible = TRUE
+			if(H.dna?.species?.origin == "Grenzelhoft")
+				if(!H.GetComponent(/datum/component/lost_grenzel_fear))
+					H.AddComponent(/datum/component/lost_grenzel_fear)
+			
+	if(found_visible)
+		time_near_others += delta
+		if(time_near_others >= 1 MINUTES)
+			if(!has_debuff)
+				L.add_stress(/datum/stressevent/lost_grenzel_hate)
+				has_debuff = TRUE
+			
+			if(current_time >= last_message_time + 1 MINUTES)
+				to_chat(L, span_userdanger("УБЕЙТЕ, УБЕЙТЕ ЭТУ ГНИДУ!"))
+				last_message_time = current_time
+	else
+		if(time_near_others > 0)
+			time_near_others = max(0, time_near_others - delta)
+		if(time_near_others <= 0 && has_debuff)
+			has_debuff = FALSE
+			L.remove_stress(/datum/stressevent/lost_grenzel_hate)
+
+// страх грензелей у всех остальных
+/datum/stressevent/lost_grenzel_fear
+	desc = span_boldred("Это же безумный дезертир! О нет, нам конец!")
+	stressadd = 50
+	timer = INFINITY
+
+/datum/component/lost_grenzel_fear
+	var/time_near_lg = 0
+	var/last_process_time = 0
+	var/last_message_time = 0
+	var/has_debuff = FALSE
+
+/datum/component/lost_grenzel_fear/Initialize()
+	if(!isliving(parent))
+		return COMPONENT_INCOMPATIBLE
+	START_PROCESSING(SSprocessing, src)
+	last_process_time = world.time
+
+/datum/component/lost_grenzel_fear/Destroy()
+	STOP_PROCESSING(SSprocessing, src)
+	return ..()
+
+/datum/component/lost_grenzel_fear/process()
+	var/mob/living/carbon/human/L = parent
+	if(!istype(L) || L.stat == DEAD)
+		return
+		
+	var/current_time = world.time
+	var/delta = current_time - last_process_time
+	last_process_time = current_time
+	
+	var/found_lg = FALSE
+	for(var/mob/living/carbon/human/H in oview(10, L))
+		if(H.stat == DEAD)
+			continue
+		if(H.mind && H.mind.has_antag_datum(/datum/antagonist/bandit/lost_grenzel))
+			found_lg = TRUE
+			break
+			
+	if(found_lg)
+		time_near_lg = 30 SECONDS
+		if(!has_debuff)
+			L.add_stress(/datum/stressevent/lost_grenzel_fear)
+			has_debuff = TRUE
+		
+		if(current_time >= last_message_time + 1 MINUTES)
+			to_chat(L, span_userdanger("ЭТО ЖЕ ТОТ СУМАСШЕДШИЙ ИЗ ПУСТЫНЬ! НАДО БЕЖАТЬ!"))
+			last_message_time = current_time
+	else
+		if(time_near_lg > 0)
+			time_near_lg -= delta
+		else
+			if(has_debuff)
+				L.remove_stress(/datum/stressevent/lost_grenzel_fear)
+				has_debuff = FALSE
+			qdel(src)
 
 /datum/job/roguetown/lost_grenzel
 	title = "Lost Grenzel"

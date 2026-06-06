@@ -1,4 +1,3 @@
-// Melee goon. STR and martial setup.
 /datum/advclass/janissary/footman
 	name = "Janissary Footman"
 	tutorial = "Ты — член свиты Султана. Обеспечивай безопасность Султана и его подданных, защищай власть предержащих от ужасов внешнего мира и делай всё возможное, чтобы Султанат продолжал жить."
@@ -7,10 +6,9 @@
 	category_tags = list(CTAG_JANISSARY)
 	traits_applied = list(TRAIT_MEDIUMARMOR)
 	subclass_stats = list(
-		STATKEY_STR = 2,// seems kinda lame but remember guardsman bonus!!
-		STATKEY_INT = 1,
-		STATKEY_CON = 1,
-		STATKEY_WIL = 1
+		STATKEY_STR = 2,
+		STATKEY_CON = 3,
+		STATKEY_WIL = 2
 	)
 	subclass_skills = list(
 		/datum/skill/combat/polearms = SKILL_LEVEL_EXPERT,

@@ -203,7 +203,17 @@
 			if(ishuman(user))
 				var/mob/living/carbon/human/H_user = user
 				if(H_user.dna?.species?.origin == "Grenzelhoft" && (species_origin == "Raneshan" || species_origin == "Naledi" || species_origin == "Zybantu"))
-					. += span_userdanger("ЗИБАНТИЙСКИЙ ШВАЙХУНД!")
+					. += span_userdanger("ЗИБАНТИЙСКИЙ ШВАЙНЕХУНД!")
+				
+				var/user_is_lg = H_user.mind?.has_antag_datum(/datum/antagonist/bandit/lost_grenzel)
+				var/target_is_lg = mind?.has_antag_datum(/datum/antagonist/bandit/lost_grenzel)
+				
+				if(user_is_lg && species_origin == "Grenzelhoft" && !target_is_lg)
+					. += span_userdanger("<b>ПОДЛЫЙ ПРЕДАТЕЛЬ!</b>")
+				if(target_is_lg && H_user.dna?.species?.origin == "Grenzelhoft" && !user_is_lg)
+					. += span_userdanger("<b>ОБЕЗУМЕВШИЙ В ПЕСКАХ!</b>")
+			if(mind?.has_antag_datum(/datum/antagonist/bandit/lost_grenzel) && !HAS_TRAIT(user, TRAIT_OUTLANDER))
+				. += span_userdanger("<b>НАЛЁТНИЧЕСКАЯ МРАЗЬ, ДЕТОУБИЙЦА!</b>")
 		// TA EDIT END
 		
 		// Knotted effect message
@@ -1168,7 +1178,6 @@
 
 	if(pose_text)
 		. += fieldset_block("Pose", pose_text, "pose_block")
-
 
 	SEND_SIGNAL(src, COMSIG_PARENT_EXAMINE, user, .)
 

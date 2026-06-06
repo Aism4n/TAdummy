@@ -1,4 +1,3 @@
-// In exchange for martial skills beyond ranged, they can now set traps, too.
 /datum/advclass/janissary/zephyr
 	name = "Janissary Zephyr"
 	tutorial = "Ты — профессиональный солдат Султанского воинства, мастер дальнего боя. \
@@ -8,21 +7,21 @@
 
 	category_tags = list(CTAG_JANISSARY)
 	subclass_stats = list(
-		STATKEY_SPD = 2,// seems kinda lame but remember guardsman bonus!!
-		STATKEY_PER = 2,
-		STATKEY_WIL = 1,
+		STATKEY_SPD = 2,
+		STATKEY_PER = 3,
+		STATKEY_WIL = 2
 	)
 	traits_applied = list(TRAIT_DODGEEXPERT)
 
 	subclass_skills = list(
 		/datum/skill/combat/crossbows = SKILL_LEVEL_MASTER,
 		/datum/skill/combat/bows = SKILL_LEVEL_MASTER,
-		/datum/skill/combat/slings = SKILL_LEVEL_MASTER,//Your entire point is ranged.
+		/datum/skill/combat/slings = SKILL_LEVEL_MASTER,
 		/datum/skill/combat/wrestling = SKILL_LEVEL_JOURNEYMAN,
-		/datum/skill/combat/knives = SKILL_LEVEL_EXPERT,//You get a knife, just in case.
-		/datum/skill/combat/maces = SKILL_LEVEL_JOURNEYMAN,//And can double in maces and swords.
+		/datum/skill/combat/knives = SKILL_LEVEL_EXPERT,
+		/datum/skill/combat/maces = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/swords = SKILL_LEVEL_JOURNEYMAN,
-		/datum/skill/combat/whipsflails = SKILL_LEVEL_JOURNEYMAN, //slave patrol!
+		/datum/skill/combat/whipsflails = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/climbing = SKILL_LEVEL_EXPERT,
 		/datum/skill/misc/athletics = SKILL_LEVEL_EXPERT,
 		/datum/skill/misc/sneaking = SKILL_LEVEL_JOURNEYMAN,
@@ -61,12 +60,12 @@
 			if("Crossbow")
 				beltr = /obj/item/quiver/bolt/standard
 				r_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow
-			if("Bow") // They can head down to the armory to sideshift into one of the other bows.
+			if("Bow")
 				beltr = /obj/item/quiver/arrows
 				r_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve
 			if("Sling")
 				beltr = /obj/item/quiver/sling/iron
-				r_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/sling // Both are belt slots and it's not worth setting where the cugel goes for everyone else, sad.
+				r_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/sling
 				
 		var/weapons2 = list("Scimitar","Whip","Club")
 		var/weapon_choice2 = input(H, "Choose your sidearm.", "TAKE UP ARMS") as anything in weapons2
@@ -74,7 +73,7 @@
 			if("Scimitar")
 				beltl = /obj/item/rogueweapon/scabbard/sword
 				l_hand = /obj/item/rogueweapon/sword/sabre/shamshir
-			if("Whip") // They can head down to the armory to sideshift into one of the other bows.
+			if("Whip")
 				beltl = /obj/item/rogueweapon/whip
 			if("Club")
 				beltl = /obj/item/rogueweapon/mace/cudgel

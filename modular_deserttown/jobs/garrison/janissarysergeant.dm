@@ -1,5 +1,5 @@
 /datum/job/roguetown/janissarysergeant
-	title = "Janissary Sergeant"// Googling terms Naqib seems to mean something like Captain and has a nice ring to it?
+	title = "Janissary Sergeant"
 	flag = JANISSARYSERGEANT
 	department_flag = GARRISON
 	faction = "Station"
@@ -22,7 +22,7 @@
 	min_pq = 8
 	max_pq = null
 	cmode_music = 'sound/music/combat_desert1.ogg'
-	job_traits = list(TRAIT_GUARDSMAN, TRAIT_STEELHEARTED, TRAIT_MEDIUMARMOR)
+	job_traits = list(TRAIT_GUARDSMAN, TRAIT_STEELHEARTED, TRAIT_MEDIUMARMOR, TRAIT_ARTILLERY_EXPERT)
 	job_subclasses = list(
 		/datum/advclass/janissarysergeant/janissarysergeant
 	)
@@ -31,12 +31,6 @@
 /datum/outfit/job/roguetown/janissarysergeant
 	job_bitflag = BITFLAG_GARRISON
 
-/* /datum/job/roguetown/janissarysergeant/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
-	. = ..()
-	if(ishuman(L))
-		addtimer(CALLBACK(L, TYPE_PROC_REF(/mob, cloak_and_title_setup)), 50) */
-
-//All skills/traits are on the loadouts. All are identical. Welcome to the stupid way we have to make sub-classes...
 /datum/outfit/job/roguetown/janissarysergeant
 	neck = /obj/item/clothing/neck/roguetown/bevor
 	head = /obj/item/clothing/head/roguetown/helmet/janissaryhelm
@@ -61,8 +55,8 @@
 	subclass_stats = list(
 		STATKEY_STR = 2,
 		STATKEY_INT = 1,
-		STATKEY_CON = 1,
-		STATKEY_PER = 1, //Gets bow-skills, so give a SMALL tad of perception to aid in bow draw.
+		STATKEY_CON = 2,
+		STATKEY_PER = 2,
 		STATKEY_WIL = 1,
 	)
 	subclass_skills = list(
@@ -80,9 +74,9 @@
 		/datum/skill/misc/climbing = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/sneaking = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/reading = SKILL_LEVEL_APPRENTICE,
-		/datum/skill/misc/athletics = SKILL_LEVEL_MASTER,	// We are basically identical to a regular MAA, except having better athletics to help us manage our order usage better
+		/datum/skill/misc/athletics = SKILL_LEVEL_MASTER,
 		/datum/skill/misc/riding = SKILL_LEVEL_NOVICE,
-		/datum/skill/misc/tracking = SKILL_LEVEL_APPRENTICE,	//Decent tracking akin to Skirmisher.
+		/datum/skill/misc/tracking = SKILL_LEVEL_APPRENTICE,
 	)
 
 /datum/outfit/job/roguetown/janissarysergeant/janissarysergeant/pre_equip(mob/living/carbon/human/H)
@@ -92,7 +86,6 @@
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/order/takeaim)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/order/onfeet)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/order/hold)
-		// H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/order/focustarget)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/self/convertrole/guard)
 	H.verbs |= list(/mob/living/carbon/human/proc/request_outlaw, /mob/proc/haltyell, /mob/living/carbon/human/mind/proc/setorders)
 	backpack_contents = list(
@@ -104,7 +97,7 @@
 		)
 	H.adjust_blindness(-3)
 	if(H.mind)
-		var/weapons = list("Rhomphaia","Whip & Shield","Glaive","Sabre & Crossbow")	//Bit more unique than footsman, you are a jack-of-all-trades + slightly more 'elite'.
+		var/weapons = list("Rhomphaia","Whip & Shield","Glaive","Sabre & Crossbow")
 		var/weapon_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in weapons
 		H.set_blindness(0)
 		switch(weapon_choice)
