@@ -27,6 +27,7 @@
 	traits_applied = list(TRAIT_CICERONE, TRAIT_HOMESTEAD_EXPERT, TRAIT_SEWING_EXPERT, TRAIT_ROYALSERVANT, TRAIT_FOOD_STIPEND) // They have Expert Sewing
 	category_tags = list(CTAG_HEADSLAVE)
 	name = "Head Slave"
+	tutorial = "Ваша преданность, послушание и незаурядный ум возвысили вас над остальными. Как главный раб, вы — доверенное лицо и невидимая опора дворца. Ваша задача — управлять прислугой и обеспечивать безупречный комфорт Господина, оставаясь при этом в тени."
 	outfit = /datum/outfit/job/roguetown/headslave/headslave
 	subclass_stats = list(
 		STATKEY_INT = 2,
@@ -91,9 +92,10 @@
 
 /datum/advclass/headslave/headmaid
 	name = "Head Maid"
-	tutorial = "Со временем вы стали подрожать домохозяйкам по западному образцу, Султан оценил это... И теперь вы домохозяйка. Старшая домохозяйка."
+	tutorial = "Ваша преданность, послушание и незаурядный ум возвысили вас над остальными. Как главный раб, вы — доверенное лицо и невидимая опора дворца. Ваша задача — управлять прислугой и обеспечивать безупречный комфорт Господина, оставаясь при этом в тени."
 	outfit = /datum/outfit/job/roguetown/headslave/headmaid
 	category_tags = list(CTAG_HEADSLAVE)
+	traits_applied = list(TRAIT_CICERONE, TRAIT_HOMESTEAD_EXPERT, TRAIT_SEWING_EXPERT, TRAIT_ROYALSERVANT, TRAIT_FOOD_STIPEND)
 	subclass_stats = list(
 		STATKEY_INT = 2,
 		STATKEY_PER = 2,
@@ -129,6 +131,7 @@
 	tutorial = "Со временем вы всё больше и больше посвящали себе чему-то более возвышенному чем простое обслуживание Господина. Искусство быть дворецким, котором вы в совершенстве овладели, было встречено весьма отзывчиво со стороны вашего Господина."
 	outfit = /datum/outfit/job/roguetown/headslave/chiefbutler
 	category_tags = list(CTAG_HEADSLAVE)
+	traits_applied = list(TRAIT_CICERONE, TRAIT_HOMESTEAD_EXPERT, TRAIT_SEWING_EXPERT, TRAIT_ROYALSERVANT, TRAIT_FOOD_STIPEND)
 	subclass_stats = list(
 		STATKEY_INT = 2,
 		STATKEY_PER = 2,

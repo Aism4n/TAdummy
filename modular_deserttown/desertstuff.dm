@@ -686,3 +686,65 @@
 	desc = "A stained glass window with the symbols of Nok, the Sister-Bringer of Knowledge, \
 	who is the true ruler of the Pantheon of Ten. This symbol is common in places where the Ecumenical  \
 	Patriarchate of Dvergale holds its power."
+
+// Desert Spice
+
+/datum/effect_system/smoke_spread/desert_spice
+	effect_type = /obj/effect/particle_effect/smoke/desert_spice
+
+/obj/effect/particle_effect/smoke/desert_spice
+	name = "spice cloud"
+	icon = 'icons/effects/effects.dmi'
+	icon_state = "smoke"
+	color = "#60A584"
+	pixel_x = 0
+	pixel_y = 0
+	opacity = 0
+	layer = FLY_LAYER
+	plane = GAME_PLANE_UPPER
+	anchored = TRUE
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	animate_movement = 0
+	amount = 4
+	lifetime = 8
+	density = 0
+	opaque = 0
+
+/obj/effect/particle_effect/smoke/desert_spice/smoke_mob(mob/living/carbon/M)
+	if(..())
+		M.emote("cough")
+		M.reagents.add_reagent(/datum/reagent/druqks, 5)
+		return 1
+
+/obj/structure/desert_spice
+	name = "desert spice"
+	desc = "A mound of unrefined spice protruding from the sands."
+	icon = 'modular_deserttown/icons/desert_spice.dmi'
+	icon_state = "desert_spice"
+	density = FALSE
+	anchored = TRUE
+
+/obj/structure/desert_spice/Initialize(mapload)
+	. = ..()
+	AddComponent(/datum/component/roguegrass)
+	pixel_x = rand(-4, 4)
+	pixel_y = rand(-4, 4)
+
+/obj/structure/desert_spice/Crossed(atom/movable/arrived)
+	..()
+	if(isliving(arrived))
+		var/mob/living/L = arrived
+		if(L.is_flying())
+			return
+		if(L.m_intent == MOVE_INTENT_SNEAK)
+			return
+		make_gas()
+
+/obj/structure/desert_spice/proc/make_gas()
+	visible_message(span_warningbig("A cloud of spice bursts up from \the [src]!"))
+	var/datum/effect_system/smoke_spread/desert_spice/S = new
+	playsound(get_turf(src), "sound/items/mushroom_step.ogg", 100)
+	S.set_up(2, loc)
+	S.start()
+	qdel(src)
+
