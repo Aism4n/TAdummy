@@ -13,7 +13,7 @@
 		STATKEY_PER = 3,
 		STATKEY_WIL = 2
 	)
-	traits_applied = list(TRAIT_FIREARMS_MARKSMAN, TRAIT_DODGEEXPERT)
+	traits_applied = list(TRAIT_FIREARMS_MARKSMAN, TRAIT_DODGEEXPERT, TRAIT_ARTILLERY_EXPERT)
 
 	subclass_skills = list(
 		/datum/skill/combat/twilight_firearms = SKILL_LEVEL_MASTER,

@@ -22,7 +22,7 @@
 	min_pq = 8
 	max_pq = null
 	cmode_music = 'sound/music/combat_desert1.ogg'
-	job_traits = list(TRAIT_GUARDSMAN, TRAIT_STEELHEARTED, TRAIT_MEDIUMARMOR, TRAIT_ARTILLERY_EXPERT)
+	job_traits = list(TRAIT_GUARDSMAN, TRAIT_STEELHEARTED, TRAIT_MEDIUMARMOR)
 	job_subclasses = list(
 		/datum/advclass/janissarysergeant/janissarysergeant
 	)
