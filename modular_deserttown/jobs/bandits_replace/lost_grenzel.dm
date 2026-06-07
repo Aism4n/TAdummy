@@ -172,7 +172,7 @@
 	max_pq = null
 	round_contrib_points = null
 	allowed_ages = list(AGE_MIDDLEAGED, AGE_OLD)
-	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED RACES_OOZE)
+	forbidden_races = list(RACES_CONSTRUCT RACES_OOZE)
 	advclass_cat_rolls = list(CTAG_LOSTGRENZEL = 20)
 	PQ_boost_divider = 10
 
