@@ -1,9 +1,10 @@
-#define PALLID_BLOOD_INTERVAL (45 MINUTES)
+#define PALLID_INITIAL_BLOOD_INTERVAL (1 HOURS)
+#define PALLID_SUBSEQUENT_BLOOD_INTERVAL (90 MINUTES)
 #define PALLID_WITHDRAWAL_WARNING_TIME (10 MINUTES)
 #define PALLID_WITHDRAWAL_REPEAT_INTERVAL (25 MINUTES)
 #define PALLID_WITHDRAWAL_TOX_DAMAGE 40
 #define PALLID_WITHDRAWAL_ROT_LIMBS 3
-#define PALLID_WITHDRAWAL_WEAKNESS_CHANCE 40
+#define PALLID_WITHDRAWAL_TRAIT_SOURCE "pallid_withdrawal"
 #define PALLID_THRALL_BLOOD_HIGH_DURATION (5 MINUTES)
 #define PALLID_THRALL_BLOOD_HIGH_DRUGGINESS 30
 #define PALLID_THRALL_BLOOD_HIGH_INT_LOSS 2
@@ -62,41 +63,28 @@
 	icon_state = "buff"
 
 /datum/status_effect/debuff/pallid_withdrawal
-	id = "pallid_withdrawal"
+	id = PALLID_WITHDRAWAL_TRAIT_SOURCE
 	duration = -1
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/pallid_withdrawal
 	effectedstats = list()
 
-/datum/status_effect/debuff/pallid_withdrawal/on_creation(mob/living/new_owner, list/pallid_buff_stats)
-	if(islist(pallid_buff_stats))
-		effectedstats = list()
-		for(var/stat_key in pallid_buff_stats)
-			effectedstats[stat_key] = -pallid_buff_stats[stat_key]
-	else
-		effectedstats = list(
-			STATKEY_STR = -1,
-			STATKEY_PER = -1,
-			STATKEY_INT = -1,
-			STATKEY_CON = -1,
-			STATKEY_WIL = -1,
-			STATKEY_SPD = -1,
-			STATKEY_LCK = -1,
-		)
-	return ..()
-
 /datum/status_effect/debuff/pallid_withdrawal/on_apply()
 	. = ..()
-	if(. && prob(PALLID_WITHDRAWAL_WEAKNESS_CHANCE))
+	if(.)
 		ADD_TRAIT(owner, TRAIT_CRITICAL_WEAKNESS, id)
+		ADD_TRAIT(owner, TRAIT_DNR, id)
+		ADD_TRAIT(owner, TRAIT_DUSTABLE, id)
 
 /datum/status_effect/debuff/pallid_withdrawal/on_remove()
 	if(owner)
 		REMOVE_TRAIT(owner, TRAIT_CRITICAL_WEAKNESS, id)
+		REMOVE_TRAIT(owner, TRAIT_DNR, id)
+		REMOVE_TRAIT(owner, TRAIT_DUSTABLE, id)
 	return ..()
 
 /atom/movable/screen/alert/status_effect/debuff/pallid_withdrawal
 	name = "Blood Withdrawal"
-	desc = "Проклятие разъедает моё тело. Мне нужна кровь вампира, пока не стало слишком поздно."
+	desc = "Мое тело невероятно слабо. Кажется, оно может развалиться от любого ветерка"
 	icon_state = "hunger1"
 
 /datum/status_effect/debuff/pallid_blood_high
@@ -149,6 +137,8 @@
 	var/withdrawal_active = FALSE
 	var/withdrawal_warning_sent = FALSE
 	var/next_withdrawal_effect_time = 0
+	var/current_blood_interval = PALLID_INITIAL_BLOOD_INTERVAL
+	var/list/suspended_death_gifts
 
 /datum/component/pallid_addiction/Initialize(mob/living/carbon/human/linked_sire, enhanced_pallid = FALSE)
 	if(!ishuman(parent))
@@ -157,6 +147,7 @@
 	sire = linked_sire
 	enhanced = enhanced_pallid
 	last_fed_time = world.time
+	current_blood_interval = PALLID_INITIAL_BLOOD_INTERVAL
 
 	buff_path = null
 
@@ -173,6 +164,7 @@
 		if(buff_path)
 			owner.remove_status_effect(buff_path)
 		owner.remove_status_effect(/datum/status_effect/debuff/pallid_withdrawal)
+	suspended_death_gifts?.Cut()
 	return ..()
 
 /datum/component/pallid_addiction/proc/apply_pallid_buff(mob/living/carbon/human/owner, announce = FALSE)
@@ -199,13 +191,79 @@
 			to_chat(owner, span_notice("Проклятая кровь разливается по телу противоестественной мощью."))
 	return buff
 
+/datum/component/pallid_addiction/proc/suspend_death_gifts(mob/living/carbon/human/owner)
+	if(!istype(owner) || length(suspended_death_gifts))
+		return
+
+	var/static/list/death_gift_paths = list(
+		/datum/status_effect/buff/ta_death_gift_darksight,
+		/datum/status_effect/buff/ta_death_gift_power,
+		/datum/status_effect/buff/ta_death_gift_berserk,
+	)
+
+	for(var/gift_path in death_gift_paths)
+		var/datum/status_effect/gift = owner.has_status_effect(gift_path)
+		if(!gift)
+			continue
+
+		LAZYINITLIST(suspended_death_gifts)
+		if(istype(gift, /datum/status_effect/buff/ta_death_gift_power))
+			var/datum/status_effect/buff/ta_death_gift_power/power_gift = gift
+			suspended_death_gifts[gift_path] = power_gift.extra_stat
+		else
+			suspended_death_gifts[gift_path] = TRUE
+		owner.remove_status_effect(gift_path)
+
+/datum/component/pallid_addiction/proc/restore_death_gifts(mob/living/carbon/human/owner)
+	if(!istype(owner) || !length(suspended_death_gifts))
+		return
+
+	for(var/gift_path in suspended_death_gifts)
+		if(owner.has_status_effect(gift_path))
+			continue
+		if(gift_path == /datum/status_effect/buff/ta_death_gift_power)
+			owner.apply_status_effect(gift_path, suspended_death_gifts[gift_path])
+		else
+			owner.apply_status_effect(gift_path)
+	suspended_death_gifts.Cut()
+
 /datum/component/pallid_addiction/proc/clear_pallid_withdrawal(mob/living/carbon/human/owner)
 	if(!istype(owner))
 		return
 	owner.remove_status_effect(/datum/status_effect/debuff/pallid_withdrawal)
+	// Older Pallid withdrawal used zombie rot as its CON penalty; clear that artifact on stabilization.
+	owner.remove_status_effect(/datum/status_effect/debuff/rotted_zombie)
+	restore_death_gifts(owner)
 	withdrawal_active = FALSE
 	withdrawal_warning_sent = FALSE
 	next_withdrawal_effect_time = 0
+
+/datum/component/pallid_addiction/proc/stabilize_with_vampire_blood(mob/living/carbon/human/owner, sire_blood = FALSE)
+	if(!istype(owner))
+		return FALSE
+
+	if(!withdrawal_warning_sent && !withdrawal_active)
+		if(sire_blood)
+			to_chat(owner, span_notice("Кровь моего сира на вкус как мёд, но мое тело еще не требует ее."))
+		else
+			to_chat(owner, span_notice("Кровь вампира теплит мои вены, но голод еще не проснулся."))
+		return FALSE
+
+	last_fed_time = world.time
+	current_blood_interval = PALLID_SUBSEQUENT_BLOOD_INTERVAL
+	withdrawal_warning_sent = FALSE
+
+	if(sire_blood)
+		to_chat(owner, span_notice("Кровь моего сира на вкус как мёд. Проклятие довольно затихает."))
+	else
+		to_chat(owner, span_notice("Кровь вампира гасит голод в моих венах. Проклятие довольно затихает."))
+
+	if(withdrawal_active)
+		clear_pallid_withdrawal(owner)
+
+	if(buff_path && !owner.has_status_effect(buff_path))
+		apply_pallid_buff(owner)
+	return TRUE
 
 /datum/component/pallid_addiction/proc/apply_withdrawal_effects(mob/living/carbon/human/owner)
 	if(!istype(owner))
@@ -226,20 +284,16 @@
 	if(!istype(owner))
 		return
 
-	withdrawal_warning_sent = FALSE
-	to_chat(owner, span_notice("Кровь моего сира на вкус как мёд. Проклятие довольно затихает."))
-
-	if(withdrawal_active)
-		clear_pallid_withdrawal(owner)
-
-	if(buff_path && !owner.has_status_effect(buff_path))
-		apply_pallid_buff(owner)
+	stabilize_with_vampire_blood(owner, TRUE)
 
 /datum/component/pallid_addiction/proc/handle_blood_drink_reaction(mob/living/carbon/human/drinker, mob/living/carbon/victim)
 	if(!istype(drinker))
 		return FALSE
 
 	if(victim == sire)
+		return TRUE
+	if(victim.mind?.has_antag_datum(/datum/antagonist/vampire))
+		stabilize_with_vampire_blood(drinker)
 		return TRUE
 
 	drinker.apply_status_effect(/datum/status_effect/debuff/pallid_blood_high)
@@ -271,7 +325,6 @@
 		target_limb.rotted = TRUE
 		to_chat(owner, span_userdanger("Я чувствую как гниль расползается по моей [target_limb.name]!"))
 
-	owner.apply_status_effect(/datum/status_effect/debuff/rotted_zombie)
 	owner.update_body()
 
 /datum/component/pallid_addiction/process()
@@ -280,30 +333,36 @@
 		return
 
 	var/time_since_fed = world.time - last_fed_time
+	var/time_until_withdrawal = current_blood_interval
+	if(!time_until_withdrawal)
+		time_until_withdrawal = PALLID_INITIAL_BLOOD_INTERVAL
 
-	if(!withdrawal_active && !withdrawal_warning_sent && time_since_fed >= PALLID_BLOOD_INTERVAL - PALLID_WITHDRAWAL_WARNING_TIME)
+	if(!withdrawal_active && !withdrawal_warning_sent && time_since_fed >= time_until_withdrawal - PALLID_WITHDRAWAL_WARNING_TIME)
 		withdrawal_warning_sent = TRUE
 		to_chat(owner, span_userdanger("Мне срочно нужно выпить крови, иначе проклятье уничтожит мое тело."))
 
-	if(time_since_fed < PALLID_BLOOD_INTERVAL)
+	if(time_since_fed < time_until_withdrawal)
 		return
 
 	if(!withdrawal_active)
 		withdrawal_active = TRUE
-		owner.remove_status_effect(buff_path)
-		owner.apply_status_effect(/datum/status_effect/debuff/pallid_withdrawal, buff_stats)
-		to_chat(owner, span_userdanger("Мне нужна кровь вампира или лекарство, иначе я превращусь в умертвие. Я чувствую как проклятие ползёт по моим венам."))
+		if(buff_path)
+			owner.remove_status_effect(buff_path)
+		owner.apply_status_effect(/datum/status_effect/debuff/pallid_withdrawal)
+		suspend_death_gifts(owner)
+		to_chat(owner, span_userdanger("Мое тело невероятно слабо. Кажется, оно может развалиться от любого ветерка"))
 
 	if(world.time >= next_withdrawal_effect_time)
 		apply_withdrawal_effects(owner)
 		next_withdrawal_effect_time = world.time + PALLID_WITHDRAWAL_REPEAT_INTERVAL
 
-#undef PALLID_BLOOD_INTERVAL
+#undef PALLID_INITIAL_BLOOD_INTERVAL
+#undef PALLID_SUBSEQUENT_BLOOD_INTERVAL
 #undef PALLID_WITHDRAWAL_WARNING_TIME
 #undef PALLID_WITHDRAWAL_REPEAT_INTERVAL
 #undef PALLID_WITHDRAWAL_TOX_DAMAGE
 #undef PALLID_WITHDRAWAL_ROT_LIMBS
-#undef PALLID_WITHDRAWAL_WEAKNESS_CHANCE
+#undef PALLID_WITHDRAWAL_TRAIT_SOURCE
 #undef PALLID_THRALL_BLOOD_HIGH_DURATION
 #undef PALLID_THRALL_BLOOD_HIGH_DRUGGINESS
 #undef PALLID_THRALL_BLOOD_HIGH_INT_LOSS

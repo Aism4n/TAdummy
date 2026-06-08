@@ -156,7 +156,7 @@
 
 	var/static/list/death_gift_descriptions = list(
 		"Дар темного прозрения" = "Усиливает зрение в темноте почти до предела глаз умертвия.",
-		"Дар силы" = "+1 ко всем статам и дополнительно +1 к силе/скорости или +2 к интеллекту.",
+		"Дар силы" = "+1 ко всем статам и случайным образом +1 к силе или +1 к скорости или +2 к интеллекту.",
 		"Дар берсерка" = "Сильные раны могут сорвать остатки воли и выпустить темную ярость. Тело поднимется через боль и переломы, разум утонет в голоде, а ближайшие живые станут добычей. После придет изнуряющий сон.",
 	)
 
@@ -246,9 +246,12 @@
 	var/extra_stat
 	var/extra_stat_amount = 0
 
-/datum/status_effect/buff/ta_death_gift_power/on_creation(mob/living/new_owner)
+/datum/status_effect/buff/ta_death_gift_power/on_creation(mob/living/new_owner, selected_extra_stat = null)
 	var/list/candidates = list(STATKEY_STR, STATKEY_SPD, STATKEY_INT)
-	extra_stat = pick(candidates)
+	if(selected_extra_stat in candidates)
+		extra_stat = selected_extra_stat
+	else
+		extra_stat = pick(candidates)
 	extra_stat_amount = (extra_stat == STATKEY_INT) ? 2 : 1
 	effectedstats = list(
 		STATKEY_STR = 1,
