@@ -228,7 +228,7 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 
 /mob/dead/new_player/verb/do_rp_prompt()
 	set name = "Lore Primer"
-	set category = "Memory"
+	set category = "IC.Memory"
 	var/datum/browser/popup = new(src, "Primer", "TWILIGHT AXIS", 460, 550)
 	popup.set_content(build_lore_primer_content())
 	popup.open()
@@ -438,7 +438,6 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 			give_madness(humanc, GLOB.curse_of_madness_triggered)
 */
 	GLOB.joined_player_list += character.ckey
-	update_bandits_slots()
 	update_wretch_slots()
 	update_mercenary_slots()
 	update_adventurer_slots()
