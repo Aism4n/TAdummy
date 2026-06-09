@@ -1863,7 +1863,7 @@ var/list/zone_translations = list(
 	failure_message_list = list(
 		"одни кожа, да кости...",
 		"покачивается как травинка на ветру...",
-		"кости хруки как хрусталь...",
+		"кости хрупки как хрусталь...",
 	)
 
 /mob/living/carbon/human/verb/emote_constitution_roll()
