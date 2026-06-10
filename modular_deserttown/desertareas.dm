@@ -243,6 +243,7 @@
 	droning_sound_dusk = null
 	droning_sound_night = null
 	keep_area = TRUE
+	first_time_text = "Al-Fajr al-Thani Tower"
 
 /area/rogue/indoors/town/shop/desert
 	name = "Bazaar"
