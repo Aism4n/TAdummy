@@ -413,15 +413,19 @@ SUBSYSTEM_DEF(treasury)
 		return FALSE
 	if(HAS_TRAIT(recipient, TRAIT_OUTLAW))
 		return FALSE
-	if(HAS_TRAIT(recipient, TRAIT_NOBLE)) //TA EDIT
-		return FALSE //TA EDIT
+	var/datum/job/J = SSjob.GetJob(recipient.job) //TA EDIT START
+	if(HAS_TRAIT(recipient, TRAIT_NOBLE))
+		if(!J)
+			return FALSE
+		else if(!(J.department_flag & NOBLEMEN))
+			return FALSE //TA EDIT END
 	var/datum/fund/account = get_account(recipient)
 	if(!account)
 		create_bank_account(recipient)
 		account = get_account(recipient)
 	if(!account)
 		return FALSE
-	var/source = recipient.job == "Merchant" ? "Azurian Trading Company" : "Noble Estate"
+	var/source = recipient.job == "Merchant" ? "Azurian Trading Company" : "Treasury Sponsorship" //TA EDIT
 	var/payout = is_starter ? amount + ESTATE_STARTER_BONUS : amount
 	if(!mint(account, payout, source))
 		return FALSE
