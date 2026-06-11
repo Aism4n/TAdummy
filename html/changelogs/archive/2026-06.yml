@@ -489,6 +489,8 @@
 2026-06-11:
   FreeStylaLT:
   - balance: Wave Animation is now longer
+  Quinalion:
+  - spellcheck: "Доработка перевода."
   Ryan180602:
   - balance: poleaxe stab has 2-tile sweetspot and is delayed. but has 1x damfactor
       instead of 0.9x.
@@ -504,3 +506,5 @@
   - admin: flavor text button in player panel
   kiwedespars:
   - bugfix: miracles properly have cd against someone with an embed
+  namenlos66:
+  - bugfix: "Исправлено отображение сообщений в тикете."
