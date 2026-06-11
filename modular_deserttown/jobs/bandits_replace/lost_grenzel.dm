@@ -236,7 +236,7 @@
 	name = "Lost Grenzels"
 	can_roll = FALSE
 	required_roles = list(
-		/datum/migrant_role/lost_grenzel = 4,
+		/datum/migrant_role/lost_grenzel = 5,
 	)
 	min_pop = 80
 	spawn_landmark = "LostGrenzel"
@@ -278,7 +278,7 @@
 	var/datum/job/lg_job = SSjob.GetJob("Lost Grenzel")
 	if(!lg_job)
 		return FALSE
-	if(lg_job.total_positions >= 4)
+	if(lg_job.total_positions >= 5)
 		return FALSE
 
 	return ..()
@@ -297,7 +297,7 @@
 	var/datum/job/lg_job = SSjob.GetJob("Lost Grenzel")
 	if(!lg_job)
 		return EVENT_CANT_RUN
-	if(lg_job.total_positions >= 4)
+	if(lg_job.total_positions >= 5)
 		return EVENT_CANT_RUN
 
 	return ..()
@@ -314,12 +314,12 @@
 	var/datum/job/lg_job = SSjob.GetJob("Lost Grenzel")
 	if(!lg_job)
 		return
-	if(lg_job.total_positions >= 4)
+	if(lg_job.total_positions >= 5)
 		return
 
 	var/old_positions = lg_job.total_positions
-	lg_job.total_positions = max(lg_job.total_positions, 4)
-	lg_job.spawn_positions = max(lg_job.spawn_positions, 4)
+	lg_job.total_positions = max(lg_job.total_positions, 5)
+	lg_job.spawn_positions = max(lg_job.spawn_positions, 5)
 
 	if(lg_job.total_positions > old_positions)
 		SSmapping.retainer.bandit_goal += 1 * rand(200, 400)
@@ -354,5 +354,5 @@
 		return
 
 	lost_grenzel_job.always_show_on_latechoices = TRUE
-	lost_grenzel_job.total_positions = 4
-	lost_grenzel_job.spawn_positions = 4
+	lost_grenzel_job.total_positions = 5
+	lost_grenzel_job.spawn_positions = 5

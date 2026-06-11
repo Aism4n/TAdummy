@@ -70,6 +70,7 @@
 		/datum/advclass/faris_sarid,
 		/datum/advclass/mujizat_musaid,
 		/datum/advclass/sayyaf_hurr,
+		/datum/advclass/avicenna,
 	)
 
 /datum/job/roguetown/freeman/after_spawn(mob/living/L, mob/M, latejoin = TRUE)
