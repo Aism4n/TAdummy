@@ -773,6 +773,10 @@
 	icon = 'modular_deserttown/icons/flora.dmi'
 	icon_state = "desertbush"
 
+/obj/structure/flora/junglebush/desertbush/Initialize(mapload)
+	. = ..()
+	icon_state = "desertbush"
+
 /obj/structure/flora/junglebush/desertbush/loot_replenish()
 	looty.Cut()
 	looty += /obj/item/grown/log/tree/stick
