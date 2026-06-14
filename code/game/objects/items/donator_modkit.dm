@@ -992,7 +992,6 @@
 		/obj/item/rogueweapon/stoneaxe/woodcut/bronze	= /obj/item/rogueweapon/stoneaxe/woodcut/bronze/triumph,
 		/obj/item/rogueweapon/stoneaxe/woodcut/silver	= /obj/item/rogueweapon/stoneaxe/woodcut/silver/triumph,
 		/obj/item/rogueweapon/stoneaxe/battle/psyaxe	= /obj/item/rogueweapon/stoneaxe/battle/psyaxe/triumph,
-		/obj/item/rogueweapon/stoneaxe/woodcut		= /obj/item/rogueweapon/stoneaxe/woodcut/triumphalt,
 		/obj/item/rogueweapon/stoneaxe/battle		= /obj/item/rogueweapon/stoneaxe/battle/triumph
 	)
 	result_item = null
