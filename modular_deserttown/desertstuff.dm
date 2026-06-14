@@ -725,7 +725,7 @@
 /obj/effect/particle_effect/smoke/desert_spice/smoke_mob(mob/living/carbon/M)
 	if(..())
 		M.emote("cough")
-		M.reagents.add_reagent(/datum/reagent/druqks, 5)
+		M.reagents.add_reagent(/datum/reagent/druqks, 3)
 		return 1
 
 /obj/structure/desert_spice
