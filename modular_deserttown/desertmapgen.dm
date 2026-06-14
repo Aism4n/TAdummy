@@ -14,8 +14,8 @@
 	clusterCheckFlags = CLUSTER_CHECK_NONE
 	allowed_turfs = list(/turf/open/floor/rogue/dunes)
 	allowed_areas = list(/area/rogue/outdoors/desert, /area/rogue/outdoors/desertdeep)
-	spawnableAtoms = list(/obj/structure/flora/roguegrass/desertgrass = 4.5,
-							/obj/structure/flora/junglebush/desertbush = 1)
+	spawnableAtoms = list(/obj/structure/flora/roguegrass/desertgrass = 3)
+
 
 /datum/mapGeneratorModule/desertsand_flora/checkPlaceAtom(turf/T)
 	. = ..()
@@ -44,6 +44,7 @@
 							/obj/effect/decal/remains/bear = 0.5,
 							/obj/effect/decal/remains/human = 0.3,
 							/obj/structure/desert_spice = 0.2,
+							/obj/structure/flora/junglebush/desertbush = 0.6,
 							/obj/effect/landmark/desert_track_spawner = 2.5) // Added for modular hunting
 	//spawnableTurfs = list(/turf/open/floor/rogue/dirt/road=2,
 	// 					/turf/open/water/swamp=2,)
