@@ -22,14 +22,22 @@ const state = {
 };
 
 const listeners = new Set();
+let notifyPending = false;
+
 function notify() {
-	console.log("listeners:", listeners.size);
-  listeners.forEach((l) => l());
+  if (notifyPending) return;
+  notifyPending = true;
+  Promise.resolve().then(() => {
+    notifyPending = false;
+    listeners.forEach((l) => l());
+  });
 }
+
 function setState(patch) {
   Object.assign(state, patch);
   notify();
 }
+
 function useStatState() {
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -49,20 +57,12 @@ function runAfterFocus(callback) {
 }
 
 function BrailleSpinner() {
-  const frames = [
-    '⣾','⣽','⣻','⢿', '⡿','⣟','⣯','⣷'
-  ];
-
+  const frames = ['⣾','⣽','⣻','⢿','⡿','⣟','⣯','⣷'];
   const [frame, setFrame] = useState(0);
-
   useEffect(() => {
-    const id = setInterval(() => {
-      setFrame(f => (f + 1) % frames.length);
-    }, 100);
-
+    const id = setInterval(() => setFrame(f => (f + 1) % frames.length), 100);
     return () => clearInterval(id);
   }, []);
-
   return (
     <div style={{ textAlign: 'center', padding: '1em' }}>
       {frames[frame]} Awaiting round data...
@@ -97,38 +97,44 @@ function removeVerb(v, verbs) {
   return verbs.filter((part) => part[1] != v[1]);
 }
 
+const byondTabs = new Set();
+
 function sendTabToByond(tab) {
+  if (byondTabs.has(tab)) return;
+  byondTabs.add(tab);
   Byond.sendMessage('Send-Tabs', { tab });
 }
 function takeTabFromByond(tab) {
+  if (!byondTabs.has(tab)) return;
+  byondTabs.delete(tab);
   Byond.sendMessage('Remove-Tabs', { tab });
 }
 function sendTabsToByond() {
   const all = [...state.permanentTabs, ...state.verbTabs];
   all.forEach(sendTabToByond);
 }
-
 function setByondTab(tab) {
   Byond.sendMessage('Set-Tab', { tab });
 }
 
 function addPermanentTab(name) {
-  if (!state.permanentTabs.includes(name)) {
-    setState({ permanentTabs: [...state.permanentTabs, name] });
-  }
+  if (state.permanentTabs.includes(name)) return;
+  setState({ permanentTabs: [...state.permanentTabs, name] });
   sendTabToByond(name);
 }
 
 function removePermanentTab(name) {
-  setState({ permanentTabs: state.permanentTabs.filter((t) => t !== name) });
-  removeStatusTab(name);
+  if (!state.permanentTabs.includes(name)) return;
+  state.permanentTabs = state.permanentTabs.filter((t) => t !== name);
+  notify();
+  takeTabFromByond(name); 
 }
 
 function removeStatusTab(name) {
   if (state.permanentTabs.includes(name)) return;
-  if (state.verbTabs.includes(name)) {
-    setState({ verbTabs: state.verbTabs.filter((t) => t !== name) });
-  }
+  if (!state.verbTabs.includes(name)) return;
+  state.verbTabs = state.verbTabs.filter((t) => t !== name);
+  notify();
   takeTabFromByond(name);
 }
 
@@ -172,11 +178,13 @@ function addVerbList(payload) {
   const toAdd = [...payload].sort();
   let verbs = [...state.verbs];
   let verbTabs = [...state.verbTabs];
+  let changed = false;
 
   for (const part of toAdd) {
     if (!part[0]) continue;
     const category = splitCategory(part[0], state.splitAdminTabs);
     if (findVerbIndex(part[1], verbs) !== undefined) continue;
+    changed = true;
     if (verbTabs.includes(category)) {
       verbs.push(part);
     } else if (category) {
@@ -185,7 +193,7 @@ function addVerbList(payload) {
     }
   }
 
-  setState({ verbs, verbTabs });
+  if (changed) setState({ verbs, verbTabs });
 }
 
 function StatusRow({ part }) {
@@ -194,18 +202,14 @@ function StatusRow({ part }) {
     return <div>{part}</div>;
   }
 
-  if (part?.[0] === 'spinner') {
-    return <BrailleSpinner />;
-  }
+  if (part?.[0] === 'spinner') return <BrailleSpinner />;
 
   switch (part[0]) {
     case 'tod': {
       const todWord = part[1].charAt(0).toUpperCase() + part[1].slice(1);
       const todText = part[2];
       const idx = todText.indexOf(todWord);
-      if (idx === -1) {
-        return <div>{todText}</div>;
-      }
+      if (idx === -1) return <div>{todText}</div>;
       return (
         <div>
           {todText.slice(0, idx)}
@@ -225,13 +229,8 @@ function StatusRow({ part }) {
       }
       return <div className={'load-' + part[1]}>{part[2]}</div>;
     }
-    case 'same_line': {
-      return (
-        <div>
-          <a href={'byond://?' + part[2]}>{part[1]}</a>
-        </div>
-      );
-    }
+    case 'same_line':
+      return <div><a href={'byond://?' + part[2]}>{part[1]}</a></div>;
     default: {
       if (part[0].trim() === '') return <br />;
       if (part[2]) {
@@ -250,11 +249,17 @@ function StatusRow({ part }) {
 function RoundInfoPanel() {
   const s = useStatState();
 
+  const sentFixRef = useRef(false);
   useEffect(() => {
     if (s.verbTabs.length === 0) {
-      Byond.command('Fix-Stat-Panel');
+      if (!sentFixRef.current) {
+        sentFixRef.current = true;
+        Byond.command('Fix-Stat-Panel');
+      }
+    } else {
+      sentFixRef.current = false;
     }
-  }, [s.verbTabs.length, s.statusTabParts]);
+  }, [s.verbTabs.length]);
 
   return (
     <table>
@@ -288,11 +293,7 @@ function StatsPanel() {
 
 function MCPanel() {
   const s = useStatState();
-  const rows = useMemo(() => {
-    const parts = [...s.mcTabParts];
-    return parts;
-  }, [s.mcTabParts]);
-
+  const rows = useMemo(() => [...s.mcTabParts], [s.mcTabParts]);
   return (
     <table>
       {rows.map((part, i) => (
@@ -300,13 +301,9 @@ function MCPanel() {
           <td className="monospace">{part[0]}</td>
           <td>{part[1]}</td>
           <td>
-            {part[3] ? (
-              <a href={'byond://?_src_=vars;admin_token=' + s.hrefToken + ';Vars=' + part[3]}>
-                {part[2]}
-              </a>
-            ) : (
-              part[2]
-            )}
+            {part[3]
+              ? <a href={'byond://?_src_=vars;admin_token=' + s.hrefToken + ';Vars=' + part[3]}>{part[2]}</a>
+              : part[2]}
           </td>
         </tr>
       ))}
@@ -318,30 +315,22 @@ function TicketsPanel() {
   const s = useStatState();
   return (
     <table>
-      {s.tickets.map((part, i) => (
-        <tr key={i}>
-          <td>{part[0]}</td>
-          <td>
-            {part[2] ? (
-              <a
-                href={
-                  'byond://?_src_=holder;admin_token=' +
-                  s.hrefToken +
-                  ';ahelp=' +
-                  part[2] +
-                  ';ahelp_action=ticket;statpanel_item_click=left;action=ticket'
-                }
-              >
-                {part[1]}
-              </a>
-            ) : part[3] ? (
-              <a href={'byond://?src=' + part[3] + ';statpanel_item_click=left'}>{part[1]}</a>
-            ) : (
-              part[1]
-            )}
-          </td>
-        </tr>
-      ))}
+      {s.tickets.map((part, i) => {
+        let link;
+        if (part[2]) {
+          link = <a href={'byond://?_src_=holder;admin_token=' + s.hrefToken + ';ahelp=' + part[2] + ';ahelp_action=ticket;statpanel_item_click=left;action=ticket'}>{part[1]}</a>;
+        } else if (part[3]) {
+          link = <a href={'byond://?src=' + part[3] + ';statpanel_item_click=left'}>{part[1]}</a>;
+        } else {
+          link = part[1];
+        }
+        return (
+          <tr key={i}>
+            <td>{part[0]}</td>
+            <td>{link}</td>
+          </tr>
+        );
+      })}
     </table>
   );
 }
@@ -354,26 +343,13 @@ function SDQL2Panel() {
         <tr key={i}>
           <td>{part[0]}</td>
           <td>
-            {part[2] ? (
-              <a href={'byond://?src=' + part[2] + ';statpanel_item_click=left'}>{part[1]}</a>
-            ) : (
-              part[1]
-            )}
+            {part[2]
+              ? <a href={'byond://?src=' + part[2] + ';statpanel_item_click=left'}>{part[1]}</a>
+              : part[1]}
           </td>
         </tr>
       ))}
     </table>
-  );
-}
-
-function TurfIcon({ part, onError }) {
-  return (
-    <img
-      src={part[2]}
-      id={part[1]}
-      className="turf-icon"
-      onError={onError}
-    />
   );
 }
 
@@ -384,14 +360,9 @@ function ListedTurfPanel() {
   const handleClick = useCallback((part) => (e) => {
     var href = 'byond://?src=' + part[1] + ';statpanel_item_click=';
     switch (e.button) {
-      case 1:
-        href += 'middle';
-        break;
-      case 2:
-        href += 'right';
-        break;
-      default:
-        href += 'left';
+      case 1: href += 'middle'; break;
+      case 2: href += 'right'; break;
+      default: href += 'left';
     }
     if (e.shiftKey) href += ';statpanel_item_shiftclick=1';
     if (e.ctrlKey) href += ';statpanel_item_ctrlclick=1';
@@ -434,7 +405,7 @@ function ListedTurfPanel() {
             onMouseDown={handleClick(part)}
             onContextMenu={suppress}
           >
-            {iconsrc && <TurfIcon part={part} onError={handleImgError(part)} />}
+            {iconsrc && <img src={iconsrc} id={part[1]} className="turf-icon" onError={handleImgError(part)} />}
             <span className="link turf-name">{part[0]}</span>
           </div>
         );
@@ -471,7 +442,6 @@ function VerbsPanel({ cat }) {
     const verbsReversed = sortVerbs(s.verbs).reverse();
     const main = [];
     const additions = {};
-
     for (const part of verbsReversed) {
       let name = part[0];
       const command = part[1];
@@ -498,12 +468,9 @@ function VerbsPanel({ cat }) {
 
   const q = (search || '').toLowerCase();
   const matches = (command) => !q || command.toLowerCase().indexOf(q) !== -1;
-
   const onVerbClick = (command) => (e) => {
     e.preventDefault();
-    runAfterFocus(() => {
-      Byond.command(command.replace(/\s/g, '-'));
-    });
+    runAfterFocus(() => Byond.command(command.replace(/\s/g, '-')));
   };
 
   return (
@@ -517,14 +484,9 @@ function VerbsPanel({ cat }) {
       />
       <div className="grid-container">
         {main.map((command, i) => (
-          <a
-            key={i}
-            href="#"
-            className="grid-item"
-            data-label={command}
+          <a key={i} href="#" className="grid-item" data-label={command}
             style={{ display: matches(command) ? '' : 'none' }}
-            onClick={onVerbClick(command)}
-          >
+            onClick={onVerbClick(command)}>
             <span className="grid-item-text">{command}</span>
           </a>
         ))}
@@ -534,14 +496,9 @@ function VerbsPanel({ cat }) {
           <h3>{subCat}</h3>
           <div className="grid-container">
             {additions[subCat].map((command, i) => (
-              <a
-                key={i}
-                href="#"
-                className="grid-item"
-                data-label={command}
+              <a key={i} href="#" className="grid-item" data-label={command}
                 style={{ display: matches(command) ? '' : 'none' }}
-                onClick={onVerbClick(command)}
-              >
+                onClick={onVerbClick(command)}>
                 <span className="grid-item-text">{command}</span>
               </a>
             ))}
@@ -554,27 +511,20 @@ function VerbsPanel({ cat }) {
 
 function DebugPanel() {
   const s = useStatState();
-
   const visibleVerbTabs = s.verbTabs.filter((vt) => {
     if (vt.lastIndexOf('.') === -1) return true;
     const split = vt.split('.');
     return s.splitAdminTabs && split[0] === 'Admin';
   });
-
   const displayName = (vt) => {
     if (vt.lastIndexOf('.') === -1) return vt;
     const split = vt.split('.');
     return s.splitAdminTabs && split[0] === 'Admin' ? split[1] : vt;
   };
-
   return (
     <Fragment>
-      <div>
-        <a onClick={wipeVerbs}>Wipe All Verbs</a>
-      </div>
-      <div>
-        <a onClick={updateVerbs}>Wipe and Update All Verbs</a>
-      </div>
+      <div><a onClick={wipeVerbs}>Wipe All Verbs</a></div>
+      <div><a onClick={updateVerbs}>Wipe and Update All Verbs</a></div>
       <div>Verb Tabs:</div>
       <table>
         {visibleVerbTabs.map((vt, i) => (
@@ -589,18 +539,13 @@ function DebugPanel() {
       <div>Verbs:</div>
       <table>
         {s.verbs.map((part, i) => (
-          <tr key={i}>
-            <td>{part[0]}</td>
-            <td>{part[1]}</td>
-          </tr>
+          <tr key={i}><td>{part[0]}</td><td>{part[1]}</td></tr>
         ))}
       </table>
       <div>Permanent Tabs:</div>
       <table>
         {s.permanentTabs.map((pt, i) => (
-          <tr key={i}>
-            <td>{pt}</td>
-          </tr>
+          <tr key={i}><td>{pt}</td></tr>
         ))}
       </table>
     </Fragment>
@@ -618,7 +563,6 @@ function tabDisplayName(name, splitAdminTabs) {
 
 function TabBar() {
   const s = useStatState();
-
   const allTabs = useMemo(() => {
     const seen = new Set();
     const result = [];
@@ -629,9 +573,7 @@ function TabBar() {
         !s.permanentTabs.includes(t) &&
         t.lastIndexOf('.') !== -1 &&
         !(s.splitAdminTabs && t.split('.')[0] === 'Admin')
-      ) {
-        continue;
-      }
+      ) continue;
       seen.add(display);
       result.push(display);
     }
@@ -644,10 +586,10 @@ function TabBar() {
   }, [s.permanentTabs, s.verbTabs, s.splitAdminTabs]);
 
   const onTabClick = (name) => (e) => {
-	if (name === state.currentTab) {
-		e.preventDefault();
-		return;
-	}
+    if (name === state.currentTab) {
+      e.preventDefault();
+      return;
+    }
     tabChange(name);
     e.currentTarget.blur();
     document.getElementById('statcontent')?.focus();
@@ -672,8 +614,6 @@ function TabBar() {
 
 function StatContent() {
   const s = useStatState();
-
-
   let className = 'statcontent';
   let body;
 
@@ -723,11 +663,9 @@ function set_theme(which) {
     document.documentElement.className = 'dark';
   }
 }
-
 function set_font_size(size) {
   document.body.style.setProperty('font-size', size);
 }
-
 function set_tabs_style(style) {
   const menu = document.getElementById('menu');
   if (!menu) return;
@@ -742,14 +680,10 @@ function set_tabs_style(style) {
     menu.classList.remove('tabs-classic');
   }
 }
-
 function restoreFocus() {
   if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
-  runAfterFocus(() => {
-    Byond.winset('map', { focus: true });
-  });
+  runAfterFocus(() => Byond.winset('map', { focus: true }));
 }
-
 function getCookie(cname) {
   var name = cname + '=';
   var ca = document.cookie.split(';');
@@ -763,13 +697,7 @@ function getCookie(cname) {
 
 document.addEventListener('mouseup', restoreFocus);
 document.addEventListener('keyup', restoreFocus);
-document.addEventListener(
-  'wheel',
-  (e) => {
-    if (e.ctrlKey) e.preventDefault();
-  },
-  { passive: false }
-);
+document.addEventListener('wheel', (e) => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
 
 if (!state.currentTab) {
   state.permanentTabs = [defaultTab];
@@ -782,9 +710,7 @@ window.onload = () => {
 
 Byond.subscribeTo('remove_verb_list', (toRemove) => {
   let verbs = state.verbs;
-  toRemove.forEach((v) => {
-    verbs = removeVerb(v, verbs);
-  });
+  toRemove.forEach((v) => { verbs = removeVerb(v, verbs); });
   setState({ verbs });
   checkVerbs();
   setState({ verbs: sortVerbs(state.verbs) });
@@ -809,9 +735,7 @@ Byond.subscribeTo('update_stat', (payload) => {
   setState({ statusTabParts: parts });
 });
 
-Byond.subscribeTo('update_stats', (payload) => {
-  setState({ statsTabParts: payload });
-});
+Byond.subscribeTo('update_stats', (payload) => setState({ statsTabParts: payload }));
 
 Byond.subscribeTo('add_stats_tab', () => addPermanentTab('Stats'));
 
@@ -857,9 +781,7 @@ Byond.subscribeTo('remove_admin_tabs', () => {
   if (state.currentTab === 'SDQL2') tabChange(defaultTab);
 });
 
-Byond.subscribeTo('update_listedturf', (TC) => {
-  setState({ turfContents: TC });
-});
+Byond.subscribeTo('update_listedturf', (TC) => setState({ turfContents: TC }));
 
 Byond.subscribeTo('update_split_admin_tabs', (status) => {
   status = status === true;
