@@ -70,6 +70,7 @@
 // --- MOB DEFINITIONS ---
 
 /mob/living/carbon/human/species/human/northern/desert_bandit_test
+	gender = FEMALE
 	ai_controller = /datum/ai_controller/human_npc
 	faction = list(FACTION_BANDITS)
 	ambushable = FALSE
@@ -82,7 +83,7 @@
 
 /mob/living/carbon/human/species/human/northern/desert_bandit_test/Initialize()
 	. = ..()
-	set_species(/datum/species/human/northern)
+	set_species(/datum/species/human/northern/southern_lamia)
 	addtimer(CALLBACK(src, PROC_REF(after_creation)), 1 SECONDS)
 
 /mob/living/carbon/human/species/human/northern/desert_bandit_test/after_creation()
