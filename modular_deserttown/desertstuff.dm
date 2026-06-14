@@ -790,6 +790,95 @@
 /obj/structure/flora/roguegrass/desertgrass/update_icon()
 	icon_state = "desertgrass[rand(1, 5)]"
 
+/obj/effect/spawner/lootdrop/cheap_carvedgem_spawner
+	name = "cheap carvedgem spawner"
+	icon_state = "lowjewlery"
+	lootcount = 1
+	loot_value = LOOT_VALUE_CHEAP_CARVEDGEM
+	junk_loot = list(/obj/item/carvedgem/shell/rawshell = 5, /obj/item/reagent_containers/glass/cup/carved/shell = 5)
+	loot = list(
+		/obj/item/carvedgem/shell/fancyvase = 1,
+		/obj/item/reagent_containers/glass/cup/carved/rose = 1,
+		/obj/item/reagent_containers/glass/bucket/pot/carved/teapotshell = 1,
+		/obj/item/carvedgem/shell/tablet = 1,
+		/obj/item/carvedgem/shell/bust = 1,
+		/obj/item/carvedgem/rose/fish = 1,
+		/obj/item/carvedgem/rose/flower = 1,
+		/obj/item/carvedgem/rose/tablet = 1,
+		/obj/item/carvedgem/onyxa/duck = 1,
+		/obj/item/carvedgem/turq/cameo = 1,
+		/obj/item/reagent_containers/glass/bucket/pot/carved/teapotrose = 1,
+		/obj/item/carvedgem/jade/vase = 1,
+		/obj/item/carvedgem/coral/vase = 1,
+	)
+
+/obj/effect/spawner/lootdrop/valuable_carvedgem_spawner
+	name = "valuable carvedgem spawner"
+	icon_state = "hijewlery"
+	lootcount = 1
+	loot_value = LOOT_VALUE_VALUABLE_CARVEDGEM
+	junk_loot = list(/obj/item/carvedgem/shell/rawshell = 5, /obj/item/reagent_containers/glass/cup/carved/shell = 5)
+	loot = list(
+		/obj/item/carvedgem/jade/fancyvase = 1,
+		/obj/item/carvedgem/jade/comb = 1,
+		/obj/item/carvedgem/jade/duck = 1,
+		/obj/item/carvedgem/jade/statue = 1,
+		/obj/item/carvedgem/jade/wyrm = 1,
+		/obj/item/carvedgem/jade/figurine = 1,
+		/obj/item/carvedgem/jade/bust = 1,
+		/obj/item/carvedgem/jade/obelisk = 1,
+		/obj/item/carvedgem/jade/comb = 1,
+		/obj/item/reagent_containers/glass/bucket/pot/carved/teapotjade = 1,
+		/obj/item/reagent_containers/glass/cup/carved/jade = 1,
+		/obj/item/carvedgem/onyxa/fancyvase = 1,
+		/obj/item/carvedgem/onyxa/comb = 1,
+		/obj/item/carvedgem/onyxa/duck = 1,
+		/obj/item/carvedgem/onyxa/statue = 1,
+		/obj/item/carvedgem/onyxa/figurine = 1,
+		/obj/item/carvedgem/onyxa/bust = 1,
+		/obj/item/carvedgem/onyxa/obelisk = 1,
+		/obj/item/carvedgem/onyxa/comb = 1,
+		/obj/item/carvedgem/onyxa/snake = 1,
+		/obj/item/carvedgem/onyxa/spider = 1,
+		/obj/item/reagent_containers/glass/bucket/pot/carved/teapotonyxa = 1,
+		/obj/item/reagent_containers/glass/cup/carved/onyxa = 1,
+		/obj/item/carvedgem/onyxa/fancyvase = 1,
+		/obj/item/carvedgem/onyxa/comb = 1,
+		/obj/item/carvedgem/onyxa/duck = 1,
+		/obj/item/carvedgem/onyxa/statue = 1,
+		/obj/item/carvedgem/onyxa/figurine = 1,
+		/obj/item/carvedgem/onyxa/bust = 1,
+		/obj/item/carvedgem/onyxa/obelisk = 1,
+		/obj/item/carvedgem/onyxa/comb = 1,
+		/obj/item/carvedgem/onyxa/snake = 1,
+		/obj/item/carvedgem/onyxa/spider = 1,
+		/obj/item/reagent_containers/glass/bucket/pot/carved/teapotonyxa = 1,
+		/obj/item/reagent_containers/glass/cup/carved/onyxa = 1,
+		/obj/item/carvedgem/amber/fancyvase = 1,
+		/obj/item/carvedgem/amber/comb = 1,
+		/obj/item/carvedgem/amber/cameo = 1,
+		/obj/item/carvedgem/amber/statue = 1,
+		/obj/item/carvedgem/amber/figurine = 1,
+		/obj/item/carvedgem/amber/bust = 1,
+		/obj/item/carvedgem/amber/obelisk = 1,
+		/obj/item/carvedgem/amber/comb = 1,
+		/obj/item/carvedgem/amber/sun = 1,
+		/obj/item/carvedgem/amber/beaver = 1,
+		/obj/item/reagent_containers/glass/bucket/pot/carved/teapotamber = 1,
+		/obj/item/reagent_containers/glass/cup/carved/amber = 1,
+		/obj/item/carvedgem/opal/fancyvase = 1,
+		/obj/item/carvedgem/opal/comb = 1,
+		/obj/item/carvedgem/opal/fish = 1,
+		/obj/item/carvedgem/opal/statue = 1,
+		/obj/item/carvedgem/opal/figurine = 1,
+		/obj/item/carvedgem/opal/bust = 1,
+		/obj/item/carvedgem/opal/obelisk = 1,
+		/obj/item/carvedgem/opal/comb = 1,
+		/obj/item/carvedgem/opal/crab = 1,
+		/obj/item/reagent_containers/glass/bucket/pot/carved/teapotopal = 1,
+		/obj/item/reagent_containers/glass/cup/carved/opal = 1,
+
+	)
 
 
 

@@ -1,4 +1,4 @@
-
+#define DETAIL_TEXT_BIZZARE_BAZAARE "Известный в узкий кругах подземный рынок-порт контрабандистов, разместившийся в древней гробнице. Товары и рабы, в основном, доставляются с помощью секретной сети подземных рек. Местным рейдерам всё равно, кого выставлять на продажу, что часто приводит к бедам."
 //desert areas
 
 /area/rogue/outdoors/desert
@@ -417,4 +417,14 @@
 	droning_sound_night = null
 	detail_text = DETAIL_TEXT_MELTED_UNDERCITY
 	threat_region = THREAT_REGION_DESERTDARK_DEEP
+
+/area/rogue/under/cave/bizbaz
+	name = "Bizzare Bazaare"
+	loot_budget = LOOT_BUDGET_BIZZARE_BAZAARE
+	icon_state = "under"
+	first_time_text = "BIZZARE BAZAARE"
+	droning_sound = 'sound/music/freedive_2.ogg'
+	droning_sound_dusk = null
+	droning_sound_night = null
+	detail_text = DETAIL_TEXT_BIZZARE_BAZAARE
 
