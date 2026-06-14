@@ -115,5 +115,8 @@ SUBSYSTEM_DEF(nightshift)
 	if(!mind)
 		return
 	allmig_reward++
-	adjust_triumphs(1)
+
+	if(!has_flaw(/datum/charflaw/noflaw)) // TA EDIT
+		adjust_triumphs(1)	// TA EDIT
+
 	to_chat(src, span_danger("Days Survived: \Roman[allmig_reward]"))
