@@ -2,7 +2,7 @@ GLOBAL_LIST_EMPTY(ghost_images_default) //this is a list of the default (non-acc
 GLOBAL_LIST_EMPTY(ghost_images_simple) //this is a list of all ghost images as the simple white ghost
 
 GLOBAL_VAR_INIT(observer_default_invisibility, INVISIBILITY_OBSERVER)
-GLOBAL_VAR_CONST(observer_move_delay_multiplier, 6)
+GLOBAL_VAR_CONST(observer_move_delay_multiplier, 0.5)
 /mob/dead/observer
 	name = "ghost"
 	desc = "" //jinkies!
