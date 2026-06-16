@@ -31,13 +31,13 @@
 
 /datum/looping_sound/dust_storm
 	mid_sounds = 'sound/weather/dust_storm/dust_storm.ogg'
-	mid_length = 40 SECONDS
+	mid_length = 100 SECONDS
 	volume = 200
 	direct = TRUE
 
 /datum/looping_sound/indoor_dust_storm
 	mid_sounds = 'sound/weather/dust_storm/dust_storm_indoors.ogg'
-	mid_length = 15 SECONDS
+	mid_length = 8 SECONDS
 	volume = 500
 	direct = TRUE
 
