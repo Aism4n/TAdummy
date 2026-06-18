@@ -446,3 +446,12 @@
 	droning_sound_dusk = 'sound/music/area/dungeon2.ogg'
 	droning_sound_night = 'sound/music/area/dungeon2.ogg'
 	ceiling_protected = TRUE
+
+/area/rogue/under/dungeon/desertgraggar
+	name = "Graggar Sanctuary"
+	loot_budget = LOOT_BUDGET_MINOTAUR_FORT
+	icon_state = "under"
+	first_time_text = "Graggar's Sanctuary"
+	droning_sound = 'sound/music/area/dungeon2.ogg'
+	droning_sound_dusk = null
+	droning_sound_night = null
