@@ -22,6 +22,7 @@
 	solitaire_tableau = list()
 	solitaire_stock = list()
 	solitaire_foundations = list()
+	solitaire_completed_sets = 0
 	xylix_seen_cards = list()
 	xylix_cheat_used = list()
 	for(var/datum/card_table_player/player in players)
@@ -57,19 +58,36 @@
 				xylix_try_reveal_for_turn_holder(poker_reveal_player)
 			message = "Покер начался. Вариант: [poker_variant_label()]. [dealer_rotation_label()]."
 		if(CARD_TABLE_GAME_SOLITAIRE)
-			solitaire_foundations = list("H" = list(), "D" = list(), "C" = list(), "S" = list())
-			for(var/column_index = 1, column_index <= 7, column_index++)
-				var/list/column = list()
-				for(var/card_index = 1, card_index <= column_index, card_index++)
-					var/list/card = draw_one()
-					if(!card)
-						break
-					card["face_up"] = (card_index == column_index)
-					column += list(card)
-				solitaire_tableau += list(column)
-			solitaire_stock = deck.Copy()
-			deck = list()
-			message = "Пасьянс разложен."
+			if(solitaire_variant == CARD_TABLE_SOLITAIRE_SPIDER)
+				deck += card_table_make_deck()
+				deck = shuffle(deck)
+				solitaire_foundations = list()
+				for(var/spider_column_index = 1, spider_column_index <= 10, spider_column_index++)
+					var/list/spider_column = list()
+					var/cards_in_column = (spider_column_index <= 4) ? 6 : 5
+					for(var/spider_card_index = 1, spider_card_index <= cards_in_column, spider_card_index++)
+						var/list/spider_card = draw_one()
+						if(!spider_card)
+							break
+						spider_card["face_up"] = (spider_card_index == cards_in_column)
+						spider_column += list(spider_card)
+					solitaire_tableau += list(spider_column)
+				solitaire_stock = deck.Copy()
+				deck = list()
+			else
+				solitaire_foundations = list("H" = list(), "D" = list(), "C" = list(), "S" = list())
+				for(var/column_index = 1, column_index <= 7, column_index++)
+					var/list/column = list()
+					for(var/card_index = 1, card_index <= column_index, card_index++)
+						var/list/card = draw_one()
+						if(!card)
+							break
+						card["face_up"] = (card_index == column_index)
+						column += list(card)
+					solitaire_tableau += list(column)
+				solitaire_stock = deck.Copy()
+				deck = list()
+			message = "Пасьянс разложен. Вариант: [solitaire_variant_label()]."
 		if(CARD_TABLE_GAME_FOOL)
 			for(var/datum/card_table_player/fool_player in players)
 				deal_to(fool_player, 6)

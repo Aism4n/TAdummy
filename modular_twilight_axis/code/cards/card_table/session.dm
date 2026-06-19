@@ -11,12 +11,14 @@
 	var/list/solitaire_tableau = list()
 	var/list/solitaire_stock = list()
 	var/list/solitaire_foundations = list()
+	var/solitaire_completed_sets = 0
 	var/list/xylix_seen_cards = list()
 	var/list/xylix_cheat_used = list()
 	var/message = "Выберите игру и места."
 	var/fool_variant = CARD_TABLE_FOOL_CLASSIC
 	var/poker_variant = CARD_TABLE_POKER_DRAW
 	var/blackjack_variant = CARD_TABLE_BLACKJACK_AZURE
+	var/solitaire_variant = CARD_TABLE_SOLITAIRE_KLONDIKE
 	var/dealer_rotates = TRUE
 	var/dealer_index = 0
 	var/dealer_rounds = 0
@@ -65,6 +67,7 @@
 	solitaire_tableau = list()
 	solitaire_stock = list()
 	solitaire_foundations = list()
+	solitaire_completed_sets = 0
 	xylix_seen_cards = list()
 	xylix_cheat_used = list()
 	table_pairs = list()
@@ -104,7 +107,7 @@
 		if(CARD_TABLE_FOOL_THROW_IN)
 			return "Эструсский"
 		if(CARD_TABLE_FOOL_TRANSFER)
-			return "Отавинский"
+			return "Отаванский"
 		if(CARD_TABLE_FOOL_THROW_TRANSFER)
 			return "Грензельхофтский"
 	return "Хаммерхольдьский"
@@ -122,14 +125,20 @@
 /datum/card_table_session/proc/blackjack_variant_label()
 	switch(blackjack_variant)
 		if(CARD_TABLE_BLACKJACK_GRON)
-			return "Гронский"
+			return "Гроннский"
 		if(CARD_TABLE_BLACKJACK_VALORIA)
 			return "Валорийский"
 		if(CARD_TABLE_BLACKJACK_GRENZELHOFT)
-			return "Грезнельхофтский"
+			return "Грензельхофтский"
 		if(CARD_TABLE_BLACKJACK_KAZENGUN)
 			return "Казенгунский"
 	return "Азурийский"
+
+/datum/card_table_session/proc/solitaire_variant_label()
+	switch(solitaire_variant)
+		if(CARD_TABLE_SOLITAIRE_SPIDER)
+			return "Паук"
+	return "Солитер"
 
 /datum/card_table_session/proc/dealer_rotation_label()
 	return dealer_rotates ? "Дилер меняется" : "Дилер один"

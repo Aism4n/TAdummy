@@ -62,6 +62,8 @@ type Data = {
   poker_variant_label: string;
   blackjack_variant: string;
   blackjack_variant_label: string;
+  solitaire_variant: string;
+  solitaire_variant_label: string;
   dealer_rotates: boolean;
   dealer_rotation_label: string;
   dealer_name?: string | null;
@@ -88,6 +90,7 @@ type Data = {
   solitaire_stock_count?: number;
   solitaire_waste?: Card | null;
   solitaire_foundations?: SolitaireFoundation[];
+  solitaire_completed_sets?: number;
   attacker?: string | null;
   defender?: string | null;
   table_attack?: string | null;
@@ -653,12 +656,15 @@ const XylixBlock = (props: {
 
 const SolitaireBoard = (props: {
   gameLabel: string;
+  variantLabel: string;
+  variant: string;
   stage: Data['stage'];
   message: string;
   stockCount: number;
   discardCount: number;
   waste?: Card | null;
   foundations: SolitaireFoundation[];
+  completedSets: number;
   tableau: { index: number; cards: Card[] }[];
   selected?: SolitaireSelection | null;
   onDraw: () => void;
@@ -669,12 +675,15 @@ const SolitaireBoard = (props: {
 }) => {
   const {
     gameLabel,
+    variantLabel,
+    variant,
     stage,
     message,
     stockCount,
     discardCount,
     waste,
     foundations,
+    completedSets,
     tableau,
     selected,
     onDraw,
@@ -709,24 +718,35 @@ const SolitaireBoard = (props: {
 
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '20px', fontWeight: 800 }}>{gameLabel}</div>
-          <div style={{ opacity: 0.75 }}>{stageText[stage]}</div>
+          <div style={{ opacity: 0.75 }}>
+            {variantLabel} · {stageText[stage]}
+          </div>
         </div>
 
-        <div style={{ ...rowStyle, justifyContent: 'flex-end' }}>
-          {foundations.map((foundation) => (
-            <div
-              key={foundation.suit}
-              style={foundationStyle}
-              onClick={() => onMoveToFoundation(foundation.suit)}
-            >
-              {foundation.card ? (
-                <CardFace card={foundation.card} />
-              ) : (
-                suitMap[foundation.suit]
-              )}
+        {variant === 'spider' ? (
+          <div style={{ textAlign: 'right', minWidth: '160px' }}>
+            <div style={{ fontSize: '12px', opacity: 0.78 }}>Собрано</div>
+            <div style={{ fontSize: '20px', fontWeight: 800 }}>
+              {completedSets}/8
             </div>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div style={{ ...rowStyle, justifyContent: 'flex-end' }}>
+            {foundations.map((foundation) => (
+              <div
+                key={foundation.suit}
+                style={foundationStyle}
+                onClick={() => onMoveToFoundation(foundation.suit)}
+              >
+                {foundation.card ? (
+                  <CardFace card={foundation.card} />
+                ) : (
+                  suitMap[foundation.suit]
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {tableau.length ? (
@@ -824,6 +844,8 @@ export const CardTable = () => {
     poker_variant_label,
     blackjack_variant,
     blackjack_variant_label,
+    solitaire_variant,
+    solitaire_variant_label,
     dealer_rotates,
     dealer_rotation_label,
     dealer_name,
@@ -849,6 +871,7 @@ export const CardTable = () => {
     solitaire_stock_count = 0,
     solitaire_waste,
     solitaire_foundations = [],
+    solitaire_completed_sets = 0,
     attacker,
     defender,
     table_attack,
@@ -1107,12 +1130,15 @@ export const CardTable = () => {
             {game_type === 'solitaire' ? (
               <SolitaireBoard
                 gameLabel={game_label}
+                variantLabel={solitaire_variant_label}
+                variant={solitaire_variant}
                 stage={stage}
                 message={message}
                 stockCount={solitaire_stock_count}
                 discardCount={discard_count}
                 waste={solitaire_waste}
                 foundations={solitaire_foundations}
+                completedSets={solitaire_completed_sets}
                 tableau={solitaire_tableau}
                 selected={selectedSolitaireCard}
                 onDraw={drawSolitaire}
@@ -1397,7 +1423,7 @@ export const CardTable = () => {
                         act('set_fool_variant', { variant: 'transfer' })
                       }
                     >
-                      Отавинский
+                      Отаванский
                     </Button>
                     <Button
                       selected={fool_variant === 'throw_transfer'}
@@ -1413,6 +1439,29 @@ export const CardTable = () => {
                   </div>
                 )}
 
+                {isLobby && game_type === 'solitaire' && (
+                  <div style={{ ...rowStyle, marginTop: '8px' }}>
+                    <Button
+                      selected={solitaire_variant === 'klondike'}
+                      disabled={!is_host}
+                      onClick={() =>
+                        act('set_solitaire_variant', { variant: 'klondike' })
+                      }
+                    >
+                      Солитер
+                    </Button>
+                    <Button
+                      selected={solitaire_variant === 'spider'}
+                      disabled={!is_host}
+                      onClick={() =>
+                        act('set_solitaire_variant', { variant: 'spider' })
+                      }
+                    >
+                      Паук
+                    </Button>
+                  </div>
+                )}
+
                 {isLobby && game_type === 'blackjack' && (
                   <div style={{ ...rowStyle, marginTop: '8px' }}>
                     <Button
@@ -1422,7 +1471,7 @@ export const CardTable = () => {
                         act('set_blackjack_variant', { variant: 'gron' })
                       }
                     >
-                      Гронский
+                      Гроннский
                     </Button>
                     <Button
                       selected={blackjack_variant === 'valoria'}
@@ -1449,7 +1498,7 @@ export const CardTable = () => {
                         act('set_blackjack_variant', { variant: 'grenzel' })
                       }
                     >
-                      Грезнельхофтский
+                      Грензельхофтский
                     </Button>
                     <Button
                       selected={blackjack_variant === 'kazengun'}

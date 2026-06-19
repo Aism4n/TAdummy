@@ -20,6 +20,9 @@
 #define CARD_TABLE_BLACKJACK_GRENZELHOFT "grenzel"
 #define CARD_TABLE_BLACKJACK_KAZENGUN "kazengun"
 
+#define CARD_TABLE_SOLITAIRE_KLONDIKE "klondike"
+#define CARD_TABLE_SOLITAIRE_SPIDER "spider"
+
 #define CARD_TABLE_STAGE_LOBBY "lobby"
 #define CARD_TABLE_STAGE_PLAYING "playing"
 #define CARD_TABLE_STAGE_FINISHED "finished"

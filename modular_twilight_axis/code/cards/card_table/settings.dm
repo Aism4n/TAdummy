@@ -57,6 +57,18 @@
 	message = "[card_table_display_name(user)] выбирает вариант: [blackjack_variant_label()]."
 	return TRUE
 
+/datum/card_table_session/proc/set_solitaire_variant(new_variant, mob/user)
+	if(stage != CARD_TABLE_STAGE_LOBBY || game_type != CARD_TABLE_GAME_SOLITAIRE)
+		return FALSE
+	var/datum/card_table_player/requester = player_for_user(user)
+	if(!requester || player_index(requester) != 1)
+		return FALSE
+	if(new_variant != CARD_TABLE_SOLITAIRE_KLONDIKE && new_variant != CARD_TABLE_SOLITAIRE_SPIDER)
+		return FALSE
+	solitaire_variant = new_variant
+	message = "[card_table_display_name(user)] выбирает вариант: [solitaire_variant_label()]."
+	return TRUE
+
 /datum/card_table_session/proc/set_dealer_rotation(rotates, mob/user)
 	if(stage != CARD_TABLE_STAGE_LOBBY || (game_type != CARD_TABLE_GAME_BLACKJACK && game_type != CARD_TABLE_GAME_POKER))
 		return FALSE

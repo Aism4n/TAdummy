@@ -74,7 +74,7 @@
 			if(fool_variant == CARD_TABLE_FOOL_THROW_IN || fool_variant == CARD_TABLE_FOOL_THROW_TRANSFER)
 				rules += "Эструсский вариант: дополнительные карты можно подкидывать по рангу уже лежащих карт. После каждой защиты ход по очереди переходит к тем, кто может подкинуть. Если никто не может, карты уходят в биту."
 			if(fool_variant == CARD_TABLE_FOOL_TRANSFER || fool_variant == CARD_TABLE_FOOL_THROW_TRANSFER)
-				rules += "Отавинский вариант: защитник может перевести ход картой того же ранга."
+				rules += "Отаванский вариант: защитник может перевести ход картой того же ранга."
 			if(fool_variant == CARD_TABLE_FOOL_CLASSIC)
 				rules += "Хаммерхольдьский вариант: одна атака и одна защита за ход."
 		if(CARD_TABLE_GAME_BLACKJACK)
@@ -83,11 +83,11 @@
 			rules += "Дилер всегда один из игроков. [dealer_rotation_label()]."
 			switch(blackjack_variant)
 				if(CARD_TABLE_BLACKJACK_GRON)
-					rules += "Гронский: туз считается за 1; валет, дама и король за 11."
+					rules += "Гроннский: туз считается за 1; валет, дама и король за 11."
 				if(CARD_TABLE_BLACKJACK_VALORIA)
 					rules += "Валорийский: туз, валет, дама и король считаются за 10."
 				if(CARD_TABLE_BLACKJACK_GRENZELHOFT)
-					rules += "Грезнельхофтский: туз за 10, но два туза дают 21; валет, дама и король за 10."
+					rules += "Грензельхофтский: туз за 10, но два туза дают 21; валет, дама и король за 10."
 				if(CARD_TABLE_BLACKJACK_KAZENGUN)
 					rules += "Казенгунский: туз, валет, дама и король считаются за 1."
 				else
@@ -106,7 +106,11 @@
 			rules += "Дилер всегда один из игроков. [dealer_rotation_label()]."
 		if(CARD_TABLE_GAME_SOLITAIRE)
 			rules += "Цель: разложить карты по стопкам пасьянса."
-			rules += "Пока это режим раскладки: стол готовит семь колонок и запас."
+			if(solitaire_variant == CARD_TABLE_SOLITAIRE_SPIDER)
+				rules += "Паук: две колоды, десять колонок. Запас сдает по карте в каждую колонку."
+				rules += "Переносить можно открытую нисходящую последовательность одной масти. Собранная масть от короля до туза снимается."
+			else
+				rules += "Солитер: семь колонок, запас и четыре базы по мастям от туза до короля."
 	return rules
 
 /datum/card_table_session/proc/build_ui_data(mob/user) as /list
@@ -142,6 +146,8 @@
 		"poker_variant_label" = poker_variant_label(),
 		"blackjack_variant" = blackjack_variant,
 		"blackjack_variant_label" = blackjack_variant_label(),
+		"solitaire_variant" = solitaire_variant,
+		"solitaire_variant_label" = solitaire_variant_label(),
 		"dealer_rotates" = dealer_rotates,
 		"dealer_rotation_label" = dealer_rotation_label(),
 		"dealer_name" = table_dealer ? table_dealer.name : null,
@@ -168,6 +174,7 @@
 		"solitaire_stock_count" = solitaire_stock.len,
 		"solitaire_waste" = waste_card,
 		"solitaire_foundations" = build_solitaire_foundations(),
+		"solitaire_completed_sets" = solitaire_completed_sets,
 		"attacker" = current_attacker ? current_attacker.name : null,
 		"defender" = current_defender ? current_defender.name : null,
 		"table_attack" = table_attack ? card_table_card_label(table_attack) : null,

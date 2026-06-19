@@ -37,13 +37,50 @@
 		return FALSE
 	var/list/column = solitaire_tableau[column_index]
 	if(!column.len)
-		return card_table_card_rank_value(card) == 13
+		return solitaire_variant == CARD_TABLE_SOLITAIRE_SPIDER || solitaire_foundation_rank(card) == 13
 	var/list/top_card = column[column.len]
 	if(!top_card["face_up"])
 		return FALSE
+	if(solitaire_variant == CARD_TABLE_SOLITAIRE_SPIDER)
+		return solitaire_foundation_rank(card) == solitaire_foundation_rank(top_card) - 1
 	if(solitaire_card_color(card) == solitaire_card_color(top_card))
 		return FALSE
-	return card_table_card_rank_value(card) == card_table_card_rank_value(top_card) - 1
+	return solitaire_foundation_rank(card) == solitaire_foundation_rank(top_card) - 1
+
+/datum/card_table_session/proc/solitaire_spider_stack_is_movable(list/column, start_index)
+	if(!islist(column) || start_index < 1 || start_index > column.len)
+		return FALSE
+	var/list/first_card = column[start_index]
+	if(!first_card["face_up"])
+		return FALSE
+	for(var/i = start_index + 1, i <= column.len, i++)
+		var/list/previous_card = column[i - 1]
+		var/list/current_card = column[i]
+		if(!current_card["face_up"])
+			return FALSE
+		if("[current_card["suit"]]" != "[previous_card["suit"]]")
+			return FALSE
+		if(solitaire_foundation_rank(current_card) != solitaire_foundation_rank(previous_card) - 1)
+			return FALSE
+	return TRUE
+
+/datum/card_table_session/proc/solitaire_check_spider_runs()
+	if(solitaire_variant != CARD_TABLE_SOLITAIRE_SPIDER)
+		return
+	for(var/column_index = 1, column_index <= solitaire_tableau.len, column_index++)
+		var/list/column = solitaire_tableau[column_index]
+		if(!islist(column) || column.len < 13)
+			continue
+		var/start_index = column.len - 12
+		var/list/king = column[start_index]
+		if(solitaire_foundation_rank(king) != 13 || !solitaire_spider_stack_is_movable(column, start_index))
+			continue
+		var/list/ace = column[column.len]
+		if(solitaire_foundation_rank(ace) != 1)
+			continue
+		column.Cut(start_index, column.len + 1)
+		solitaire_completed_sets++
+		solitaire_reveal_column(column_index)
 
 /datum/card_table_session/proc/solitaire_reveal_column(column_index)
 	if(column_index < 1 || column_index > solitaire_tableau.len)
@@ -56,6 +93,26 @@
 /datum/card_table_session/proc/solitaire_draw(mob/user)
 	if(stage != CARD_TABLE_STAGE_PLAYING || game_type != CARD_TABLE_GAME_SOLITAIRE || !player_for_user(user))
 		return FALSE
+	if(solitaire_variant == CARD_TABLE_SOLITAIRE_SPIDER)
+		if(solitaire_stock.len < solitaire_tableau.len)
+			return FALSE
+		for(var/list/column in solitaire_tableau)
+			if(!column.len)
+				to_chat(user, span_warning("В пауке нельзя сдавать из запаса, пока есть пустая колонка."))
+				return FALSE
+		for(var/column_index = 1, column_index <= solitaire_tableau.len, column_index++)
+			var/list/card = solitaire_stock[solitaire_stock.len]
+			solitaire_stock.Cut(solitaire_stock.len, solitaire_stock.len + 1)
+			card["face_up"] = TRUE
+			var/list/target_column = solitaire_tableau[column_index]
+			target_column += list(card)
+		solitaire_check_spider_runs()
+		if(solitaire_completed_sets >= 8)
+			stage = CARD_TABLE_STAGE_FINISHED
+			message = "[card_table_display_name(user)] раскладывает паука."
+		else
+			message = "[card_table_display_name(user)] сдает ряд из запаса."
+		return TRUE
 	if(solitaire_stock.len)
 		var/list/card = solitaire_stock[solitaire_stock.len]
 		solitaire_stock.Cut(solitaire_stock.len, solitaire_stock.len + 1)
@@ -97,6 +154,8 @@
 		card = source[source_index]
 		if(!card["face_up"])
 			return FALSE
+		if(solitaire_variant == CARD_TABLE_SOLITAIRE_SPIDER && !solitaire_spider_stack_is_movable(source, source_index))
+			return FALSE
 		for(var/i = source_index, i <= source.len, i++)
 			var/list/moving_card = source[i]
 			if(!moving_card["face_up"])
@@ -105,6 +164,8 @@
 	else
 		return FALSE
 	if(target_type == "foundation")
+		if(solitaire_variant == CARD_TABLE_SOLITAIRE_SPIDER)
+			return FALSE
 		if(moving_cards.len != 1)
 			return FALSE
 		if(!solitaire_can_place_on_foundation(card, target_suit))
@@ -129,6 +190,10 @@
 		for(var/list/moving_card in moving_cards)
 			target_column_list += list(moving_card)
 		message = "[card_table_display_name(user)] перекладывает [card_table_card_label(card)]."
+		solitaire_check_spider_runs()
+		if(solitaire_variant == CARD_TABLE_SOLITAIRE_SPIDER && solitaire_completed_sets >= 8)
+			stage = CARD_TABLE_STAGE_FINISHED
+			message = "[card_table_display_name(user)] раскладывает паука."
 	var/foundation_cards = 0
 	for(var/suit in list("H", "D", "C", "S"))
 		var/list/foundation_check = solitaire_foundations[suit]

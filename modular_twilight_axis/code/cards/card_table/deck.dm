@@ -137,6 +137,8 @@
 			. = card_table.set_poker_variant(params["variant"], user)
 		if("set_blackjack_variant")
 			. = card_table.set_blackjack_variant(params["variant"], user)
+		if("set_solitaire_variant")
+			. = card_table.set_solitaire_variant(params["variant"], user)
 		if("set_dealer_rotation")
 			. = card_table.set_dealer_rotation(params["rotates"], user)
 		if("join_player")
