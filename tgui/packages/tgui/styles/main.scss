@@ -28,6 +28,8 @@
 @include meta.load-css('./themes/grimoire.scss');
 @include meta.load-css('./themes/blackstone.scss');
 @include meta.load-css('./themes/parchment.scss');
+@include meta.load-css('./themes/parchment_vellum.scss');
+@include meta.load-css('./themes/parchment_leatherbound.scss');
 
 // Interfaces
 @include meta.load-css('./interfaces/AlertModal.scss');
@@ -60,6 +62,7 @@
 @include meta.load-css('./interfaces/Trophycase.scss');
 @include meta.load-css('./interfaces/Uplink.scss');
 @include meta.load-css('./interfaces/DetectiveBoard.scss');
+@include meta.load-css('./interfaces/VampireClanSelection.scss');
 
 // Layouts
 @include meta.load-css('./layouts/Layout.scss');

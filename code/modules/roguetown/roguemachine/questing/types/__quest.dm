@@ -43,6 +43,7 @@
 	var/list/datum/weakref/tracked_atoms = list()
 	/// Landmark picked at preview time; materialize() spawns content around it when claimed.
 	var/datum/weakref/pending_landmark_ref
+	var/materialized = FALSE
 	/// Threat region this quest's content lives in. Captured from the landmark at preview time.
 	var/region = ""
 	/// Quest faction id (see QUEST_FACTION_* defines). Captured at preview for kill / bounty quests.
@@ -57,6 +58,7 @@
 	/// TODO: Implement new taxation mechanics — Module 3/6 will add the stamping UI and towner
 	/// bounty path. Levy rate itself also needs revisiting under the new treasury design.
 	var/levy_exempt = FALSE
+	var/guild_cut_exempt = FALSE
 	/// TRUE if the Steward issued this as a free-labor Directive (no funding, zero reward,
 	/// hand-carried only, not promotable to the public noticeboard).
 	var/is_directive = FALSE
@@ -70,27 +72,32 @@
 	var/writ_type = WRIT_TYPE_OUTLAWRY
 	var/circumstance_text = ""
 
+/datum/quest/proc/get_lapse_time()
+	var/window = (source == QUEST_SOURCE_POOL) ? QUEST_POOL_STALE_THRESHOLD : QUEST_PLAYER_STALE_THRESHOLD
+	return created_at + window
+
 /datum/quest/Destroy()
-	// Clean up mobs with quest components
-	for(var/mob/living/M in GLOB.mob_list)
-		var/datum/component/quest_object/Q = M.GetComponent(/datum/component/quest_object)
-		if(Q && Q.quest_ref?.resolve() == src)
-			M.remove_filter("quest_item_outline")
-			qdel(Q)
+	var/obj/effect/landmark/quest_spawner/held_landmark = pending_landmark_ref?.resolve()
+	if(held_landmark)
+		if(held_landmark.claimed_by?.resolve() == src)
+			held_landmark.claimed_by = null
+		if(materialized)
+			held_landmark.cooldown_until = world.time + QUEST_LANDMARK_COOLDOWN
 
 	for(var/datum/weakref/tracked_weakref in tracked_atoms)
 		var/atom/target_atom = tracked_weakref.resolve()
-		if(QDELETED(target_atom))
-			continue
-
-		// Only delete the item if it's part of a fetch or courier quest
-		if(quest_type == QUEST_RETRIEVAL && istype(target_atom, target_item_type))
-			qdel(target_atom)
-		else if(quest_type == QUEST_COURIER && istype(target_atom, target_delivery_item))
-			qdel(target_atom)
-
-		tracked_atoms -= tracked_weakref
-		qdel(tracked_weakref)
+		if(!QDELETED(target_atom))
+			if(ismob(target_atom))
+				var/mob/M = target_atom
+				var/datum/component/quest_object/Q = M.GetComponent(/datum/component/quest_object)
+				if(Q && Q.quest_ref?.resolve() == src)
+					M.remove_filter("quest_item_outline")
+					qdel(Q)
+			else if(!complete && target_item_type && quest_type == QUEST_RETRIEVAL && istype(target_atom, target_item_type))
+				qdel(target_atom)
+			else if(!complete && target_delivery_item && quest_type == QUEST_COURIER && istype(target_atom, target_delivery_item))
+				qdel(target_atom)
+	tracked_atoms.Cut()
 
 	// Clean up references
 	quest_scroll = null
@@ -146,12 +153,17 @@
 
 /// Materializes every live spawner belonging to this quest. Called when any one of them triggers.
 /datum/quest/proc/pop_all_spawners()
+	if(length(spawners))
+		on_first_pop()
 	for(var/datum/weakref/ref in spawners)
 		var/obj/effect/quest_spawn/spawner = ref.resolve()
 		if(QDELETED(spawner) || !spawner.contained_atom)
 			continue
 		spawner.reveal_contained()
 	spawners.Cut()
+
+/datum/quest/proc/on_first_pop()
+	return
 
 /// World-mutating generation: spawn mobs, items, parcels. Called by SSquestpool.claim when the
 /// contract is actually signed. Subtypes override to do their specific spawns.
@@ -201,7 +213,16 @@
 /datum/quest/proc/calculate_reward(turf/origin_turf, turf/target_turf)
 	var/base = get_base_reward()
 	var/additional = get_additional_reward(origin_turf, target_turf)
-	return base + additional
+	return round((base + additional + get_difficulty_bonus()) * QUEST_REWARD_GLOBAL_MULT)
+
+/// Flat reward sweetener keyed off difficulty, applied to every quest type at the reward chokepoint.
+/datum/quest/proc/get_difficulty_bonus()
+	switch(quest_difficulty)
+		if(QUEST_DIFFICULTY_MEDIUM)
+			return QUEST_DIFFICULTY_BONUS_MEDIUM
+		if(QUEST_DIFFICULTY_HARD)
+			return QUEST_DIFFICULTY_BONUS_HARD
+	return QUEST_DIFFICULTY_BONUS_EASY
 
 /// Calculate deposit based on difficulty
 /datum/quest/proc/calculate_deposit()
@@ -238,6 +259,11 @@
 		var/atom/A = ref.resolve()
 		if(!A || QDELETED(A))
 			continue
+
+		if(isliving(A))
+			var/mob/living/L = A
+			if(L.stat == DEAD)
+				continue
 
 		var/turf/A_turf = get_turf(A)
 		if(!A_turf)

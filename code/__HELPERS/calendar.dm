@@ -46,7 +46,7 @@
 /// Compact IC date - what players say in-character. e.g. "3 Eora 1513 AP".
 /proc/get_ic_date_short_as_string(day_number)
 	var/list/parts = resolve_ic_date_parts(day_number)
-	return "[parts[1]] [get_month_number_to_text(parts[2])] [parts[3]] AP"
+	return "[parts[1]] [get_month_number_to_text(parts[2])] [parts[3]] of New Order" //TA EDIT
 
 // Returns the current IC time as a string in the format [DAYS] ᛉ HH:MM ([Time Of Day])
 /proc/get_current_ic_time_as_string()
@@ -123,6 +123,57 @@
 		if(3)
 			return "Late"
 	return ""
+
+/proc/get_calendar_events_for_month(month_number)
+	var/list/matches = list()
+	for(var/datum/calendar_event/event in GLOB.calendar_events)
+		if(event.recur_month == month_number)
+			matches += event
+	return matches
+
+/proc/get_calendar_events_for_day(month_number, day_of_month)
+	var/list/matches = list()
+	for(var/datum/calendar_event/event in GLOB.calendar_events)
+		if(event.covers_day(month_number, day_of_month))
+			matches += event
+	return matches
+
+/proc/get_active_calendar_event_titles()
+	var/list/parts = resolve_ic_date_parts(GLOB.dayspassed)
+	var/list/titles = list()
+	for(var/datum/calendar_event/event in get_calendar_events_for_day(parts[2], parts[1]))
+		titles += event.title
+	return titles
+
+GLOBAL_LIST_INIT(event_day_ordinals, list(
+	"first", "second", "third", "fourth", "fifth",
+	"sixth", "seventh", "eighth", "ninth", "tenth",
+))
+
+/proc/get_event_day_ordinal(index)
+	if(index >= 1 && index <= length(GLOB.event_day_ordinals))
+		return GLOB.event_day_ordinals[index]
+	var/suffix = "th"
+	var/last_two = MODULUS(index, 100)
+	if(last_two < 11 || last_two > 13)
+		switch(MODULUS(index, 10))
+			if(1)
+				suffix = "st"
+			if(2)
+				suffix = "nd"
+			if(3)
+				suffix = "rd"
+	return "[index][suffix]"
+
+/proc/scom_announce_new_dawn()
+	var/list/parts = resolve_ic_date_parts(GLOB.dayspassed)
+	for(var/datum/calendar_event/event in get_calendar_events_for_day(parts[2], parts[1]))
+		var/ordinal = get_event_day_ordinal(event.day_index(parts[2], parts[1]))
+		var/line = "The [ordinal] dae of [event.title]."
+		var/reminder_line = event.get_reminder_for_day(parts[2], parts[1])
+		if(reminder_line)
+			line = "[line] [reminder_line]"
+		scom_announce(line)
 
 /proc/get_current_day_of_week()
 	return GLOB.dayspassed

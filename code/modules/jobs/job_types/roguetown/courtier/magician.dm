@@ -6,7 +6,7 @@
 	total_positions = 1
 	spawn_positions = 1
 
-	allowed_races = RACES_SHUNNED_UP		//Nobility, no construct
+	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED)		//Nobility, no construct
 	allowed_sexes = list(MALE, FEMALE)
 	spells = list()
 	display_order = JDO_MAGICIAN
@@ -26,7 +26,7 @@
 	same_job_respawn_delay = 30 MINUTES
 
 	// Can't get very far as a magician if you can't chant spells now can you?
-	vice_restrictions = list(/datum/charflaw/mute)
+	vice_restrictions = list(/datum/charflaw/mute, /datum/charflaw/wanted)
 
 	job_traits = list(TRAIT_ARCYNE, TRAIT_SEEPRICES, TRAIT_INTELLECTUAL, TRAIT_ALCHEMY_EXPERT)
 	job_subclasses = list(
