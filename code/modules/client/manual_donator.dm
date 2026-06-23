@@ -4,7 +4,14 @@ GLOBAL_VAR_INIT(donatorCkeysSaveFile, new /savefile("data/donators.db"))
 GLOBAL_VAR_INIT(donatorLoaded, 0)
 
 /proc/is_donator(key)
-	return check_patreon_lvl(key) > 0
+	key = ckey(key)
+	if(!key)
+		return FALSE
+	if(check_patreon_lvl(key) > 0)
+		return TRUE
+	if(!GLOB.donatorLoaded)
+		load_donators()
+	return LAZYISIN(GLOB.donatorCkeys, key)
 
 /proc/donator_addkey(key)
 	var/keyAsCkey = ckey(key)
@@ -34,7 +41,7 @@ GLOBAL_VAR_INIT(donatorLoaded, 0)
 	var/removed_by = null
 	if(usr && usr.ckey)
 		removed_by = usr.ckey
-	if(db_remove_donator(key, removed_by))
+	if(db_remove_donator(key, removed_by, "legacy_admin_removed"))
 		GLOB.PatreonsLoaded = FALSE
 		load_patreons(TRUE)
 		refresh_online_donator_cache(key)
@@ -78,7 +85,12 @@ GLOBAL_VAR_INIT(donatorLoaded, 0)
 	set category = "SERVER"
 	if(!GLOB.PatreonsLoaded)
 		load_patreons()
-	var/key = input("CKey to Remove", "Remove Donator CKey") as null|anything in GLOB.allpatreons
+	if(!GLOB.donatorLoaded)
+		load_donators()
+	var/list/current_donators = GLOB.allpatreons.Copy()
+	for(var/donator_key in GLOB.donatorCkeys)
+		current_donators |= donator_key
+	var/key = input("CKey to Remove", "Remove Donator CKey") as null|anything in current_donators
 	if(key)
 		var/confirm = alert("Remove [key] from the donator list?", , "Yes", "No")
 		if(confirm == "Yes")

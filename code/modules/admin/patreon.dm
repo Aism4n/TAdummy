@@ -44,17 +44,26 @@ GLOBAL_VAR(PatreonsLoading)
 	return FALSE
 
 /proc/normalize_donator_tier(tier, min_tier = 0)
-	var/parsed_tier = 0
+	var/parsed_tier
 	if(isnum(tier))
 		parsed_tier = tier
 	else if(istext(tier))
 		parsed_tier = text2num(tier)
 	if(isnull(parsed_tier))
-		parsed_tier = 0
-	return clamp(round(parsed_tier), min_tier, 5)
+		return 0
+	parsed_tier = round(parsed_tier)
+	if(min_tier && parsed_tier < min_tier)
+		return 0
+	return parsed_tier
 
 /proc/donator_tgs_reply(text)
 	return new /datum/tgs_message_content(text || "")
+
+/proc/donator_tgs_send_channel_message(datum/tgs_chat_user/sender, text)
+	if(!sender || !sender.channel || !text)
+		return FALSE
+	world.TgsChatBroadcast(donator_tgs_reply(text), list(sender.channel))
+	return TRUE
 
 /proc/patreon_tier_from_csv_line(line)
 	if(!line || !findtext(line, "Active patron"))
@@ -135,6 +144,13 @@ GLOBAL_VAR(PatreonsLoading)
 	GLOB.patreont5.Cut()
 	GLOB.allpatreons.Cut()
 
+/proc/patreon_apply_entries_to_cache(list/entries)
+	patreon_clear_cache()
+	if(!entries)
+		return
+	for(var/key in entries)
+		patreon_apply_level_to_cache(key, entries[key])
+
 /proc/patreon_apply_level_to_cache(key, tier)
 	key = ckey(key)
 	tier = normalize_donator_tier(tier)
@@ -181,8 +197,7 @@ GLOBAL_VAR(PatreonsLoading)
 /proc/patreon_load_legacy_cache()
 	var/list/legacy_data = patreon_collect_legacy_entries()
 	var/list/entries = legacy_data["entries"]
-	for(var/key in entries)
-		patreon_apply_level_to_cache(key, entries[key])
+	patreon_apply_entries_to_cache(entries)
 
 /proc/db_donators_count()
 	if(!SSdbcore.Connect())
@@ -212,11 +227,14 @@ GLOBAL_VAR(PatreonsLoading)
 		log_sql("Failed to load donators from database: [query_get_donators.ErrorMsg()]")
 		qdel(query_get_donators)
 		return FALSE
+	var/list/entries = list()
 	while(query_get_donators.NextRow())
-		var/key = query_get_donators.item[1]
-		var/tier = text2num(query_get_donators.item[2])
-		patreon_apply_level_to_cache(key, tier)
+		var/key = ckey(query_get_donators.item[1])
+		var/tier = normalize_donator_tier(query_get_donators.item[2])
+		if(key && tier >= 1 && tier <= 5)
+			entries[key] = tier
 	qdel(query_get_donators)
+	patreon_apply_entries_to_cache(entries)
 	return TRUE
 
 /proc/db_set_donator_tier(key, tier, source = "manual", added_by = null, notes = null)
@@ -279,19 +297,22 @@ GLOBAL_VAR(PatreonsLoading)
 	qdel(query_import_donator)
 	return TRUE
 
-/proc/db_remove_donator(key, removed_by = null)
+/proc/db_remove_donator(key, removed_by = null, source = "tgs_removed")
 	key = ckey(key)
 	if(!key)
 		return FALSE
+	if(!source)
+		source = "removed"
 	if(!SSdbcore.Connect())
 		return FALSE
 	var/datum/DBQuery/query_remove_donator = SSdbcore.NewQuery({"
 		UPDATE [format_table_name("donators")]
-		SET active = 0, source = 'tgs_removed', added_by = :removed_by, notes = NULL
+		SET active = 0, source = :source, added_by = :removed_by, notes = NULL
 		WHERE ckey = :ckey
 	"}, list(
 		"ckey" = key,
 		"removed_by" = removed_by,
+		"source" = source,
 	))
 	if(!query_remove_donator.Execute())
 		log_sql("Failed to remove donator [key]: [query_remove_donator.ErrorMsg()]")
@@ -330,8 +351,10 @@ GLOBAL_VAR(PatreonsLoading)
 	qdel(query_get_donator)
 	return info
 
-/proc/db_import_config_donators(force = FALSE)
-	var/current_count = db_donators_count()
+/proc/db_import_config_donators(force = FALSE, known_count = null)
+	var/current_count = known_count
+	if(isnull(current_count))
+		current_count = db_donators_count()
 	if(isnull(current_count))
 		return -1
 	if(current_count && !force)
@@ -358,15 +381,15 @@ GLOBAL_VAR(PatreonsLoading)
 		GLOB.PatreonsLoading = FALSE
 		return TRUE
 	GLOB.PatreonsLoading = TRUE
-	patreon_clear_cache()
 
 	var/current_count = db_donators_count()
 	if(!isnull(current_count))
 		if(!current_count)
-			db_import_config_donators(TRUE)
+			db_import_config_donators(TRUE, current_count)
 		if(db_load_patreons_to_cache())
 			GLOB.PatreonsLoaded = TRUE
 			GLOB.PatreonsLoading = FALSE
+			refresh_online_donator_cache()
 			return TRUE
 
 	log_world("Failed to load donators from database. Falling back to legacy patreon config files for current round.")
@@ -374,6 +397,7 @@ GLOBAL_VAR(PatreonsLoading)
 	patreon_load_legacy_cache()
 	GLOB.PatreonsLoaded = TRUE
 	GLOB.PatreonsLoading = FALSE
+	refresh_online_donator_cache()
 	return TRUE
 
 /proc/queue_load_patreons()
@@ -678,7 +702,7 @@ GLOBAL_LIST_EMPTY(temporary_donators)
 			if(!SSdbcore.Connect())
 				response += "Failed to connect to database."
 				return donator_tgs_reply(response)
-			var/sql = {"SELECT ckey, tier, source, updated_at FROM [format_table_name("donators")] WHERE active = 1"}
+			var/sql = {"SELECT ckey, tier, source FROM [format_table_name("donators")] WHERE active = 1"}
 			var/list/query_params = list()
 			if(tier_filter)
 				sql += " AND tier = :tier"
@@ -691,14 +715,31 @@ GLOBAL_LIST_EMPTY(temporary_donators)
 				qdel(query_list_donators)
 				return donator_tgs_reply(response)
 			var/count = 0
+			var/list/pages = list()
+			var/list/current_lines = list()
 			while(query_list_donators.NextRow())
 				count++
-				response += "`[query_list_donators.item[1]]` - tier [query_list_donators.item[2]], source `[query_list_donators.item[3]]`, updated `[query_list_donators.item[4]]`\n"
+				current_lines += list("`[query_list_donators.item[1]]` - tier [query_list_donators.item[2]], source `[query_list_donators.item[3]]`")
+				if(length(current_lines) >= 30)
+					pages += list(jointext(current_lines, "\n"))
+					current_lines.Cut()
 			qdel(query_list_donators)
+			if(length(current_lines))
+				pages += list(jointext(current_lines, "\n"))
 			if(!count)
 				response += "No active donators found."
-			else
-				response += "Total: [count]"
+				return donator_tgs_reply(response)
+			var/total_pages = length(pages)
+			for(var/page_number in 1 to total_pages)
+				var/page_text = "Active donators"
+				if(tier_filter)
+					page_text += " for tier [tier_filter]"
+				page_text += " ([count] total), page [page_number]/[total_pages]:\n"
+				page_text += pages[page_number]
+				if(page_number == 1)
+					response = page_text
+				else
+					donator_tgs_send_channel_message(sender, page_text)
 			return donator_tgs_reply(response)
 
 		if("reload")
