@@ -47,8 +47,7 @@ INITIALIZE_IMMEDIATE(/mob/dead)
 	loc = destination
 	Moved(oldloc, NONE, TRUE)
 
-
-/mob/dead/new_player/proc/lobby_refresh()
+/mob/dead/new_player/proc/lobby_refresh(job_list_html)
 	set waitfor = 0
 	var/client/C = client
 	if(!C)
@@ -93,8 +92,8 @@ INITIALIZE_IMMEDIATE(/mob/dead)
 	C << output(timer_text, "lobby_window.browser:update_timer")
 
 	C << output(
-	"Total players ready: [SSticker.totalPlayersReady]",
-	"lobby_window.browser:update_ready_count"
+		"Total players ready: [SSticker.totalPlayersReady]",
+		"lobby_window.browser:update_ready_count"
 	)
 
 	var/bonus_html
@@ -103,6 +102,13 @@ INITIALIZE_IMMEDIATE(/mob/dead)
 	else
 		bonus_html = span_highlight("No bonus! Ready up!")
 	C << output(bonus_html, "lobby_window.browser:update_ready_bonus")
+
+	if(length(job_list_html))
+		var/list/job_dat = list()
+		job_dat += "<center><b>Classes:</b></center><hr>"
+		job_dat += job_list_html
+		C << output(job_dat.Join(), "lobby_window.browser:update_jobs")
+		return
 
 	var/list/dat = list()
 	var/list/ready_players_by_job = list()
