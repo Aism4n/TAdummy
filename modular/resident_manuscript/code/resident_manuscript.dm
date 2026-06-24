@@ -43,6 +43,14 @@
 			return "Пустынный город"
 	return "Герцогство Азурия"
 
+/proc/get_resident_manuscript_personalization_class()
+	switch(SSmapping.config?.map_name)
+		if("Dun World", "Dun_world")
+			return "azurian"
+		if("Rockhill")
+			return "rockhill"
+	return "azurian"
+
 /proc/resident_manuscript_defect_keys()
 	return list(
 		"ink_blot",
@@ -90,6 +98,7 @@
 	var/owner_status_key = RESIDENT_MANUSCRIPT_STATUS_COMMONER
 	var/expiry_date
 	var/issued_place
+	var/personalization_class
 	var/is_bound = FALSE
 	var/is_fake = FALSE
 	var/authority_validated = FALSE
@@ -114,6 +123,7 @@
 	if(document_profile?.display_name)
 		name = document_profile.display_name
 	issued_place = get_resident_manuscript_issued_place()
+	personalization_class = get_resident_manuscript_personalization_class()
 	expiry_date = compute_expiry_date()
 	initialize_seals()
 	defect_note_keys = list()
@@ -595,6 +605,7 @@
 		"status_key" = owner_status_key,
 	)
 	data["issued_place"] = issued_place
+	data["personalization_class"] = personalization_class
 	data["expiry_date"] = expiry_date
 	data["is_bound"] = is_bound
 	data["is_fake"] = is_fake

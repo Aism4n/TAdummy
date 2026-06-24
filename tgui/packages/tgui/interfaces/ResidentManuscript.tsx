@@ -93,6 +93,7 @@ type OwnerData = {
 };
 
 type OwnerAgeKey = 'Adult' | 'Middle-Aged' | 'Old';
+type PersonalizationClass = 'azurian' | 'rockhill';
 
 type SealData = {
   key: string;
@@ -136,6 +137,7 @@ type ProfileData = {
 type ResidentManuscriptData = {
   owner: OwnerData;
   issued_place: string | null;
+  personalization_class: string | null;
   expiry_date: string | null;
   is_bound: BooleanLike;
   is_fake: BooleanLike;
@@ -341,6 +343,7 @@ const TEXTS: ResidentManuscriptTexts = {
 
 const PROFILE_FALLBACK: DocumentProfileId = 'resident';
 const OWNER_AGE_OPTIONS: OwnerAgeKey[] = ['Adult', 'Middle-Aged', 'Old'];
+const PERSONALIZATION_CLASSES: PersonalizationClass[] = ['azurian', 'rockhill'];
 
 const resolveProfileId = (
   profile: ProfileData | undefined,
@@ -361,6 +364,17 @@ const resolveProfileTexts = (
     subtitle: profile?.subtitle || fallback.subtitle,
     description: profile?.description || fallback.description,
   };
+};
+
+const resolvePersonalizationClass = (
+  value: string | null | undefined,
+  issuedPlace: string | null,
+): PersonalizationClass => {
+  const candidate =
+    value || (issuedPlace === 'Королевство Рокхилл' ? 'rockhill' : 'azurian');
+  return PERSONALIZATION_CLASSES.includes(candidate as PersonalizationClass)
+    ? (candidate as PersonalizationClass)
+    : 'azurian';
 };
 
 const buildThemeStyle = (profile: ProfileData | undefined): ThemeStyle => {
@@ -463,6 +477,7 @@ export const ResidentManuscript = () => {
   const {
     owner,
     issued_place,
+    personalization_class,
     expiry_date,
     is_bound,
     is_blank,
@@ -476,8 +491,14 @@ export const ResidentManuscript = () => {
   const texts = TEXTS;
   const profileId = resolveProfileId(profile, texts);
   const profileTexts = resolveProfileTexts(texts, profileId, profile);
+  const personalizationClass = resolvePersonalizationClass(
+    personalization_class,
+    issued_place,
+  );
   const themeStyle = buildThemeStyle(profile);
   const profileClassName = `ResidentManuscript--profile-${profileId}`;
+  const personalizationClassName =
+    `ResidentManuscript--personalization-${personalizationClass}`;
   const ownerStatusKey: OwnerStatusKey = owner.status_key || 'commoner';
   const [ownerName, setOwnerName] = useState(owner.name ?? '');
   const [ownerAge, setOwnerAge] = useState<OwnerAgeKey>(
@@ -518,7 +539,11 @@ export const ResidentManuscript = () => {
     >
       <Window.Content className="ResidentManuscriptWindow" scrollable>
         <div
-          className={classes('ResidentManuscript', profileClassName)}
+          className={classes(
+            'ResidentManuscript',
+            profileClassName,
+            personalizationClassName,
+          )}
           style={themeStyle}
         >
           <div className={sheetClassName}>

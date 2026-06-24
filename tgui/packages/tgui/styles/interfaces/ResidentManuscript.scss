@@ -188,6 +188,20 @@
     --rm-seal: #3d1d5a;
   }
 
+  &--personalization-azurian {
+    --rm-blue: #6d98a8;
+    --rm-blue-dark: #365f6d;
+    --rm-gold: #c39a56;
+    --rm-red-ink: #83312b;
+  }
+
+  &--personalization-rockhill {
+    --rm-blue: #7d7198;
+    --rm-blue-dark: #4f466b;
+    --rm-gold: #b98f4b;
+    --rm-red-ink: #7c2c32;
+  }
+
   &__sheet {
     position: relative;
     box-sizing: border-box;
