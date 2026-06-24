@@ -157,8 +157,8 @@
 	var/auto_stamp_seals = TRUE
 	var/auto_bind_on_equip = TRUE
 	var/requires_feather_to_bind = FALSE
-	var/expiry_year_bonus_min = 5
-	var/expiry_year_bonus_max = 5
+	var/expiry_year_bonus_min = 10
+	var/expiry_year_bonus_max = 15
 	var/list/seals
 	var/list/defect_note_keys
 	var/list/detection_attempts
@@ -728,10 +728,6 @@
 	generate_fake_seals()
 	if(prob(RESIDENT_MANUSCRIPT_FAKE_DEFECT_CHANCE))
 		ensure_defect_note_keys()
-
-/obj/item/book/granter/resident_manuscript/roundstart
-	expiry_year_bonus_min = 5
-	expiry_year_bonus_max = 5
 
 /obj/item/book/granter/resident_manuscript/imperial
 	desc = "Имперская грамота покровительства, скрепленная контрасигнацией канцелярии."
