@@ -1,18 +1,28 @@
 /obj/item/book/granter/residentcard
-	name = "Resident Manuscript"
+	name = "Грамота жителя"
 	icon_state = "contractunsigned"
 	icon = 'icons/roguetown/items/misc.dmi'
-	desc = "This scroll grants the signer citizenship in the town of Rockhill and the right to choose an unoccupied house in the town."
+	desc = "Эта грамота дает подписавшему право жительства и возможность занять свободный дом в городе."
 	oneuse = TRUE
 	drop_sound = 'sound/foley/dropsound/paper_drop.ogg'
 	pickup_sound = 'sound/blank.ogg'
 
+/obj/item/book/granter/residentcard/Initialize()
+	. = ..()
+	if(. == INITIALIZE_HINT_QDEL)
+		return .
+	if(!resident_manuscripts_enabled())
+		return INITIALIZE_HINT_QDEL
+
 /obj/item/book/granter/residentcard/attack_self(mob/living/user)
+	if(!resident_manuscripts_enabled())
+		to_chat(user, span_warning("Грамоты жительства на этой карте временно недоступны."))
+		return FALSE
 	if(HAS_TRAIT(user, TRAIT_RESIDENT))
-		to_chat(user, span_danger("I already have citizenship!"))
+		to_chat(user, span_danger("У меня уже есть жительство!"))
 		return FALSE
 	if(icon_state == "contractsigned")
-		to_chat(user, span_danger("This scroll already signed."))
+		to_chat(user, span_danger("Эта грамота уже подписана."))
 		return FALSE
 	else
 		var/obj/item/writefeather
@@ -21,19 +31,19 @@
 				writefeather = I
 				break
 		if(!writefeather)
-			to_chat(user, span_warning("I need to hold a feather!"))
+			to_chat(user, span_warning("Мне нужно держать перо!"))
 			return FALSE
 
 		var/turf/T = get_step(user, user.dir)
 		if(!(locate(/obj/structure/table) in T))
-			to_chat(user, span_warning("I need to make this on a table."))
+			to_chat(user, span_warning("Мне нужен стол, чтобы заполнить грамоту."))
 			return FALSE
 
 		if(!do_after(user, 4 SECONDS, TRUE))
-			to_chat(user, span_warning("My concentration breaks! I could not sign properly."))
+			to_chat(user, span_warning("Я теряю сосредоточение и не могу подписать грамоту как следует."))
 			return FALSE
 
-		to_chat(user, span_notice("I sign the scroll, receiving citizenship and the opportunity to live in a house in the city!"))
+		to_chat(user, span_notice("Я подписываю грамоту и получаю право жительства в городе."))
 		playsound(user, 'sound/items/write.ogg', 50, TRUE, -2)
 		ADD_TRAIT(user, TRAIT_RESIDENT, TRAIT_GENERIC)
 		onlearned(user)
@@ -41,10 +51,11 @@
 /obj/item/book/granter/residentcard/onlearned(mob/living/carbon/user)
 	..()
 	if(oneuse == TRUE)
-		name = "[user.real_name] - resident manuscript"
-		desc = "A scroll confirming citizenship with the owner's signature."
+		name = "[user.real_name] - грамота жителя"
+		desc = "Грамота, подтверждающая жительство подписью владельца."
 		icon_state = "contractsigned"
 
+#ifdef COMPILE_LEGACY_RESIDENTCARDVIRTUE
 #define MANUSCRIPT_ITEM_DESCRIPTION "Этот эластичный свиток цвета слоновой кости идеально гладок, прохладен и на просвет лишен дефектов. Его золоченые края мерцают при разворачивании, издавая сухой хруст. Текст выведен въевшимися иссиня-черными чернилами с лазуритными инициалами, а снизу на шелково-золотом шнуре закреплена детальная сургучная печать. Документ пахнет воском, травами и дорогой кожей."
 
 #define MANUSCRIPT_DESCRIPTION "Сим объявляется во всеуслышание: по воле Короны и надзором Совета, предъявитель сего документа признан законным обитателем земель сих и пребывает под сенью общего права. Всякому чину и званию вменяется в долг признавать в лице помянутом верного подданного, не чиня ему препятствий в делах и путях его. Всякий же, кто делом или умыслом нанесет вред носителю сей грамоты, ответит пред законом по всей строгости уложений, ибо посягает на порядок, престолом установленный"
@@ -626,3 +637,16 @@
 #undef MANUSCRIPT_MAX_FOUND_DEFECT_COUNT
 #undef MANUSCRIPT_VALIDATION_NOTES
 #undef FAKE_DEFECT_CHANCE
+#endif
+
+/obj/item/book/granter/residentcardvirtue
+	parent_type = /obj/item/book/granter/resident_manuscript
+
+/obj/item/book/granter/residentcardvirtue/fake
+	parent_type = /obj/item/book/granter/resident_manuscript/fake
+
+/obj/item/book/granter/residentcardvirtue/roundstart
+	parent_type = /obj/item/book/granter/resident_manuscript/roundstart
+
+/obj/item/book/granter/residentcardvirtue/base
+	parent_type = /obj/item/book/granter/resident_manuscript/blank
