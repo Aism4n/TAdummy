@@ -324,10 +324,6 @@
 	var/list/default_seal_keys
 	var/list/default_commoner_seal_keys
 	var/list/default_noble_seal_keys
-	var/paper_color
-	var/ink_color
-	var/accent_color
-	var/seal_color
 	var/requires_seal_for_claim = TRUE
 	var/grants_residence_claim = FALSE
 
@@ -358,10 +354,6 @@
 	allowed_seals = list("chancellor", "elder", "ruler", "hand")
 	default_commoner_seal_keys = list("chancellor")
 	default_noble_seal_keys = list("ruler")
-	paper_color = "#e3d2ad"
-	ink_color = "#3a2518"
-	accent_color = "#8b5e2f"
-	seal_color = "#8b2a22"
 	grants_residence_claim = TRUE
 
 /datum/resident_document_profile/guards
@@ -370,10 +362,6 @@
 	subtitle = "От гарнизона и Короны"
 	description = "Да будет ведомо: предъявитель стоит солдатом городского гарнизона, присягнув держать врата, стены и улицы, когда обнажается сталь. Его служба проста как железо: ночные дозоры, кровь на камне и жалованье за верность."
 	allowed_seals = list("sergeant", "marshal", "elder")
-	paper_color = "#d9cfb0"
-	ink_color = "#2f3028"
-	accent_color = "#4c6f79"
-	seal_color = "#6d2a24"
 
 /datum/resident_document_profile/church
 	id = "church"
@@ -381,10 +369,6 @@
 	subtitle = "Под Десятеричным Светом"
 	description = "Да будет ведомо: предъявитель отмечен под Десятеричным Светом, где милость горит так же остро, как суд. Пусть святилище и алтарь принимают его, пока тень или ересь не взыщут его имя."
 	allowed_seals = list("bishop")
-	paper_color = "#ead8ad"
-	ink_color = "#322414"
-	accent_color = "#9c7440"
-	seal_color = "#8d5b35"
 
 /datum/resident_document_profile/craftsmen
 	id = "craftsmen"
@@ -392,10 +376,6 @@
 	subtitle = "Честной рукой и бронзой"
 	description = "Да будет ведомо: предъявитель связан с горном, шилом, резцом и клятвой. Его труд может идти под защитой гильдии, а долг ремеслу будет взвешен монетой, потом и кровью."
 	allowed_seals = list("guild_leader", "chancellor", "elder")
-	paper_color = "#ded1a9"
-	ink_color = "#2f2b19"
-	accent_color = "#7b7f4a"
-	seal_color = "#7a432a"
 
 /datum/resident_document_profile/commoner
 	id = "commoner"
@@ -405,10 +385,6 @@
 	allowed_seals = list("elder", "chancellor", "hand")
 	default_commoner_seal_keys = list("elder", "chancellor")
 	default_noble_seal_keys = list("hand")
-	paper_color = "#c4ad81"
-	ink_color = "#352618"
-	accent_color = "#6f5840"
-	seal_color = "#5e3826"
 	requires_seal_for_claim = FALSE
 
 /datum/resident_document_profile/commoner/get_subtitle()
@@ -422,10 +398,6 @@
 	subtitle = "Монетой и клыком"
 	description = "Да будет ведомо: предъявитель служит счетному дому, где монету взвешивают как грех, а каждая сделка имеет тень. Его торговля законна, его книги подотчетны, а долги памятны."
 	allowed_seals = list("merchant_master", "chancellor")
-	paper_color = "#e0c79a"
-	ink_color = "#2a1a10"
-	accent_color = "#a35c2a"
-	seal_color = "#7e2418"
 
 /datum/resident_document_profile/mages
 	id = "mages"
@@ -433,10 +405,6 @@
 	subtitle = "Светом Короны, звездой и сигилом"
 	description = "Да будет ведомо: коронным дозволением и гильдейским знаком предъявитель вправе иметь дело со звездой, зельем и призванным шепотом. Пусть никто не препятствует его искусству, пока само искусство не возжаждет сорваться с цепи."
 	allowed_seals = list("court_magician")
-	paper_color = "#dccdde"
-	ink_color = "#1c1226"
-	accent_color = "#6a4490"
-	seal_color = "#3d1d5a"
 
 /datum/resident_document_profile/mercenary
 	id = "mercenary"
@@ -446,10 +414,6 @@
 	allowed_seals = list("elder", "chancellor", "hand")
 	default_commoner_seal_keys = list("elder", "chancellor")
 	default_noble_seal_keys = list("hand")
-	paper_color = "#d7b88e"
-	ink_color = "#2c1d16"
-	accent_color = "#8c5b3a"
-	seal_color = "#6f3327"
 
 /datum/resident_document_profile/otava
 	id = "otava"
@@ -457,10 +421,6 @@
 	subtitle = "Истиной, дознанием и очищающим пламенем"
 	description = "Да будет ведомо: серебряным эдиктом Отавы предъявитель вправе вырывать истину из запертых уст и призывать пламя на гниль ереси. Преградить ему путь значит встать там, где причитается пепел."
 	allowed_seals = list("inquisitor")
-	paper_color = "#d8d1c0"
-	ink_color = "#18130f"
-	accent_color = "#8f7a48"
-	seal_color = "#1f1a14"
 
 /datum/resident_document_profile/retinue
 	id = "retinue"
@@ -470,10 +430,6 @@
 	allowed_seals = list("hand", "ruler", "marshal")
 	default_commoner_seal_keys = list("hand")
 	default_noble_seal_keys = list("hand")
-	paper_color = "#d7c4a0"
-	ink_color = "#231818"
-	accent_color = "#6c3731"
-	seal_color = "#7f1f1d"
 	grants_residence_claim = TRUE
 
 /datum/resident_document_profile/retinue/get_subtitle()

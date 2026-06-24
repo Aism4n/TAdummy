@@ -32,12 +32,18 @@
   font-family: var(--rm-serif);
 
   &--profile-guards {
+    --rm-paper: #d9cfb0;
+    --rm-ink: #2f3028;
+    --rm-accent: #4c6f79;
     --rm-blue: #6f98a6;
     --rm-blue-dark: #3a6170;
-    --rm-seal: #74251f;
+    --rm-seal: #6d2a24;
   }
 
   &--profile-retinue {
+    --rm-paper: #d7c4a0;
+    --rm-ink: #231818;
+    --rm-accent: #6c3731;
     --rm-blue: #8e6f6b;
     --rm-blue-dark: #5e3430;
     --rm-gold: #c09958;
@@ -45,25 +51,41 @@
     --rm-seal: #7f1f1d;
   }
 
-  &--profile-church,
-  &--profile-otava {
+  &--profile-church {
+    --rm-paper: #ead8ad;
+    --rm-ink: #322414;
+    --rm-accent: #9c7440;
     --rm-blue: #72b8ca;
     --rm-blue-dark: #377e8f;
     --rm-gold: #c69a56;
     --rm-seal: #8d5b35;
   }
 
+  &--profile-otava {
+    --rm-paper: #d8d1c0;
+    --rm-ink: #18130f;
+    --rm-accent: #8f7a48;
+    --rm-blue: #72b8ca;
+    --rm-blue-dark: #377e8f;
+    --rm-gold: #c69a56;
+    --rm-seal: #1f1a14;
+  }
+
   &--profile-craftsmen {
+    --rm-paper: #ded1a9;
+    --rm-ink: #2f2b19;
+    --rm-accent: #7b7f4a;
     --rm-blue: #789b94;
     --rm-blue-dark: #4a6b62;
     --rm-gold: #b7833f;
+    --rm-seal: #7a432a;
   }
 
   &--profile-commoner {
     --rm-paper: #c4ad81;
     --rm-paper-light: #d4bf95;
     --rm-paper-dark: #8e7045;
-    --rm-ink: #2a1d12;
+    --rm-ink: #352618;
     --rm-ink-muted: #5a4530;
     --rm-accent: #6f5840;
     --rm-blue: #6e7e7a;
@@ -166,6 +188,9 @@
   }
 
   &--profile-mercenary {
+    --rm-paper: #d7b88e;
+    --rm-ink: #2c1d16;
+    --rm-accent: #8c5b3a;
     --rm-blue: #6e8792;
     --rm-blue-dark: #3f5561;
     --rm-red-ink: #7f332c;
@@ -173,6 +198,9 @@
   }
 
   &--profile-merchant {
+    --rm-paper: #e0c79a;
+    --rm-ink: #2a1a10;
+    --rm-accent: #a35c2a;
     --rm-blue: #b97e3e;
     --rm-blue-dark: #7e4a1c;
     --rm-gold: #c08847;
@@ -181,6 +209,9 @@
   }
 
   &--profile-mages {
+    --rm-paper: #dccdde;
+    --rm-ink: #1c1226;
+    --rm-accent: #6a4490;
     --rm-blue: #9075c4;
     --rm-blue-dark: #523187;
     --rm-gold: #c8a14b;

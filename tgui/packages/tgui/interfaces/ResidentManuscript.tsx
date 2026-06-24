@@ -1,4 +1,4 @@
-import { type CSSProperties, type ReactNode, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { Button, Input } from 'tgui-core/components';
 import type { BooleanLike } from 'tgui-core/react';
 
@@ -93,6 +93,7 @@ type OwnerData = {
 };
 
 type OwnerAgeKey = 'Adult' | 'Middle-Aged' | 'Old';
+type RealmKey = 'azuria' | 'rockhill';
 type PersonalizationClass = 'azurian' | 'rockhill';
 
 type SealData = {
@@ -128,16 +129,12 @@ type ProfileData = {
   display_name?: string | null;
   subtitle?: string | null;
   description?: string | null;
-  paper_color: string | null;
-  ink_color: string | null;
-  accent_color: string | null;
-  seal_color: string | null;
 };
 
 type ResidentManuscriptData = {
   owner: OwnerData;
   issued_place: string | null;
-  personalization_class: string | null;
+  realm_key?: string | null;
   expiry_date: string | null;
   is_bound: BooleanLike;
   is_fake: BooleanLike;
@@ -148,13 +145,6 @@ type ResidentManuscriptData = {
   dominant_seal: SealData | null;
   verification: VerificationData;
   permissions: PermissionsData;
-};
-
-type ThemeStyle = CSSProperties & {
-  '--rm-paper'?: string;
-  '--rm-ink'?: string;
-  '--rm-accent'?: string;
-  '--rm-seal'?: string;
 };
 
 const TEXTS: ResidentManuscriptTexts = {
@@ -343,7 +333,11 @@ const TEXTS: ResidentManuscriptTexts = {
 
 const PROFILE_FALLBACK: DocumentProfileId = 'resident';
 const OWNER_AGE_OPTIONS: OwnerAgeKey[] = ['Adult', 'Middle-Aged', 'Old'];
-const PERSONALIZATION_CLASSES: PersonalizationClass[] = ['azurian', 'rockhill'];
+const REALM_KEYS: RealmKey[] = ['azuria', 'rockhill'];
+const REALM_PERSONALIZATION_CLASSES: Record<RealmKey, PersonalizationClass> = {
+  azuria: 'azurian',
+  rockhill: 'rockhill',
+};
 
 const resolveProfileId = (
   profile: ProfileData | undefined,
@@ -366,32 +360,35 @@ const resolveProfileTexts = (
   };
 };
 
-const resolvePersonalizationClass = (
+const resolveRealmKey = (
   value: string | null | undefined,
   issuedPlace: string | null,
-): PersonalizationClass => {
+): RealmKey => {
   const candidate =
-    value || (issuedPlace === 'Королевство Рокхилл' ? 'rockhill' : 'azurian');
-  return PERSONALIZATION_CLASSES.includes(candidate as PersonalizationClass)
-    ? (candidate as PersonalizationClass)
-    : 'azurian';
+    value ||
+    (issuedPlace === 'Королевство Рокхилл' ? 'rockhill' : 'azuria');
+  return REALM_KEYS.includes(candidate as RealmKey)
+    ? (candidate as RealmKey)
+    : 'azuria';
 };
 
-const buildThemeStyle = (profile: ProfileData | undefined): ThemeStyle => {
-  const style: ThemeStyle = {};
-  if (profile?.paper_color) {
-    style['--rm-paper'] = profile.paper_color;
+const resolvePersonalizationClass = (realmKey: RealmKey): PersonalizationClass =>
+  REALM_PERSONALIZATION_CLASSES[realmKey];
+
+const resolveOwnerStatusLabel = (
+  statusKey: OwnerStatusKey,
+  profileId: string,
+  realmKey: RealmKey,
+  texts: ResidentManuscriptTexts,
+): string => {
+  if (profileId === 'retinue' && statusKey === 'noble') {
+    return realmKey === 'rockhill'
+      ? 'Королевская служба'
+      : 'Герцогская служба';
   }
-  if (profile?.ink_color) {
-    style['--rm-ink'] = profile.ink_color;
-  }
-  if (profile?.accent_color) {
-    style['--rm-accent'] = profile.accent_color;
-  }
-  if (profile?.seal_color) {
-    style['--rm-seal'] = profile.seal_color;
-  }
-  return style;
+  return (
+    texts.owner_status_options[statusKey] || texts.owner_status_options.commoner
+  );
 };
 
 const displayValue = (
@@ -433,22 +430,6 @@ const ownerAgeLabel = (
   return displayValue(value, texts.states.empty);
 };
 
-const resolveOwnerStatusLabel = (
-  statusKey: OwnerStatusKey,
-  profileId: string,
-  issuedPlace: string | null,
-  texts: ResidentManuscriptTexts,
-): string => {
-  if (profileId === 'retinue' && statusKey === 'noble') {
-    return issuedPlace === 'Королевство Рокхилл'
-      ? 'Королевская служба'
-      : 'Герцогская служба';
-  }
-  return (
-    texts.owner_status_options[statusKey] || texts.owner_status_options.commoner
-  );
-};
-
 const getSealTitle = (
   seal: SealData,
   texts: ResidentManuscriptTexts,
@@ -477,7 +458,7 @@ export const ResidentManuscript = () => {
   const {
     owner,
     issued_place,
-    personalization_class,
+    realm_key,
     expiry_date,
     is_bound,
     is_blank,
@@ -491,11 +472,8 @@ export const ResidentManuscript = () => {
   const texts = TEXTS;
   const profileId = resolveProfileId(profile, texts);
   const profileTexts = resolveProfileTexts(texts, profileId, profile);
-  const personalizationClass = resolvePersonalizationClass(
-    personalization_class,
-    issued_place,
-  );
-  const themeStyle = buildThemeStyle(profile);
+  const realmKey = resolveRealmKey(realm_key, issued_place);
+  const personalizationClass = resolvePersonalizationClass(realmKey);
   const profileClassName = `ResidentManuscript--profile-${profileId}`;
   const personalizationClassName =
     `ResidentManuscript--personalization-${personalizationClass}`;
@@ -521,7 +499,7 @@ export const ResidentManuscript = () => {
   const ownerStatusLabel = resolveOwnerStatusLabel(
     ownerStatusKey,
     profileId,
-    issued_place,
+    realmKey,
     texts,
   );
   const sheetClassName = classes(
@@ -544,7 +522,6 @@ export const ResidentManuscript = () => {
             profileClassName,
             personalizationClassName,
           )}
-          style={themeStyle}
         >
           <div className={sheetClassName}>
             <DefectOverlay defectKeys={defectKeys} texts={texts} />
@@ -630,7 +607,7 @@ export const ResidentManuscript = () => {
                           {resolveOwnerStatusLabel(
                             key,
                             profileId,
-                            issued_place,
+                            realmKey,
                             texts,
                           )}
                         </Button>
