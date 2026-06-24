@@ -682,11 +682,11 @@
 	expiry_year_bonus_max = 5
 
 /obj/item/book/granter/resident_manuscript/imperial
-	desc = "Имперская грамота покровительства, скрепленная кайзеровской контрасигнацией."
+	desc = "Имперская грамота покровительства, скрепленная контрасигнацией канцелярии."
 	document_profile_id = "imperial"
 
 /obj/item/book/granter/resident_manuscript/blank/imperial
-	desc = "Чистая имперская грамота покровительства. Заполните ее пером, затем принесите за кайзеровской контрасигнацией."
+	desc = "Чистая имперская грамота покровительства. Заготовка для канцелярского заполнения и заверения."
 	document_profile_id = "imperial"
 
 /obj/item/book/granter/resident_manuscript/fake/imperial
@@ -716,6 +716,42 @@
 /obj/item/book/granter/resident_manuscript/fake/valorian_church
 	desc = "Валорийская грамота Святого Престола, происхождение которой лучше не обсуждать."
 	document_profile_id = "valorian_church"
+
+/obj/item/book/granter/resident_manuscript/grenzelhoft_mission
+	desc = "Имперское командировочное удостоверение, признающее предъявителя частью направленного отряда."
+	document_profile_id = "grenzelhoft_mission"
+
+/obj/item/book/granter/resident_manuscript/blank/grenzelhoft_mission
+	desc = "Чистое имперское командировочное удостоверение. Заготовка для канцелярского заполнения и заверения."
+	document_profile_id = "grenzelhoft_mission"
+
+/obj/item/book/granter/resident_manuscript/fake/grenzelhoft_mission
+	desc = "Имперское командировочное удостоверение, происхождение которого лучше не обсуждать."
+	document_profile_id = "grenzelhoft_mission"
+
+/obj/item/book/granter/resident_manuscript/heartfelt_identity
+	desc = "Хартфельтское удостоверение личности, заверяющее имя и положение предъявителя."
+	document_profile_id = "heartfelt_identity"
+
+/obj/item/book/granter/resident_manuscript/blank/heartfelt_identity
+	desc = "Чистое хартфельтское удостоверение личности. Заготовка для канцелярского заполнения и заверения."
+	document_profile_id = "heartfelt_identity"
+
+/obj/item/book/granter/resident_manuscript/fake/heartfelt_identity
+	desc = "Хартфельтское удостоверение личности, происхождение которого лучше не обсуждать."
+	document_profile_id = "heartfelt_identity"
+
+/obj/item/book/granter/resident_manuscript/heartfelt_noble
+	desc = "Свидетельство о дворянстве, заверяющее благородное положение предъявителя."
+	document_profile_id = "heartfelt_noble"
+
+/obj/item/book/granter/resident_manuscript/blank/heartfelt_noble
+	desc = "Чистое свидетельство о дворянстве. Заготовка для канцелярского заполнения и заверения."
+	document_profile_id = "heartfelt_noble"
+
+/obj/item/book/granter/resident_manuscript/fake/heartfelt_noble
+	desc = "Свидетельство о дворянстве, происхождение которого лучше не обсуждать."
+	document_profile_id = "heartfelt_noble"
 
 /obj/item/book/granter/resident_manuscript/guards
 	desc = "Гарнизонная грамота, удостоверяющая службу предъявителя в городском гарнизоне."

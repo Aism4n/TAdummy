@@ -36,17 +36,43 @@
 	job_titles = list("Merchant", "Shophand")
 	priority = 100
 
+/datum/resident_document_role_rule/grenzelhoft_mission
+	document_type = /obj/item/book/granter/resident_manuscript/grenzelhoft_mission
+	advclass_types = list(
+		/datum/advclass/mercenary/grenzelhoft,
+		/datum/advclass/mercenary/grenzelhoft_halberdier,
+		/datum/advclass/mercenary/grenzelhoft_crossbowman,
+		/datum/advclass/mercenary/grenzelhoft_mage,
+	)
+	priority = 120
+
+/datum/resident_document_role_rule/heartfelt_noble
+	document_type = /obj/item/book/granter/resident_manuscript/heartfelt_noble
+	job_titles = list("Lord of Heartfelt", "Hand of Heartfelt", "Knight of Heartfelt")
+	advclass_types = list(/datum/advclass/heartfelt/retinue/courtier)
+	priority = 120
+
+/datum/resident_document_role_rule/heartfelt_noble/matches(mob/living/carbon/human/user)
+	if(..())
+		return TRUE
+	return ishuman(user) && HAS_TRAIT(user, TRAIT_HEARTFELT) && HAS_TRAIT(user, TRAIT_NOBLE)
+
+/datum/resident_document_role_rule/heartfelt_identity
+	document_type = /obj/item/book/granter/resident_manuscript/heartfelt_identity
+	job_titles = list("Heartfelt Retinue")
+	priority = 115
+
+/datum/resident_document_role_rule/heartfelt_identity/matches(mob/living/carbon/human/user)
+	if(..())
+		return TRUE
+	return ishuman(user) && HAS_TRAIT(user, TRAIT_HEARTFELT)
+
 /datum/resident_document_role_rule/azurian_imperial_patronage
 	document_type = /obj/item/book/granter/resident_manuscript/imperial
-	job_titles = list(
-		"Grand Duke",
-		"Bishop",
-		"Inquisitor",
-		"Magister",
-		"Otavan Magister",
-		"High Magister",
-		"Supreme Magister",
-		"Магистр Отавы",
+	job_types = list(
+		/datum/job/roguetown/lord,
+		/datum/job/roguetown/priest,
+		/datum/job/roguetown/inquisitor,
 	)
 	priority = 125
 
@@ -55,7 +81,7 @@
 
 /datum/resident_document_role_rule/rockhill_crown
 	document_type = /obj/item/book/granter/resident_manuscript/enigma_crown
-	job_titles = list("Grand Duke")
+	job_types = list(/datum/job/roguetown/lord)
 	priority = 125
 
 /datum/resident_document_role_rule/rockhill_crown/matches(mob/living/carbon/human/user)
@@ -63,7 +89,7 @@
 
 /datum/resident_document_role_rule/rockhill_bishop
 	document_type = /obj/item/book/granter/resident_manuscript/valorian_church
-	job_titles = list("Bishop")
+	job_types = list(/datum/job/roguetown/priest)
 	priority = 125
 
 /datum/resident_document_role_rule/rockhill_bishop/matches(mob/living/carbon/human/user)
@@ -341,8 +367,8 @@
 
 /datum/resident_manuscript_seal_rule/kaiser
 	key = "kaiser"
-	title = "Кайзер"
-	stamper = "Кайзер Грензельхофта"
+	title = "Имперская канцелярия"
+	stamper = "Канцелярия Грензельхофта"
 	priority = RESIDENT_SEAL_PRIORITY_KAISER
 
 /datum/resident_manuscript_seal_rule/valorian
@@ -362,6 +388,12 @@
 	title = "Королевская протекция"
 	stamper = "Король"
 	job_types = list(/datum/job/roguetown/lord)
+	priority = RESIDENT_SEAL_PRIORITY_RULER
+
+/datum/resident_manuscript_seal_rule/heartfelt_chancery
+	key = "heartfelt_chancery"
+	title = "Хартфельтская канцелярия"
+	stamper = "Канцелярия Хартфелта"
 	priority = RESIDENT_SEAL_PRIORITY_RULER
 
 /proc/get_resident_manuscript_seal_rules()
@@ -425,8 +457,8 @@
 /datum/resident_document_profile/imperial
 	id = "imperial"
 	display_name = "Имперская грамота покровительства"
-	subtitle = "Под кайзеровской контрасигнацией"
-	description = "Да будет ведомо: предъявитель занимает должность, сан или службу, признанную канцелярией Кайзера Грензельхофта и властью Герцогства Азурия. Грамота удостоверяет его полномочия и не передается иным лицам."
+	subtitle = "Под имперской контрасигнацией"
+	description = "Да будет ведомо: предъявитель занимает должность, сан или службу, признанную имперской канцелярией Грензельхофта и властью Герцогства Азурия. Грамота удостоверяет его полномочия и не передается иным лицам."
 	allowed_seals = list("kaiser", "ruler", "bishop", "inquisitor", "hand")
 	default_seal_keys = list("kaiser")
 	grants_residence_claim = TRUE
@@ -448,6 +480,30 @@
 	allowed_seals = list("valorian_holy_see", "bishop", "ruler")
 	default_seal_keys = list("valorian_holy_see")
 	grants_residence_claim = TRUE
+
+/datum/resident_document_profile/grenzelhoft_mission
+	id = "grenzelhoft_mission"
+	display_name = "Имперское командировочное удостоверение"
+	subtitle = "Печатью канцелярии Грензельхофта"
+	description = "Да будет ведомо: предъявитель включен в отряд, направленный имперской канцелярией Грензельхофта. Ему дозволено следовать с порученной миссией, сопровождать лорда-посланника и предъявлять настоящую бумагу властям."
+	allowed_seals = list("kaiser", "hand", "chancellor")
+	default_seal_keys = list("kaiser")
+
+/datum/resident_document_profile/heartfelt_identity
+	id = "heartfelt_identity"
+	display_name = "Хартфельтское удостоверение личности"
+	subtitle = "Под печатью хартфельтской канцелярии"
+	description = "Да будет ведомо: предъявитель удостоверен как житель Хартфелта. Его имя, личность и право на предъявление этой бумаги признаются канцелярией Хартфелта."
+	allowed_seals = list("heartfelt_chancery", "valorian_holy_see", "chancellor")
+	default_seal_keys = list("heartfelt_chancery")
+
+/datum/resident_document_profile/heartfelt_noble
+	id = "heartfelt_noble"
+	display_name = "Свидетельство о дворянстве"
+	subtitle = "Под печатью хартфельтской канцелярии"
+	description = "Да будет ведомо: предъявитель удостоверен как благородный житель Хартфелта. Его имя, достоинство и право следовать при хартфельтской свите признаются настоящей бумагой."
+	allowed_seals = list("heartfelt_chancery", "valorian_holy_see", "chancellor")
+	default_seal_keys = list("heartfelt_chancery")
 
 /datum/resident_document_profile/guards
 	id = "guards"

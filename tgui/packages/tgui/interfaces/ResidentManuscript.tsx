@@ -13,6 +13,9 @@ type DocumentProfileId =
   | 'imperial'
   | 'enigma_crown'
   | 'valorian_church'
+  | 'grenzelhoft_mission'
+  | 'heartfelt_identity'
+  | 'heartfelt_noble'
   | 'guards'
   | 'church'
   | 'craftsmen'
@@ -163,9 +166,9 @@ const TEXTS: ResidentManuscriptTexts = {
     },
     imperial: {
       display_name: 'Имперская грамота покровительства',
-      subtitle: 'Под кайзеровской контрасигнацией',
+      subtitle: 'Под имперской контрасигнацией',
       description:
-        'Да будет ведомо: предъявитель занимает должность, сан или службу, признанную канцелярией Кайзера Грензельхофта и властью Герцогства Азурия. Грамота удостоверяет его полномочия и не передается иным лицам.',
+        'Да будет ведомо: предъявитель занимает должность, сан или службу, признанную имперской канцелярией Грензельхофта и властью Герцогства Азурия. Грамота удостоверяет его полномочия и не передается иным лицам.',
     },
     enigma_crown: {
       display_name: 'Коронная грамота Энигмы',
@@ -178,6 +181,24 @@ const TEXTS: ResidentManuscriptTexts = {
       subtitle: 'Под церковью Неделимых Десяти',
       description:
         'Да будет ведомо: предъявитель признан Святым Престолом Валории и вправе совершать церковную службу на Рокхилле. Его сан, печать и церковные распоряжения подлежат признанию в пределах настоящей грамоты.',
+    },
+    grenzelhoft_mission: {
+      display_name: 'Имперское командировочное удостоверение',
+      subtitle: 'Печатью канцелярии Грензельхофта',
+      description:
+        'Да будет ведомо: предъявитель включен в отряд, направленный имперской канцелярией Грензельхофта. Ему дозволено следовать с порученной миссией, сопровождать лорда-посланника и предъявлять настоящую бумагу властям.',
+    },
+    heartfelt_identity: {
+      display_name: 'Хартфельтское удостоверение личности',
+      subtitle: 'Под печатью хартфельтской канцелярии',
+      description:
+        'Да будет ведомо: предъявитель удостоверен как житель Хартфелта. Его имя, личность и право на предъявление этой бумаги признаются канцелярией Хартфелта.',
+    },
+    heartfelt_noble: {
+      display_name: 'Свидетельство о дворянстве',
+      subtitle: 'Под печатью хартфельтской канцелярии',
+      description:
+        'Да будет ведомо: предъявитель удостоверен как благородный житель Хартфелта. Его имя, достоинство и право следовать при хартфельтской свите признаются настоящей бумагой.',
     },
     guards: {
       display_name: 'Гарнизонная грамота',
@@ -305,7 +326,10 @@ const TEXTS: ResidentManuscriptTexts = {
       title: 'Старший торговец',
       stamper: 'Старший торговец',
     },
-    kaiser: { title: 'Кайзер', stamper: 'Кайзер Грензельхофта' },
+    kaiser: {
+      title: 'Имперская канцелярия',
+      stamper: 'Канцелярия Грензельхофта',
+    },
     valorian: {
       title: 'Валорийская торговая гильдия',
       stamper: 'Торговая гильдия Астинии-ди-Сала',
@@ -315,6 +339,10 @@ const TEXTS: ResidentManuscriptTexts = {
       stamper: 'Святой Престол Валории',
     },
     royal_protection: { title: 'Королевская протекция', stamper: 'Король' },
+    heartfelt_chancery: {
+      title: 'Хартфельтская канцелярия',
+      stamper: 'Канцелярия Хартфелта',
+    },
   },
   description:
     'Да будет ведомо: эта грамота удостоверяет имя, правовой статус и действие предъявленных печатей.',
@@ -425,6 +453,19 @@ const resolveOwnerStatusLabel = (
   }
   if (profileId === 'valorian_church') {
     return statusKey === 'noble' ? 'Святой Престол' : 'Церковная служба';
+  }
+  if (profileId === 'grenzelhoft_mission') {
+    return statusKey === 'noble'
+      ? 'Имперский представитель'
+      : 'Имперское поручение';
+  }
+  if (profileId === 'heartfelt_noble') {
+    return 'Благородный житель Хартфелта';
+  }
+  if (profileId === 'heartfelt_identity') {
+    return statusKey === 'noble'
+      ? 'Благородный житель Хартфелта'
+      : 'Житель Хартфелта';
   }
   if (profileId === 'otava') {
     if (realmKey === 'rockhill') {
@@ -939,6 +980,61 @@ const PROFILE_EMBLEMS: Record<DocumentProfileId, ReactNode> = {
         fill="none"
       />
       <circle className="ResidentManuscript__crestGem" cx="48" cy="56" r="4" />
+    </>
+  ),
+  grenzelhoft_mission: (
+    <>
+      <path
+        className="ResidentManuscript__crestRay"
+        d="M48 20 L55 42 L78 42 L59 55 L66 78 L48 64 L30 78 L37 55 L18 42 L41 42 Z"
+      />
+      <path
+        className="ResidentManuscript__crestEmblem"
+        d="M28 82 H68 V88 H28 Z"
+      />
+      <path
+        className="ResidentManuscript__crestQuarter"
+        d="M34 48 H62 M48 28 V82"
+        fill="none"
+      />
+      <circle className="ResidentManuscript__crestGem" cx="48" cy="52" r="3" />
+    </>
+  ),
+  heartfelt_identity: (
+    <>
+      <path
+        className="ResidentManuscript__crestEmblem"
+        d="M28 74 C34 58 38 42 48 28 C58 42 62 58 68 74 Z"
+      />
+      <path
+        className="ResidentManuscript__crestRay"
+        d="M34 58 C40 52 44 46 48 34 C52 46 56 52 62 58 M34 72 H62"
+        fill="none"
+      />
+      <circle className="ResidentManuscript__crestGem" cx="48" cy="52" r="3" />
+    </>
+  ),
+  heartfelt_noble: (
+    <>
+      <path
+        className="ResidentManuscript__crestEmblem"
+        d="M24 68 L30 42 L40 54 L48 28 L56 54 L66 42 L72 68 Z"
+      />
+      <rect
+        className="ResidentManuscript__crestEmblem"
+        x="28"
+        y="68"
+        width="40"
+        height="8"
+      />
+      <path
+        className="ResidentManuscript__crestRay"
+        d="M32 84 H64"
+        fill="none"
+      />
+      <circle className="ResidentManuscript__crestGem" cx="48" cy="28" r="3" />
+      <circle className="ResidentManuscript__crestGem" cx="30" cy="42" r="2" />
+      <circle className="ResidentManuscript__crestGem" cx="66" cy="42" r="2" />
     </>
   ),
   guards: (
