@@ -729,6 +729,8 @@
 	if(prob(RESIDENT_MANUSCRIPT_FAKE_DEFECT_CHANCE))
 		ensure_defect_note_keys()
 
+/obj/item/book/granter/resident_manuscript/roundstart
+
 /obj/item/book/granter/resident_manuscript/imperial
 	desc = "Имперская грамота покровительства, скрепленная контрасигнацией канцелярии."
 	document_profile_id = "imperial"
