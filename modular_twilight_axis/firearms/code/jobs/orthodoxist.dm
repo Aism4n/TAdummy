@@ -112,6 +112,11 @@
 		active = FALSE
 		playsound(loc, 'sound/items/garroteshut.ogg', 65, TRUE)
 
+/obj/item/inqarticles/garrote/proc/has_oxy_protection(obj/item/I)
+	if(!I || I.obj_broken)
+		return FALSE
+	return istype(I, /obj/item/clothing/neck/roguetown/gorget) || istype(I, /obj/item/clothing/neck/roguetown/leather) || istype(I, /obj/item/clothing/neck/roguetown/bevor) || istype(I, /obj/item/clothing/neck/roguetown/coif) || istype(I, /obj/item/clothing/neck/roguetown/chaincoif)
+
 /obj/item/inqarticles/garrote/attack_self(mob/user)
 	if(obj_broken)
 		to_chat(user, span_warning("It's useless now, although.."))
@@ -236,11 +241,8 @@
 			oxy_damage = choke_damage
 		else if(ishuman(C))
 			var/mob/living/carbon/human/H = C
-			var/obj/item/neck_item = H.wear_neck
-			if(istype(neck_item, /obj/item/clothing/neck/roguetown/gorget))
-				var/obj/item/clothing/neck/roguetown/gorget/G = neck_item
-				if(!G.obj_broken)
-					oxy_damage = choke_damage
+			if(has_oxy_protection(H.wear_neck) || has_oxy_protection(H.head))
+				oxy_damage = choke_damage
 		C.adjustOxyLoss(oxy_damage)
 		if(!C.mind) // NPCs can be choked out twice as fast
 			C.adjustOxyLoss(oxy_damage)
