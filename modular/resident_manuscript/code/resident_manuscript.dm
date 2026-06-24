@@ -66,10 +66,23 @@
 		return FALSE
 	return TRUE
 
+/proc/resident_manuscript_is_barred_from_residence(mob/living/carbon/human/user)
+	if(!ishuman(user))
+		return TRUE
+	if(HAS_TRAIT(user, TRAIT_OUTLAW) || HAS_TRAIT(user, TRAIT_HERESIARCH) || HAS_TRAIT(user, TRAIT_EXCOMMUNICATED))
+		return TRUE
+	if((user.name in GLOB.outlawed_players) || (user.real_name in GLOB.outlawed_players))
+		return TRUE
+	if((user.name in GLOB.excommunicated_players) || (user.real_name in GLOB.excommunicated_players))
+		return TRUE
+	return FALSE
+
 /proc/give_roundstart_manuscript(mob/living/carbon/human/recipient, manuscript_type)
 	if(!resident_manuscripts_enabled())
 		return FALSE
 	if(!ishuman(recipient) || !recipient.mind)
+		return FALSE
+	if(resident_manuscript_is_barred_from_residence(recipient))
 		return FALSE
 	if(!ispath(manuscript_type, /obj/item/book/granter/resident_manuscript))
 		return FALSE
@@ -459,15 +472,7 @@
 	return FALSE
 
 /obj/item/book/granter/resident_manuscript/proc/is_barred_from_residence(mob/living/carbon/human/user)
-	if(!ishuman(user))
-		return TRUE
-	if(HAS_TRAIT(user, TRAIT_OUTLAW) || HAS_TRAIT(user, TRAIT_HERESIARCH) || HAS_TRAIT(user, TRAIT_EXCOMMUNICATED))
-		return TRUE
-	if((user.name in GLOB.outlawed_players) || (user.real_name in GLOB.outlawed_players))
-		return TRUE
-	if((user.name in GLOB.excommunicated_players) || (user.real_name in GLOB.excommunicated_players))
-		return TRUE
-	return FALSE
+	return resident_manuscript_is_barred_from_residence(user)
 
 /obj/item/book/granter/resident_manuscript/proc/can_claim_residence(mob/living/carbon/human/user)
 	if(!ishuman(user) || !owner_character_key || is_fake)
