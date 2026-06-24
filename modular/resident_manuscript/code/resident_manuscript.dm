@@ -38,7 +38,7 @@
 		if("Dun World", "Dun_world")
 			return "Герцогство Азурия"
 		if("Rockhill")
-			return "Королевство Рокхилл"
+			return "Королевство Энигмы, Рокхилл"
 		if("Desert Town")
 			return "Пустынный город"
 	return "Герцогство Азурия"
@@ -681,8 +681,44 @@
 	expiry_year_bonus_min = 5
 	expiry_year_bonus_max = 5
 
+/obj/item/book/granter/resident_manuscript/imperial
+	desc = "Имперская грамота покровительства, скрепленная кайзеровской контрасигнацией."
+	document_profile_id = "imperial"
+
+/obj/item/book/granter/resident_manuscript/blank/imperial
+	desc = "Чистая имперская грамота покровительства. Заполните ее пером, затем принесите за кайзеровской контрасигнацией."
+	document_profile_id = "imperial"
+
+/obj/item/book/granter/resident_manuscript/fake/imperial
+	desc = "Имперская грамота покровительства, происхождение которой лучше не обсуждать."
+	document_profile_id = "imperial"
+
+/obj/item/book/granter/resident_manuscript/enigma_crown
+	desc = "Коронная грамота Энигмы, удостоверяющая королевские полномочия предъявителя на Рокхилле."
+	document_profile_id = "enigma_crown"
+
+/obj/item/book/granter/resident_manuscript/blank/enigma_crown
+	desc = "Чистая коронная грамота Энигмы. Заполните ее пером, затем принесите за печатью королевского двора."
+	document_profile_id = "enigma_crown"
+
+/obj/item/book/granter/resident_manuscript/fake/enigma_crown
+	desc = "Коронная грамота Энигмы, происхождение которой лучше не обсуждать."
+	document_profile_id = "enigma_crown"
+
+/obj/item/book/granter/resident_manuscript/valorian_church
+	desc = "Валорийская грамота Святого Престола, признающая церковный сан предъявителя на Рокхилле."
+	document_profile_id = "valorian_church"
+
+/obj/item/book/granter/resident_manuscript/blank/valorian_church
+	desc = "Чистая валорийская грамота Святого Престола. Заполните ее пером, затем принесите за церковной печатью."
+	document_profile_id = "valorian_church"
+
+/obj/item/book/granter/resident_manuscript/fake/valorian_church
+	desc = "Валорийская грамота Святого Престола, происхождение которой лучше не обсуждать."
+	document_profile_id = "valorian_church"
+
 /obj/item/book/granter/resident_manuscript/guards
-	desc = "Гарнизонная грамота, называющая предъявителя коронной сталью на городском камне."
+	desc = "Гарнизонная грамота, удостоверяющая службу предъявителя в городском гарнизоне."
 	document_profile_id = "guards"
 
 /obj/item/book/granter/resident_manuscript/blank/guards
@@ -766,15 +802,15 @@
 	document_profile_id = "retinue"
 
 /obj/item/book/granter/resident_manuscript/merchant
-	desc = "Хартия торговой лавки, признающая положение предъявителя в торговле и договорах."
+	desc = "Валорийское торговое разрешение, признающее положение предъявителя в торговле и договорах."
 	document_profile_id = "merchant"
 
 /obj/item/book/granter/resident_manuscript/blank/merchant
-	desc = "Чистая хартия торговой лавки. Заполните ее пером, затем принесите за печатью старшего торговца."
+	desc = "Чистое валорийское торговое разрешение. Заполните его пером, затем принесите за гильдейской печатью."
 	document_profile_id = "merchant"
 
 /obj/item/book/granter/resident_manuscript/fake/merchant
-	desc = "Хартия торговой лавки, происхождение которой лучше не обсуждать."
+	desc = "Валорийское торговое разрешение, происхождение которого лучше не обсуждать."
 	document_profile_id = "merchant"
 
 /obj/item/book/granter/resident_manuscript/mages

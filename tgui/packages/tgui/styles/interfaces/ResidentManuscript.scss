@@ -40,6 +40,39 @@
     --rm-seal: #6d2a24;
   }
 
+  &--profile-imperial {
+    --rm-paper: #d9cfb0;
+    --rm-ink: #1c1814;
+    --rm-accent: #71624d;
+    --rm-blue: #8b8f98;
+    --rm-blue-dark: #4a4f59;
+    --rm-gold: #c8a45d;
+    --rm-red-ink: #6f2b25;
+    --rm-seal: #171412;
+  }
+
+  &--profile-enigma_crown {
+    --rm-paper: #d9c9aa;
+    --rm-ink: #1f1a1f;
+    --rm-accent: #6f5f86;
+    --rm-blue: #83799e;
+    --rm-blue-dark: #4c4568;
+    --rm-gold: #ba9450;
+    --rm-red-ink: #713038;
+    --rm-seal: #5b2630;
+  }
+
+  &--profile-valorian_church {
+    --rm-paper: #e5d3a8;
+    --rm-ink: #2c2116;
+    --rm-accent: #96642f;
+    --rm-blue: #a97948;
+    --rm-blue-dark: #67451f;
+    --rm-gold: #cfa35a;
+    --rm-red-ink: #8a3120;
+    --rm-seal: #8a4c24;
+  }
+
   &--profile-retinue {
     --rm-paper: #d7c4a0;
     --rm-ink: #231818;
@@ -428,8 +461,17 @@
   }
 
   &__crest--church &__crestShield,
+  &__crest--valorian_church &__crestShield,
   &__crest--otava &__crestShield {
     fill: rgba(126, 88, 48, 0.86);
+  }
+
+  &__crest--imperial &__crestShield {
+    fill: rgba(35, 32, 30, 0.9);
+  }
+
+  &__crest--enigma_crown &__crestShield {
+    fill: rgba(78, 54, 88, 0.9);
   }
 
   &__crest--guards &__crestShield {
