@@ -153,6 +153,7 @@
 	var/realm_key
 	var/is_bound = FALSE
 	var/is_fake = FALSE
+	var/undetectable_fake = FALSE
 	var/authority_validated = FALSE
 	var/auto_stamp_seals = TRUE
 	var/auto_bind_on_equip = TRUE
@@ -441,6 +442,11 @@
 /obj/item/book/granter/resident_manuscript/proc/can_edit_fake_manuscript(mob/living/carbon/human/user)
 	return ishuman(user) && is_fake && !is_bound
 
+/obj/item/book/granter/resident_manuscript/proc/can_write_master_forgery(mob/living/carbon/human/user)
+	if(!ishuman(user))
+		return FALSE
+	return HAS_TRAIT(user, TRAIT_GOODWRITER) || user.get_true_stat(STATKEY_INT) >= 17
+
 /obj/item/book/granter/resident_manuscript/proc/can_bind_from_ui(mob/living/carbon/human/user)
 	return ishuman(user) && !is_bound && !is_fake && !requires_feather_to_bind
 
@@ -491,7 +497,7 @@
 	var/detection_key = get_detection_character_key(user)
 	if(!detection_key || LAZYACCESS(detection_attempts, detection_key))
 		return FALSE
-	if(authority_validated && !is_ruling_authority(user))
+	if(authority_validated)
 		return FALSE
 	return TRUE
 
@@ -510,6 +516,7 @@
 	else
 		name = "Грамота жителя"
 	icon_state = "contractsigned"
+	undetectable_fake = can_write_master_forgery(user)
 	authority_validated = FALSE
 	detection_attempts = list()
 	detection_results = list()
@@ -541,10 +548,34 @@
 	var/scroll_owner_name = owner_name || "Не закреплена"
 	log_game("ГРАМОТА ЖИТЕЛЯ: осмотр document=[REF(src)] inspector_ckey=[log_ckey] inspector_name=[character_name] result=[result] scroll_owner=[scroll_owner_name]")
 
+/obj/item/book/granter/resident_manuscript/proc/record_detection_result(mob/living/carbon/human/user, detection_key, result)
+	LAZYSET(detection_results, detection_key, result)
+	log_detection_attempt(user, result)
+	if(result == RESIDENT_MANUSCRIPT_VERIFICATION_FAKE)
+		to_chat(user, span_warning("Вы замечаете признаки подделки в грамоте."))
+	else
+		var/note_key = pick(resident_manuscript_validation_note_keys())
+		LAZYSET(detection_note_keys, detection_key, note_key)
+
+/obj/item/book/granter/resident_manuscript/proc/handle_authority_detection(mob/living/carbon/human/user, detection_key)
+	LAZYSET(detection_attempts, detection_key, TRUE)
+	var/result = RESIDENT_MANUSCRIPT_VERIFICATION_REAL
+	if(is_fake)
+		var/detected_fake = user.get_true_stat(STATKEY_INT) > 10 || prob(25)
+		if(detected_fake)
+			ensure_defect_note_keys()
+			result = RESIDENT_MANUSCRIPT_VERIFICATION_FAKE
+		else
+			authority_validated = TRUE
+	record_detection_result(user, detection_key, result)
+	return TRUE
+
 /obj/item/book/granter/resident_manuscript/proc/handle_detection(mob/living/carbon/human/user)
 	if(!can_inspect_manuscript(user))
 		return FALSE
 	var/detection_key = get_detection_character_key(user)
+	if(is_ruling_authority(user))
+		return handle_authority_detection(user, detection_key)
 	LAZYSET(detection_attempts, detection_key, TRUE)
 	var/result = RESIDENT_MANUSCRIPT_VERIFICATION_UNKNOWN
 	var/chance = 5
@@ -556,22 +587,14 @@
 	if(is_ruling_authority(user))
 		chance += 20
 	if(prob(clamp(chance, 5, 95)))
-		if(is_fake)
+		if(is_fake && !undetectable_fake)
 			ensure_defect_note_keys()
 			result = RESIDENT_MANUSCRIPT_VERIFICATION_FAKE
 		else
 			result = RESIDENT_MANUSCRIPT_VERIFICATION_REAL
 	else if(!is_fake)
 		result = RESIDENT_MANUSCRIPT_VERIFICATION_REAL
-	else if(is_ruling_authority(user))
-		authority_validated = TRUE
-	LAZYSET(detection_results, detection_key, result)
-	log_detection_attempt(user, result)
-	if(result == RESIDENT_MANUSCRIPT_VERIFICATION_FAKE)
-		to_chat(user, span_warning("Вы замечаете признаки подделки в грамоте."))
-	else
-		var/note_key = pick(resident_manuscript_validation_note_keys())
-		LAZYSET(detection_note_keys, detection_key, note_key)
+	record_detection_result(user, detection_key, result)
 	return TRUE
 
 /obj/item/book/granter/resident_manuscript/examine(mob/user)
