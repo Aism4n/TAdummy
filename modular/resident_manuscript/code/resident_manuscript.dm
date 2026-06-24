@@ -584,8 +584,6 @@
 	chance += user.get_skill_level(/datum/skill/misc/reading) * 10
 	if(HAS_TRAIT(user, TRAIT_INTELLECTUAL))
 		chance += 15
-	if(is_ruling_authority(user))
-		chance += 20
 	if(prob(clamp(chance, 5, 95)))
 		if(is_fake && !undetectable_fake)
 			ensure_defect_note_keys()
