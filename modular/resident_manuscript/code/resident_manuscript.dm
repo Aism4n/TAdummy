@@ -36,12 +36,12 @@
 /proc/get_resident_manuscript_issued_place()
 	switch(SSmapping.config?.map_name)
 		if("Dun World", "Dun_world")
-			return "Дан Ворлд"
+			return "Герцогство Азурия"
 		if("Rockhill")
-			return "Рокхилл"
+			return "Королевство Рокхилл"
 		if("Desert Town")
 			return "Пустынный город"
-	return "Сумеречная Ось"
+	return "Герцогство Азурия"
 
 /proc/resident_manuscript_defect_keys()
 	return list(
@@ -96,8 +96,8 @@
 	var/auto_stamp_seals = TRUE
 	var/auto_bind_on_equip = TRUE
 	var/requires_feather_to_bind = FALSE
-	var/expiry_year_bonus_min = 0
-	var/expiry_year_bonus_max = 0
+	var/expiry_year_bonus_min = 5
+	var/expiry_year_bonus_max = 5
 	var/list/seals
 	var/list/defect_note_keys
 	var/list/detection_attempts
@@ -141,7 +141,7 @@
 	var/day_of_year = MODULUS(days_since_epoch, CALENDAR_DAYS_IN_YEAR) + 1
 	var/current_month = FLOOR((day_of_year - 1) / CALENDAR_DAYS_IN_MONTH, 1) + 1
 	var/current_day = MODULUS((day_of_year - 1), CALENDAR_DAYS_IN_MONTH) + 1
-	var/new_day = current_day + rand(10, 20)
+	var/new_day = current_day
 	var/new_month = current_month
 	var/new_year = CALENDAR_EPOCH_YEAR
 	while(new_day > CALENDAR_DAYS_IN_MONTH)
@@ -163,6 +163,9 @@
 
 /obj/item/book/granter/resident_manuscript/proc/status_key_for(mob/living/carbon/human/target)
 	if(HAS_TRAIT(target, TRAIT_NOBLE))
+		return RESIDENT_MANUSCRIPT_STATUS_NOBLE
+	var/job_title = target.job || target.mind?.assigned_role
+	if(job_title && ((job_title in GLOB.noble_positions) || (job_title in GLOB.retinue_positions) || (job_title in GLOB.courtier_positions)))
 		return RESIDENT_MANUSCRIPT_STATUS_NOBLE
 	return RESIDENT_MANUSCRIPT_STATUS_COMMONER
 
@@ -669,7 +672,7 @@
 
 /obj/item/book/granter/resident_manuscript/roundstart
 	expiry_year_bonus_min = 5
-	expiry_year_bonus_max = 10
+	expiry_year_bonus_max = 5
 
 /obj/item/book/granter/resident_manuscript/guards
 	desc = "Гарнизонная грамота, называющая предъявителя коронной сталью на городском камне."
@@ -742,6 +745,18 @@
 /obj/item/book/granter/resident_manuscript/fake/otava
 	desc = "Эдикт Отавы, происхождение которого лучше не обсуждать."
 	document_profile_id = "otava"
+
+/obj/item/book/granter/resident_manuscript/retinue
+	desc = "Грамота дворцовой службы, указывающая на личную присягу и место предъявителя при дворе."
+	document_profile_id = "retinue"
+
+/obj/item/book/granter/resident_manuscript/blank/retinue
+	desc = "Чистая грамота дворцовой службы. Заполните ее пером, затем принесите за печатью двора."
+	document_profile_id = "retinue"
+
+/obj/item/book/granter/resident_manuscript/fake/retinue
+	desc = "Грамота дворцовой службы, происхождение которой лучше не обсуждать."
+	document_profile_id = "retinue"
 
 /obj/item/book/granter/resident_manuscript/merchant
 	desc = "Хартия торговой лавки, признающая положение предъявителя в торговле и договорах."

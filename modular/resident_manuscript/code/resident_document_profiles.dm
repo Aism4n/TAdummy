@@ -53,6 +53,16 @@
 	job_titles = list("Mercenary")
 	priority = 100
 
+/datum/resident_document_role_rule/retinue
+	document_type = /obj/item/book/granter/resident_manuscript/retinue
+	priority = 90
+
+/datum/resident_document_role_rule/retinue/matches(mob/living/carbon/human/user)
+	if(!ishuman(user) || !user.mind)
+		return FALSE
+	var/job_title = user.job || user.mind.assigned_role
+	return job_title && (job_title in GLOB.retinue_positions)
+
 /datum/resident_document_role_rule/garrison
 	document_type = /obj/item/book/granter/resident_manuscript/guards
 	priority = 50
@@ -108,7 +118,12 @@
 	priority = -10
 
 /datum/resident_document_role_rule/noble_fallback/matches(mob/living/carbon/human/user)
-	return ishuman(user) && HAS_TRAIT(user, TRAIT_NOBLE)
+	if(!ishuman(user) || !user.mind)
+		return FALSE
+	var/job_title = user.job || user.mind.assigned_role
+	if(job_title && ((job_title in GLOB.noble_positions) || (job_title in GLOB.courtier_positions)))
+		return TRUE
+	return HAS_TRAIT(user, TRAIT_NOBLE)
 
 /datum/resident_document_role_rule/commoner_fallback
 	document_type = /obj/item/book/granter/resident_manuscript/commoner
@@ -446,6 +461,30 @@
 	ink_color = "#18130f"
 	accent_color = "#8f7a48"
 	seal_color = "#1f1a14"
+
+/datum/resident_document_profile/retinue
+	id = "retinue"
+	display_name = "Грамота дворцовой службы"
+	subtitle = "Под герцогской рукой и присягой"
+	description = "Да будет ведомо: предъявитель состоит при дворе Герцогства Азурия и несет личную службу герцогу. Его место при дворе держится не дешевыми чернилами, но присягой, сталью и волей герцогской власти."
+	allowed_seals = list("hand", "ruler", "marshal")
+	default_commoner_seal_keys = list("hand")
+	default_noble_seal_keys = list("hand")
+	paper_color = "#d7c4a0"
+	ink_color = "#231818"
+	accent_color = "#6c3731"
+	seal_color = "#7f1f1d"
+	grants_residence_claim = TRUE
+
+/datum/resident_document_profile/retinue/get_subtitle()
+	if(resident_manuscript_uses_rockhill_titles())
+		return "Под королевской рукой и присягой"
+	return ..()
+
+/datum/resident_document_profile/retinue/get_description()
+	if(resident_manuscript_uses_rockhill_titles())
+		return "Да будет ведомо: предъявитель состоит при дворе Рокхилла и несет личную службу Королю. Его место при дворе держится не дешевыми чернилами, но присягой, сталью и волей королевской власти."
+	return ..()
 
 /proc/get_resident_document_profiles()
 	var/static/list/profiles

@@ -17,7 +17,8 @@ type DocumentProfileId =
   | 'mages'
   | 'commoner'
   | 'mercenary'
-  | 'otava';
+  | 'otava'
+  | 'retinue';
 
 type DocumentProfileTexts = {
   display_name: string;
@@ -213,6 +214,12 @@ const TEXTS: ResidentManuscriptTexts = {
       description:
         'Да будет ведомо: серебряным эдиктом Отавы предъявитель вправе вырывать истину из запертых уст и призывать пламя на гниль ереси. Преградить ему путь значит встать там, где причитается пепел.',
     },
+    retinue: {
+      display_name: 'Грамота дворцовой службы',
+      subtitle: 'Под герцогской рукой и присягой',
+      description:
+        'Да будет ведомо: предъявитель состоит при дворе Герцогства Азурия и несет личную службу герцогу. Его место при дворе держится не дешевыми чернилами, но присягой, сталью и волей герцогской власти.',
+    },
   },
   labels: {
     owner: 'Имя',
@@ -247,11 +254,11 @@ const TEXTS: ResidentManuscriptTexts = {
     Old: 'Старый',
   },
   owner_status_options: {
-    commoner: 'Неподтвержденное',
+    commoner: 'Простолюдин',
     noble: 'Под милостью Астраты',
   },
   states: {
-    owner: 'Эта грамота признана вашей.',
+    owner: 'Эта грамота закреплена за вами.',
     other: 'Эта грамота принадлежит другому.',
     unbound: 'Эта грамота еще не закреплена за владельцем.',
     blank_hint: 'Чистую грамоту нужно заполнить пером.',
@@ -412,6 +419,22 @@ const ownerAgeLabel = (
   return displayValue(value, texts.states.empty);
 };
 
+const resolveOwnerStatusLabel = (
+  statusKey: OwnerStatusKey,
+  profileId: string,
+  issuedPlace: string | null,
+  texts: ResidentManuscriptTexts,
+): string => {
+  if (profileId === 'retinue' && statusKey === 'noble') {
+    return issuedPlace === 'Королевство Рокхилл'
+      ? 'Королевская служба'
+      : 'Герцогская служба';
+  }
+  return (
+    texts.owner_status_options[statusKey] || texts.owner_status_options.commoner
+  );
+};
+
 const getSealTitle = (
   seal: SealData,
   texts: ResidentManuscriptTexts,
@@ -464,6 +487,7 @@ export const ResidentManuscript = () => {
     useState<OwnerStatusKey>(ownerStatusKey);
 
   const canEdit = !!permissions.can_edit;
+  const showVerification = !Boolean(is_owner);
   const defectKeys = verification.defect_note_keys ?? [];
   const defectNotes = defectKeys.map((key) => texts.defects[key] || key);
   const validationNote = verification.note_key
@@ -473,9 +497,12 @@ export const ResidentManuscript = () => {
     validationNote ||
     texts.verification[verification.result] ||
     texts.verification.none;
-  const ownerStatusLabel =
-    texts.owner_status_options[ownerStatusKey] ||
-    texts.owner_status_options.commoner;
+  const ownerStatusLabel = resolveOwnerStatusLabel(
+    ownerStatusKey,
+    profileId,
+    issued_place,
+    texts,
+  );
   const sheetClassName = classes(
     'ResidentManuscript__sheet',
     defectKeys.length > 0 && 'ResidentManuscript__sheet--defective',
@@ -575,7 +602,12 @@ export const ResidentManuscript = () => {
                           selected={ownerStatus === key}
                           onClick={() => setOwnerStatus(key)}
                         >
-                          {texts.owner_status_options[key]}
+                          {resolveOwnerStatusLabel(
+                            key,
+                            profileId,
+                            issued_place,
+                            texts,
+                          )}
                         </Button>
                       ))}
                     </div>
@@ -638,28 +670,30 @@ export const ResidentManuscript = () => {
                 </div>
               </section>
 
-              <section className="ResidentManuscript__verification">
-                <div className="ResidentManuscript__sectionTitle">
-                  {texts.labels.verification}
-                </div>
-                <div
-                  className={`ResidentManuscript__verificationText ResidentManuscript__verificationText--${verification.result}`}
-                >
-                  {verificationText}
-                </div>
-                {verification.result === 'fake' && defectNotes.length > 0 && (
-                  <div className="ResidentManuscript__defects">
-                    <div className="ResidentManuscript__defectTitle">
-                      {texts.labels.defects}
-                    </div>
-                    {defectNotes.map((note) => (
-                      <div className="ResidentManuscript__defect" key={note}>
-                        {note}
-                      </div>
-                    ))}
+              {showVerification && (
+                <section className="ResidentManuscript__verification">
+                  <div className="ResidentManuscript__sectionTitle">
+                    {texts.labels.verification}
                   </div>
-                )}
-              </section>
+                  <div
+                    className={`ResidentManuscript__verificationText ResidentManuscript__verificationText--${verification.result}`}
+                  >
+                    {verificationText}
+                  </div>
+                  {verification.result === 'fake' && defectNotes.length > 0 && (
+                    <div className="ResidentManuscript__defects">
+                      <div className="ResidentManuscript__defectTitle">
+                        {texts.labels.defects}
+                      </div>
+                      {defectNotes.map((note) => (
+                        <div className="ResidentManuscript__defect" key={note}>
+                          {note}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              )}
 
               <div className="ResidentManuscript__actions">
                 {canEdit && (
