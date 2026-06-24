@@ -1144,7 +1144,7 @@
 /mob/living/carbon/human/proc/update_proj_parry_timer()
 	projectile_parry_timer = (world.time + PROJ_PARRY_TIMER)
 
-
+/*
 /mob/living/carbon/human/proc/reapply_live_preferences()
 	if(!client?.prefs)
 		return FALSE
@@ -1161,7 +1161,7 @@
 			grant_language(language_type)
 		language_holder.selected_default_language = selected_default_language
 
-	return TRUE
+	return TRUEи
 
 /mob/living/carbon/human/proc/refresh_live_vocal_preferences()
 	if(!client?.prefs)
@@ -1183,4 +1183,4 @@
 	vocal_pitch = client.prefs.bark_pitch
 	vocal_pitch_range = client.prefs.bark_variance
 	apply_voicepacks(src, client)
-	return TRUE
+	return TRUE*/
