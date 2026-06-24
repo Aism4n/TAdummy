@@ -1,19 +1,18 @@
-/proc/resident_manuscript_uses_rockhill_titles()
-	return SSmapping.config?.map_name == "Rockhill"
-
-/proc/resident_manuscript_uses_azuria_titles()
-	return (SSmapping.config?.map_name in list("Dun World", "Dun_world"))
-
 /datum/resident_document_role_rule
 	var/document_type
 	var/list/job_titles
 	var/list/job_types
+	var/list/migrant_role_types
 	var/list/advclass_types
 	var/priority = 0
 
 /datum/resident_document_role_rule/proc/matches(mob/living/carbon/human/user)
 	if(!ishuman(user) || !user.mind)
 		return FALSE
+	if(LAZYLEN(migrant_role_types) && user.migrant_type)
+		for(var/migrant_role_type in migrant_role_types)
+			if(user.migrant_type == migrant_role_type || ispath(user.migrant_type, migrant_role_type))
+				return TRUE
 	var/job_title = user.job || user.mind.assigned_role
 	if(!job_title)
 		return FALSE
@@ -38,34 +37,22 @@
 
 /datum/resident_document_role_rule/grenzelhoft_mission
 	document_type = /obj/item/book/granter/resident_manuscript/grenzelhoft_mission
-	advclass_types = list(
-		/datum/advclass/mercenary/grenzelhoft,
-		/datum/advclass/mercenary/grenzelhoft_halberdier,
-		/datum/advclass/mercenary/grenzelhoft_crossbowman,
-		/datum/advclass/mercenary/grenzelhoft_mage,
-	)
+	migrant_role_types = list(/datum/migrant_role/grenzel)
 	priority = 120
 
 /datum/resident_document_role_rule/heartfelt_noble
 	document_type = /obj/item/book/granter/resident_manuscript/heartfelt_noble
-	job_titles = list("Lord of Heartfelt", "Hand of Heartfelt", "Knight of Heartfelt")
-	advclass_types = list(/datum/advclass/heartfelt/retinue/courtier)
+	migrant_role_types = list(
+		/datum/migrant_role/heartfelt/lord,
+		/datum/migrant_role/heartfelt/hand,
+		/datum/migrant_role/heartfelt/knight,
+	)
 	priority = 120
-
-/datum/resident_document_role_rule/heartfelt_noble/matches(mob/living/carbon/human/user)
-	if(..())
-		return TRUE
-	return ishuman(user) && HAS_TRAIT(user, TRAIT_HEARTFELT) && HAS_TRAIT(user, TRAIT_NOBLE)
 
 /datum/resident_document_role_rule/heartfelt_identity
 	document_type = /obj/item/book/granter/resident_manuscript/heartfelt_identity
-	job_titles = list("Heartfelt Retinue")
+	migrant_role_types = list(/datum/migrant_role/heartfelt)
 	priority = 115
-
-/datum/resident_document_role_rule/heartfelt_identity/matches(mob/living/carbon/human/user)
-	if(..())
-		return TRUE
-	return ishuman(user) && HAS_TRAIT(user, TRAIT_HEARTFELT)
 
 /datum/resident_document_role_rule/azurian_imperial_patronage
 	document_type = /obj/item/book/granter/resident_manuscript/imperial
@@ -489,21 +476,21 @@
 	allowed_seals = list("kaiser", "hand", "chancellor")
 	default_seal_keys = list("kaiser")
 
-/datum/resident_document_profile/heartfelt_identity
+/datum/resident_document_profile/heartfelt
+	allowed_seals = list("heartfelt_chancery", "valorian_holy_see", "chancellor")
+	default_seal_keys = list("heartfelt_chancery")
+
+/datum/resident_document_profile/heartfelt/identity
 	id = "heartfelt_identity"
 	display_name = "Хартфельтское удостоверение личности"
 	subtitle = "Под печатью хартфельтской канцелярии"
 	description = "Да будет ведомо: предъявитель удостоверен как житель Хартфелта. Его имя, личность и право на предъявление этой бумаги признаются канцелярией Хартфелта."
-	allowed_seals = list("heartfelt_chancery", "valorian_holy_see", "chancellor")
-	default_seal_keys = list("heartfelt_chancery")
 
-/datum/resident_document_profile/heartfelt_noble
+/datum/resident_document_profile/heartfelt/noble
 	id = "heartfelt_noble"
 	display_name = "Свидетельство о дворянстве"
 	subtitle = "Под печатью хартфельтской канцелярии"
 	description = "Да будет ведомо: предъявитель удостоверен как благородный житель Хартфелта. Его имя, достоинство и право следовать при хартфельтской свите признаются настоящей бумагой."
-	allowed_seals = list("heartfelt_chancery", "valorian_holy_see", "chancellor")
-	default_seal_keys = list("heartfelt_chancery")
 
 /datum/resident_document_profile/guards
 	id = "guards"

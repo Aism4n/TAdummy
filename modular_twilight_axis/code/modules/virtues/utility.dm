@@ -32,18 +32,6 @@
 		extra_choices -= TA_NOTABLE_RESIDENCY
 		choice_tooltips.Remove(TA_NOTABLE_RESIDENCY)
 
-/datum/virtue/utility/notable/proc/uses_resident_tavern_spawn()
-	switch(SSmapping.config?.map_name)
-		if("Dun World", "Dun_world", "Rockhill")
-			return TRUE
-	return FALSE
-
-/datum/virtue/utility/notable/proc/uses_dun_world_tavern_filter()
-	switch(SSmapping.config?.map_name)
-		if("Dun World", "Dun_world")
-			return TRUE
-	return FALSE
-
 /datum/virtue/utility/notable/proc/is_resident_tavern_role(mob/living/carbon/human/recipient)
 	switch(recipient.mind?.assigned_role)
 		if("Adventurer", "Mercenary", "Court Agent")
@@ -64,12 +52,12 @@
 	return TRUE
 
 /datum/virtue/utility/notable/proc/place_resident_in_tavern(mob/living/carbon/human/recipient)
-	if(!uses_resident_tavern_spawn() || !is_resident_tavern_role(recipient))
+	if(!resident_manuscript_uses_resident_tavern_spawn() || !is_resident_tavern_role(recipient))
 		return
 	var/area/spawn_area = find_resident_tavern_area()
 	if(!spawn_area)
 		return
-	var/use_dun_filter = uses_dun_world_tavern_filter()
+	var/use_dun_filter = resident_manuscript_uses_dun_world_tavern_filter()
 	var/list/possible_chairs = list()
 	for(var/obj/structure/chair/C in spawn_area)
 		var/turf/T = get_turf(C)

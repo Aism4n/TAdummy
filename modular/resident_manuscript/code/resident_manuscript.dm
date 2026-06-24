@@ -1,5 +1,67 @@
+/datum/resident_manuscript_map_profile
+	var/list/map_names
+	var/enabled = TRUE
+	var/realm_key = "azuria"
+	var/issued_place = "Герцогство Азурия"
+	var/uses_azuria_titles = FALSE
+	var/uses_rockhill_titles = FALSE
+	var/uses_resident_tavern_spawn = FALSE
+	var/uses_dun_world_tavern_filter = FALSE
+
+/datum/resident_manuscript_map_profile/azuria
+	map_names = list("Dun World", "Dun_world")
+	uses_azuria_titles = TRUE
+	uses_resident_tavern_spawn = TRUE
+	uses_dun_world_tavern_filter = TRUE
+
+/datum/resident_manuscript_map_profile/rockhill
+	map_names = list("Rockhill")
+	realm_key = "rockhill"
+	issued_place = "Королевство Энигмы, Рокхилл"
+	uses_azuria_titles = FALSE
+	uses_rockhill_titles = TRUE
+	uses_resident_tavern_spawn = TRUE
+
+/datum/resident_manuscript_map_profile/desert_town
+	map_names = list("Desert Town")
+	enabled = FALSE
+	realm_key = "desert_town"
+	issued_place = "Пустынный город"
+	uses_azuria_titles = FALSE
+
+/proc/get_resident_manuscript_map_profile(map_name)
+	var/static/list/profiles_by_map
+	var/static/datum/resident_manuscript_map_profile/default_profile
+	if(isnull(map_name))
+		map_name = SSmapping.config?.map_name
+	if(!profiles_by_map)
+		profiles_by_map = list()
+		for(var/profile_type in subtypesof(/datum/resident_manuscript_map_profile))
+			var/datum/resident_manuscript_map_profile/profile = new profile_type
+			for(var/profile_map_name in profile.map_names)
+				profiles_by_map[profile_map_name] = profile
+		default_profile = new /datum/resident_manuscript_map_profile
+	return profiles_by_map[map_name] || default_profile
+
+/proc/resident_manuscript_uses_rockhill_titles()
+	var/datum/resident_manuscript_map_profile/map_profile = get_resident_manuscript_map_profile()
+	return map_profile.uses_rockhill_titles
+
+/proc/resident_manuscript_uses_azuria_titles()
+	var/datum/resident_manuscript_map_profile/map_profile = get_resident_manuscript_map_profile()
+	return map_profile.uses_azuria_titles
+
+/proc/resident_manuscript_uses_resident_tavern_spawn()
+	var/datum/resident_manuscript_map_profile/map_profile = get_resident_manuscript_map_profile()
+	return map_profile.uses_resident_tavern_spawn
+
+/proc/resident_manuscript_uses_dun_world_tavern_filter()
+	var/datum/resident_manuscript_map_profile/map_profile = get_resident_manuscript_map_profile()
+	return map_profile.uses_dun_world_tavern_filter
+
 /proc/resident_manuscripts_enabled()
-	if(SSmapping.config?.map_name == "Desert Town")
+	var/datum/resident_manuscript_map_profile/map_profile = get_resident_manuscript_map_profile()
+	if(!map_profile.enabled)
 		// TO DO - нужно дописать для карты отдельные параметры, так как контент карты и культура сильно отличаются от Dun World
 		return FALSE
 	return TRUE
@@ -34,22 +96,12 @@
 	return give_roundstart_manuscript(recipient, manuscript_type)
 
 /proc/get_resident_manuscript_issued_place()
-	switch(SSmapping.config?.map_name)
-		if("Dun World", "Dun_world")
-			return "Герцогство Азурия"
-		if("Rockhill")
-			return "Королевство Энигмы, Рокхилл"
-		if("Desert Town")
-			return "Пустынный город"
-	return "Герцогство Азурия"
+	var/datum/resident_manuscript_map_profile/map_profile = get_resident_manuscript_map_profile()
+	return map_profile.issued_place
 
 /proc/get_resident_manuscript_realm_key()
-	switch(SSmapping.config?.map_name)
-		if("Dun World", "Dun_world")
-			return "azuria"
-		if("Rockhill")
-			return "rockhill"
-	return "azuria"
+	var/datum/resident_manuscript_map_profile/map_profile = get_resident_manuscript_map_profile()
+	return map_profile.realm_key
 
 /proc/resident_manuscript_defect_keys()
 	return list(
