@@ -15,7 +15,7 @@
 		added_int = 50,\
 		added_def = 3,\
 	)
-/*
+
 /obj/item/inqarticles/garrote // Do not give this item out freely to other classes. Do not subtype this item for other classes. This is intended purely as the Confessor's identifying sidegrade, and as a bonus for the Inspector INQ. I will be very sad if you disregard this comment. Thank you. - Yische.
 	name = "\proper seizing garrote" // It's nonlethal. It's so silly and fun.
 	desc = "A macabre instrument favored by the more clandestine of the Psydonian Silver Order; A length of thick leather inquiry cordage that has been dipped in both holy water and dye before being consecrated and spell-laced, held and threaded between two iron links. Perfect for apprehension."
@@ -231,14 +231,24 @@
 		playsound(loc, pick('sound/items/garrotechoke1.ogg', 'sound/items/garrotechoke2.ogg', 'sound/items/garrotechoke3.ogg', 'sound/items/garrotechoke4.ogg', 'sound/items/garrotechoke5.ogg'), 100, TRUE)
 		if(prob(40))
 			C.emote("choke")
-		C.adjustOxyLoss(30)
+		var/oxy_damage = 30
+		if(C.InCritical())
+			oxy_damage = choke_damage
+		else if(ishuman(C))
+			var/mob/living/carbon/human/H = C
+			var/obj/item/neck_item = H.wear_neck
+			if(istype(neck_item, /obj/item/clothing/neck/roguetown/gorget))
+				var/obj/item/clothing/neck/roguetown/gorget/G = neck_item
+				if(!G.obj_broken)
+					oxy_damage = choke_damage
+		C.adjustOxyLoss(oxy_damage)
 		if(!C.mind) // NPCs can be choked out twice as fast
-			C.adjustOxyLoss(30)
+			C.adjustOxyLoss(oxy_damage)
 		C.visible_message(span_danger("[user] [pick("garrotes", "asphyxiates")] [C]!"), \
 		span_userdanger("[user] [pick("garrotes", "asphyxiates")] me!"), span_hear("I hear the sickening sound of cordage!"), COMBAT_MESSAGE_RANGE, user)
 		to_chat(user, span_danger("I [pick("garrote", "asphyxiate")] [C]!"))	
 		user.changeNext_move(CLICK_CD_RESIST)	//Stops spam for choking.	
-*/
+
 /datum/advclass/blackpowder_legionnaire
 	name = "Blackpowder Legionnaire"
 	tutorial = "In the Blackpowder Order, every fourth soldier is a sharpshooter, armed with advanced Otavan firearms. These Legionnaires are the very essence of the everchanging face of warfare, and when the Final War begins, it is with their power that the evil will be driven back."
@@ -378,4 +388,3 @@
 						H.mind?.AddSpell(new /datum/action/cooldown/spell/repulse)
 					if("Leap")
 						H.mind?.AddSpell(new /datum/action/cooldown/spell/leap)
-
