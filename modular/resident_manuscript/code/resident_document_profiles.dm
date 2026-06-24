@@ -152,16 +152,6 @@
 	var/job_title = user.job || user.mind.assigned_role
 	return job_title && (job_title in GLOB.burgher_positions)
 
-/datum/resident_document_role_rule/wanderer
-	document_type = /obj/item/book/granter/resident_manuscript/roundstart
-	priority = 25
-
-/datum/resident_document_role_rule/wanderer/matches(mob/living/carbon/human/user)
-	if(!ishuman(user) || !user.mind)
-		return FALSE
-	var/job_title = user.job || user.mind.assigned_role
-	return job_title && (job_title in GLOB.wanderer_positions)
-
 /datum/resident_document_role_rule/noble_fallback
 	document_type = /obj/item/book/granter/resident_manuscript/roundstart
 	priority = -10
@@ -170,16 +160,19 @@
 	if(!ishuman(user) || !user.mind)
 		return FALSE
 	var/job_title = user.job || user.mind.assigned_role
-	if(job_title && ((job_title in GLOB.noble_positions) || (job_title in GLOB.courtier_positions)))
-		return TRUE
-	return HAS_TRAIT(user, TRAIT_NOBLE)
+	return job_title && ((job_title in GLOB.noble_positions) || (job_title in GLOB.courtier_positions))
 
 /datum/resident_document_role_rule/commoner_fallback
 	document_type = /obj/item/book/granter/resident_manuscript/commoner
 	priority = -100
 
 /datum/resident_document_role_rule/commoner_fallback/matches(mob/living/carbon/human/user)
-	return ishuman(user) && user.mind
+	if(!ishuman(user) || !user.mind)
+		return FALSE
+	if(HAS_TRAIT(user, TRAIT_RESIDENT))
+		return TRUE
+	var/job_title = user.job || user.mind.assigned_role
+	return job_title && (job_title in GLOB.peasant_positions)
 
 /proc/get_resident_document_role_rules()
 	var/static/list/cached
