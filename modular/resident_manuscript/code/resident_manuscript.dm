@@ -547,15 +547,19 @@
 	to_chat(user, span_notice("Вы вдавливаете свою печать в грамоту."))
 	return TRUE
 
-/obj/item/book/granter/resident_manuscript/proc/log_detection_attempt(mob/living/carbon/human/user, result)
+/obj/item/book/granter/resident_manuscript/proc/log_detection_attempt(mob/living/carbon/human/user, result, method = "unknown", roll_success, chance)
 	var/log_ckey = user.ckey || user.key || "нет ckey"
 	var/character_name = user.real_name || user.name || "Неизвестно"
 	var/scroll_owner_name = owner_name || "Не закреплена"
-	log_game("ГРАМОТА ЖИТЕЛЯ: осмотр document=[REF(src)] inspector_ckey=[log_ckey] inspector_name=[character_name] result=[result] scroll_owner=[scroll_owner_name]")
+	var/roll_success_text = isnull(roll_success) ? "n/a" : "[roll_success]"
+	var/chance_text = isnull(chance) ? "n/a" : "[chance]"
+	var/log_line = "RESIDENT MANUSCRIPT CHECK: document=[REF(src)] inspector_ckey=[log_ckey] inspector_name=[character_name] method=[method] roll_success=[roll_success_text] chance=[chance_text] shown_result=[result] fake=[is_fake] master_fake=[undetectable_fake] authority_validated=[authority_validated] scroll_owner=[scroll_owner_name]"
+	log_game(log_line)
+	log_admin(log_line)
 
-/obj/item/book/granter/resident_manuscript/proc/record_detection_result(mob/living/carbon/human/user, detection_key, result)
+/obj/item/book/granter/resident_manuscript/proc/record_detection_result(mob/living/carbon/human/user, detection_key, result, method = "unknown", roll_success, chance)
 	LAZYSET(detection_results, detection_key, result)
-	log_detection_attempt(user, result)
+	log_detection_attempt(user, result, method, roll_success, chance)
 	if(result == RESIDENT_MANUSCRIPT_VERIFICATION_FAKE)
 		to_chat(user, span_warning("Вы замечаете признаки подделки в грамоте."))
 	else
@@ -565,14 +569,16 @@
 /obj/item/book/granter/resident_manuscript/proc/handle_authority_detection(mob/living/carbon/human/user, detection_key)
 	LAZYSET(detection_attempts, detection_key, TRUE)
 	var/result = RESIDENT_MANUSCRIPT_VERIFICATION_REAL
+	var/roll_success = TRUE
 	if(is_fake)
 		var/detected_fake = user.get_true_stat(STATKEY_INT) > 10 || prob(25)
+		roll_success = detected_fake
 		if(detected_fake)
 			ensure_defect_note_keys()
 			result = RESIDENT_MANUSCRIPT_VERIFICATION_FAKE
 		else
 			authority_validated = TRUE
-	record_detection_result(user, detection_key, result)
+	record_detection_result(user, detection_key, result, "authority", roll_success)
 	return TRUE
 
 /obj/item/book/granter/resident_manuscript/proc/handle_detection(mob/living/carbon/human/user)
@@ -589,7 +595,9 @@
 	chance += user.get_skill_level(/datum/skill/misc/reading) * 10
 	if(HAS_TRAIT(user, TRAIT_INTELLECTUAL))
 		chance += 15
-	if(prob(clamp(chance, 5, 95)))
+	chance = clamp(chance, 5, 95)
+	var/roll_success = prob(chance)
+	if(roll_success)
 		if(is_fake && !undetectable_fake)
 			ensure_defect_note_keys()
 			result = RESIDENT_MANUSCRIPT_VERIFICATION_FAKE
@@ -597,7 +605,7 @@
 			result = RESIDENT_MANUSCRIPT_VERIFICATION_REAL
 	else if(!is_fake)
 		result = RESIDENT_MANUSCRIPT_VERIFICATION_REAL
-	record_detection_result(user, detection_key, result)
+	record_detection_result(user, detection_key, result, "normal", roll_success, chance)
 	return TRUE
 
 /obj/item/book/granter/resident_manuscript/examine(mob/user)
