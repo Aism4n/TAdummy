@@ -44,14 +44,23 @@
 			return TRUE
 	return FALSE
 
+/datum/component/arousal/proc/get_actor_from_erp_link(datum/erp_sex_link/link, mob/living/carbon/human/H)
+	if(!link || !istype(H))
+		return null
+
+	var/datum/erp_actor/A = link.actor_active
+	if(A && (A.physical == H || A.get_signal_mob() == H || A.get_effect_mob() == H))
+		return A
+
+	A = link.actor_passive
+	if(A && (A.physical == H || A.get_signal_mob() == H || A.get_effect_mob() == H))
+		return A
+
+	return null
+
 /datum/component/arousal/proc/pick_best_erp_link(list/L)
 	var/mob/living/carbon/human/H = parent
 	if(!istype(H) || !length(L))
-		return null
-
-	var/datum/erp_controller/C = SSerp.get_controller_for(H)
-	var/datum/erp_actor/me = C ? C.get_actor_by_mob(H) : null
-	if(!me)
 		return null
 
 	var/datum/erp_sex_link/best = null
@@ -59,7 +68,9 @@
 	for(var/datum/erp_sex_link/link in L)
 		if(!link || QDELETED(link) || !link.is_valid() || link.state != LINK_STATE_ACTIVE)
 			continue
-		var/sc = link.get_climax_score(me)
+		if(!get_actor_from_erp_link(link, H))
+			continue
+		var/sc = link.get_climax_score()
 		if(sc > best_score)
 			best_score = sc
 			best = link
@@ -187,7 +198,7 @@
 		return
 
 	var/tier = get_satisfaction_buff_tier()
-	if(tier <= 0)
+	if(tier <= 5)
 		H.remove_status_effect(/datum/status_effect/buff/erp_satisfaction)
 		return
 
@@ -381,6 +392,9 @@
 /datum/component/arousal/receive_sex_action(datum/source, arousal_amt, pain_amt, giving, applied_force, applied_speed, organ_id = null)
 	var/mob/user = parent
 
+	arousal_amt = isnum(arousal_amt) ? arousal_amt : 0
+	pain_amt = isnum(pain_amt) ? pain_amt : 0
+
 	arousal_amt *= get_force_pleasure_multiplier(applied_force, giving)
 	pain_amt *= get_force_pain_multiplier(applied_force)
 	pain_amt *= get_speed_pain_multiplier(applied_speed)
@@ -503,7 +517,7 @@
 
 	var/list/L = get_erp_links()
 	var/datum/erp_sex_link/best = pick_best_erp_link(L)
-	var/datum/erp_controller/C = best ? SSerp.get_controller_for(H) : null
+	var/datum/erp_controller/C = best?.session
 	var/erp_service_will_handle_climax = !!C
 
 	var/mob/living/carbon/human/partner = null
@@ -741,6 +755,42 @@
 		return arousal
 	var/effective = amount * arousal_multiplier
 	return set_arousal(source, arousal + effective, forced)
+
+/datum/component/arousal/get_force_pleasure_multiplier(passed_force, giving)
+	switch(passed_force)
+		if(SEX_FORCE_LOW)
+			return 0.8
+		if(SEX_FORCE_MID)
+			return 1.2
+		if(SEX_FORCE_HIGH)
+			return giving ? 1.6 : 1.2
+		if(SEX_FORCE_EXTREME)
+			return giving ? 2.0 : 0.8
+	return 1
+
+/datum/component/arousal/get_force_pain_multiplier(passed_force)
+	switch(passed_force)
+		if(SEX_FORCE_LOW)
+			return 0.5
+		if(SEX_FORCE_MID)
+			return 1.0
+		if(SEX_FORCE_HIGH)
+			return 2.0
+		if(SEX_FORCE_EXTREME)
+			return 3.0
+	return 1
+
+/datum/component/arousal/get_speed_pain_multiplier(passed_speed)
+	switch(passed_speed)
+		if(SEX_SPEED_LOW)
+			return 0.8
+		if(SEX_SPEED_MID)
+			return 1.0
+		if(SEX_SPEED_HIGH)
+			return 1.2
+		if(SEX_SPEED_EXTREME)
+			return 1.4
+	return 1
 
 /datum/component/arousal/proc/apply_post_climax_multiplier_gain()
 	var/delta = 0.0
