@@ -1,6 +1,5 @@
 /datum/resident_document_role_rule
 	var/document_type
-	var/list/job_titles
 	var/list/job_types
 	var/list/migrant_role_types
 	var/list/advclass_types
@@ -13,13 +12,8 @@
 		for(var/migrant_role_type in migrant_role_types)
 			if(user.migrant_type == migrant_role_type || ispath(user.migrant_type, migrant_role_type))
 				return TRUE
-	var/job_title = user.job || user.mind.assigned_role
-	if(!job_title)
-		return FALSE
-	if(LAZYLEN(job_titles) && (job_title in job_titles))
-		return TRUE
 	if(LAZYLEN(job_types))
-		var/datum/job/job = SSjob.GetJob(job_title)
+		var/datum/job/job = SSjob.GetJob(user.job || user.mind.assigned_role)
 		for(var/job_type in job_types)
 			if(istype(job, job_type))
 				return TRUE
@@ -32,7 +26,10 @@
 
 /datum/resident_document_role_rule/merchant
 	document_type = /obj/item/book/granter/resident_manuscript/merchant
-	job_titles = list("Merchant", "Shophand")
+	job_types = list(
+		/datum/job/roguetown/merchant,
+		/datum/job/roguetown/shophand,
+	)
 	priority = 100
 
 /datum/resident_document_role_rule/grenzelhoft_mission
@@ -84,22 +81,25 @@
 
 /datum/resident_document_role_rule/innkeeper
 	document_type = /obj/item/book/granter/resident_manuscript/commoner
-	job_titles = list("Innkeeper")
+	job_types = list(/datum/job/roguetown/innkeeper)
 	priority = 100
 
 /datum/resident_document_role_rule/bathmaster
 	document_type = /obj/item/book/granter/resident_manuscript/commoner
-	job_titles = list("Bathmaster")
+	job_types = list(/datum/job/roguetown/bathmaster)
 	priority = 100
 
 /datum/resident_document_role_rule/mages
 	document_type = /obj/item/book/granter/resident_manuscript/mages
-	job_titles = list("Court Magician", "Magicians Associate")
+	job_types = list(
+		/datum/job/roguetown/magician,
+		/datum/job/roguetown/wapprentice,
+	)
 	priority = 100
 
 /datum/resident_document_role_rule/mercenary
 	document_type = /obj/item/book/granter/resident_manuscript/mercenary
-	job_titles = list("Mercenary")
+	job_types = list(/datum/job/roguetown/mercenary)
 	priority = 100
 
 /datum/resident_document_role_rule/retinue
@@ -241,16 +241,13 @@
 		return TRUE
 	if(!resident_manuscript_uses_rockhill_titles() || !ishuman(user))
 		return FALSE
-	var/job_title = user.job || user.mind?.assigned_role
-	var/datum/job/job = SSjob.GetJob(job_title)
+	var/datum/job/job = SSjob.GetJob(user.job || user.mind?.assigned_role)
 	if(istype(job, /datum/job/roguetown/mayor))
 		return TRUE
 	var/datum/advclass/advclass
 	if(user.advjob)
 		advclass = SSrole_class_handler.get_advclass_by_name(user.advjob)
 	if(istype(advclass, /datum/advclass/mayor))
-		return TRUE
-	if(job_title == "Mayor" || user.advjob == "Mayor")
 		return TRUE
 	return FALSE
 
