@@ -87,7 +87,7 @@
 	return defiant && cmode
 
 /mob/living/carbon/human/proc/is_erp_defiant()
-	return defiant && !client.prefs.sexable
+	return defiant && (!client || !client.prefs || !client.prefs.sexable)
 
 /mob/living/carbon/human/proc/has_erp_leprosy()
 	if(HAS_TRAIT(src, TRAIT_LEPROSY))
@@ -344,6 +344,11 @@
 		return TRUE
 
 	var/mob/living/carbon/human/human_actor = actor
+	if(!istype(human_actor))
+		if(!silent)
+			to_chat(actor, span_warning("I can't do this."))
+		return FALSE
+
 	if(!human_actor.can_do_sex)
 		if(!silent)
 			to_chat(actor, span_warning("I can't do this."))
