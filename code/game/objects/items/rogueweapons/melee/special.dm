@@ -798,7 +798,7 @@
 	max_blade_int = 120
 	anvilrepair = /datum/skill/craft/carpentry
 	smeltresult = /obj/item/rogueore/coal
-	associated_skill = /datum/skill/labor/farming
+	associated_skill = /datum/skill/combat/polearms
 	walking_stick = TRUE
 	wdefense = 6
 	thrown_bclass = BCLASS_BLUNT
