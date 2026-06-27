@@ -1420,7 +1420,7 @@
 	if(active_item)
 		return
 	active_item = TRUE
-	if((user.job == "Man at Arms") || (user.job == "Royal Guard"))
+	if((user.job == "Man at Arms") || (user.job == "Royal Guard") || (user.job == "Janissary"))
 		to_chat(user, span_suppradio("The standard's runes pulse, accepting me as its <b>master</b>."))
 		user.change_stat(STATKEY_LCK, 3)
 		user.change_stat(STATKEY_PER, 2)
@@ -1447,7 +1447,7 @@
 	if(!active_item)
 		return
 	active_item = FALSE
-	if((user.job == "Man at Arms") || (user.job == "Royal Guard"))
+	if((user.job == "Man at Arms") || (user.job == "Royal Guard") || (user.job == "Janissary"))
 		to_chat(user, span_monkeyhive("The standard's runes pulse, rhythmically, as if sad to see you release your control."))
 		user.change_stat(STATKEY_LCK, -3)
 		user.change_stat(STATKEY_PER, -2)
@@ -1479,8 +1479,11 @@
 			pic.color = get_detail_color()
 		add_overlay(pic)
 
-/obj/item/rogueweapon/spear/keep_standard/Initialize()
+/obj/item/rogueweapon/spear/keep_standard/Initialize(mapload)
 	. = ..()
+	if(SSmapping.config.map_name == "Desert Town")
+		name = "Sultan's Standard"
+
 	if(GLOB.lordprimary)
 		lordcolor(GLOB.lordprimary, GLOB.lordsecondary)
 	GLOB.lordcolor += src
