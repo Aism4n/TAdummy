@@ -132,12 +132,6 @@
 		var/species_origin = src.dna?.species?.origin
 		var/mob/living/carbon/human/H_user = ishuman(user) ? user : null
 		var/user_origin = H_user?.dna?.species?.origin
-		if(species_origin == "Grenzelhoft" && !HAS_TRAIT(user, TRAIT_OUTLANDER) && user_origin != "Grenzelhoft")
-			. += span_userdanger("ИМПЕРСКИЙ КАФИР!")
-		if(H_user)
-			if(user_origin == "Grenzelhoft" && (species_origin == "Raneshan" || species_origin == "Naledi" || species_origin == "Zybantu"))
-				. += span_userdanger("ЗИБАНТИЙСКИЙ ШВАЙНЕХУНД!")
-
 		/*	var/user_is_lg = H_user.mind?.has_antag_datum(/datum/antagonist/bandit/lost_grenzel) // Lost Grenzel comment
 			var/target_is_lg = mind?.has_antag_datum(/datum/antagonist/bandit/lost_grenzel)
 
@@ -811,6 +805,18 @@
 		else
 			. += phys_msg
 
+		if(HAS_TRAIT(src, TRAIT_SLAVE)) // TA EDIT
+			var/slave_descriptor
+			switch(pronouns)
+				if(HE_HIM)
+					slave_descriptor = "Он всего лишь жалкий раб..."
+				if(SHE_HER)
+					slave_descriptor = "Она всего лишь жалкая рабыня..."
+				else
+					slave_descriptor = "Это всего лишь жалкий раб..."
+			if(slave_descriptor)
+				. += span_warning(slave_descriptor) // TA EDIT
+
 	if((HAS_TRAIT(user,TRAIT_INTELLECTUAL)))
 		var/mob/living/L = user
 		var/final_int = STAINT
@@ -975,7 +981,16 @@
 				if(issunelf(src) || patron?.type == /datum/patron/divine/astrata)
 					astratan_symbol = icon2html('icons/misc/language.dmi', world, "celestial")
 					astratan_tooltip = SPAN_TOOLTIP("One of Astrata's [issunelf(src) ? "chosen" : "followers"]", astratan_symbol)
-		. += span_info("[pronoun] [wording] [origin]. [astratan_tooltip]")	//"He hails from [X / Nowhere]" || "His [word] originates from [X]" || "His [word] is implacable..."
+		var/origin_suffix = ""
+		if(SSmapping.config.map_name == "Desert Town")
+			var/species_origin = dna?.species?.origin
+			var/mob/living/carbon/human/H_user = ishuman(user) ? user : null
+			var/user_origin = H_user?.dna?.species?.origin
+			if(species_origin == "Grenzelhoft" && !HAS_TRAIT(user, TRAIT_OUTLANDER) && user_origin != "Grenzelhoft")
+				origin_suffix = " <span class='warning' style='font-size: inherit !important; font-weight: inherit !important;'>Имперский кафир!</span>"
+			else if(H_user && user_origin == "Grenzelhoft" && (species_origin == "Raneshan" || species_origin == "Naledi" || species_origin == "Zybantu"))
+				origin_suffix = " <span class='warning' style='font-size: inherit !important; font-weight: inherit !important;'>Зибантийский швайнехунд!</span>"
+		. += span_info("[pronoun] [wording] [origin].[origin_suffix] [astratan_tooltip]")	//"He hails from [X / Nowhere]" || "His [word] originates from [X]" || "His [word] is implacable..."
 
 		if(HAS_TRAIT(src, TRAIT_WITCH))
 			if(HAS_TRAIT(user, TRAIT_NOBLE) || HAS_TRAIT(user, TRAIT_INQUISITION) || HAS_TRAIT(user, TRAIT_WITCH))
@@ -1071,8 +1086,6 @@
 		if(HAS_TRAIT(src, TRAIT_EXCOMMUNICATED))
 			. += span_userdanger("EXCOMMUNICATED! SHAME!")//Temporary, probably going to get rid of the trait since it doesn't fit for us.
 
-		if(HAS_TRAIT(src, TRAIT_SLAVE)) // TA EDIT
-			. += span_userdanger("ЖАЛКИЙ РАБ.") // TA EDIT
 /*
 		if(name in GLOB.excommunicated_players)
 			var/mob/living/carbon/human/H = src
