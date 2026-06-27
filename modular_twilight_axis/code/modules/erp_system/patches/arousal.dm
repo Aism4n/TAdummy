@@ -129,6 +129,10 @@
 	var/mob/living/carbon/human/H = parent
 	return istype(H) && (H.patron?.type == /datum/patron/old_god)
 
+/datum/component/arousal/proc/is_vampire()
+	var/mob/living/carbon/human/H = parent
+	return istype(H) && !!H.mind?.has_antag_datum(/datum/antagonist/vampire)
+
 /datum/component/arousal/proc/is_nympho_sated()
 	return (satisfaction_points >= ERP_NYMPHO_SATED_SP)
 
@@ -217,6 +221,9 @@
 		return
 	if(is_psydonist())
 		return
+	if(is_vampire())
+		clear_overload_points("vampire")
+		return
 
 	overload_points = min(ERP_OVERLOAD_MAX_OP, overload_points + 1)
 	last_overload_gain_time = world.time
@@ -228,6 +235,11 @@
 		return
 
 	H.remove_status_effect(/datum/status_effect/debuff/erp_overload)
+
+	if(is_vampire())
+		overload_points = 0
+		last_overload_gain_time = 0
+		return
 
 	if(overload_points <= 0)
 		return
