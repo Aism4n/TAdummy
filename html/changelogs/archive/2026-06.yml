@@ -1426,6 +1426,8 @@
       subtypes (Bottlebomber, to be specific)
   - rscadd: Added ranged AI to contracts / regional faction / ambush spawns, where
       they naturally thrive
+  - rscadd: Jumping / flying / floating over fire / campfires no longer set you on
+      fire
   - rscadd: Standing Order Bonus adjusted to 1.0 from 0.75 after reading a conversation
       about how smith order is not profitable enough. Since I changed to dynamic instead
       of fixed pricing I suspect smithing order became less relatively profitable
