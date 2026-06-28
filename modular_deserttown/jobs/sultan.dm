@@ -124,7 +124,7 @@
 		head = /obj/item/clothing/head/roguetown/sultana
 		mask = /obj/item/clothing/head/roguetown/crown/serpcrown
 		// l_hand = /obj/item/rogueweapon/lordscepter //currently aren't working on sultans
-		belt = /obj/item/storage/belt/rogue/leather/cloth/lady
+		belt = /obj/item/storage/belt/rogue/leather/cloth/upgraded/lady
 		gloves = /obj/item/clothing/gloves/roguetown/leather/black
 		armor = /obj/item/clothing/suit/roguetown/shirt/sultana
 		shoes = /obj/item/clothing/shoes/roguetown/gladiator
