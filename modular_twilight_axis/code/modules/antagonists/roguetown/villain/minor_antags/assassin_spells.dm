@@ -14,6 +14,8 @@
 	var/shown_disclaimer = FALSE
 
 /obj/effect/proc_holder/spell/invoked/assassin_track/cast(list/targets, mob/user)
+	if(!length(targets))
+		return FALSE
 	var/mob/living/target = targets[1]
 
 	if(!tracked_target || QDELETED(tracked_target) || tracked_target.stat == DEAD || target == user)
@@ -46,7 +48,7 @@
 		to_chat(user, span_warning("The veil is silent... no souls marked for Graggar remain."))
 		return
 
-	var/selection = input(user, "Whose soul bears the mark of Graggar?", "Blood Veil") as null|anything in sort_list(possible_targets)
+	var/selection = tgui_input_list(user, "Whose soul bears the mark of Graggar?", "Blood Veil", sort_list(possible_targets))
 	if(!selection)
 		return
 
@@ -96,5 +98,7 @@
 
 /datum/antagonist/assassin/on_gain()
 	..()
+	if(!owner || !owner.current)
+		return
 	var/obj/effect/proc_holder/spell/invoked/assassin_track/track_spell = new
 	owner.current.AddSpell(track_spell)
