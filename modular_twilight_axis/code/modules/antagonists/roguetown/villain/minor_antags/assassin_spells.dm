@@ -98,5 +98,3 @@
 	..()
 	var/obj/effect/proc_holder/spell/invoked/assassin_track/track_spell = new
 	owner.current.AddSpell(track_spell)
-
-	to_chat(owner.current, "<span class='danger'>I have blended in... but the Hunted must die. I can track their scent with <b>Track Prey</b>.</span>")
