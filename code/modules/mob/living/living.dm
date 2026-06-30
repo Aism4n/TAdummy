@@ -1062,7 +1062,15 @@
 	if(pulling)
 		update_pull_movespeed()
 
+	var/atom/movable/water_dragged_atom // TA EDIT START
+	if(!moving_from_pull && pulling && pulling != src)
+		water_dragged_atom = pulling
+		water_dragged_atom.water_dragged = TRUE
+
 	. = ..()
+
+	if(water_dragged_atom && !QDELETED(water_dragged_atom))
+		water_dragged_atom.water_dragged = FALSE // TA EDIT END
 
 	update_sneak_invis()
 
