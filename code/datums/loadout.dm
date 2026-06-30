@@ -3978,7 +3978,7 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	path = /obj/item/rogueweapon/scabbard/sheath/royal
 	triumph_cost = 13
 
-/datum/loadout_item/donat/tiara
+/datum/loadout_item/donat/sagesbighat
 	name = "Большая шляпа мудреца"
 	category = list("Головные уборы", "Донат")
 	path = /obj/item/clothing/head/roguetown/sagesbighat
