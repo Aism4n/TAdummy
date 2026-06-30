@@ -1557,6 +1557,10 @@
   Fixes roundface bascinet offset:
   - bugfix: Fixes roundface bascinet offset
   Ollanius:
+  - bugfix: The Rune of Storms should properly function once again.
+  - bugfix: Bronze-armored boots now properly have ARMOR_BRONZE as their protection
+      tier, rather than ARMOR_PLATE.
+  - bugfix: Adds missing light armor values to decrepit-tiered feetwear.
   - bugfix: Bronze-armored boots now properly have ARMOR_BRONZE as their protection
       tier, rather than ARMOR_PLATE.
   - bugfix: Adds missing light armor values to decrepit-tiered feetwear.
