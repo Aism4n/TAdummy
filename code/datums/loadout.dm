@@ -3444,6 +3444,12 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	donatitem = TRUE
 	donat_tier = 1
 
+/datum/loadout_item/donator/bobby
+	name = "Donator Kit - Holy Astratan Bascinet - Required: Pigface Bascinet"
+	path = /obj/item/enchantingkit/bobby_helm
+	category = list("Броня", "Донат")
+	donat_tier = 2
+
 /datum/loadout_item/leathergloves
 	name = "Leather Gloves"
 	category = "Аксессуары"
