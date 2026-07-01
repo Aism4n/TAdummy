@@ -801,6 +801,13 @@
 	created_item = /obj/item/rogueweapon/sword/long/kriegmesser
 	display_category = ITEM_CAT_WEAPONS_SWORDS
 
+/datum/anvil_recipe/weapons/steel/kriegmesser/zybantine // TA EDIT BEGIN
+	name = "Zybantine Heavy Scimitar, Steel (+1 Steel)"
+	req_bar = /obj/item/ingot/steel
+	additional_items = list(/obj/item/ingot/steel)
+	created_item = /obj/item/rogueweapon/sword/long/kriegmesser/zybantine
+	display_category = ITEM_CAT_WEAPONS_SWORDS // TA EDIT END
+
 /datum/anvil_recipe/weapons/steel/battleaxe
 	name = "Battle Axe, Steel (+1 Steel)"
 	req_bar = /obj/item/ingot/steel
@@ -1312,6 +1319,7 @@
 	req_bar = /obj/item/ingot/silver
 	additional_items = list(/obj/item/grown/log/tree/small)
 	created_item = /obj/item/rogueweapon/scythe/silver
+	display_category = ITEM_CAT_WEAPONS_POLEARMS
 
 // SHIELDS
 
@@ -1341,6 +1349,8 @@
 	req_bar = /obj/item/ingot/purifiedaalloy
 	additional_items = list(/obj/item/ingot/purifiedaalloy, /obj/item/natural/hide/cured)
 	created_item = /obj/item/rogueweapon/shield/bronze/great/paalloy
+	display_category = ITEM_CAT_WEAPONS_SHIELDS
+
 	craftdiff = 2
 
 /datum/anvil_recipe/weapons/alloy/greatshield
@@ -1348,6 +1358,8 @@
 	req_bar = /obj/item/ingot/aalloy
 	additional_items = list(/obj/item/ingot/aalloy, /obj/item/natural/hide/cured)
 	created_item = /obj/item/rogueweapon/shield/bronze/great/aalloy
+	display_category = ITEM_CAT_WEAPONS_SHIELDS
+
 	craftdiff = 2
 
 /datum/anvil_recipe/weapons/paalloy/hoplonshield
@@ -1355,12 +1367,16 @@
 	req_bar = /obj/item/ingot/purifiedaalloy
 	additional_items = list(/obj/item/natural/hide/cured)
 	created_item = /obj/item/rogueweapon/shield/bronze/paalloy
+	display_category = ITEM_CAT_WEAPONS_SHIELDS
+
 
 /datum/anvil_recipe/weapons/aalloy/hoplonshield
 	name = "Hoplon Shield, Decrepit (+1 Alloy, +1 Cured Leather)"
 	req_bar = /obj/item/ingot/aalloy
 	additional_items = list(/obj/item/natural/hide/cured)
 	created_item = /obj/item/rogueweapon/shield/bronze/aalloy
+	display_category = ITEM_CAT_WEAPONS_SHIELDS
+
 
 /datum/anvil_recipe/weapons/iron/towershield
 	name = "Tower Shield (+1 Small Log)"
@@ -1690,40 +1706,41 @@
 // HOLY STEEL
 
 /datum/anvil_recipe/weapons/holysteel/church_longsword
-	name = "Longsword, Templaric"
+	name = "Longsword, Templaric (+1 Amulet of Ten)"
 	req_bar = /obj/item/ingot/steelholy
+	additional_items = list(/obj/item/clothing/neck/roguetown/psicross/undivided)
 	created_item = /obj/item/rogueweapon/sword/long/church
 	display_category = ITEM_CAT_WEAPONS_SWORDS
 	i_type = "Weapons"
 
 /datum/anvil_recipe/weapons/holysteel/church_spear
-	name = "Spear, Templaric (+1 Holy Steel)"
+	name = "Spear, Templaric (+1 Holy Steel, +1 Amulet of Ten)"
 	req_bar = /obj/item/ingot/steelholy
-	additional_items = list(/obj/item/ingot/steelholy)
+	additional_items = list(/obj/item/ingot/steelholy, /obj/item/clothing/neck/roguetown/psicross/undivided)
 	created_item = /obj/item/rogueweapon/spear/holysee
 	display_category = ITEM_CAT_WEAPONS_POLEARMS
 	i_type = "Weapons"
 
 /datum/anvil_recipe/weapons/holysteel/decasword
-	name = "Longsword, Decablessed (+1 Holy Steel)"
+	name = "Longsword, Decablessed (+1 Holy Steel, +1 Amulet of Ten)"
 	req_bar = /obj/item/ingot/steelholy
-	additional_items = list(/obj/item/ingot/steelholy)
+	additional_items = list(/obj/item/ingot/steelholy, /obj/item/clothing/neck/roguetown/psicross/undivided)
 	created_item = /obj/item/rogueweapon/sword/long/undivided
 	display_category = ITEM_CAT_WEAPONS_SWORDS
 	i_type = "Weapons"
 
 /datum/anvil_recipe/weapons/holysteel/decashield
-	name = "Shield, Decablessed (+1 Holy Steel)"
+	name = "Shield, Decablessed (+1 Holy Steel, +1 Amulet of Ten)"
 	req_bar = /obj/item/ingot/steelholy
-	additional_items = list(/obj/item/ingot/steelholy)
+	additional_items = list(/obj/item/ingot/steelholy, /obj/item/clothing/neck/roguetown/psicross/undivided)
 	created_item = /obj/item/rogueweapon/shield/tower/holysee
 	display_category = ITEM_CAT_WEAPONS_SHIELDS
 	i_type = "Weapons"
 
 /datum/anvil_recipe/weapons/holysteel/malum_sword
-	name = "Malumite Flamberge (+2 Holy Steel)"
+	name = "Malumite Flamberge (+2 Holy Steel, +1 Amulet of Malum)"
 	req_bar = /obj/item/ingot/steelholy
-	additional_items = list(/obj/item/ingot/steelholy, /obj/item/ingot/steelholy)
+	additional_items = list(/obj/item/ingot/steelholy, /obj/item/ingot/steelholy, /obj/item/clothing/neck/roguetown/psicross/malum)
 	created_item = /obj/item/rogueweapon/greatsword/grenz/flamberge/malum
 	display_category = ITEM_CAT_WEAPONS_SWORDS
 	i_type = "Weapons"
@@ -1792,7 +1809,7 @@
 /datum/anvil_recipe/weapons/psy/cudgelmace
 	name = "Psydonic Handmace (+1 Small Log)"
 	req_bar = /obj/item/ingot/silverblessed
-	created_item = /obj/item/rogueweapon/mace/cudgel/psyclassic
+	created_item = /obj/item/rogueweapon/mace/cudgel/psy
 	display_category = ITEM_CAT_WEAPONS_MACES
 	additional_items = list(/obj/item/grown/log/tree/small)
 	i_type = "Weapons"
@@ -1897,7 +1914,7 @@
 /datum/anvil_recipe/weapons/psy/cudgelmace/inq
 	name = "Psydonic Handmace (+1 Small Log)"
 	req_bar = /obj/item/ingot/silverblessed/bullion
-	created_item = /obj/item/rogueweapon/mace/cudgel/psyclassic
+	created_item = /obj/item/rogueweapon/mace/cudgel/psy
 	display_category = ITEM_CAT_WEAPONS_MACES
 	additional_items = list(/obj/item/grown/log/tree/small)
 	i_type = "Weapons"
@@ -2047,6 +2064,13 @@
 	created_item = /obj/item/rogueweapon/greatsword/grenz/flamberge/blacksteel
 	display_category = ITEM_CAT_WEAPONS_SWORDS
 
+/datum/anvil_recipe/weapons/blacksteel/longword
+	name = "Blacksteel Longsword (+1 Blacksteel, +1 Saffira, +1 Silk)"
+	req_bar = /obj/item/ingot/blacksteel
+	additional_items = list(/obj/item/ingot/blacksteel, /obj/item/roguegem/violet, /obj/item/natural/silk)
+	created_item = /obj/item/rogueweapon/sword/long/blacksteel
+	display_category = ITEM_CAT_WEAPONS_SWORDS
+
 // AVANTYNE
 
 /datum/anvil_recipe/weapons/avantyne/dagger
@@ -2073,12 +2097,14 @@
 	req_bar = /obj/item/ingot/avantyne
 	additional_items = list(/obj/item/ingot/avantyne)
 	created_item = /obj/item/rogueweapon/sword/rapier/avantyne
+	display_category = ITEM_CAT_WEAPONS_SWORDS
 
 /datum/anvil_recipe/weapons/avantyne/billhook
 	name = "Billhook, Avantyne (+1 Small Log)"
 	req_bar = /obj/item/ingot/avantyne
 	additional_items = list(/obj/item/grown/log/tree/small)
 	created_item = /obj/item/rogueweapon/spear/billhook/avantyne
+	display_category = ITEM_CAT_WEAPONS_POLEARMS
 
 /datum/anvil_recipe/weapons/avantyne/greatsword
 	name = "Greatsword, Avantyne (+2 A. Wafer)"

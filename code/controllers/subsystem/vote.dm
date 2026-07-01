@@ -2,7 +2,9 @@
 #define LAST_MAP_VOTE_LOG_FILE "data/last_round/map_vote.json"
 #define DEFAULT_VOTE_PANEL_REFRESH_INTERVAL 2 SECONDS
 #define STORYTELLER_VOTE_PANEL_REFRESH_INTERVAL 5 SECONDS
-#define MAP_VOTE_BONUS_STEP 0.25
+#define MAP_VOTE_FIRST_LOSS_BONUS 0.20
+#define MAP_VOTE_SECOND_LOSS_BONUS 0.10
+#define MAP_VOTE_FOLLOWUP_LOSS_BONUS 0.05
 
 SUBSYSTEM_DEF(vote)
 	name = "Vote"
@@ -100,6 +102,19 @@ SUBSYSTEM_DEF(vote)
 	var/bonus_percent = round((multiplier - 1) * 100)
 	return " <span style='color:#5a9f54;'>(x[format_vote_power(multiplier)] vote, +[bonus_percent]%)</span>"
 
+/datum/controller/subsystem/vote/proc/get_map_vote_bonus_for_streak(streak)
+	if(!isnum(streak))
+		streak = text2num("[streak]")
+	if(!streak || streak <= 0)
+		return 0
+
+	var/bonus = MAP_VOTE_FIRST_LOSS_BONUS
+	if(streak >= 2)
+		bonus += MAP_VOTE_SECOND_LOSS_BONUS
+	if(streak >= 3)
+		bonus += MAP_VOTE_FOLLOWUP_LOSS_BONUS * (streak - 2)
+	return bonus
+
 /datum/controller/subsystem/vote/proc/load_map_vote_coefficients()
 	map_vote_coefficients.Cut()
 
@@ -119,7 +134,7 @@ SUBSYSTEM_DEF(vote)
 				streak = text2num("[streak]")
 			if(!streak || streak <= 0)
 				continue
-			map_vote_coefficients[choice_text] = round(1 + (MAP_VOTE_BONUS_STEP * streak), 0.01)
+			map_vote_coefficients[choice_text] = round(1 + get_map_vote_bonus_for_streak(streak), 0.01)
 		return
 
 	var/last_winner = file_data["winner"]
@@ -132,7 +147,7 @@ SUBSYSTEM_DEF(vote)
 	if(!streak || streak <= 0)
 		return
 
-	var/multiplier = round(1 + (MAP_VOTE_BONUS_STEP * streak), 0.01)
+	var/multiplier = round(1 + get_map_vote_bonus_for_streak(streak), 0.01)
 	for(var/choice_text in choices)
 		map_vote_coefficients[choice_text] = (choice_text == last_winner) ? 1 : multiplier
 
@@ -465,6 +480,7 @@ SUBSYSTEM_DEF(vote)
 				if(. == "Continue Playing")
 					log_game("LOG VOTE: CONTINUE PLAYING AT [REALTIMEOFDAY]")
 					GLOB.round_timer = world.time + ROUND_EXTENSION_TIME
+					world.TgsAnnounceRoundExtended()
 				else
 					log_game("LOG VOTE: ELSE  [REALTIMEOFDAY]")
 					log_game("LOG VOTE: ROUNDVOTEEND [REALTIMEOFDAY]")
@@ -794,12 +810,12 @@ SUBSYSTEM_DEF(vote)
 		if(mode == "storyteller")
 			if(!length(storyteller_vote_log))
 				load_storyteller_vote_log()
-			var/pool_text = "Нажмите на (?) для получения описания режима. Раундстартовые основные антагонисты требуют минимум [HARD_ANTAG_MIN_POP] игроков. Победивший блок режимов будет исключён из голосования в следующем раунде."
+			var/pool_text = "Нажмите на (?) для получения описания режима. Раундстартовые крупные антагонисты требуют минимум [HARD_ANTAG_MIN_POP] игроков. Победивший блок режимов будет исключён из голосования в следующем раунде."
 			. += "<div style='color:#992414;font-size:0.9rem;margin-bottom:6px;'>[pool_text]</div>"
 			. += render_storyteller_choices(can_vote, C)
 		else
 			if(mode == "map")
-				. += "<div style='color:#5a9f54;font-size:0.95rem;margin-bottom:6px;'>Каждая карта копит свой бонус отдельно: за каждый проигранный выбор она получает +25% к весу голоса. Победившая карта сбрасывает только свой бонус до x1.</div>"
+				. += "<div style='color:#5a9f54;font-size:0.95rem;margin-bottom:6px;'>Каждая карта копит свой бонус отдельно: первый проигрыш даёт +20% к весу голоса, второй +10%, третий и последующие +5%. Победившая карта сбрасывает только свой бонус до x1.</div>"
 			. += "<ul>"
 			var/selected_option = vote_selections[C.ckey]
 			for(var/i=1,i<=choices.len,i++)
@@ -950,4 +966,6 @@ SUBSYSTEM_DEF(vote)
 #undef LAST_MAP_VOTE_LOG_FILE
 #undef DEFAULT_VOTE_PANEL_REFRESH_INTERVAL
 #undef STORYTELLER_VOTE_PANEL_REFRESH_INTERVAL
-#undef MAP_VOTE_BONUS_STEP
+#undef MAP_VOTE_FIRST_LOSS_BONUS
+#undef MAP_VOTE_SECOND_LOSS_BONUS
+#undef MAP_VOTE_FOLLOWUP_LOSS_BONUS

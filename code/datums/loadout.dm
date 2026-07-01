@@ -1734,8 +1734,8 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	path = /obj/item/enchantingkit/bigfoot_axe
 	donatitem = TRUE
 
-/datum/loadout_item/donator/aisuwand
-	name = "Donator Kit - Crystalline Wand - Required: Wand"
+/datum/loadout_item/donator/aisurapier
+	name = "Donator Kit - Crystalline Rapier - Required: Rapier"
 	category = list("Оружие", "Донат")
 	path = /obj/item/enchantingkit/aisuwand
 	donatitem = TRUE
@@ -1928,14 +1928,14 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	donatitem = TRUE
 
 /datum/loadout_item/donat_scabbardroyal
-	name = "Decorated Scabbard, Golden"
+	name = "Donator Kit - Decorated Scabbard, Golden"
 	path = /obj/item/rogueweapon/scabbard/sword/royal/donat
 	category = list("Оружие", "Донат")
 	donatitem = TRUE
 	donat_tier = 1
 
 /datum/loadout_item/donat_sheathroyal
-	name = "Decorated Sheath, Golden"
+	name = "Donator Kit - Decorated Sheath, Golden"
 	path = /obj/item/rogueweapon/scabbard/sheath/royal/donat
 	category = list("Оружие", "Донат")
 	donatitem = TRUE
@@ -2036,13 +2036,13 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	category = list("Оружие", "Донат")
 	path = /obj/item/enchantingkit/triumph_weaponkit_psy
 	donatitem = TRUE
-
+/*
 /datum/loadout_item/donator_nerocavalier
 	name = "Donator Kit - Blacksteel Longsword - Required: Longsword"
 	category = list("Оружие", "Донат")
 	path = /obj/item/enchantingkit/weapon/noire_flsword
 	donatitem = TRUE
-
+*/
 /datum/loadout_item/donator/nero_sword
 	name = "Donator Kit - Sylvan Longsword - Required: Longsword"
 	category = list("Оружие", "Донат")
@@ -3417,9 +3417,16 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 /datum/loadout_item/donat/etrpants
 	name = "Wanderer's pants - (no small races)"
 	category = list("Одежда", "Донат")
-	path = /obj/item/clothing/under/roguetown/trou/leather/etrpants
+	path = /obj/item/clothing/under/roguetown/trou/leather/etrpants/donat
 	donatitem = TRUE
 	donat_tier = 1
+
+/datum/loadout_item/donat/etrpants_enchantingkit
+	name = "Donator Kit - Wanderer's pants - Required: Leather Trousers, Splinted Chausses Or Brigandine Chausses (no small races)"
+	category = list("Одежда", "Донат")
+	path = /obj/item/enchantingkit/etrpants
+	donatitem = TRUE
+	donat_tier = 2
 
 /datum/loadout_item/etrdress3
 	name = "Strapless gown - (only female, no small races)"
@@ -3436,6 +3443,12 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	path = /obj/item/clothing/head/roguetown/tiara
 	donatitem = TRUE
 	donat_tier = 1
+
+/datum/loadout_item/donator/bobby
+	name = "Donator Kit - Holy Astratan Bascinet - Required: Pigface Bascinet"
+	path = /obj/item/enchantingkit/bobby_helm
+	category = list("Броня", "Донат")
+	donat_tier = 2
 
 /datum/loadout_item/leathergloves
 	name = "Leather Gloves"
@@ -3598,6 +3611,7 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	category = list("Броня", "Донат")
 	path = /obj/item/enchantingkit/croppedhaubergeon
 	donatitem = TRUE
+	donat_tier = 2
 
 /datum/loadout_item/donator/universal/maille_throwback
 	name = "Donator Kit - Elven Haubergeon - Required: Iron Haubergeon or Steel Haubergeon"
@@ -3681,11 +3695,31 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	donatitem = TRUE
 	donat_tier = 2
 
+/datum/loadout_item/donator/jade_guitar
+	name = "Donator Item - Gilbranzed Guitar"
+	category = list("Разное", "Донат")
+	path = /obj/item/rogue/instrument/guitar/jade_guitar
+	donatitem = TRUE
+
+/datum/loadout_item/donator/olygsword
+	name = "Donator Kit - Gre'as'anto d'Shar - Required: Greatsword"
+	category = list("Оружие", "Донат")
+	path = /obj/item/enchantingkit/olygsword
+	donatitem = TRUE
+	donat_tier = 2
+
 /datum/loadout_item/donator/ollanius_maille
 	name = "Donator Kit - Shoulderless Haubergeon - Required: Steel Haubergeon"
 	category = list("Броня", "Донат")
 	path = /obj/item/enchantingkit/ollanius_maille
 	donatitem = TRUE
+	donat_tier = 2
+
+/datum/loadout_item/donator/crown_hat
+	name = "Donator Item - Crown Hat"
+	category = list("Головные уборы", "Донат")
+	path = /obj/item/clothing/head/roguetown/crown_hat
+	donat_tier = 2
 
 /datum/loadout_item/cap
 	name = "Cap"
@@ -3949,3 +3983,10 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	category = list("Триумфы")
 	path = /obj/item/rogueweapon/scabbard/sheath/royal
 	triumph_cost = 13
+
+/datum/loadout_item/donat/sagesbighat
+	name = "Большая шляпа мудреца"
+	category = list("Головные уборы", "Донат")
+	path = /obj/item/clothing/head/roguetown/sagesbighat
+	donatitem = TRUE
+	ckeywhitelist = list("somethingawful917")
