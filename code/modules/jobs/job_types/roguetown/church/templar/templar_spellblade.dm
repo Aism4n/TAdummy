@@ -9,9 +9,10 @@
 	outfit = /datum/outfit/job/roguetown/templar/noc_spellblade
 	category_tags = list(CTAG_TEMPLAR)
 	allowed_patrons = list(/datum/patron/divine/noc)
-	maximum_possible_slots = 1 // The Special Snowflake
+	maximum_possible_slots = 2 // The Special Snowflake And Their Friend
 	subclass_languages = list(/datum/language/grenzelhoftian)
 	traits_applied = list(TRAIT_MEDIUMARMOR, TRAIT_ARCYNE)
+	tempo_capable = FALSE
 	subclass_stats = list(
 		STATKEY_STR = 1,
 		STATKEY_INT = 1, // Weighted 7 but a nice statblock
@@ -136,7 +137,7 @@
 					H.put_in_hands(new /obj/item/rogueweapon/sword/long/kriegmesser/noc(H))
 					H.equip_to_slot_or_del(new /obj/item/rogueweapon/scabbard/sword(H), SLOT_BELT_R, TRUE)
 				if("Longsword")
-					H.put_in_hands(new /obj/item/rogueweapon/sword/long(H))
+					H.put_in_hands(new /obj/item/rogueweapon/sword/long/church(H))
 					H.equip_to_slot_or_del(new /obj/item/rogueweapon/scabbard/sword(H), SLOT_BELT_R, TRUE)
 				if("Rapier")
 					H.put_in_hands(new /obj/item/rogueweapon/sword/rapier(H))
@@ -190,7 +191,7 @@
 					H.put_in_hands(new /obj/item/rogueweapon/mace/goden/steel(H))
 					H.put_in_hands(new /obj/item/rogueweapon/scabbard/gwstrap(H))
 				if("Battle Axe")
-					H.put_in_hands(new /obj/item/rogueweapon/stoneaxe/battle(H))
+					H.put_in_hands(new /obj/item/rogueweapon/stoneaxe/battle/holyseeaxe(H))
 					picked_axe = TRUE
 				if("Steel Greataxe")
 					H.put_in_hands(new /obj/item/rogueweapon/greataxe/steel(H))
