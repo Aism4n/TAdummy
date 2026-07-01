@@ -569,5 +569,9 @@
     path = /obj/item/enchantingkit/olygsword
     ckeywhitelist = list("olympus7")
 	
+/datum/loadout_item/donator/bobby
+	name = "Donator Kit - Holy Astratan Bascinet"
+	path = /obj/item/enchantingkit/bobby_helm
+	ckeywhitelist = list("spartanbobby") 
 	sort_category = "Donator"
 */
