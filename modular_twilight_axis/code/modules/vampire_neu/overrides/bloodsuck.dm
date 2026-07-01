@@ -507,6 +507,7 @@ drinksomeblood()
 
 	mind?.add_antag_datum(new_antag)
 	VDrinker.register_thrall(new_antag)
+	ta_handle_rockhill_ambition_conversion(sire, original_mind)
 	sire.show_conversion_cost_feedback(src, VDrinker, voluntary)
 	if(voluntary)
 		sire.grant_offer_conversion_reward(VDrinker)
@@ -559,7 +560,7 @@ drinksomeblood()
 		to_chat(src, span_warning(block_reason))
 		return
 
-	if(HAS_TRAIT_FROM(victim, TRAIT_REFUSED_VAMP_CONVERT, REF(src)))
+	if(HAS_TRAIT_FROM(victim, TRAIT_REFUSED_VAMP_CONVERT, REF(src)) && !ta_get_rockhill_conversion_ambition(src, victim.mind))
 		to_chat(src, span_warning("[victim] преодолел проклятие, я не смогу пленить его душу."))
 		return
 
@@ -662,7 +663,7 @@ drinksomeblood()
 		H.vampire_conversion_prompt_active = FALSE
 		return
 
-	if(HAS_TRAIT_FROM(victim, TRAIT_REFUSED_VAMP_CONVERT, REF(src)))
+	if(HAS_TRAIT_FROM(victim, TRAIT_REFUSED_VAMP_CONVERT, REF(src)) && !ta_get_rockhill_conversion_ambition(src, victim.mind))
 		to_chat(src, span_warning("[victim] преодолел проклятие, я не смогу пленить его душу."))
 		H.vampire_conversion_prompt_active = FALSE
 		return
@@ -736,16 +737,23 @@ drinksomeblood()
 	else
 		prompt_text += "При отказе проклятие убьёт вас."
 
-	var/use_byond_alert = stat != CONSCIOUS || blood_volume <= BLOOD_VOLUME_SURVIVE || InCritical()
-	var/vampire_choice = tgui_alert(
-		src,
-		prompt_text,
-		"ПРОКЛЯТИЕ КАИНА",
-		list("ДА", "НЕТ"),
-		VAMP_CONVERT_TIMEOUT,
-		strict_byond = use_byond_alert,
-		ui_state = GLOB.tgui_always_state
-	)
+	var/vampire_choice
+	var/ambition_forces_acceptance = ta_get_rockhill_conversion_ambition(sire, mind)
+	if(ambition_forces_acceptance)
+		vampire_choice = "ДА"
+		to_chat(src, span_userdanger("Чужая вампирская амбиция опутывает мою судьбу. Я не могу отвергнуть предложенное обращение."))
+		to_chat(sire, span_notice("[src] не может отвергнуть обращение, предначертанное моей амбицией."))
+	else
+		var/use_byond_alert = stat != CONSCIOUS || blood_volume <= BLOOD_VOLUME_SURVIVE || InCritical()
+		vampire_choice = tgui_alert(
+			src,
+			prompt_text,
+			"ПРОКЛЯТИЕ КАИНА",
+			list("ДА", "НЕТ"),
+			VAMP_CONVERT_TIMEOUT,
+			strict_byond = use_byond_alert,
+			ui_state = GLOB.tgui_always_state
+		)
 	remove_status_effect(/datum/status_effect/incapacitating/stun)
 	remove_status_effect(/datum/status_effect/incapacitating/knockdown)
 
@@ -845,7 +853,7 @@ drinksomeblood()
 
 	if(ishuman(victim))
 		var/mob/living/carbon/human/H = victim
-		if(HAS_TRAIT_FROM(H, TRAIT_REFUSED_VAMP_CONVERT, REF(src)))
+		if(HAS_TRAIT_FROM(H, TRAIT_REFUSED_VAMP_CONVERT, REF(src)) && !ta_get_rockhill_conversion_ambition(src, H.mind))
 			return
 
 	if(!VDrinker.can_sire_thrall() && !can_offer_pallid_drain(victim))

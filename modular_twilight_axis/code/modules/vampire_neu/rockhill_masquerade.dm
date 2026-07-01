@@ -81,9 +81,44 @@ SUBSYSTEM_DEF(ta_rockhill_masquerade)
 	name = "Участник Маскарада"
 	show_in_roundend = TRUE
 	show_in_antagpanel = FALSE
+	var/list/datum/objective/synced_ambitions = list()
+	var/ambition_rewards_granted = FALSE
 
 /datum/antagonist/vampire/rockhill_masquerader/New(incoming_clan = /datum/clan/crimson_fang, forced_clan = FALSE, generation = GENERATION_ANCILLAE)
 	. = ..(incoming_clan, forced_clan, generation)
+
+/datum/antagonist/vampire/rockhill_masquerader/after_gain()
+	. = ..()
+	sync_ambitions_to_clan_leader_memory()
+
+/datum/antagonist/vampire/rockhill_masquerader/proc/sync_ambitions_to_clan_leader_memory()
+	var/mob/living/carbon/human/masquerader_body = owner?.current
+	if(!istype(masquerader_body) || !masquerader_body.clan)
+		return
+	var/mob/living/carbon/human/clan_leader = masquerader_body.clan.clan_leader
+	if(!istype(clan_leader) || !clan_leader.mind)
+		return
+
+	for(var/datum/objective/rockhill_masquerade/ambition as anything in objectives)
+		if(ambition in synced_ambitions)
+			continue
+		ambition.update_explanation_text()
+		clan_leader.mind.store_memory("<b>Амбиция клана:</b> [ambition.explanation_text]")
+		synced_ambitions += ambition
+
+/datum/antagonist/vampire/rockhill_masquerader/roundend_report()
+	. = ..()
+	if(ambition_rewards_granted)
+		return
+	ambition_rewards_granted = TRUE
+
+	var/triumphs_earned = 0
+	for(var/datum/objective/rockhill_masquerade/ambition as anything in objectives)
+		if(ambition.check_completion())
+			triumphs_earned += ambition.triumph_count
+	if(triumphs_earned > 0)
+		owner?.adjust_triumphs(triumphs_earned)
+		to_chat(owner, span_greentext("Выполненная амбиция принесла мне [triumphs_earned] триумф."))
 
 
 /proc/ta_assign_rockhill_masquerade_objectives(list/datum/mind/masquerader_minds, methuselah_retries = 0)
@@ -166,8 +201,9 @@ SUBSYSTEM_DEF(ta_rockhill_masquerade)
 		qdel(objective)
 		return
 	masquerader.objectives += objective
+	masquerader.sync_ambitions_to_clan_leader_memory()
 	to_chat(masquerader_mind.current, span_userdanger("За Маскарадом скрываются мои тайные амбиции."))
-	to_chat(masquerader_mind.current, span_boldnotice("<b>Цель клана:</b> [objective.explanation_text]"))
+	to_chat(masquerader_mind.current, span_boldnotice("<b>Амбиция:</b> [objective.explanation_text]"))
 
 
 /proc/ta_find_living_methuselah()
@@ -179,23 +215,35 @@ SUBSYSTEM_DEF(ta_rockhill_masquerade)
 			return methuselah.owner
 	return null
 
+/proc/ta_get_assigned_job_datum(datum/mind/candidate)
+	if(!candidate)
+		return null
+	if(istype(candidate.assigned_role, /datum/job))
+		return candidate.assigned_role
+	return SSjob.GetJob(candidate.assigned_role)
+
 /proc/ta_get_inquisition_targets()
 	var/list/datum/mind/targets = list()
 	var/has_inquisitor = FALSE
 	for(var/datum/mind/candidate as anything in SSticker.minds)
 		if(!considered_alive(candidate))
 			continue
-		if(candidate.assigned_role in list("Inquisitor", "Orthodoxist", "Absolver"))
-			targets += candidate
-			if(candidate.assigned_role == "Inquisitor")
-				has_inquisitor = TRUE
+		var/datum/job/candidate_job = ta_get_assigned_job_datum(candidate)
+		if(!istype(candidate_job, /datum/job/roguetown/inquisitor) \
+			&& !istype(candidate_job, /datum/job/roguetown/orthodoxist) \
+			&& !istype(candidate_job, /datum/job/roguetown/absolver))
+			continue
+		targets += candidate
+		if(istype(candidate_job, /datum/job/roguetown/inquisitor))
+			has_inquisitor = TRUE
 	return has_inquisitor ? targets : list()
 
 /proc/ta_pick_inquisition_objective_targets(list/datum/mind/inquisition_targets)
 	var/list/datum/mind/picked_targets = list()
 	var/list/datum/mind/retinue = list()
 	for(var/datum/mind/candidate as anything in inquisition_targets)
-		if(candidate.assigned_role == "Inquisitor")
+		var/datum/job/candidate_job = ta_get_assigned_job_datum(candidate)
+		if(istype(candidate_job, /datum/job/roguetown/inquisitor))
 			picked_targets |= candidate
 		else
 			retinue += candidate
@@ -212,35 +260,76 @@ SUBSYSTEM_DEF(ta_rockhill_masquerade)
 	for(var/datum/mind/candidate as anything in SSticker.minds)
 		if(!considered_alive(candidate))
 			continue
-		if(!(candidate.assigned_role in list("Grand Duke", "Consort", "Consort Dowager", "Prince")))
+		var/mob/living/carbon/human/candidate_body = candidate.current
+		if(!istype(candidate_body) || !candidate_body.client)
+			continue
+		if(candidate_body.dna?.species && (NOBLOOD in candidate_body.dna.species.species_traits))
+			continue
+		var/datum/job/candidate_job = ta_get_assigned_job_datum(candidate)
+		if(!istype(candidate_job, /datum/job/roguetown/lord) \
+			&& !istype(candidate_job, /datum/job/roguetown/lady) \
+			&& !istype(candidate_job, /datum/job/roguetown/exlady) \
+			&& !istype(candidate_job, /datum/job/roguetown/prince))
 			continue
 		if(candidate.has_antag_datum(/datum/antagonist/vampire))
+			continue
+		if(candidate_body.get_siring_block_reason(candidate_body, TRUE))
 			continue
 		targets += candidate
 	return targets
 
-/proc/ta_rockhill_role_name_ru(role_name)
-	switch(role_name)
-		if("Inquisitor")
-			return "Инквизитор"
-		if("Orthodoxist")
-			return "Ортодокс"
-		if("Absolver")
-			return "Абсолвер"
-		if("Grand Duke")
-			return "Король"
-		if("Consort")
-			return "Консорт"
-		if("Consort Dowager")
-			return "Вдовствующий консорт"
-		if("Prince")
-			return "Принц или принцесса"
-	return role_name
+/proc/ta_get_rockhill_conversion_ambition(mob/living/carbon/human/sire, datum/mind/conversion_target)
+	if(!istype(sire) || !conversion_target)
+		return null
+	var/datum/antagonist/vampire/rockhill_masquerader/masquerader = sire.mind?.has_antag_datum(/datum/antagonist/vampire/rockhill_masquerader)
+	if(!masquerader)
+		return null
+	for(var/datum/objective/rockhill_masquerade/royal_conversion/ambition as anything in masquerader.objectives)
+		if(ambition.target == conversion_target)
+			return ambition
+	return null
+
+/proc/ta_handle_rockhill_ambition_conversion(mob/living/carbon/human/sire, datum/mind/converted_mind)
+	var/datum/objective/rockhill_masquerade/royal_conversion/conversion_ambition = ta_get_rockhill_conversion_ambition(sire, converted_mind)
+	if(!conversion_ambition)
+		return
+	if(SSticker.rulermob == converted_mind.current)
+		return
+
+	var/datum/antagonist/vampire/rockhill_masquerader/masquerader = sire.mind?.has_antag_datum(/datum/antagonist/vampire/rockhill_masquerader)
+	for(var/datum/objective/rockhill_masquerade/royal_coronation/existing_ambition as anything in masquerader.objectives)
+		if(existing_ambition.target == converted_mind)
+			return
+
+	var/datum/objective/rockhill_masquerade/royal_coronation/coronation_ambition = new(owner = sire.mind)
+	coronation_ambition.target = converted_mind
+	coronation_ambition.update_explanation_text()
+	ta_add_rockhill_masquerade_objective(sire.mind, coronation_ambition)
+
+/proc/ta_rockhill_role_name_ru(datum/job/role)
+	if(istype(role, /datum/job/roguetown/inquisitor))
+		return "Инквизитор"
+	if(istype(role, /datum/job/roguetown/orthodoxist))
+		return "Ортодокс"
+	if(istype(role, /datum/job/roguetown/absolver))
+		return "Абсолвер"
+	if(istype(role, /datum/job/roguetown/lord))
+		return "Король или королева"
+	if(istype(role, /datum/job/roguetown/lady))
+		return "Консорт"
+	if(istype(role, /datum/job/roguetown/exlady))
+		return "Вдовствующий консорт"
+	if(istype(role, /datum/job/roguetown/prince))
+		return "Принц или принцесса"
+	if(role?.title)
+		return role.title
+	return "неизвестная роль"
 
 
 /datum/objective/rockhill_masquerade
 	name = "амбиции клана"
-	flavor = "Цель клана"
+	flavor = "Амбиция"
+	triumph_count = 1
 
 /datum/objective/rockhill_masquerade/rival_clans
 	name = "уничтожить лидеров соперничающих кланов"
@@ -263,7 +352,8 @@ SUBSYSTEM_DEF(ta_rockhill_masquerade)
 /datum/objective/rockhill_masquerade/inquisition/update_explanation_text()
 	var/list/target_descriptions = list()
 	for(var/datum/mind/target_mind as anything in target_minds)
-		target_descriptions += "[target_mind.name] ([ta_rockhill_role_name_ru(target_mind.assigned_role)])"
+		var/datum/job/target_job = ta_get_assigned_job_datum(target_mind)
+		target_descriptions += "[target_mind.name] ([ta_rockhill_role_name_ru(target_job)])"
 	explanation_text = "Ослабить влияние Отавы в Рокхилле. Ликвидировать следующие цели: [jointext(target_descriptions, ", ")]."
 
 /datum/objective/rockhill_masquerade/inquisition/check_completion()
@@ -280,7 +370,8 @@ SUBSYSTEM_DEF(ta_rockhill_masquerade)
 
 /datum/objective/rockhill_masquerade/royal_conversion/update_explanation_text()
 	if(target)
-		explanation_text = "Тайно обратить [target.name] ([ta_rockhill_role_name_ru(target.assigned_role)]) и принять эту особу в свой клан."
+		var/datum/job/target_job = ta_get_assigned_job_datum(target)
+		explanation_text = "Тайно обратить [target.name] ([ta_rockhill_role_name_ru(target_job)]) и принять эту особу в свой клан."
 	else
 		explanation_text = "Тайно обратить представителя королевской семьи и принять эту особу в свой клан."
 
@@ -292,6 +383,19 @@ SUBSYSTEM_DEF(ta_rockhill_masquerade)
 	if(!target.has_antag_datum(/datum/antagonist/vampire))
 		return FALSE
 	return target_body.clan == owner_body.clan
+
+
+/datum/objective/rockhill_masquerade/royal_coronation
+	name = "короновать обращённого представителя власти"
+
+/datum/objective/rockhill_masquerade/royal_coronation/update_explanation_text()
+	if(target)
+		explanation_text = "Сделать [target.name] настоящим правителем Рокхилла. Добиться коронации или передачи власти любым доступным способом."
+	else
+		explanation_text = "Сделать обращённого представителя власти настоящим правителем Рокхилла."
+
+/datum/objective/rockhill_masquerade/royal_coronation/check_completion()
+	return target?.current && SSticker.rulermob == target.current
 
 
 /datum/objective/rockhill_masquerade/clan_growth
