@@ -1,0 +1,4 @@
+author: "Vladmar11"
+delete-after: True
+changes:
+  - balance: "Теперь грабнутый не тратит стамину при перемещениях по тайлам воды"
