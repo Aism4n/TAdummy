@@ -400,7 +400,7 @@ SUBSYSTEM_DEF(ta_rockhill_masquerade)
 
 /datum/objective/rockhill_masquerade/clan_growth
 	name = "расширить клан"
-	explanation_text = "Расширить свой клан как минимум до [ROCKHILL_MASQUERADE_CLAN_SIZE] живых вампиров."
+	explanation_text = "Расширить свой клан как минимум до 5 живых вампиров."
 
 /datum/objective/rockhill_masquerade/clan_growth/check_completion()
 	var/mob/living/carbon/human/owner_body = owner?.current
