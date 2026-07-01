@@ -1,0 +1,4 @@
+author: "Vladmar11"
+delete-after: True
+changes:
+  - bugfix: "Фикс проскальзывания пустынных следов в другие карты"
