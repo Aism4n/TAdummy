@@ -1,4 +1,4 @@
-//////////////////
+/*//////////////////
 //  TRIUMPHS !  //
 //////////////////
 
@@ -614,3 +614,4 @@
 	path = /obj/item/reagent_containers/glass/bottle/alchemical/fermented_crab
 	triumph_cost = 5
 	sort_category = "Triumphs"
+*/

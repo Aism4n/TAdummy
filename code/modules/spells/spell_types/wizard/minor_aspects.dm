@@ -34,6 +34,24 @@
 		/datum/action/cooldown/spell/forcewall,
 	)
 
+/datum/magic_aspect/aegiscraft
+	name = "Aegiscraft"
+	latin_name = "Minor Aspectus Aegidis"
+	desc = "TODO"
+	aspect_type = ASPECT_MINOR
+	school_color = GLOW_COLOR_ARCANE
+	binding_chants = list(
+		"Let me be the shield that will protect me.",
+		"Aegis, mihi adesse!",
+	)
+	unbinding_chants = list(
+		"I set aside the shield, peace be with me.",
+		"Aegis, me relinquere!",
+	)
+	fixed_spells = list(
+		/datum/action/cooldown/spell/conjure_aegis,
+	)
+
 /datum/magic_aspect/displacement
 	name = "Displacement"
 	latin_name = "Minor Aspectus Translationis"
