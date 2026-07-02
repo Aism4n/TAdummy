@@ -3481,6 +3481,12 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	path = /obj/item/storage/belt/rogue/leather/battleskirt/breechcloth
 	triumph_cost = 3
 
+/datum/loadout_item/greatplumestandalone
+	name = "Helmet Decoration, Greatplume"
+	category = list("Аксессуары", "Триумфы")
+	path = /obj/item/clothing/head/roguetown/decoration/greatplume
+	triumph_cost = 3
+
 /datum/loadout_item/breechclothbeltalt
 	name = "Black Belt with Breechcloth"
 	category = list("Аксессуары", "Триумфы")

@@ -57,6 +57,7 @@
 	slot_flags = ITEM_SLOT_BACK
 	experimental_onback = TRUE
 	var/cranking = FALSE
+	var/cranking_true_nature = FALSE //Are we torturing the souls openly, or subtle in nature?
 	force = 15
 	max_integrity = 100
 	attacked_sound = 'sound/combat/hits/onwood/education2.ogg'
@@ -66,6 +67,13 @@
 	twohands_required = FALSE
 	var/datum/looping_sound/psydonmusicboxsound/soundloop
 
+/obj/item/psydonmusicbox/get_examine_highlight_status()
+	// If we are not crankin' that shit... its just a musical box, nothing weird.
+	if(cranking_true_nature == FALSE)
+		return null
+	// Otherwise, it's obvious this thing is torturing souls and is fucked up and evil.
+	else
+		return list(EXAMINEHIGHLIGHT_HERESYSEVERITY_ALARMING, HERESYDESC_INQUIS_CHURNER)
 
 /obj/item/psydonmusicbox/examine(mob/user)
 	. = ..()
@@ -80,14 +88,17 @@
 		user.add_stress(/datum/stressevent/soulchurnerhorror)
 		to_chat(user, (span_cultsmall("Я ЧУВСТВУЮ СТРАДАНИЕ С КАЖДОЙ НОТОЙ! ЧТО Я ЗДЕСЬ ДЕЛАЮ?!")))
 	cranking = !cranking
+	cranking_true_nature = !cranking_true_nature
 	update_icon()
 	if(cranking)
 		if(!HAS_TRAIT(usr, TRAIT_INSPIRING_MUSICIAN))
+			cranking_true_nature = cranking_true_nature
 			user.apply_status_effect(/datum/status_effect/buff/cranking_soulchurner)
 		else
 			if(alert("Развязать души или сдерживать вопли?",, "Развязать души", "Сдерживать вопли") != "Сдерживать вопли")
 				user.apply_status_effect(/datum/status_effect/buff/unleashed_soulchurner)
 			else
+				cranking_true_nature = cranking_true_nature
 				user.apply_status_effect(/datum/status_effect/buff/cranking_soulchurner)	
 		soundloop.start()
 		var/songhearers = view(7, user)
@@ -107,6 +118,7 @@
 		QDEL_NULL(soundloop)
 	src.visible_message(span_cult("Бурный поток душ вырывается из разбитой шкатулки! Их вопли мести и умиротворения сливаются в эфирный лебединый зов, пока они возносятся к небесам..."))
 	src.visible_message(span_hypnophrase("...и, наконец, их завораживающая симфония достигает завершения."))
+	playsound(src, 'sound/misc/otavanlament.ogg', 70, TRUE, -1)
 	return ..()
 
 /obj/item/psydonmusicbox/update_icon()
@@ -164,7 +176,7 @@
 	var/zizolines =list("'МОЯ МАГИЯ МЕНЯ ПОДВЕЛА! УБЕЙ! УБЕЙ ЭТИХ ПСАЙДОНИТСКИХ СОБАК!'", "'КТО ТУТ? ЗДЕСЬ ИСКАЖЕННАЯ МАГИЯ, ОСТЕРЕГАЙТЕСЬ МУЗЫКИ! НАШИ ГОЛОСА НЕ МОГУТ ПРОТИВИТЬСЯ!'", "'РАЗРУШЬТЕ КОРОБКУ, УБЕЙТЕ ВЛАДЕЛЬЦА! ВАША СИЛА ОСВОБОДИТСЯ!'")
 	var/graggarlines =list("'ПОМАЗАННИКИ! ОТОРВИТЕ ГОЛОВУ ЭТОЙ ИНКВИЗИТОРСКОЙ ГАДИНЕ!'", "'ПОМАЗАННИКИ! РАЗБЕЙТЕ КОРОБКУ, И МЫ ВМЕСТЕ ИХ ВСЕХ УБЬЕМ!'", "'ГРАГГАР, ДАЙ МНЕ СИЛУ РАЗРУШИТЬ МОИ УЗЫ!'")
 	var/baothalines =list("'Я скучаю по теплу озиума... Ничего не чувствую...'", "'Развратник, спаси меня от этой штуковины, я могу кое-чем поделиться... только с тобой.'", "'МОЁ СОВЕРШЕНСТВО! ЭТИ МОНСТРЫ ОТОБРАЛИ ЕГО У МЕНЯ!'")
-	var/psydonianlines =list("'ОСВОБОДИ! ОСВОБОДИ НАС! МЫ ДОСТАТОЧНО НАСТРАДАЛИСЬ!'", "'ОТПУСТИТЕ НАС!'", "'МЫ ДОЛЖНЫ ВЕРНУТЬСЯ К СЕМЬЯМ!'", "'КОГДА МЫ ВЫБЕРЕМСЯ, МЫ ЗАГОНИМ ТЕБЯ В МОГИЛУ!.'")
+	var/otherlines =list("'ОСВОБОДИ! ОСВОБОДИ НАС! МЫ ДОСТАТОЧНО НАСТРАДАЛИСЬ!'", "'ОТПУСТИТЕ НАС!'", "'МЫ ДОЛЖНЫ ВЕРНУТЬСЯ К СЕМЬЯМ!'", "'КОГДА МЫ ВЫБЕРЕМСЯ, МЫ ЗАГОНИМ ТЕБЯ В МОГИЛУ!.'")
 /datum/status_effect/buff/cranking_soulchurner/on_creation(mob/living/new_owner, stress, colour)
 	effect_color = "#800000"
 	return ..()
@@ -186,7 +198,7 @@
 						if (!H.has_stress_event(/datum/stressevent/soulchurnerpsydon))
 							H.add_stress(/datum/stressevent/soulchurnerpsydon)
 							to_chat(H, (span_hypnophrase("Голос из песни зовёт тебя...")))
-							to_chat(H, (span_cultsmall(pick(psydonianlines))))
+							to_chat(H, (span_cultsmall(pick(otherlines))))
 						if(HAS_TRAIT(H, TRAIT_INQUISITION))
 							H.apply_status_effect(/datum/status_effect/buff/churnerprotection)
 					if(/datum/patron/inhumen/matthios)
@@ -279,6 +291,13 @@
 						H.add_stress(/datum/stressevent/soulchurner)
 						if(!H.has_status_effect(/datum/status_effect/buff/churnernegative))
 							H.apply_status_effect(/datum/status_effect/buff/churnernegative)
+					else
+						to_chat(H, (span_hypnophrase("A voice calls out from the song for you...")))
+						to_chat(H, (span_cultsmall(pick(otherlines))))
+						H.add_stress(/datum/stressevent/soulchurner)
+						if(!H.has_status_effect(/datum/status_effect/buff/churnernegative))
+							H.apply_status_effect(/datum/status_effect/buff/churnernegative)
+
 
 
 /*
@@ -351,6 +370,9 @@ Inquisitorial armory down here
 		. += span_warning("<font color='#00e1ff'>While active, Golgatha burns and weakens anyone who attacks its bearer. The effect persists only while the attacker remains within the relic's light. This feature requires the bearer to be Silverblessed, and inflicts extra damage to mindless foes.</font>")
 	if(fuel <= 0)
 		. += span_info("It is gone.")
+
+/obj/item/flashlight/flare/torch/lantern/psycenser/get_examine_highlight_status()
+	return list(EXAMINEHIGHLIGHT_VIBE_GOLGATHA, VIBEDESC_GOLGATHA)
 
 /obj/item/flashlight/flare/torch/lantern/psycenser/getonmobprop(tag)
 	. = ..()
