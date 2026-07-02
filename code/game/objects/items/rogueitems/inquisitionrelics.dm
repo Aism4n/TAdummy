@@ -176,7 +176,7 @@
 	var/zizolines =list("'МОЯ МАГИЯ МЕНЯ ПОДВЕЛА! УБЕЙ! УБЕЙ ЭТИХ ПСАЙДОНИТСКИХ СОБАК!'", "'КТО ТУТ? ЗДЕСЬ ИСКАЖЕННАЯ МАГИЯ, ОСТЕРЕГАЙТЕСЬ МУЗЫКИ! НАШИ ГОЛОСА НЕ МОГУТ ПРОТИВИТЬСЯ!'", "'РАЗРУШЬТЕ КОРОБКУ, УБЕЙТЕ ВЛАДЕЛЬЦА! ВАША СИЛА ОСВОБОДИТСЯ!'")
 	var/graggarlines =list("'ПОМАЗАННИКИ! ОТОРВИТЕ ГОЛОВУ ЭТОЙ ИНКВИЗИТОРСКОЙ ГАДИНЕ!'", "'ПОМАЗАННИКИ! РАЗБЕЙТЕ КОРОБКУ, И МЫ ВМЕСТЕ ИХ ВСЕХ УБЬЕМ!'", "'ГРАГГАР, ДАЙ МНЕ СИЛУ РАЗРУШИТЬ МОИ УЗЫ!'")
 	var/baothalines =list("'Я скучаю по теплу озиума... Ничего не чувствую...'", "'Развратник, спаси меня от этой штуковины, я могу кое-чем поделиться... только с тобой.'", "'МОЁ СОВЕРШЕНСТВО! ЭТИ МОНСТРЫ ОТОБРАЛИ ЕГО У МЕНЯ!'")
-  var/otherlines =list("'ОСВОБОДИ! ОСВОБОДИ НАС! МЫ ДОСТАТОЧНО НАСТРАДАЛИСЬ!'", "'ОТПУСТИТЕ НАС!'", "'МЫ ДОЛЖНЫ ВЕРНУТЬСЯ К СЕМЬЯМ!'", "'КОГДА МЫ ВЫБЕРЕМСЯ, МЫ ЗАГОНИМ ТЕБЯ В МОГИЛУ!.'")
+	var/otherlines =list("'ОСВОБОДИ! ОСВОБОДИ НАС! МЫ ДОСТАТОЧНО НАСТРАДАЛИСЬ!'", "'ОТПУСТИТЕ НАС!'", "'МЫ ДОЛЖНЫ ВЕРНУТЬСЯ К СЕМЬЯМ!'", "'КОГДА МЫ ВЫБЕРЕМСЯ, МЫ ЗАГОНИМ ТЕБЯ В МОГИЛУ!.'")
 /datum/status_effect/buff/cranking_soulchurner/on_creation(mob/living/new_owner, stress, colour)
 	effect_color = "#800000"
 	return ..()
@@ -198,7 +198,7 @@
 						if (!H.has_stress_event(/datum/stressevent/soulchurnerpsydon))
 							H.add_stress(/datum/stressevent/soulchurnerpsydon)
 							to_chat(H, (span_hypnophrase("Голос из песни зовёт тебя...")))
-							to_chat(H, (span_cultsmall(pick(psydonianlines))))
+							to_chat(H, (span_cultsmall(pick(otherlines))))
 						if(HAS_TRAIT(H, TRAIT_INQUISITION))
 							H.apply_status_effect(/datum/status_effect/buff/churnerprotection)
 					if(/datum/patron/inhumen/matthios)
