@@ -536,7 +536,7 @@
 
 //Bigfoot - Custom great axe type
 /obj/item/enchantingkit/bigfoot_axe
-	name = "'Gilded Great Axe' morphing elixir"
+	name = "'Aureline' morphing elixir"
 	desc = "A small container of special morphing dust, perfect to make a specifc item. Required: Steel Greataxe"
 	target_items = list(/obj/item/rogueweapon/greataxe/steel)
 	result_item = /obj/item/rogueweapon/greataxe/steel/gilded
