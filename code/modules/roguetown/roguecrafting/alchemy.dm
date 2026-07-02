@@ -83,7 +83,7 @@
 	reqs = list(/obj/item/reagent_containers/food/snacks/grown/rogue/fyritius/bloodied = 1, /datum/reagent/water/blessed = 45, /obj/item/natural/cloth = 1, /obj/item/alch/silverdust = 1)
 	craftdiff = 4
 
-	/datum/crafting_recipe/roguetown/alchemy/quicksilver_holy
+/datum/crafting_recipe/roguetown/alchemy/quicksilver_2
 	name = "quicksilver (alt)"
 	category = "Table"
 	result = list(/obj/item/quicksilver = 1)
@@ -100,7 +100,7 @@
 	verbage_simple = "transmute"
 	structurecraft = null
 
-	/datum/crafting_recipe/roguetown/alchemy/qsabsolution_holy
+/datum/crafting_recipe/roguetown/alchemy/qsabsolution_2
 	name = "absolving silver (alt)"
 	category = "Transmutation"
 	req_table = FALSE
@@ -109,7 +109,6 @@
 	craftdiff = 0
 	verbage_simple = "transmute"
 	structurecraft = null
-
 
 /datum/crafting_recipe/roguetown/alchemy/transisdust
 	name = "sui dust"
