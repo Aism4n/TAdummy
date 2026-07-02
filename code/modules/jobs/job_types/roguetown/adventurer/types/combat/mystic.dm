@@ -49,7 +49,7 @@
 		/obj/item/reagent_containers/glass/bottle = 3,
 		/obj/item/reagent_containers/glass/bottle/alchemical = 3,
 		/obj/item/recipe_book/alchemy = 1,
-		/obj/item/book/spellbook = 1,
+		/obj/item/rogueweapon/spellbook = 1,
 		/obj/item/chalk = 1,
 		)
 	var/datum/devotion/C = new /datum/devotion(H, H.patron)
@@ -84,20 +84,22 @@
 
 
 	if(H.mind)
-		var/weapons = list("Lesser Staff", "Lesser Wand", "Quarterstaff")
+		var/weapons = list("Lesser Staff", "Lesser Tome", "Quarterstaff")
 		var/weapon_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in weapons
 		switch(weapon_choice)
 			if("Lesser Staff")
 				r_hand = /obj/item/rogueweapon/woodstaff/implement
-				H.adjust_skillrank_up_to(/datum/skill/combat/staves, 3, TRUE)
-			if("Lesser Wand + Shield")
-				r_hand = /obj/item/rogueweapon/wand
-				l_hand = /obj/item/rogueweapon/shield/wood
-				H.adjust_skillrank_up_to(/datum/skill/combat/shields, 2, TRUE)
+				H.adjust_skillrank_up_to(/datum/skill/combat/staves, SKILL_LEVEL_JOURNEYMAN, TRUE)
+				H.adjust_skillrank_up_to(/datum/skill/combat/arcyne, SKILL_LEVEL_JOURNEYMAN, TRUE)
+			if("Lesser Tome")
+				r_hand = /obj/item/rogueweapon/spellbook
+				H.adjust_skillrank_up_to(/datum/skill/combat/staves, SKILL_LEVEL_JOURNEYMAN, TRUE)
+				H.adjust_skillrank_up_to(/datum/skill/combat/arcyne, SKILL_LEVEL_JOURNEYMAN, TRUE)
 			if("Quarterstaff")
 				r_hand = /obj/item/rogueweapon/woodstaff/quarterstaff/iron
 				backr = /obj/item/rogueweapon/scabbard/gwstrap
-				H.adjust_skillrank_up_to(/datum/skill/combat/staves, 3, TRUE)
+				H.adjust_skillrank_up_to(/datum/skill/combat/staves, SKILL_LEVEL_JOURNEYMAN, TRUE)
+				H.adjust_skillrank_up_to(/datum/skill/combat/arcyne, SKILL_LEVEL_JOURNEYMAN, TRUE)
 
 	switch(H.patron?.type)
 		if(/datum/patron/old_god)
@@ -191,7 +193,7 @@
 	backpack_contents = list(
 		/obj/item/flashlight/flare/torch = 1,
 		/obj/item/recipe_book/survival = 1,
-		/obj/item/book/spellbook = 1,
+		/obj/item/rogueweapon/spellbook = 1,
 		/obj/item/chalk = 1,
 		)
 
@@ -229,16 +231,18 @@
 					H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/fortifyingvapors)
 
 	if(H.mind)
-		var/weapons = list("lesser staff", "Lesser Wand + Shield", "Goedendag", "Quarterstaff") //TA EDIT
+		var/weapons = list("lesser staff", "Goedendag", "Quarterstaff") //TA EDIT
 		var/weapon_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in weapons
 		switch(weapon_choice)
 			if("Lesser Staff")
 				r_hand = /obj/item/rogueweapon/woodstaff/implement
+				H.adjust_skillrank_up_to(/datum/skill/combat/staves, SKILL_LEVEL_JOURNEYMAN, TRUE)
+				H.adjust_skillrank_up_to(/datum/skill/combat/arcyne, SKILL_LEVEL_JOURNEYMAN, TRUE)
+			if("Lesser Tome")
+				r_hand = /obj/item/rogueweapon/spellbook
+				H.adjust_skillrank_up_to(/datum/skill/combat/staves, SKILL_LEVEL_JOURNEYMAN, TRUE)
+				H.adjust_skillrank_up_to(/datum/skill/combat/arcyne, SKILL_LEVEL_JOURNEYMAN, TRUE)
 				H.adjust_skillrank_up_to(/datum/skill/combat/staves, 3, TRUE)
-			if("Lesser Wand + Shield")
-				r_hand = /obj/item/rogueweapon/wand
-				l_hand = /obj/item/rogueweapon/shield/wood
-				H.adjust_skillrank_up_to(/datum/skill/combat/shields, 2, TRUE)
 			if("Goedendag") //TA EDIT START
 				beltr = /obj/item/rogueweapon/mace/goden
 				H.adjust_skillrank_up_to(/datum/skill/combat/maces, 3, TRUE)
@@ -355,7 +359,8 @@
 			if("Quarterstaff")
 				r_hand = /obj/item/rogueweapon/woodstaff/quarterstaff/iron
 				backr = /obj/item/rogueweapon/scabbard/gwstrap
-				H.adjust_skillrank_up_to(/datum/skill/combat/staves, 3, TRUE)
+				H.adjust_skillrank_up_to(/datum/skill/combat/staves, SKILL_LEVEL_JOURNEYMAN, TRUE)
+				H.adjust_skillrank_up_to(/datum/skill/combat/arcyne, SKILL_LEVEL_JOURNEYMAN, TRUE)
 			if("Mace + Shield")
 				r_hand = /obj/item/rogueweapon/mace
 				backr = /obj/item/rogueweapon/shield/wood
@@ -370,7 +375,7 @@
 	backpack_contents = list(
 		/obj/item/flashlight/flare/torch = 1,
 		/obj/item/recipe_book/survival = 1,
-		/obj/item/book/spellbook = 1,
+		/obj/item/rogueweapon/spellbook = 1,
 		/obj/item/chalk = 1,
 		)
 	grant_poke_spell(H)
