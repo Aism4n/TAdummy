@@ -1,4 +1,0 @@
-author: "Vladmar11"
-delete-after: True
-changes:
-  - bugfix: "Исправлено потребление руной всех ресурсов, что на ней лежат"
