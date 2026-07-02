@@ -11,7 +11,7 @@ Intended to be a reward or a goal for pure mage, allowing them to rebind their a
 	grid_width = 32
 	grid_height = 32
 	base_icon_state = "spellbookbrown"
-	unique = TRUE
+	var/unique = TRUE
 	firefuel = 2 MINUTES
 	dropshrink = 0.6
 	drop_sound = 'sound/foley/dropsound/book_drop.ogg'

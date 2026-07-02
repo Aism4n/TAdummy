@@ -231,7 +231,7 @@
 					H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/fortifyingvapors)
 
 	if(H.mind)
-		var/weapons = list("lesser staff", "Lesser Wand + Shield", "Goedendag", "Quarterstaff") //TA EDIT
+		var/weapons = list("lesser staff", "Goedendag", "Quarterstaff") //TA EDIT
 		var/weapon_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in weapons
 		switch(weapon_choice)
 			if("Lesser Staff")
@@ -243,10 +243,6 @@
 				H.adjust_skillrank_up_to(/datum/skill/combat/staves, SKILL_LEVEL_JOURNEYMAN, TRUE)
 				H.adjust_skillrank_up_to(/datum/skill/combat/arcyne, SKILL_LEVEL_JOURNEYMAN, TRUE)
 				H.adjust_skillrank_up_to(/datum/skill/combat/staves, 3, TRUE)
-			if("Lesser Wand + Shield")
-				r_hand = /obj/item/rogueweapon/wand
-				l_hand = /obj/item/rogueweapon/shield/wood
-				H.adjust_skillrank_up_to(/datum/skill/combat/shields, 2, TRUE)
 			if("Goedendag") //TA EDIT START
 				beltr = /obj/item/rogueweapon/mace/goden
 				H.adjust_skillrank_up_to(/datum/skill/combat/maces, 3, TRUE)
