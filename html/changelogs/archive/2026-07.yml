@@ -30,6 +30,8 @@
       can be refunded if an Absolver's presence makes it less-than-needed.
   Quinalion:
   - code_imp: Standardizes Psydonian maces code path for consistency.
+  SmthAwfl:
+  - rscadd: sage's big hat
   WeNeedMorePhoron:
   - rscadd: There's now two slots for Noccian Spellblade since it isn't that OP, actually.
       They lost tempo access.
@@ -59,3 +61,9 @@
   - bugfix: Fixes a major issue stemming from an obsolete feature
   eirenxiv:
   - rscadd: Added new and amazing description to bigfoot02's donor item
+  SillyMoff:
+  - balance: "-В связи с изменением миража - теперь баотисты снова могут получить бафф за розыск, а к тому же баотист-шпион может не брать +к статам, но и надпись еретика на лицо не получит тоже."
+  Vladmar11:
+  - bugfix: "Фикс проскальзывания пустынных следов в другие карты"
+  - bugfix: "Исправлено потребление руной всех ресурсов, что на ней лежат"
+  - balance: "Теперь грабнутый не тратит стамину при перемещениях по тайлам воды"

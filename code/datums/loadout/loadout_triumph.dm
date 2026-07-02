@@ -1,4 +1,4 @@
-//////////////////
+/*//////////////////
 //  TRIUMPHS !  //
 //////////////////
 
@@ -638,3 +638,4 @@
 	path = /obj/item/clothing/head/roguetown/decoration/greatplume
 	triumph_cost = 3
 	sort_category = "Triumphs"
+*/
