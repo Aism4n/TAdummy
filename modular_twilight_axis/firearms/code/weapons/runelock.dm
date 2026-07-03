@@ -176,10 +176,8 @@
 		BB.damage *= damfactor * per_scaling
 	cocked = FALSE
 	update_icon()
-	var/dir = get_dir(src, target)
-	var/datum/effect_system/smoke_spread/smoke = new
-	smoke.set_up(1, get_step(src, dir))
-	smoke.start()
+	var/shoot_dir = get_dir(src, target)
+	new /obj/effect/temp_visual/small_smoke/gunsmoke(get_step(user, shoot_dir), shoot_dir)
 	..()
 
 /obj/item/ammo_box/magazine/internal/shot/twilight_runelock
