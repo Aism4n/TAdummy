@@ -1,4 +1,4 @@
-//////////////////
+/*//////////////////
 //  TRIUMPHS !  //
 //////////////////
 
@@ -650,3 +650,4 @@
 	path = /datum/loadout_item/donator/universal/armorpiece_shoulderguard
 	triumph_cost = 3
 	sort_category = "Triumphs"
+*/

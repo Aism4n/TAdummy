@@ -89,7 +89,7 @@
 		return
 
 	next_attack_msg.Cut()
-
+	user.break_invisibility_from_combat()
 	user.do_attack_animation(src, "bite")
 	playsound(user, 'sound/gore/flesh_eat_01.ogg', vol = 50, vary = FALSE, extrarange = -2, ignore_walls = FALSE, quiet = TRUE)
 	var/nodmg = FALSE
@@ -248,6 +248,7 @@
 		return FALSE*/
 
 	user.changeNext_move(CLICK_CD_GRABBING)
+	user.break_invisibility_from_combat()
 	var/mob/living/carbon/C = grabbed
 	var/damage = user.get_punch_dmg()
 	if(HAS_TRAIT(user, TRAIT_STRONGBITE))
@@ -310,5 +311,5 @@
 	if(!limb_grabbed.get_bleed_rate())
 		to_chat(user, span_warning("Sigh. It's not bleeding."))
 		return
-
+	user.break_invisibility_from_combat()
 	user.drinksomeblood(grabbed, sublimb_grabbed)
