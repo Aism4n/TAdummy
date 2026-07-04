@@ -244,6 +244,7 @@
   - bugfix: Certain wildshapes will no longer be swapped around by players moving
       into them
   Lamasmaster:
+  - rscadd: Thigh and Ankle variants of sleeve stirrup stockings
   - bugfix: Matthios items not counting as "valid"
   Ollanius:
   - balance: Copper spears now deal 18 - 22 damage instead of 13 - 18. For reference,
@@ -259,3 +260,5 @@
   - rscadd: Changes stuff about spartanbobbys donor item
   WeNeedMorePhoron:
   - rscdel: Removed three loot pinata room from Alotheos.
+  radarseas:
+  - bugfix: Gives Iconoclast an Amulet so they can actually Play their Role.
