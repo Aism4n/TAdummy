@@ -1,4 +1,4 @@
-//////////////////
+/*//////////////////
 //  TRIUMPHS !  //
 //////////////////
 
@@ -650,3 +650,4 @@
 	path = /obj/item/clothing/cloak/tabard/stabard/donator_shoulderguard
 	triumph_cost = 3
 	sort_category = "Triumphs"
+*/
