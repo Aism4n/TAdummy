@@ -6,8 +6,8 @@
 	status_type = STATUS_EFFECT_REFRESH
 
 /atom/movable/screen/alert/status_effect/debuff/ta_sunspurn
-	name = "Sunspurned"
-	desc = "Astrata spurns me. I feel terribly weak."
+	name = "Отвергнутый Солнцем"
+	desc = "Астрата отвергает меня. Я чувствую ужасную слабость."
 	icon_state = "muscles"
 
 /datum/component/sunlight_vulnerability/check_sunlight(mob/living/source)
@@ -26,22 +26,22 @@
 	var/turf/T = H.loc
 	if(!T.can_see_sky())
 		if(in_sunlight)
-			to_chat(H, span_notice("The scorching gaze of the Sun-Tyrant afflicts me no more."))
+			to_chat(H, span_notice("Палящее око Солнечного Тирана больше меня не мучает."))
 		in_sunlight = FALSE
 		return
 
 	if(HAS_TRAIT(H, TRAIT_WEATHER_PROTECTED))
 		if(!in_sunlight)
 			in_sunlight = TRUE
-			to_chat(H, span_danger("I am shielded from the Sun-Tyrant's scorn."))
+			to_chat(H, span_danger("Я защищён от гнева Солнечного Тирана."))
 		return
 
 	if(!in_sunlight)
 		in_sunlight = TRUE
 		if(HAS_TRAIT(H, TRAIT_CRIMSON_CURSE))
-			to_chat(H, span_danger("I can barely bear this accursed sun's gaze!"))
+			to_chat(H, span_danger("Я едва выдерживаю взгляд проклятого солнца!"))
 		else
-			to_chat(H, span_danger("The sunlight burns my flesh!"))
+			to_chat(H, span_danger("Солнечный свет сжигает мою плоть!"))
 
 	apply_sunlight_damage(H)
 
@@ -56,7 +56,7 @@
 		if(H.bloodpool > disguise_comp.min_bloodpool * 2)
 			return
 		disguise_comp.force_undisguise(H)
-		to_chat(H, span_warning("The sunlight breaks my disguise!"))
+		to_chat(H, span_warning("Солнечный свет разрушает мою маскировку!"))
 
 	H.fire_act(1, burn_damage)
 	if(H.on_fire)

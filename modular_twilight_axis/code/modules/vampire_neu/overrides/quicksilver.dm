@@ -15,20 +15,20 @@
 		return INITIALIZE_HINT_QDEL
 
 /obj/item/quicksilver/TA
-	name = "quicksilver poultice"
+	name = "ртутная припарка"
 
 /obj/item/quicksilver/TA/luxinfused
-	name = "absolving silver"
+	name = "очищающее серебро"
 	icon_state = "quicksilverlux"
-	desc = "A daring blend of trace amounts of purifying lux, aberrant blood, and divine silver. This panacea fortifies the anointed's body with blessed silverdust, protecting them from the curses of vampyrism and lycanthropy."
+	desc = "Смелая смесь очищающего люкса, аномальной крови и божественного серебра. Эта панацея укрепляет тело помазанного благословенной серебряной пылью, защищая от проклятий вампиризма и ликантропии."
 
 /obj/item/quicksilver/TA/anoint(mob/living/carbon/human/M, mob/living/carbon/human/user)
 	var/was_crimson_cursed = HAS_TRAIT(M, TRAIT_CRIMSON_CURSE)
 	. = ..()
 	if(was_crimson_cursed && !HAS_TRAIT(M, TRAIT_CRIMSON_CURSE))
 		ADD_TRAIT(M, TA_TRAIT_CRIMSON_CLEANSED, TRAIT_GENERIC)
-		to_chat(M, span_notice("The Crimson Curse has been burned out of my blood."))
-		to_chat(user, span_notice("The Crimson Curse leaves [M]."))
+		to_chat(M, span_notice("Багровое проклятие выжжено из моей крови."))
+		to_chat(user, span_notice("Багровое проклятие покидает тело [M]."))
 	if(HAS_TRAIT(M, TRAIT_SILVER_BLESSED))
 		cleanse_pallid(M, user)
 

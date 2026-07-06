@@ -139,14 +139,14 @@ drinksomeblood()
 	SEND_SIGNAL(src, COMSIG_LIVING_DRINKED_LIMB_BLOOD, victim)
 
 	victim.visible_message(
-		span_danger("[src] drinks from [victim]'s [parse_zone(sublimb_grabbed)]!"),
-		span_userdanger("[src] drinks from my [parse_zone(sublimb_grabbed)]!"),
+		span_danger("[src] пьёт кровь [victim]!"),
+		span_userdanger("[src] пьёт мою кровь!"),
 		span_hear("..."),
 		COMBAT_MESSAGE_RANGE,
 		src
 	)
 
-	to_chat(src, span_warning("Я пью из [parse_zone(sublimb_grabbed)] [victim]."))
+	to_chat(src, span_warning("Я пью кровь [victim]."))
 	log_combat(src, victim, "drank blood from ")
 
 /// SIDE EFFECTS
@@ -227,8 +227,8 @@ drinksomeblood()
 		if(HAS_TRAIT(victim, TRAIT_CRIMSON_CURSE))
 			message_admins("[ADMIN_LOOKUPFLW(src)] purged the Crimson Curse from [ADMIN_LOOKUPFLW(victim)] through diablerie")
 			log_attack("[key_name(src)] purged the Crimson Curse from [key_name(victim)] through diablerie.")
-			to_chat(src, span_userdanger("This is no true kindred, but the curse in their blood is still mine to consume."))
-			to_chat(victim, span_userdanger("The last of the Crimson Curse is torn from my veins. I am mortal once more."))
+			to_chat(src, span_userdanger("Это не настоящий сородич, но проклятие в его крови всё равно станет моей добычей."))
+			to_chat(victim, span_userdanger("Последние следы Багрового проклятия вырывают из моих вен. Я снова смертен."))
 
 			VDrinker.research_points += TA_RP_PER_CC_DIABLERIE
 			victim.mind?.remove_antag_datum(/datum/antagonist/vampire/stray)
@@ -282,8 +282,8 @@ drinksomeblood()
 	if(HAS_TRAIT(victim, TA_TRAIT_CRIMSON_CLEANSED) && victim.blood_volume < BLOOD_VOLUME_SURVIVE)
 		message_admins("[ADMIN_LOOKUPFLW(src)] consumed the cleansed Crimson Curse survivor [ADMIN_LOOKUPFLW(victim)]")
 		log_attack("[key_name(src)] consumed the cleansed Crimson Curse survivor [key_name(victim)].")
-		to_chat(src, span_danger("The mortal shell yields the final trace of its former curse."))
-		to_chat(victim, span_userdanger("The vampire returns to finish what it began."))
+		to_chat(src, span_danger("Смертная оболочка отдаёт последние следы прежнего проклятия."))
+		to_chat(victim, span_userdanger("Вампир возвращается, чтобы закончить начатое."))
 		VDrinker.research_points += TA_RP_PER_CLEANSED_CC_DIABLERIE
 		REMOVE_TRAIT(victim, TA_TRAIT_CRIMSON_CLEANSED, TRAIT_GENERIC)
 		victim.dust(drop_items = TRUE)
@@ -322,7 +322,7 @@ drinksomeblood()
 
 /mob/living/carbon/human/proc/process_vampire_blood(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
 	if(HAS_TRAIT(src, TRAIT_CRIMSON_CURSE))
-		to_chat(src, span_warning("My curse is too weak to consume another vampire's soul."))
+		to_chat(src, span_warning("Моё проклятие слишком слабо, чтобы поглотить душу другого вампира."))
 		return TRUE
 
 	var/blood_handle = build_blood_handle(victim, VVictim)
@@ -399,7 +399,7 @@ drinksomeblood()
 	if(research_cost || maxbloodpool_cost)
 		var/list/losses = list()
 		if(research_cost)
-			losses += "[research_cost] RP"
+		losses += "[research_cost] ОИ"
 		if(maxbloodpool_cost)
 			losses += "[maxbloodpool_cost] макс. кровозапаса"
 		to_chat(src, span_notice("Я теряю [english_list(losses)]."))
@@ -440,7 +440,7 @@ drinksomeblood()
 		return FALSE
 
 	var/maxbloodpool_gain = apply_vampire_conversion_reward(VDrinker, TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD, TA_VAMP_CONVERT_OFFER_MAXBLOODPOOL_REWARD)
-	var/reward_text = "+[TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD] RP"
+	var/reward_text = "+[TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD] ОИ"
 	if(maxbloodpool_gain)
 		reward_text = "[reward_text], +[maxbloodpool_gain] макс. кровозапаса"
 	to_chat(src, span_notice("Я поглотил часть жизненной силы жертвы и стал сильнее, а мое проклятие укоренилось в ней! ([reward_text])"))
@@ -451,7 +451,7 @@ drinksomeblood()
 		return FALSE
 
 	var/maxbloodpool_gain = apply_vampire_conversion_reward(VDrinker, TA_VAMP_DRAIN_RESEARCH_REWARD, TA_VAMP_DRAIN_MAXBLOODPOOL_REWARD)
-	var/reward_text = "+[TA_VAMP_DRAIN_RESEARCH_REWARD] RP"
+	var/reward_text = "+[TA_VAMP_DRAIN_RESEARCH_REWARD] ОИ"
 	if(maxbloodpool_gain)
 		reward_text = "[reward_text], +[maxbloodpool_gain] макс. кровозапаса"
 	to_chat(src, span_notice("Иссушение питает мое проклятие. ([reward_text])"))
@@ -631,8 +631,8 @@ drinksomeblood()
 	var/remaining_maxbloodpool_reward = max(reward_maxbloodpool_cap - maxbloodpool, 0)
 	var/offer_maxbloodpool_reward = min(TA_VAMP_CONVERT_OFFER_MAXBLOODPOOL_REWARD, remaining_maxbloodpool_reward)
 	var/drain_maxbloodpool_reward = min(TA_VAMP_DRAIN_MAXBLOODPOOL_REWARD, remaining_maxbloodpool_reward)
-	var/offer_reward_text = "+[TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD] RP"
-	var/drain_reward_text = "+[TA_VAMP_DRAIN_RESEARCH_REWARD] RP"
+	var/offer_reward_text = "+[TA_VAMP_CONVERT_OFFER_RESEARCH_REWARD] ОИ"
+	var/drain_reward_text = "+[TA_VAMP_DRAIN_RESEARCH_REWARD] ОИ"
 	if(offer_maxbloodpool_reward)
 		offer_reward_text = "[offer_reward_text], +[offer_maxbloodpool_reward] МАКС. КРОВИ"
 	if(drain_maxbloodpool_reward)
@@ -730,7 +730,7 @@ drinksomeblood()
 			H.vampire_conversion_prompt_active = FALSE
 			return
 		to_chat(H, span_userdanger("Проклятая кровь выжигает след на моей душе и теле!"))
-		to_chat(src, span_danger("Я иссушаю [victim], оставляя в крови след Pallid."))
+		to_chat(src, span_danger("Я иссушаю [victim], оставляя в крови след Иссушения."))
 		if(!H.apply_pallid_curse(src))
 			H.vampire_conversion_prompt_active = FALSE
 			return

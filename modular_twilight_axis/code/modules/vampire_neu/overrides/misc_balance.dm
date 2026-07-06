@@ -5,8 +5,8 @@
 
 // FAE TRICKERY TRAPS
 /obj/structure/ta_fae_trickery_trap
-	name = "fae trap"
-	desc = "A nearly invisible fae ward. It looks fragile enough to break."
+	name = "ловушка фей"
+	desc = "Почти невидимые чары фей. Выглядят достаточно хрупкими, чтобы их разрушить."
 	anchored = TRUE
 	density = FALSE
 	max_integrity = 20
@@ -69,7 +69,7 @@
 
 	crossing.adjustBruteLoss(35)
 	crossing.Knockdown(5)
-	crossing.visible_message(span_suicide("[crossing] is disarmed!"), span_boldwarning("I'm disarmed!"))
+	crossing.visible_message(span_suicide("[crossing] роняет оружие!"), span_boldwarning("Я роняю оружие!"))
 	playsound(get_turf(crossing), 'sound/magic/mockery.ogg', 40, FALSE)
 	var/target_turf = get_ranged_target_turf(get_turf(crossing), pick(GLOB.cardinals), rand(2, 5))
 	crossing.throw_item(target_turf, FALSE)
@@ -77,16 +77,16 @@
 
 /datum/coven_power/fae_trickery/chanjelin_ward/activate()
 	. = ..()
-	var/selected_trap = input(owner, "Select a Trap:", "Trap") as null|anything in list("Brutal", "Spin", "Drop")
+	var/selected_trap = input(owner, "Выберите ловушку:", "Ловушка") as null|anything in list("Сокрушение", "Кружение", "Разоружение")
 	if(!selected_trap)
 		return
 
 	var/obj/structure/ta_fae_trickery_trap/trap
 	switch(selected_trap)
-		if("Brutal")
+		if("Сокрушение")
 			trap = new /obj/structure/ta_fae_trickery_trap(get_turf(owner))
-		if("Spin")
+		if("Кружение")
 			trap = new /obj/structure/ta_fae_trickery_trap/disorient(get_turf(owner))
-		if("Drop")
+		if("Разоружение")
 			trap = new /obj/structure/ta_fae_trickery_trap/drop(get_turf(owner))
 	trap?.trap_owner = owner

@@ -12,7 +12,7 @@
 		return
 
 	drinker.apply_status_effect(/datum/status_effect/debuff/blood_disgust)
-	to_chat(drinker, span_warning("This blood tastes revolting to me!"))
+	to_chat(drinker, span_warning("Вкус этой крови отвратителен!"))
 
 /datum/status_effect/buff/ta_crimson_curse_blood
 	id = "ta_crimson_curse_blood"
@@ -21,8 +21,8 @@
 	status_type = STATUS_EFFECT_REFRESH
 
 /atom/movable/screen/alert/status_effect/buff/ta_crimson_curse_blood
-	name = "Sanguine Curse"
-	desc = "I consumed vitae tainted by a lesser Crimson Curse."
+	name = "Багровая кровь"
+	desc = "Я испил витэ, осквернённую слабым Багровым проклятием."
 	icon_state = "bloodheal"
 
 /datum/status_effect/buff/ta_crimson_curse_blood/on_apply()
@@ -35,7 +35,7 @@
 	return ..()
 
 /datum/stressevent/ta_nourishing_crimson_blood
-	desc = span_good("That cursed blood was satisfying.")
+	desc = span_good("Эта проклятая кровь была восхитительна.")
 	stressadd = -2
 	max_stacks = 10
 	stressadd_per_extra_stack = -2

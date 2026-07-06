@@ -4,7 +4,7 @@
  */
 
 /datum/antagonist/vampire/create_custom_clan(mob/living/carbon/human/vampdude, custom_name = null)
-	custom_clan_name = (istext(custom_name) && length(custom_name)) ? custom_name : "Custom Clan"
+	custom_clan_name = (istext(custom_name) && length(custom_name)) ? custom_name : "Пользовательский клан"
 
 	var/datum/clan/custom/new_clan = new /datum/clan/custom()
 	new_clan.name = custom_clan_name
@@ -21,4 +21,4 @@
 	clan_selected = TRUE
 	after_gain()
 
-	to_chat(vampdude, span_notice("You are now a member of the [custom_clan_name] clan with [length(selected_covens)] coven(s)."))
+	to_chat(vampdude, span_notice("Теперь я принадлежу клану «[custom_clan_name]». Доступно дисциплин: [length(selected_covens)]."))

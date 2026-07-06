@@ -13,7 +13,7 @@
 			M.adjustToxLoss(8.5)
 			M.stamina_add(7.5)
 
-		to_chat(M, span_userdanger("MY HEART! I'VE BEEN POISONED!"))
+		to_chat(M, span_userdanger("МОЁ СЕРДЦЕ! МЕНЯ ОТРАВИЛИ!"))
 		M.playsound_local('sound/magic/heartbeat.ogg', 50)
 
 	return ..()

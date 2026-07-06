@@ -17,8 +17,8 @@
 	needs_processing = FALSE
 
 /atom/movable/screen/alert/status_effect/debuff/ta_bloodstarved
-	name = "Bloodstarved"
-	desc = "Hunger pulses through me."
+	name = "Кровавый голод"
+	desc = "Голод пульсирует внутри меня."
 	icon_state = "bleed1"
 
 /datum/status_effect/debuff/ta_bloodstarved/worse
@@ -27,8 +27,8 @@
 	effectedstats = list(STATKEY_STR = -2, STATKEY_SPD = -2, STATKEY_CON = -1)
 
 /atom/movable/screen/alert/status_effect/debuff/ta_bloodstarved/worse
-	name = "Bloodstarved"
-	desc = "The hunger inside me is screaming."
+	name = "Кровавый голод"
+	desc = "Голод внутри меня неистово кричит."
 	icon_state = "bleed2"
 
 /datum/status_effect/debuff/ta_bloodstarved/worst
@@ -37,8 +37,8 @@
 	effectedstats = list(STATKEY_STR = -3, STATKEY_SPD = -3, STATKEY_CON = -2)
 
 /atom/movable/screen/alert/status_effect/debuff/ta_bloodstarved/worst
-	name = "Bloodstarved"
-	desc = "It is almost impossible to move. The hunger is unending."
+	name = "Кровавый голод"
+	desc = "Я едва могу двигаться. Этот голод бесконечен."
 	icon_state = "bleed3"
 
 /mob/living/carbon/human/handle_bloodpool_effects()

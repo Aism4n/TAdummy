@@ -7,13 +7,13 @@
 	lord_spells = list()
 	lord_verbs = list()
 	lord_traits = list()
-	lord_title = "Elder"
+	lord_title = "Старейшина"
 	vitae_bonus = 0
 
 /datum/clan/strays
-	name = "Strays"
-	desc = "Bearers of a weak vampiric curse acquired through dark rites or malevolent hexes. They cannot create spawn or commit diablerie."
-	curse = "Aimlessness"
+	name = "Отверженные"
+	desc = "Носители слабого вампирского проклятия, обретённого через тёмные ритуалы или злонамеренные чары. Они не способны создавать порождений или совершать диаблерию."
+	curse = "Бесцельность"
 	blood_preference = BLOOD_PREFERENCE_ALL
 	clane_traits = list(
 		TRAIT_NOHUNGER,
@@ -56,7 +56,7 @@
 	disguise?.apply_disguise(H)
 
 /datum/antagonist/vampire/stray
-	name = "Stray Vampire"
+	name = "Проклятый изгой"
 	antag_hud_type = null
 	antag_hud_name = null
 	default_clan = /datum/clan/strays
@@ -92,9 +92,9 @@
 	return
 
 /datum/virtue/combat/crimson_curse
-	name = "Crimson Curse"
-	desc = "I bear a weak form of vampirism acquired through dark rites or a cruel hex. I cannot create spawn or commit diablerie."
-	custom_text = span_bloody("CON is reduced by 1. Sunlight weakens me, and silver remains my bane.")
+	name = "Багровое проклятие"
+	desc = "Я несу слабую форму вампиризма, полученную через тёмный ритуал или жестокое проклятие. Я не способен создавать порождений или совершать диаблерию."
+	custom_text = span_bloody("ВЫНОСЛИВОСТЬ снижена на 1. Солнечный свет ослабляет меня, а серебро остаётся моей погибелью.")
 
 /datum/virtue/combat/crimson_curse/apply_to_human(mob/living/carbon/human/recipient)
 	if(!recipient?.mind)
