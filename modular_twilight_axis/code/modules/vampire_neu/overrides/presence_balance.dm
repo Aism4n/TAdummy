@@ -114,3 +114,65 @@
 		target.stop_pulling()
 		if(target.cmode)
 			target.toggle_cmode()
+
+/*
+ * Majesty's item hooks do not cover unarmed attacks or kicks.
+ * Keep both protections on the modular status effects.
+ */
+
+/datum/status_effect/majesty_active/on_apply()
+	. = ..()
+	RegisterSignal(owner, COMSIG_PARENT_ATTACKBY, PROC_REF(on_attackby))
+	RegisterSignal(owner, COMSIG_MOB_ATTACKED_BY_HAND, PROC_REF(ta_on_unarmed_attack))
+
+/datum/status_effect/majesty_active/on_remove()
+	. = ..()
+	UnregisterSignal(owner, list(COMSIG_PARENT_ATTACKBY, COMSIG_MOB_ATTACKED_BY_HAND))
+
+/datum/status_effect/majesty_active/proc/ta_on_unarmed_attack(mob/living/source, mob/living/carbon/human/attacker, mob/living/carbon/human/defender, datum/martial_art/attacker_style)
+	SIGNAL_HANDLER
+	if(!attacker || attacker == source || !istype(attacker.used_intent, INTENT_HARM))
+		return
+	if(!attacker.has_status_effect(/datum/status_effect/majesty_compulsion))
+		return
+	if(!prob(80))
+		return
+
+	to_chat(attacker, span_warning("Я не могу заставить себя ударить [source]! Его величие подавляет мою волю!"))
+	to_chat(source, span_notice("[attacker] замирает перед ударом, подавленный моим величием."))
+	return COMPONENT_HAND_NO_ATTACK
+
+/datum/status_effect/majesty_compulsion/on_apply()
+	. = ..()
+	RegisterSignal(owner, COMSIG_ITEM_PRE_ATTACK, PROC_REF(on_pre_attack))
+	RegisterSignal(owner, COMSIG_MOB_ON_KICK, PROC_REF(ta_on_kick))
+	RegisterSignal(owner, COMSIG_MOB_SAY, PROC_REF(on_say))
+
+	if(owner.mind)
+		owner.add_stress(/datum/stressevent/majesty_compelled)
+
+/datum/status_effect/majesty_compulsion/on_remove()
+	. = ..()
+	UnregisterSignal(owner, list(
+		COMSIG_ITEM_PRE_ATTACK,
+		COMSIG_MOB_ON_KICK,
+		COMSIG_MOB_SAY
+	))
+
+	if(owner.mind)
+		owner.remove_stress(/datum/stressevent/majesty_compelled)
+
+/datum/status_effect/majesty_compulsion/proc/ta_on_kick(mob/living/source)
+	SIGNAL_HANDLER
+	if(!majesty_user || QDELETED(majesty_user) || get_dist(source, majesty_user) > 1)
+		return
+
+	var/direction_to_majesty = get_dir(source, majesty_user)
+	if(direction_to_majesty && source.dir != direction_to_majesty)
+		return
+	if(!prob(80))
+		return
+
+	to_chat(source, span_warning("Я не могу заставить себя ударить [majesty_user]! Его величие подавляет мою волю!"))
+	to_chat(majesty_user, span_notice("[source] замирает перед ударом, подавленный моим величием."))
+	source.Stun(1 SECONDS, ignore_canstun = TRUE)

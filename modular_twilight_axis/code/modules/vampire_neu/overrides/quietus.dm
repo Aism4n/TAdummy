@@ -8,17 +8,18 @@
 #define TA_BLOODBLADE_BONUS 10
 #define TA_BLOODBLADE_HITS 3
 #define TA_BLOODBLADE_DURATION (30 SECONDS)
+#define TA_BLACK_VITAE_MULTIPLIER 1.375
 
 /atom/movable/screen/alert/status_effect/debuff/ta_black_vitae
-	name = "Bloodrot"
-	desc = span_bloody("BLACKENED ROT SEEPS INTO MY WOUNDS! EVERYTHING HURTS!")
+	name = "Кровавая гниль"
+	desc = span_bloody("ЧЁРНАЯ ГНИЛЬ ПРОНИКАЕТ В МОИ РАНЫ! ВСЁ БОЛИТ!")
 	icon_state = "ritesexpended"
 
 /datum/status_effect/debuff/ta_black_vitae
 	id = "ta_black_vitae"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/ta_black_vitae
 	duration = 20 SECONDS
-	status_type = STATUS_EFFECT_REPLACE
+	status_type = STATUS_EFFECT_REFRESH
 	var/applied_physiology_modifiers = FALSE
 	var/temporary_colour = rgb(67, 67, 67)
 
@@ -29,8 +30,8 @@
 
 	var/mob/living/carbon/human/target = owner
 	var/datum/physiology/physiology = target.physiology
-	physiology.bleed_mod *= 1.5
-	physiology.pain_mod *= 1.5
+	physiology.bleed_mod *= TA_BLACK_VITAE_MULTIPLIER
+	physiology.pain_mod *= TA_BLACK_VITAE_MULTIPLIER
 	applied_physiology_modifiers = TRUE
 	target.add_atom_colour(temporary_colour, TEMPORARY_COLOUR_PRIORITY)
 
@@ -39,14 +40,16 @@
 		var/mob/living/carbon/human/target = owner
 		if(applied_physiology_modifiers)
 			var/datum/physiology/physiology = target.physiology
-			physiology.bleed_mod /= 1.5
-			physiology.pain_mod /= 1.5
+			physiology.bleed_mod /= TA_BLACK_VITAE_MULTIPLIER
+			physiology.pain_mod /= TA_BLACK_VITAE_MULTIPLIER
+			applied_physiology_modifiers = FALSE
 		target.remove_atom_colour(TEMPORARY_COLOUR_PRIORITY, temporary_colour)
 	return ..()
 
 /datum/component/ta_bloodblade
 	dupe_mode = COMPONENT_DUPE_UNIQUE
 	var/hits_remaining = 0
+	var/poison_pending = TRUE
 	var/original_colour
 	var/timeout_timer
 
@@ -56,6 +59,7 @@
 
 	var/obj/item/rogueweapon/weapon = parent
 	hits_remaining = TA_BLOODBLADE_HITS
+	poison_pending = TRUE
 	original_colour = weapon.color
 	weapon.force += TA_BLOODBLADE_BONUS
 	weapon.force_wielded += TA_BLOODBLADE_BONUS
@@ -65,11 +69,11 @@
 	timeout_timer = addtimer(CALLBACK(src, PROC_REF(timeout)), TA_BLOODBLADE_DURATION, TIMER_STOPPABLE)
 
 /datum/component/ta_bloodblade/RegisterWithParent()
-	RegisterSignal(parent, COMSIG_ITEM_AFTERATTACK, PROC_REF(on_hit))
+	RegisterSignal(parent, COMSIG_ITEM_ATTACK_EFFECT_SELF, PROC_REF(on_hit))
 	RegisterSignal(parent, COMSIG_PARENT_EXAMINE, PROC_REF(on_examine))
 
 /datum/component/ta_bloodblade/UnregisterFromParent()
-	UnregisterSignal(parent, list(COMSIG_ITEM_AFTERATTACK, COMSIG_PARENT_EXAMINE))
+	UnregisterSignal(parent, list(COMSIG_ITEM_ATTACK_EFFECT_SELF, COMSIG_PARENT_EXAMINE))
 
 /datum/component/ta_bloodblade/Destroy()
 	if(timeout_timer)
@@ -86,10 +90,16 @@
 
 	return ..()
 
-/datum/component/ta_bloodblade/proc/on_hit(obj/item/source, atom/target, mob/user, proximity_flag, click_parameters)
+/datum/component/ta_bloodblade/proc/on_hit(obj/item/source, mob/user, obj/item/bodypart/affecting, intent, mob/living/victim, selzone)
 	SIGNAL_HANDLER
-	if(!proximity_flag)
+	if(!isliving(victim))
 		return
+
+	// COMSIG_ITEM_ATTACK_EFFECT_SELF fires only after armor was penetrated and
+	// damage was actually applied, alongside the wound/critical-hit handling.
+	if(poison_pending)
+		victim.reagents?.add_reagent(/datum/reagent/bloodacid, 1)
+		poison_pending = FALSE
 
 	hits_remaining--
 	if(hits_remaining <= 0)
@@ -97,11 +107,18 @@
 
 /datum/component/ta_bloodblade/proc/on_examine(datum/source, mob/user, list/examine_list)
 	SIGNAL_HANDLER
-	examine_list += span_red("It is covered in sickly, black vitae. [hits_remaining] empowered strike[hits_remaining == 1 ? "" : "s"] remain.")
+	examine_list += span_red("Оружие покрыто болезненным чёрным люксом. Усиленных ударов осталось: [hits_remaining].")
 
 /datum/component/ta_bloodblade/proc/timeout()
 	timeout_timer = null
 	qdel(src)
+
+/datum/component/ta_bloodblade/proc/refresh_coating()
+	hits_remaining = TA_BLOODBLADE_HITS
+	poison_pending = TRUE
+	if(timeout_timer)
+		deltimer(timeout_timer)
+	timeout_timer = addtimer(CALLBACK(src, PROC_REF(timeout)), TA_BLOODBLADE_DURATION, TIMER_STOPPABLE)
 
 // SILENCE OF DEATH
 /datum/coven_power/quietus/silence_of_death
@@ -120,14 +137,14 @@
 
 // SCORPION'S TOUCH
 /datum/coven_power/quietus/scorpions_touch
-	desc = "Use vitae to make wounds bleed faster and hurt more."
+	desc = "Используйте витэ, чтобы раны жертвы сильнее болели и быстрее кровоточили."
 
 /datum/coven_power/quietus/scorpions_touch/activate()
 	. = ..()
 	owner.put_in_hands(new /obj/item/melee/touch_attack/quietus(owner))
 
 /obj/item/melee/touch_attack/quietus
-	desc = "Vile, black vitae dribbling down a hand, ready to seep into a wound."
+	desc = "Мерзкий чёрный люкс стекает по руке, готовый проникнуть в чужие раны."
 	color = COLOR_ALMOST_BLACK
 	catchphrase = ""
 	on_use_sound = 'sound/magic/heartbeat.ogg'
@@ -138,8 +155,8 @@
 	if(isliving(target))
 		var/mob/living/living_target = target
 		living_target.apply_status_effect(/datum/status_effect/debuff/ta_black_vitae)
-		living_target.visible_message(span_warning("[living_target]'s wounds begin to fester and rot!"))
-		to_chat(living_target, span_danger("WHAT ACHES NOW SEETHES WITH AGONY! EVERYTHING HURTS MORE!"))
+		living_target.visible_message(span_warning("Раны [living_target] начинают гнить и чернеть!"))
+		to_chat(living_target, span_danger("БОЛЬ В РАНАХ СТАНОВИТСЯ НЕВЫНОСИМОЙ!"))
 	return ..()
 
 // DAGON'S CALL
@@ -176,7 +193,7 @@
 
 // BAAL'S CARESS
 /datum/coven_power/quietus/baals_caress
-	desc = "Impale yourself to empower a sharp weapon for three strikes and poison its first victim."
+	desc = "Пронзите себя, чтобы усилить острое оружие на три удара и отравить первую жертву."
 	level = 4
 	research_cost = 3
 	vitae_cost = 250
@@ -191,11 +208,11 @@
 	var/obj/item/rogueweapon/target_weapon = owner.get_active_held_item()
 	if(!istype(target_weapon))
 		if(alert)
-			to_chat(owner, span_warning("[src] requires a weapon in my active hand."))
+			to_chat(owner, span_warning("Для [src] мне нужно держать оружие в активной руке."))
 		return FALSE
 	if(!target_weapon.sharpness)
 		if(alert)
-			to_chat(owner, span_warning("[src] can only empower a sharp weapon."))
+			to_chat(owner, span_warning("[src] может усилить только острое оружие."))
 		return FALSE
 	return TRUE
 
@@ -205,23 +222,15 @@
 	if(!istype(target_weapon) || !target_weapon.sharpness)
 		return FALSE
 
-	if(!do_after(owner, 1 SECONDS, target = target_weapon))
-		to_chat(owner, span_warning("The blood rite was interrupted!"))
-		return FALSE
-
 	var/datum/component/ta_bloodblade/existing_coating = target_weapon.GetComponent(/datum/component/ta_bloodblade)
-	owner.visible_message(span_danger("[owner] impales themselves with [target_weapon]!"))
+	owner.visible_message(span_danger("[owner] пронзает себя оружием [target_weapon]!"))
 	playsound(owner, 'sound/combat/wound_tear.ogg', 100, TRUE, -2)
-
-	if(!do_after(owner, 2 SECONDS, target = target_weapon) || owner.get_active_held_item() != target_weapon)
-		to_chat(owner, span_warning("The blood rite was interrupted!"))
-		return FALSE
-
 	if(existing_coating)
-		qdel(existing_coating)
+		existing_coating.refresh_coating()
+	else
+		target_weapon.AddComponent(/datum/component/ta_bloodblade)
 	playsound(owner, 'sound/foley/flesh_rem.ogg', 100, TRUE, -2)
-	target_weapon.AddComponent(/datum/component/ta_bloodblade)
-	target_weapon.AddElement(/datum/element/one_time_poison, list(/datum/reagent/bloodacid = 1))
+	to_chat(owner, span_notice("Чёрный люкс покрывает [target_weapon]."))
 	return TRUE
 
 // TASTE OF DEATH
@@ -246,3 +255,4 @@
 #undef TA_BLOODBLADE_BONUS
 #undef TA_BLOODBLADE_HITS
 #undef TA_BLOODBLADE_DURATION
+#undef TA_BLACK_VITAE_MULTIPLIER

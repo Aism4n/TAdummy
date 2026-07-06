@@ -18,6 +18,7 @@
 #include "./overrides/bloodsuck.dm"
 #include "./overrides/bloodstarvation.dm"
 #include "./overrides/portal.dm"
+#include "./overrides/vampire_forms.dm"
 #include "./overrides/discipline_balance.dm"
 #include "./overrides/celerity_costs.dm"
 #include "./overrides/quietus.dm"
