@@ -14,7 +14,6 @@
 #include "./vampires_defines.dm"
 
 #include "./overrides/vagabond_vampire.dm"
-#include "./crimson_curse/_crimson_curse.dm"
 #include "./overrides/bloodsuck.dm"
 #include "./overrides/bloodstarvation.dm"
 #include "./overrides/portal.dm"

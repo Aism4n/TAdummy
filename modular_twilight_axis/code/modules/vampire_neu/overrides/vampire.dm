@@ -113,13 +113,7 @@
 
 /datum/antagonist/vampire/examine_friendorfoe(datum/antagonist/examined_datum, mob/examiner, mob/examined)
 	if(istype(examined_datum, /datum/antagonist/vampire))
-		var/datum/antagonist/vampire/my_vamp = examiner?.mind?.has_antag_datum(/datum/antagonist/vampire)
 		var/datum/antagonist/vampire/target_vamp = examined_datum
-
-		if(my_vamp?.generation == GENERATION_FAILVAMP && examined != examiner && SEND_SIGNAL(examined, COMSIG_DISGUISE_STATUS))
-			if(target_vamp.generation == GENERATION_FAILVAMP)
-				return span_boldnotice("Собрат, несущий Багровое проклятие.")
-			return
 
 		if(examined != examiner && (examined in GLOB.coven_breakers_list) && !istype(target_vamp, /datum/antagonist/vampire/lord))
 			return span_userdanger("Нарушитель Маскарада. ПОЗОР!!!")
@@ -135,10 +129,6 @@
 				return span_boldnotice("Слабокровное дитя Каина.")
 			if(GENERATION_THINNERBLOOD)
 				return span_boldnotice("Едва затронутое кровью дитя Каина.")
-			if(GENERATION_FAILVAMP)
-				if(my_vamp?.generation == GENERATION_FAILVAMP)
-					return span_boldnotice("Собрат, несущий Багровое проклятие.")
-				return span_boldnotice("Носитель Багрового проклятия. Жалкое подобие крови Каина.")
 
 	if(istype(examined_datum, /datum/antagonist/zombie) || istype(examined_datum, /datum/antagonist/skeleton))
 		return span_boldnotice("Ещё один неживой.")
