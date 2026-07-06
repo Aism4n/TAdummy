@@ -18,6 +18,7 @@
 #include "./overrides/portal.dm"
 #include "./overrides/discipline_balance.dm"
 #include "./overrides/quietus.dm"
+#include "./overrides/bloodacid_balance.dm"
 #include "./overrides/misc_balance.dm"
 #include "./overrides/presence_balance.dm"
 #include "./overrides/fae_balance.dm"
