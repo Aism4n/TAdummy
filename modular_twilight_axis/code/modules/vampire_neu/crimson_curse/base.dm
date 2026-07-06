@@ -39,7 +39,11 @@
 	return FALSE
 
 /datum/clan/strays/post_gain(mob/living/carbon/human/H)
-	return
+	// Strays have no clan leader, but the base hook is mandatory.
+	var/datum/clan_leader/configured_leader = leader
+	leader = null
+	. = ..()
+	leader = configured_leader
 
 /datum/clan/strays/on_gain(mob/living/carbon/human/H, is_vampire = TRUE)
 	. = ..()
