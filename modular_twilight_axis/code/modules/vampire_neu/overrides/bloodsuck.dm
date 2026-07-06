@@ -190,8 +190,11 @@ drinksomeblood()
 		blood_handle |= BLOOD_PREFERENCE_FANCY
 
 	if(VVictim)
-		blood_handle |= BLOOD_PREFERENCE_KIN
-		blood_handle &= ~BLOOD_PREFERENCE_LIVING
+		if(HAS_TRAIT(victim, TRAIT_CRIMSON_CURSE))
+			blood_handle |= BLOOD_PREFERENCE_CC
+		else
+			blood_handle |= BLOOD_PREFERENCE_KIN
+			blood_handle &= ~BLOOD_PREFERENCE_LIVING
 
 	return blood_handle
 
@@ -221,6 +224,20 @@ drinksomeblood()
 /mob/living/carbon/human/proc/handle_diablerie(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
 
 	if(VVictim)
+		if(HAS_TRAIT(victim, TRAIT_CRIMSON_CURSE))
+			message_admins("[ADMIN_LOOKUPFLW(src)] purged the Crimson Curse from [ADMIN_LOOKUPFLW(victim)] through diablerie")
+			log_attack("[key_name(src)] purged the Crimson Curse from [key_name(victim)] through diablerie.")
+			to_chat(src, span_userdanger("This is no true kindred, but the curse in their blood is still mine to consume."))
+			to_chat(victim, span_userdanger("The last of the Crimson Curse is torn from my veins. I am mortal once more."))
+
+			VDrinker.research_points += TA_RP_PER_CC_DIABLERIE
+			victim.mind?.remove_antag_datum(/datum/antagonist/vampire/stray)
+			if(!QDELETED(victim))
+				ADD_TRAIT(victim, TA_TRAIT_CRIMSON_CLEANSED, TRAIT_GENERIC)
+				victim.blood_volume = max(victim.blood_volume, BLOOD_VOLUME_SURVIVE + 20)
+				victim.handle_blood()
+				victim.apply_status_effect(/datum/status_effect/incapacitating/stun, 30 SECONDS)
+			return TRUE
 
 		var/is_breaker = GLOB.coven_breakers_list.Find(victim)
 
@@ -262,6 +279,16 @@ drinksomeblood()
 
 		return TRUE
 
+	if(HAS_TRAIT(victim, TA_TRAIT_CRIMSON_CLEANSED) && victim.blood_volume < BLOOD_VOLUME_SURVIVE)
+		message_admins("[ADMIN_LOOKUPFLW(src)] consumed the cleansed Crimson Curse survivor [ADMIN_LOOKUPFLW(victim)]")
+		log_attack("[key_name(src)] consumed the cleansed Crimson Curse survivor [key_name(victim)].")
+		to_chat(src, span_danger("The mortal shell yields the final trace of its former curse."))
+		to_chat(victim, span_userdanger("The vampire returns to finish what it began."))
+		VDrinker.research_points += TA_RP_PER_CLEANSED_CC_DIABLERIE
+		REMOVE_TRAIT(victim, TA_TRAIT_CRIMSON_CLEANSED, TRAIT_GENERIC)
+		victim.dust(drop_items = TRUE)
+		return TRUE
+
 	if(victim.blood_volume < BLOOD_VOLUME_SURVIVE && victim.stat != DEAD)
 
 		to_chat(src, span_warning("Эта жалкая жертва ради собственного удовольствия затрагивает что-то глубоко в моём разуме."))
@@ -300,10 +327,6 @@ drinksomeblood()
 
 	var/blood_handle = build_blood_handle(victim, VVictim)
 	clan.handle_bloodsuck(src, blood_handle)
-
-	if(VVictim && HAS_TRAIT(victim, TRAIT_CRIMSON_CURSE) && victim.bloodpool <= 0)
-		to_chat(src, span_warning("Their vitae is too weak for diablerie."))
-		return TRUE
 
 	if(VVictim && has_vampire_soul_left_body(victim))
 		return attempt_diablerie(victim, VDrinker, VVictim)

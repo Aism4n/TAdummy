@@ -3,3 +3,4 @@
 #include "./base.dm"
 #include "./sunlight.dm"
 #include "./job_restrictions.dm"
+#include "./hardening.dm"

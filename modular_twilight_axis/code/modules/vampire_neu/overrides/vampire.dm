@@ -108,25 +108,33 @@
 	owner_vamp.thrall_count++
 
 /datum/antagonist/vampire/examine_friendorfoe(datum/antagonist/examined_datum, mob/examiner, mob/examined)
-
-	if(istype(examined_datum, /datum/antagonist/vampire/lord))
-		return span_boldnotice("Kaine's firstborn!")
-
 	if(istype(examined_datum, /datum/antagonist/vampire))
 		var/datum/antagonist/vampire/my_vamp = examiner?.mind?.has_antag_datum(/datum/antagonist/vampire)
 		var/datum/antagonist/vampire/target_vamp = examined_datum
 
+		if(my_vamp?.generation == GENERATION_FAILVAMP && examined != examiner && SEND_SIGNAL(examined, COMSIG_DISGUISE_STATUS))
+			if(target_vamp.generation == GENERATION_FAILVAMP)
+				return span_boldnotice("A fellow bearer of the Crimson Curse.")
+			return
+
 		if(examined != examiner && (examined in GLOB.coven_breakers_list) && !istype(target_vamp, /datum/antagonist/vampire/lord))
 			return span_userdanger("A breaker of the Masquerade. SHAME!!!")
 
-		if(my_vamp)
-			if(my_vamp.generation > target_vamp.generation)
+		switch(target_vamp.generation)
+			if(GENERATION_METHUSELAH)
+				return span_boldnotice("Kaine's firstborn!")
+			if(GENERATION_ANCILLAE)
+				return span_boldnotice("An ancient child of Kaine.")
+			if(GENERATION_NEONATE)
 				return span_boldnotice("A child of Kaine.")
-
-			if(my_vamp.generation == target_vamp.generation && prob(10))
-				return span_boldnotice("A child of Kaine.")
-
-		return
+			if(GENERATION_THINBLOOD)
+				return span_boldnotice("A thinblooded child of Kaine.")
+			if(GENERATION_THINNERBLOOD)
+				return span_boldnotice("A barely blooded child of Kaine.")
+			if(GENERATION_FAILVAMP)
+				if(my_vamp?.generation == GENERATION_FAILVAMP)
+					return span_boldnotice("A fellow bearer of the Crimson Curse.")
+				return span_boldnotice("A bearer of the Crimson Curse. An imitation of Kaine's blood.")
 
 	if(istype(examined_datum, /datum/antagonist/zombie) || istype(examined_datum, /datum/antagonist/skeleton))
 		return span_boldnotice("Another deadite.")
