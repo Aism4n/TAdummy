@@ -10,6 +10,7 @@ import { Loader } from './common/Loader';
 type Data = {
   autofocus: BooleanLike;
   buttons: string[];
+  button_tooltips?: Record<string, string>;
   large_buttons: BooleanLike;
   message: string;
   swapped_buttons: BooleanLike;
@@ -17,42 +18,16 @@ type Data = {
   title: string;
 };
 
-enum DIRECTION {
+enum Direction {
   Increment = 1,
   Decrement = -1,
 }
 
-function renderButtonContent(button: string, large_buttons: BooleanLike) {
-  const [label, detail] = button.split('\n', 2);
-
-  if (!detail) {
-    return !large_buttons ? button : button.toUpperCase();
-  }
-
-  return (
-    <span
-      style={{
-        display: 'inline-flex',
-        flexDirection: 'column',
-        gap: '2px',
-        lineHeight: 1.05,
-      }}
-    >
-      <span>{!large_buttons ? label : label.toUpperCase()}</span>
-      <span
-        style={{
-          color: '#ffd36a',
-          fontSize: '0.82em',
-          fontWeight: 700,
-        }}
-      >
-        {detail}
-      </span>
-    </span>
-  );
+function renderButtonContent(button: string, largeButtons: BooleanLike) {
+  return !largeButtons ? button : button.toUpperCase();
 }
 
-export function AlertModal(props) {
+export function TwilightTooltipAlertModal(props) {
   const { act, data } = useBackend<Data>();
   const {
     autofocus,
@@ -63,49 +38,32 @@ export function AlertModal(props) {
     title,
   } = data;
 
-  // Stolen wholesale from fontcode
   function textWidth(text: string, font: string, fontsize: number) {
-    // default font height is 12 in tgui
     font = `${fontsize}x ${font}`;
-    const c = document.createElement('canvas');
-    const ctx = c.getContext('2d') as CanvasRenderingContext2D;
-    ctx.font = font;
-    return ctx.measureText(text).width;
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+    context.font = font;
+    return context.measureText(text).width;
   }
 
   const [selected, setSelected] = useState(0);
 
-  const hasButtonDetails = buttons.some((button) => button.includes('\n'));
   const messageLineBreaks = (message.match(/\n/g) || []).length;
-  const windowWidth = hasButtonDetails
-    ? 520
-    : 345 + (buttons.length > 2 ? 55 : 0);
-
-  // very accurate estimate of padding for each num of buttons
+  const windowWidth = 345 + (buttons.length > 2 ? 55 : 0);
   const paddingMagicNumber = 67 / buttons.length + 23;
-
-  // At least one of the buttons has a long text message
   const isVerbose = buttons.some(
     (button) =>
-      textWidth(
-        button.replace('\n', ' '),
-        '',
-        large_buttons ? 14 : 12,
-      ) > // 14 is the larger font size for large buttons
+      textWidth(button, '', large_buttons ? 14 : 12) >
       windowWidth / buttons.length - paddingMagicNumber,
   );
   const largeSpacing = isVerbose && large_buttons ? 20 : 15;
-
-  // Dynamically sets window dimensions
   const windowHeight =
     140 +
     (isVerbose ? largeSpacing * buttons.length : 0) +
-    (hasButtonDetails ? 16 * buttons.length : 0) +
     messageLineBreaks * 12 +
     (message.length > 30 ? Math.ceil(message.length / 4) : 0) +
     (message.length && large_buttons ? 5 : 0);
 
-  /** Changes button selection, etc */
   function keyDownHandler(event: KeyboardEvent<HTMLDivElement>) {
     switch (event.key) {
       case KEY.Space:
@@ -114,12 +72,12 @@ export function AlertModal(props) {
         return;
       case KEY.Left:
         event.preventDefault();
-        onKey(DIRECTION.Decrement);
+        onKey(Direction.Decrement);
         return;
       case KEY.Tab:
       case KEY.Right:
         event.preventDefault();
-        onKey(DIRECTION.Increment);
+        onKey(Direction.Increment);
         return;
 
       default:
@@ -130,8 +88,7 @@ export function AlertModal(props) {
     }
   }
 
-  /** Manages iterating through the buttons */
-  function onKey(direction: DIRECTION) {
+  function onKey(direction: Direction) {
     const newIndex = (selected + direction + buttons.length) % buttons.length;
     setSelected(newIndex);
   }
@@ -170,12 +127,14 @@ type ButtonDisplayProps = {
   selected: number;
 };
 
-/**
- * Displays a list of buttons ordered by user prefs.
- */
 function HorizontalButtons(props: ButtonDisplayProps) {
   const { act, data } = useBackend<Data>();
-  const { buttons = [], large_buttons, swapped_buttons } = data;
+  const {
+    buttons = [],
+    button_tooltips = {},
+    large_buttons,
+    swapped_buttons,
+  } = data;
   const { selected } = props;
 
   return (
@@ -191,6 +150,7 @@ function HorizontalButtons(props: ButtonDisplayProps) {
             py={large_buttons ? 0.5 : 0}
             selected={selected === index}
             textAlign="center"
+            tooltip={button_tooltips[button]}
           >
             {renderButtonContent(button, large_buttons)}
           </Button>
@@ -200,13 +160,14 @@ function HorizontalButtons(props: ButtonDisplayProps) {
   );
 }
 
-/**
- * Technically the parent handles more than 2 buttons, but you
- * should just be using a list input in that case.
- */
 function VerticalButtons(props: ButtonDisplayProps) {
   const { act, data } = useBackend<Data>();
-  const { buttons = [], large_buttons, swapped_buttons } = data;
+  const {
+    buttons = [],
+    button_tooltips = {},
+    large_buttons,
+    swapped_buttons,
+  } = data;
   const { selected } = props;
 
   return (
@@ -233,6 +194,7 @@ function VerticalButtons(props: ButtonDisplayProps) {
             py={large_buttons ? 0.5 : 0}
             selected={selected === index}
             textAlign="center"
+            tooltip={button_tooltips[button]}
           >
             {renderButtonContent(button, large_buttons)}
           </Button>
