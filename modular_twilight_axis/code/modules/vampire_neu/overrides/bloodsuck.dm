@@ -89,14 +89,22 @@ drinksomeblood()
 		return TRUE
 
 	var/mob/living/carbon/human/H = victim
-	if(istype(H.wear_neck, /obj/item/clothing/neck/roguetown/psicross/silver))
-		to_chat(src, span_userdanger("СЕРЕБРО! ШШШШ!!!"))
-		return FALSE
-	if(HAS_TRAIT(H, TRAIT_SILVER_BLESSED))
-		to_chat(src, span_userdanger("СЕРЕБРО В КРОВИ! ШШШШ!!!"))
-		return FALSE
+	var/has_silver_cross = istype(H.wear_neck, /obj/item/clothing/neck/roguetown/psicross/silver)
+	if(!has_silver_cross && !HAS_TRAIT(H, TRAIT_SILVER_BLESSED))
+		return TRUE
 
-	return TRUE
+	to_chat(src, span_userdanger("СЕРЕБРО! МОЯ ПОГИБЕЛЬ!"))
+	adjust_fire_stacks(5, /datum/status_effect/fire_handler/fire_stacks/sunder)
+	Stun(5 SECONDS)
+	ignite_mob()
+
+	// Do not leave a permanent no-healing sunder when ignition is prevented.
+	var/datum/status_effect/fire_handler/fire_stacks/sunder/sunder = has_status_effect(/datum/status_effect/fire_handler/fire_stacks/sunder)
+	if(sunder && !sunder.on_fire)
+		qdel(sunder)
+
+	addtimer(CALLBACK(src, TYPE_PROC_REF(/mob/living/carbon, vomit), 0, TRUE), rand(1 SECONDS, 2 SECONDS))
+	return FALSE
 
 /// CONTEXT
 /mob/living/carbon/human/proc/get_vampire_drinker()
@@ -243,7 +251,7 @@ drinksomeblood()
 		if(victim.clan != clan)
 			VDrinker.research_points += TA_VAMP_DIABLERIE_RESEARCH_BONUS
 
-		VDrinker.research_points += VVictim.research_points
+		VDrinker.research_points += VVictim.research_spent
 
 		victim.dust(drop_items = TRUE)
 

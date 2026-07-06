@@ -5,6 +5,12 @@
 
 /datum/antagonist/vampire
 	var/datum/antagonist/vampire/sire_vampire
+	var/research_spent = 0
+	var/ta_minimum_strength = 12
+	var/ta_minimum_speed = 12
+	var/ta_minimum_willpower = 12
+	var/ta_minimum_constitution = 12
+	var/ta_minimum_perception = 12
 
 /mob/living/carbon/human/proc/ta_remove_vampire_transfix()
 	mind?.RemoveSpell(/obj/effect/proc_holder/spell/targeted/transfix_neu)
@@ -42,6 +48,10 @@
 	if(!istype(H) || !H.mind)
 		return
 
+	if(generation == GENERATION_ANCILLAE)
+		H.adjust_skillrank_up_to(/datum/skill/combat/unarmed, 4, TRUE)
+		reset_stats()
+
 	H.ta_remove_vampire_transfix()
 	if(!H.clan && !H.GetComponent(/datum/component/ta_vampire_transfix_cleanup))
 		H.AddComponent(/datum/component/ta_vampire_transfix_cleanup)
@@ -59,6 +69,17 @@
 		cap = THRALLS_DEFAULT
 
 	max_thralls = cap
+
+/datum/antagonist/vampire/proc/reset_stats()
+	var/mob/living/carbon/human/H = owner?.current
+	if(!istype(H))
+		return
+
+	H.STASTR = max(H.STASTR, ta_minimum_strength)
+	H.STASPD = max(H.STASPD, ta_minimum_speed)
+	H.STAWIL = max(H.STAWIL, ta_minimum_willpower)
+	H.STACON = max(H.STACON, ta_minimum_constitution)
+	H.STAPER = max(H.STAPER, ta_minimum_perception)
 
 
 

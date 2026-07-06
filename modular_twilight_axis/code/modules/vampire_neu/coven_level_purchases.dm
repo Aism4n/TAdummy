@@ -95,6 +95,7 @@
 
 	buyer.adjust_bloodpool(-blood_cost)
 	vampire.research_points -= research_cost
+	vampire.research_spent += research_cost
 	level = target_level
 	experience = 0
 

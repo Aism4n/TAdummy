@@ -106,6 +106,8 @@
 		var/current_will_dice = will_dice
 		if(target.cmode)
 			current_will_dice += 1
+		if(target.compliance)
+			current_will_dice = 0
 
 		var/willpower = round(target.STAINT / int_divisor, 1)
 		var/willroll = roll(willpower, current_will_dice)
