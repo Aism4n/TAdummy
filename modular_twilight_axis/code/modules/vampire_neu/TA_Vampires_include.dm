@@ -34,6 +34,7 @@
 #include "./overrides/quicksilver.dm"
 #include "./overrides/transfix.dm"
 #include "./overrides/vampire.dm"
+#include "./overrides/thinblood_restrictions.dm"
 
 // Local defines
 #include "./TA_Vampires_uniclude.dm"
