@@ -1,4 +1,7 @@
 /datum/job/roguetown/marshal/New()
+	if(!islist(virtue_restrictions))
+		virtue_restrictions = list()
+	virtue_restrictions += list(/datum/virtue/combat/crimson_curse)
 	job_traits += list(TRAIT_ARTILLERY_EXPERT)
 	. = ..()
 

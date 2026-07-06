@@ -1,187 +1,187 @@
 /*
- * Declarative Crimson Curse role restrictions.
+ * Crimson Curse role restrictions.
  *
- * Jobs use virtue_restrictions during preference eligibility checks. Vagabond
- * is intentionally handled through advclass virtue_limits below so only the
- * Abandoned Thrall subclass remains compatible.
+ * Restrictions are appended during datum initialization so lists supplied by
+ * upstream or another module are preserved.
  */
 
+/datum/job/proc/ta_block_crimson_curse_virtue()
+	if(!islist(virtue_restrictions))
+		virtue_restrictions = list()
+	virtue_restrictions += list(/datum/virtue/combat/crimson_curse)
+
+/datum/advclass/proc/ta_block_crimson_curse_virtue()
+	if(!islist(virtue_limits))
+		virtue_limits = list()
+	virtue_limits += list(/datum/virtue/combat/crimson_curse)
+
 // Existing Scarlet Reach restrictions retained by the TA port.
-/datum/job/roguetown/wretch
-	virtue_restrictions = list(
-		/datum/virtue/heretic/zchurch_keyholder,
-		/datum/virtue/combat/crimson_curse,
-	)
+// Wretch has an existing modular New() and is extended at its definition.
 
-/datum/job/roguetown/druid
-	virtue_restrictions = list(
-		/datum/virtue/utility/noble,
-		/datum/virtue/combat/crimson_curse,
-	)
+/datum/job/roguetown/druid/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/martyr
-	virtue_restrictions = list(
-		/datum/virtue/utility/noble,
-		/datum/virtue/combat/second_chance,
-		/datum/virtue/utility/hollow,
-		/datum/virtue/combat/dualwielder,
-		/datum/virtue/heretic/zchurch_keyholder,
-		/datum/virtue/combat/crimson_curse,
-	)
+/datum/job/roguetown/martyr/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/monk
-	virtue_restrictions = list(
-		/datum/virtue/utility/noble,
-		/datum/virtue/combat/crimson_curse,
-	)
+/datum/job/roguetown/monk/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/priest
-	virtue_restrictions = list(
-		/datum/virtue/utility/noble,
-		/datum/virtue/combat/crimson_curse,
-	)
+/datum/job/roguetown/priest/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/templar
-	virtue_restrictions = list(
-		/datum/virtue/utility/noble,
-		/datum/virtue/combat/crimson_curse,
-	)
+/datum/job/roguetown/templar/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
 // Rulers and court.
-/datum/job/roguetown/lord
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/lord/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/sultan
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/sultan/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/hand
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/hand/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/vizier
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/vizier/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/magician
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/magician/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-// Retinue.
-/datum/job/roguetown/marshal
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+// Retinue. Marshal has an existing modular New().
+/datum/job/roguetown/knight/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/knight
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/cataphract/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/cataphract
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/knight_enigma/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/knight_enigma
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+// Garrison. Man at Arms has an existing modular New().
+/datum/job/roguetown/sergeant/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-// Garrison.
-/datum/job/roguetown/sergeant
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/azebagha/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/azebagha
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/royal_sergeant/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/royal_sergeant
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/janissarysergeant/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/janissarysergeant
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/azeb/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/manorguard
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/warden/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/azeb
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
-
-/datum/job/roguetown/warden
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
-
-/datum/job/roguetown/royal_guard
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/royal_guard/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
 // Town watch variants.
-/datum/job/roguetown/sheriff
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/sheriff/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/town_watch
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/town_watch/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/overseer
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/overseer/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/vanguard
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/vanguard/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-// Sidefolk and antagonist jobs.
-/datum/job/roguetown/lunatic
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+// Sidefolk and antagonist jobs. Mercenary has an existing modular New().
+/datum/job/roguetown/lunatic/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/mercenary
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/absolver/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/inquisitor
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/assassin/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/orthodoxist
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/bandit/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/absolver
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
+/datum/job/roguetown/hag/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/job/roguetown/assassin
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
-
-/datum/job/roguetown/bandit
-	virtue_restrictions = list(/datum/virtue/combat/crimson_curse)
-
-/datum/job/roguetown/hag
-	virtue_restrictions = list(
-		/datum/virtue/utility/noble,
-		/datum/virtue/combat/dualwielder,
-		/datum/virtue/combat/combat_virtue,
-		/datum/virtue/utility/notable,
-		/datum/virtue/utility/bronzelimbs,
-		/datum/virtue/movement/acrobatic,
-		/datum/virtue/utility/woodwalker,
-		/datum/virtue/combat/crossbowman,
-		/datum/virtue/combat/bowman,
-		/datum/virtue/utility/feytouched,
-		/datum/virtue/utility/riding,
-		/datum/virtue/combat/crimson_curse,
-	)
+// Inquisitor and Orthodoxist have existing modular New() overrides.
 
 // Vagabond: Crimson Curse is compatible only with Abandoned Thrall.
-/datum/advclass/vagabond_original
-	virtue_limits = list(/datum/virtue/combat/crimson_curse)
+/datum/advclass/vagabond_original/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/advclass/vagabond_beggar
-	virtue_limits = list(/datum/virtue/combat/crimson_curse)
+/datum/advclass/vagabond_beggar/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/advclass/vagabond_courier
-	virtue_limits = list(/datum/virtue/combat/crimson_curse)
+/datum/advclass/vagabond_courier/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/advclass/vagabond_excommunicated
-	virtue_limits = list(/datum/virtue/combat/crimson_curse)
+/datum/advclass/vagabond_excommunicated/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/advclass/vagabond_goatherd
-	virtue_limits = list(/datum/virtue/combat/crimson_curse)
+/datum/advclass/vagabond_goatherd/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/advclass/vagabond_mage
-	virtue_limits = list(/datum/virtue/combat/crimson_curse)
+/datum/advclass/vagabond_mage/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/advclass/vagabond_runner
-	virtue_limits = list(/datum/virtue/combat/crimson_curse)
+/datum/advclass/vagabond_runner/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/advclass/vagabond_scholar
-	virtue_limits = list(/datum/virtue/combat/crimson_curse)
+/datum/advclass/vagabond_scholar/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/advclass/vagabond_wanted
-	virtue_limits = list(/datum/virtue/combat/crimson_curse)
+/datum/advclass/vagabond_wanted/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/advclass/vagabond_unraveled
-	virtue_limits = list(/datum/virtue/combat/crimson_curse)
+/datum/advclass/vagabond_unraveled/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
 
-/datum/advclass/vagabond_accursed
-	virtue_limits = list(/datum/virtue/combat/crimson_curse)
+/datum/advclass/vagabond_accursed/New()
+	ta_block_crimson_curse_virtue()
+	. = ..()
