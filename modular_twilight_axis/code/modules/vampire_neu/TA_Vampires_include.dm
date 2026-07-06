@@ -14,6 +14,7 @@
 #include "./vampires_defines.dm"
 
 #include "./overrides/bloodsuck.dm"
+#include "./overrides/bloodstarvation.dm"
 #include "./overrides/portal.dm"
 #include "./overrides/discipline_balance.dm"
 #include "./overrides/quietus.dm"
