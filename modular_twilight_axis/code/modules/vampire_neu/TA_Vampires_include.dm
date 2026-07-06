@@ -20,6 +20,7 @@
 #include "./overrides/quietus.dm"
 #include "./overrides/misc_balance.dm"
 #include "./overrides/presence_balance.dm"
+#include "./overrides/fae_balance.dm"
 #include "./ascended_covens.dm"
 #include "./coven_level_purchases.dm"
 #include "./crimson_crucible_ru_i18n.dm"
