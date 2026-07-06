@@ -106,7 +106,18 @@
 /datum/virtue/combat/crimson_curse/proc/apply_crimson_curse(mob/living/carbon/human/recipient)
 	if(QDELETED(recipient) || !recipient.mind)
 		return
-	if(recipient.mind.has_antag_datum(/datum/antagonist/vampire))
+
+	var/datum/antagonist/vampire/existing_vampire = recipient.mind.has_antag_datum(/datum/antagonist/vampire)
+	if(existing_vampire)
+		if(istype(recipient.mind.picked_advclass, /datum/advclass/vagabond_thrall))
+			existing_vampire.generation = GENERATION_THINNERBLOOD
+			existing_vampire.research_points = 0
+			existing_vampire.max_thralls = 0
+			recipient.ta_remove_vampire_transfix()
+			remove_verb(recipient, /mob/living/carbon/human/proc/disguise_verb)
+			var/datum/component/vampire_disguise/disguise = recipient.GetComponent(/datum/component/vampire_disguise)
+			if(disguise)
+				qdel(disguise)
 		REMOVE_TRAIT(recipient, TRAIT_CRIMSON_CURSE, "ta_crimson_pending")
 		return
 
