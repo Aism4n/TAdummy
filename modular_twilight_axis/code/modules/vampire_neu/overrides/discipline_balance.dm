@@ -116,10 +116,10 @@
 	owner.add_movespeed_modifier(MOVESPEED_ID_CELERITY, multiplicative_slowdown = multiplicative_slowdown)
 	owner.apply_status_effect(/datum/status_effect/buff/celerity, level)
 
-	if(level >= 3)
+	if(level >= 4)
 		owner.AddComponent(/datum/component/after_image)
 		playsound(owner, 'sound/magic/timeforward.ogg', 40, TRUE)
-		owner.visible_message(span_warning("[owner] starts moving at inhuman speeds, every action a blur!"))
+		owner.visible_message(span_warning("[owner] движется с нечеловеческой скоростью, и каждое движение сливается в размытый след!"))
 	if(level >= 4)
 		ADD_TRAIT(owner, TRAIT_LEAPER, TA_CELERITY_TRAIT_SOURCE)
 	if(level >= 5)
@@ -130,7 +130,7 @@
 	owner.remove_status_effect(/datum/status_effect/buff/celerity)
 	owner.remove_movespeed_modifier(MOVESPEED_ID_CELERITY)
 
-	if(level >= 3)
+	if(level >= 4)
 		qdel(owner.GetComponent(/datum/component/after_image))
 		playsound(owner, 'sound/magic/timestop.ogg', 40, TRUE)
 	if(level >= 4)
