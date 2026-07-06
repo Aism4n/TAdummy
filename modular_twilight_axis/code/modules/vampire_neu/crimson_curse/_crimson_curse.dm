@@ -2,5 +2,5 @@
 
 #include "./base.dm"
 #include "./sunlight.dm"
-#include "./job_restrictions.dm"
+#include "./crimson_cursed_ban_list.dm"
 #include "./hardening.dm"
