@@ -13,6 +13,7 @@
 // Early define slot and shared cross-module vampire hooks.
 #include "./vampires_defines.dm"
 
+#include "./crimson_curse/_crimson_curse.dm"
 #include "./overrides/bloodsuck.dm"
 #include "./overrides/bloodstarvation.dm"
 #include "./overrides/portal.dm"

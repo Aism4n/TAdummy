@@ -294,8 +294,16 @@ drinksomeblood()
 	return handle_diablerie(victim, VDrinker, VVictim)
 
 /mob/living/carbon/human/proc/process_vampire_blood(mob/living/carbon/victim, datum/antagonist/vampire/VDrinker, datum/antagonist/vampire/VVictim)
+	if(HAS_TRAIT(src, TRAIT_CRIMSON_CURSE))
+		to_chat(src, span_warning("My curse is too weak to consume another vampire's soul."))
+		return TRUE
+
 	var/blood_handle = build_blood_handle(victim, VVictim)
 	clan.handle_bloodsuck(src, blood_handle)
+
+	if(VVictim && HAS_TRAIT(victim, TRAIT_CRIMSON_CURSE) && victim.bloodpool <= 0)
+		to_chat(src, span_warning("Their vitae is too weak for diablerie."))
+		return TRUE
 
 	if(VVictim && has_vampire_soul_left_body(victim))
 		return attempt_diablerie(victim, VDrinker, VVictim)
