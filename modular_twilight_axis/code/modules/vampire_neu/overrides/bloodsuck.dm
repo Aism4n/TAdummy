@@ -399,7 +399,7 @@ drinksomeblood()
 	if(research_cost || maxbloodpool_cost)
 		var/list/losses = list()
 		if(research_cost)
-		losses += "[research_cost] ОИ"
+			losses += "[research_cost] ОИ"
 		if(maxbloodpool_cost)
 			losses += "[maxbloodpool_cost] макс. кровозапаса"
 		to_chat(src, span_notice("Я теряю [english_list(losses)]."))

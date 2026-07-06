@@ -52,9 +52,12 @@
 		H.adjust_skillrank_up_to(/datum/skill/combat/unarmed, 4, TRUE)
 		reset_stats()
 
-	H.ta_remove_vampire_transfix()
-	if(!H.clan && !H.GetComponent(/datum/component/ta_vampire_transfix_cleanup))
-		H.AddComponent(/datum/component/ta_vampire_transfix_cleanup)
+	if(generation == GENERATION_THINNERBLOOD)
+		H.ta_apply_vagabond_vampire_rules()
+	else
+		H.ta_remove_vampire_transfix()
+		if(!H.clan && !H.GetComponent(/datum/component/ta_vampire_transfix_cleanup))
+			H.AddComponent(/datum/component/ta_vampire_transfix_cleanup)
 //	H.AddSpell(new /obj/effect/proc_holder/spell/targeted/TA_transfix_neu) // Part of Transfix exeperents, delete it
 
 	var/static/list/thrall_caps = alist(
@@ -69,6 +72,7 @@
 		cap = THRALLS_DEFAULT
 
 	max_thralls = cap
+	ta_configure_personal_servant_access(H)
 
 /datum/antagonist/vampire/proc/reset_stats()
 	var/mob/living/carbon/human/H = owner?.current

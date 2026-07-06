@@ -58,7 +58,7 @@
 	extra_stat_amount = 2
 
 /atom/movable/screen/alert/status_effect/buff/pallid_blood
-	name = "Cursed Blood"
+	name = "Проклятая кровь"
 	desc = "Проклятая кровь вампира наделяет меня силой. Мне нужно пить её, чтобы не потерять рассудок."
 	icon_state = "buff"
 

@@ -1,7 +1,7 @@
 /datum/status_effect/debuff/ta_sunspurn
 	id = "ta_sunspurn"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/ta_sunspurn
-	effectedstats = list(STATKEY_STR = -2, STATKEY_CON = -3)
+	effectedstats = list(STATKEY_STR = -3, STATKEY_SPD = -2, STATKEY_CON = -3)
 	duration = 1 MINUTES
 	status_type = STATUS_EFFECT_REFRESH
 
@@ -15,7 +15,10 @@
 	if(!H || H.stat == DEAD || H.advsetup)
 		return
 
-	if(GLOB.tod != "day")
+	var/is_crimson_cursed = HAS_TRAIT(H, TRAIT_CRIMSON_CURSE)
+	var/current_time = station_time()
+	var/crimson_curse_sunlight = GLOB.tod != "night" && current_time >= 8 HOURS && current_time < 16 HOURS
+	if((is_crimson_cursed && !crimson_curse_sunlight) || (!is_crimson_cursed && GLOB.tod != "day"))
 		in_sunlight = FALSE
 		return
 

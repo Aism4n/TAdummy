@@ -13,6 +13,7 @@
 // Early define slot and shared cross-module vampire hooks.
 #include "./vampires_defines.dm"
 
+#include "./overrides/vagabond_vampire.dm"
 #include "./crimson_curse/_crimson_curse.dm"
 #include "./overrides/bloodsuck.dm"
 #include "./overrides/bloodstarvation.dm"
@@ -35,6 +36,8 @@
 #include "./overrides/quicksilver.dm"
 #include "./overrides/transfix.dm"
 #include "./overrides/vampire.dm"
+#include "./overrides/vampire_lord_title.dm"
+#include "./overrides/crucible_access.dm"
 #include "./overrides/thinblood_restrictions.dm"
 
 // Local defines

@@ -12,7 +12,7 @@
 
 /datum/clan/strays
 	name = "Отверженные"
-	desc = "Носители слабого вампирского проклятия, обретённого через тёмные ритуалы или злонамеренные чары. Они не способны создавать порождений или совершать диаблерию."
+	desc = "Носители слабого вампирского проклятия, обретённого через тёмные ритуалы или злонамеренные чары. Они не способны создавать порождений или поглощать витэ вместе с люксом."
 	curse = "Бесцельность"
 	blood_preference = BLOOD_PREFERENCE_ALL
 	clane_traits = list(
@@ -91,10 +91,17 @@
 /datum/antagonist/vampire/stray/add_antag_hud(antag_hud_type, antag_hud_name, mob/living/mob_override)
 	return
 
+/datum/virtue/combat/second_chance/check_triumphs(mob/living/carbon/human/recipient)
+	var/datum/preferences/preferences = recipient.client?.prefs
+	if(istype(preferences?.virtue, /datum/virtue/combat/crimson_curse) || istype(preferences?.virtuetwo, /datum/virtue/combat/crimson_curse))
+		to_chat(recipient, span_warning("Багровое проклятие слишком сильно! Добродетель «Второй шанс» не может повлиять на меня!"))
+		return FALSE
+	return ..()
+
 /datum/virtue/combat/crimson_curse
 	name = "Багровое проклятие"
-	desc = "Я несу слабую форму вампиризма, полученную через тёмный ритуал или жестокое проклятие. Я не способен создавать порождений или совершать диаблерию."
-	custom_text = span_bloody("ВЫНОСЛИВОСТЬ снижена на 1. Солнечный свет ослабляет меня, а серебро остаётся моей погибелью.")
+	desc = "Я несу слабую форму вампиризма, полученную через тёмный ритуал или жестокое проклятие. Я не способен создавать порождений или поглощать витэ вместе с люксом."
+	custom_text = span_bloody("ВЫНОСЛИВОСТЬ снижена на 1. Солнечный свет ослабляет меня, а серебро остаётся моей погибелью. Несовместимо с добродетелью «Второй шанс».")
 
 /datum/virtue/combat/crimson_curse/apply_to_human(mob/living/carbon/human/recipient)
 	if(!recipient?.mind)
@@ -113,7 +120,7 @@
 			existing_vampire.generation = GENERATION_THINNERBLOOD
 			existing_vampire.research_points = 0
 			existing_vampire.max_thralls = 0
-			recipient.ta_remove_vampire_transfix()
+			recipient.ta_apply_vagabond_vampire_rules()
 			remove_verb(recipient, /mob/living/carbon/human/proc/disguise_verb)
 			var/datum/component/vampire_disguise/disguise = recipient.GetComponent(/datum/component/vampire_disguise)
 			if(disguise)
