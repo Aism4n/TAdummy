@@ -160,6 +160,8 @@ drinksomeblood()
 	return TRUE
 
 /mob/living/carbon/human/proc/should_puke_bad_source(mob/living/carbon/victim)
+	if(HAS_TRAIT(victim, TRAIT_BLACKBLOOD))
+		return TRUE
 	if(victim.mind?.has_antag_datum(/datum/antagonist/werewolf))
 		return TRUE
 	if(victim.stat != DEAD && victim.mind?.has_antag_datum(/datum/antagonist/zombie))
@@ -183,6 +185,9 @@ drinksomeblood()
 
 	if(HAS_TRAIT(victim, TRAIT_CLERGY) || HAS_TRAIT(victim, TRAIT_INQUISITION))
 		blood_handle |= BLOOD_PREFERENCE_HOLY
+
+	if(HAS_TRAIT(victim, TRAIT_CLERGY) || HAS_TRAIT(victim, TRAIT_INQUISITION) || HAS_TRAIT(victim, TRAIT_NOBLE))
+		blood_handle |= BLOOD_PREFERENCE_FANCY
 
 	if(VVictim)
 		blood_handle |= BLOOD_PREFERENCE_KIN
@@ -825,6 +830,8 @@ drinksomeblood()
 	if(should_puke_bad_source(victim))
 		force_puke(TRUE)
 		return
+
+	adjust_hydration(10)
 
 	// Clientless victims (NPCs) — only drain blood, no diablerie or conversion
 	var/datum/antagonist/vampire/VVictim = get_vampire_victim(victim)
