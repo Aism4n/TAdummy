@@ -3645,6 +3645,7 @@
 #include "modular_twilight_axis\code\game\area\woodsrat.dm"
 #include "modular_twilight_axis\code\game\objects\items.dm"
 #include "modular_twilight_axis\code\game\objects\effects\landmarks_enigma.dm"
+#include "modular_twilight_axis\code\game\objects\effects\miscellaneous.dm"
 #include "modular_twilight_axis\code\game\objects\effects\decals\cleanable\blood_interact.dm"
 #include "modular_twilight_axis\code\game\objects\effects\effect_system\effects_smoke.dm"
 #include "modular_twilight_axis\code\game\objects\effects\spawners\lootdrop.dm"
