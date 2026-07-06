@@ -24,10 +24,10 @@
 
 /datum/status_effect/debuff/ta_black_vitae/on_apply()
 	. = ..()
-	if(!iscarbon(owner))
+	if(!ishuman(owner))
 		return
 
-	var/mob/living/carbon/target = owner
+	var/mob/living/carbon/human/target = owner
 	var/datum/physiology/physiology = target.physiology
 	physiology.bleed_mod *= 1.5
 	physiology.pain_mod *= 1.5
@@ -35,8 +35,8 @@
 	target.add_atom_colour(temporary_colour, TEMPORARY_COLOUR_PRIORITY)
 
 /datum/status_effect/debuff/ta_black_vitae/on_remove()
-	if(iscarbon(owner))
-		var/mob/living/carbon/target = owner
+	if(ishuman(owner))
+		var/mob/living/carbon/human/target = owner
 		if(applied_physiology_modifiers)
 			var/datum/physiology/physiology = target.physiology
 			physiology.bleed_mod /= 1.5
