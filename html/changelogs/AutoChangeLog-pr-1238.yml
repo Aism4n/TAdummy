@@ -1,0 +1,5 @@
+author: "Vladmar11"
+delete-after: True
+changes:
+  - bugfix: "Исправлены лаги за фамильяров и за формы ведьмы"
+  - bugfix: "Исправлена абилка Spirit Transformation. Теперь она не блочит  способности."
