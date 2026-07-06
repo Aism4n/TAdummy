@@ -90,8 +90,3 @@
 		if("Drop")
 			trap = new /obj/structure/ta_fae_trickery_trap/drop(get_turf(owner))
 	trap?.trap_owner = owner
-
-// SIREN
-/datum/coven_power/siren/shattering_crescendo
-	vitae_cost = 250
-	cooldown_length = 60 SECONDS
