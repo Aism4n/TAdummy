@@ -91,43 +91,6 @@
 			trap = new /obj/structure/ta_fae_trickery_trap/drop(get_turf(owner))
 	trap?.trap_owner = owner
 
-// PRESENCE
-/datum/coven_power/presence/dread_gaze/activate(mob/living/carbon/human/target)
-	. = ..()
-	target.remove_overlay(MUTATIONS_LAYER)
-	var/mutable_appearance/presence_overlay = mutable_appearance('icons/effects/clan.dmi', "presence", -MUTATIONS_LAYER)
-	presence_overlay.pixel_z = 1
-	target.overlays_standing[MUTATIONS_LAYER] = presence_overlay
-	target.apply_overlay(MUTATIONS_LAYER)
-
-	to_chat(target, "<span class='userlove'><b>FEAR ME</b></span>")
-	owner.say("FEAR ME!!")
-	var/datum/cb = CALLBACK(target, TYPE_PROC_REF(/mob/living/carbon/human, step_away_caster), owner)
-	for(var/i in 1 to 30)
-		addtimer(cb, (i - 1) * target.total_multiplicative_slowdown())
-	target.freak_out()
-	to_chat(target, "<span class='userlove'><b>OH GOD, PLEASE SAVE ME!</b></span>")
-	playsound(target, 'sound/villain/wonder.ogg', 40)
-
-/datum/coven_power/presence/majesty
-	vitae_cost = 125
-
-/datum/coven_power/presence/majesty/apply_majesty_effect(mob/living/target)
-	if(!can_affect_target(target))
-		return
-
-	affected_mobs |= target
-	target.apply_status_effect(/datum/status_effect/majesty_compulsion, owner)
-
-	if(prob(70))
-		if(target.get_active_held_item())
-			target.visible_message("<span class='warning'>[target] seems overwhelmed by [owner]'s presence!</span>")
-			target.dropItemToGround(target.get_active_held_item())
-
-		target.stop_pulling()
-		if(target.cmode)
-			target.toggle_cmode()
-
 // SIREN
 /datum/coven_power/siren/shattering_crescendo
 	vitae_cost = 250
