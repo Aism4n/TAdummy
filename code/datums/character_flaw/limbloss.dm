@@ -60,7 +60,7 @@
 	lost_zone = BODY_ZONE_L_LEG
 	restricted_species = list(/datum/species/ooze)
 
-/datum/charflaw/limbloss/arm_l/on_mob_creation(mob/user)
+/datum/charflaw/limbloss/leg_l/on_mob_creation(mob/user)
 	..()
 	if(!ishuman(user))
 		return
