@@ -40,7 +40,6 @@
 	var/obj/item/bodypart/l_arm/prosthetic/woodleft/L = new()
 	L.attach_limb(H)
 
-////////////////////////////////////////////////
 /datum/charflaw/limbloss/leg_r
 	name = "Wood leg (R)"
 	desc = "I lost my right leg long ago, but the wooden leg doesn't bleed as much... but it is flammable.<br><i>(Incompatible with Bronze Leg (R) virtue)</i>"
