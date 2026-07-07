@@ -28,6 +28,8 @@ GLOBAL_LIST_INIT(character_flaws, list(
 	/datum/charflaw/armor_break::name=/datum/charflaw/armor_break,
 	/datum/charflaw/limbloss/arm_r::name = /datum/charflaw/limbloss/arm_r,
 	/datum/charflaw/limbloss/arm_l::name = /datum/charflaw/limbloss/arm_l,
+	/datum/charflaw/limbloss/leg_r::name = /datum/charflaw/limbloss/leg_r,
+	/datum/charflaw/limbloss/leg_l::name = /datum/charflaw/limbloss/leg_l,
 	/datum/charflaw/sleepless::name = /datum/charflaw/sleepless,
 	/datum/charflaw/mute::name = /datum/charflaw/mute,
 	/datum/charflaw/critweakness::name = /datum/charflaw/critweakness,
