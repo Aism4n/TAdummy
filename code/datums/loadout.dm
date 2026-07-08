@@ -111,7 +111,7 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	path = /obj/item/book/rogue/bibble
 
 /datum/loadout_item/bibble_psy
-	name = "Psy Bibble"
+	name = "Psy Bible"
 	category = "Разное"
 	path = /obj/item/book/rogue/bibble/psy
 
