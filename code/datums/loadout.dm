@@ -1052,7 +1052,7 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	category = "Аксессуары"
 	path = /obj/item/clothing/mask/rogue/spectacles/monocle
 
-/datum/loadout_item/spectacles
+/datum/loadout_item/spectacles_onyxa
 	name = "Smokey Onyxa Spectacles"
 	category = "Аксессуары"
 	path = /obj/item/clothing/mask/rogue/spectacles/sglasses
