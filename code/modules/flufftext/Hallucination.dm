@@ -1280,7 +1280,7 @@ GLOBAL_LIST_INIT(hallucination_list, list(
 	to_chat(victim, span_userdanger(pick("MY HEART STOPS BEATING!", "I CAN'T FEEL MY HEART!", "WHERE IS MY HEART?")))
 
 	victim.freakout_hud_skew()
-	victim.emote("scream", forced = TRUE)
+	victim.emote("pale", forced = TRUE)
 	victim.flash_fullscreen("stressflash")
 	victim.Jitter(10)
 	victim.energy_add(-2)
