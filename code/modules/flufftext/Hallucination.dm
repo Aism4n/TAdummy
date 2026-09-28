@@ -500,20 +500,20 @@ GLOBAL_LIST_INIT(hallucination_list, list(
 		"[pick_list_replacements(HAL_LINES_FILE, "aggressive")]",\
 		"[pick_list_replacements(HAL_LINES_FILE, "help")]!!",\
 		"[pick_list_replacements(HAL_LINES_FILE, "escape")]",\
-		"I was bitten by a [pick("deddite","werebeast","vampire","squire")], [pick_list_replacements(HAL_LINES_FILE, "infection_advice")]!",\
-		"[pick_list_replacements(HAL_LINES_FILE, "people")] is [pick_list_replacements(HAL_LINES_FILE, "accusations")]!",\
-		"Help!",\
-		"[pick_list_replacements(HAL_LINES_FILE, "threat")] in [pick_list_replacements(HAL_LINES_FILE, "location")][prob(50)?"!":"!!"]",\
-		"[pick("[target.first_name()] is a heretic!", "Make [target.first_name()] an outlaw!")]",\
-		"[pick("I","Squire","Somebody","They")] killed the priest!",\
-		"Duke [pick("is a Zizoid", "is a heretic")]!!")
+		"Меня укусил [pick("зомби","оборотень","вампир","оруженосец")], [pick_list_replacements(HAL_LINES_FILE, "infection_advice")]!",\
+		"[pick_list_replacements(HAL_LINES_FILE, "people")] - [pick_list_replacements(HAL_LINES_FILE, "accusations")]!",\
+		"Помогите!",\
+		"[pick_list_replacements(HAL_LINES_FILE, "threat")] - [pick_list_replacements(HAL_LINES_FILE, "location")][prob(50)?"!":"!!"]",\
+		"[pick("[target.first_name()] еретик!", "Объявите [target.first_name()] в розыск!")]",\
+		"[pick("Я","Оруженосец","Кто-то","Он")] убил жреца!",\
+		"Герцог [pick("Зизоид", "еретик")]!!")
 
-	/*var/radio_messages = list("[pick_list_replacements(HAL_LINES_FILE, "people")] is [pick_list_replacements(HAL_LINES_FILE, "accusations")]!",\
-		"Help!",\
-		"[pick_list_replacements(HAL_LINES_FILE, "threat")] in [pick_list_replacements(HAL_LINES_FILE, "location")][prob(50)?"!":"!!"]",\
-		"[pick("[target.first_name()] is a heretic!", "Make [target.first_name()] an outlaw!")]",\
-		"[pick("I","Squire","Somebody","They")] killed the priest!",\
-		"Duke [pick("is a Zizoid", "is a heretic")]!!")*/
+	/*var/radio_messages = list("[pick_list_replacements(HAL_LINES_FILE, "people")] - [pick_list_replacements(HAL_LINES_FILE, "accusations")]!",\
+		"Помогите!",\
+		"[pick_list_replacements(HAL_LINES_FILE, "threat")] - [pick_list_replacements(HAL_LINES_FILE, "location")][prob(50)?"!":"!!"]",\
+		"[pick("[target.first_name()] еретик!", "Объявите [target.first_name()] в розыск!")]",\
+		"[pick("Я","Оруженосец","Кто-то","Он")] убил жреца!",\
+		"Герцог [pick("Зизоид", "еретик")]!!")*/
 
 	var/mob/living/carbon/person = null
 	var/datum/language/understood_language = target.get_random_understood_language()
