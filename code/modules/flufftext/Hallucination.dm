@@ -506,17 +506,17 @@ GLOBAL_LIST_INIT(hallucination_list, list(
 		"[pick_list_replacements(HAL_LINES_FILE, "threat")] - [pick_list_replacements(HAL_LINES_FILE, "location")][prob(50)?"!":"!!"]",\
 		"[pick("[target.first_name()] еретик!", "Объявите [target.first_name()] в розыск!")]",\
 		"[pick("Я","Оруженосец","Кто-то","Он")] убил жреца!",\
-		"Герцог [pick("Зизоид", "еретик")]!!")
+		"Герцог [pick("Зизоид", "еретик")]!!") // TA EDIT
 
 	/*var/radio_messages = list("[pick_list_replacements(HAL_LINES_FILE, "people")] - [pick_list_replacements(HAL_LINES_FILE, "accusations")]!",\
 		"Помогите!",\
 		"[pick_list_replacements(HAL_LINES_FILE, "threat")] - [pick_list_replacements(HAL_LINES_FILE, "location")][prob(50)?"!":"!!"]",\
 		"[pick("[target.first_name()] еретик!", "Объявите [target.first_name()] в розыск!")]",\
 		"[pick("Я","Оруженосец","Кто-то","Он")] убил жреца!",\
-		"Герцог [pick("Зизоид", "еретик")]!!")*/
+		"Герцог [pick("Зизоид", "еретик")]!!")*/ // TA EDIT
 
 	var/mob/living/carbon/person = null
-	var/datum/language/understood_language = target.get_random_understood_language()
+	var/datum/language/understood_language = /datum/language/common // TA EDIT
 	for(var/mob/living/carbon/H in view(target))
 		if(H == target)
 			continue
@@ -728,7 +728,7 @@ GLOBAL_LIST_INIT(hallucination_list, list(
 			SEND_SOUND(target, 'sound/misc/evilevent.ogg')
 		if("lich")
 			to_chat(target, "<h1 class='alert'>The Lich Decrees</h1>")
-			to_chat(target, "<br><br><span class='alert'>Корона моя! Приведите мне [target.first_name()]! Силой, если потребуется.</span><br><br>")
+			to_chat(target, "<br><br><span class='alert'>Корона моя! Приведите мне [target.first_name()]! Силой, если потребуется.</span><br><br>") // TA EDIT
 			SEND_SOUND(target, 'sound/misc/royal_decree.ogg')
 			SEND_SOUND(target, 'sound/misc/zizo.ogg')
 		if("ww")
@@ -973,7 +973,7 @@ GLOBAL_LIST_INIT(hallucination_list, list(
 		if(fakemob)
 			sleep(rand(20, 50))
 			to_chat(target, "<span class='deadsay'><b>DEAD: [fakemob.name]</b> says, \"[pick("лошара","тудааа","лол","ору","Я один сдох без причины?","Вы тоже умерли?","Какого хуя?!","почему я умер?","Привет [target.first_name()]","лол яд?","ты тоже?","Аркебуза?",\
-			"я[prob(50)?" нахуй":""] ненавижу [pick("инкву", "лича", "вретчей", "этот раунд","это","себя","оруженосцев","тебя")]")]\"</span>")
+			"я[prob(50)?" нахуй":""] ненавижу [pick("инкву", "лича", "вретчей", "этот раунд","это","себя","оруженосцев","тебя")]")]\"</span>") // TA EDIT
 	sleep(rand(70,90))
 	target.set_screwyhud(SCREWYHUD_NONE)
 	target.SetParalyzed(0)
@@ -1108,7 +1108,7 @@ GLOBAL_LIST_INIT(hallucination_list, list(
 	qdel(src)
 
 /datum/hallucination/voices
-	var/static/list/messages = list(
+	var/static/list/messages = list( // TA EDIT START
 		"ТВОЯ СУДЬБА СКРЕПЛЕНА КРОВЬЮ И ПЕПЛОМ!!",
 		"ОНА ЗОВЕТ ТВОЁ ИМЯ, ГЛУПЕЦ!!",
 		"БОГИ ПЛЮЮТ НА ТВОЮ НИЧТОЖНУЮ ДУШУ!!",
@@ -1139,7 +1139,7 @@ GLOBAL_LIST_INIT(hallucination_list, list(
 		"БОГИ СМЕЮТСЯ НАД ТВОИМИ РАЗБИТЫМИ МЕЧТАМИ!!",
 		"ТВОЯ ТЕНЬ ПРЕДАЕТ ТЕБЯ ТЬМЕ!!",
 		"ТРЯСИНА ШЕПЧЕТ О ТВОИХ ПОСЛЕДНИХ МГНОВЕНИЯХ!!",
-		"ТВОЯ ПЛОТЬ — ХОЛСТ ДЛЯ ЕГО ГНЕВА!!",
+		"ТВОЯ ПЛОТЬ — ХОЛСТ ДЛЯ ЕГО ГНЕВА!!", // TA EDIT END
 	)
 
 /datum/hallucination/voices/New(mob/living/carbon/carbon, forced = TRUE)
@@ -1239,37 +1239,56 @@ GLOBAL_LIST_INIT(hallucination_list, list(
 
 	return ..()
 
-/datum/hallucination/floor_shift
+/datum/hallucination/floor_shift // TA EDIT START
+	var/client/affected_client
+	var/list/shifted_appearances = list()
 
 /datum/hallucination/floor_shift/New(mob/living/carbon/dreamer, forced = TRUE)
 	set waitfor = FALSE
 	..()
+	if(!dreamer?.client)
+		qdel(src)
+		return
+
+	affected_client = dreamer.client
+	var/longest_duration = 0
 	for(var/turf/open/floor/floor in view(dreamer))
 		if(prob(40))
 			continue
 
 		var/mutable_appearance/appearance = image(floor.icon, floor, floor.icon_state, floor.layer + 0.01)
-		dreamer.client.images += appearance
+		shifted_appearances += appearance
+		affected_client.images += appearance
 		var/offset = pick(-3, -2, -1, 1, 2, 3)
 		var/raise_duration = rand(1 SECONDS, 3 SECONDS) * abs(offset)
 		var/lower_duration = rand(1 SECONDS, 3 SECONDS) * abs(offset)
+		longest_duration = max(longest_duration, raise_duration + lower_duration)
 		animate(appearance, pixel_y = offset, time = raise_duration, flags = ANIMATION_RELATIVE)
-		addtimer(CALLBACK(src, PROC_REF(floor_back), dreamer, appearance, offset, lower_duration), raise_duration)
+		addtimer(CALLBACK(src, PROC_REF(floor_back), appearance, offset, lower_duration), raise_duration)
 
 	to_chat(dreamer, span_userdanger(pick("WOAH!", "WHERE IS THE FLOOR?", "MOVE!", "HOW!?")))
 	dreamer.adjustStaminaLoss(10)
 
-	qdel(src)
+	QDEL_IN(src, longest_duration + 1 SECONDS)
 
-/datum/hallucination/floor_shift/proc/floor_back(mob/living/carbon/dreamer, mutable_appearance/appearance, offset, lower_duration)
+/datum/hallucination/floor_shift/proc/floor_back(mutable_appearance/appearance, offset, lower_duration)
 	animate(appearance, pixel_y = -offset, time = lower_duration, flags = ANIMATION_RELATIVE)
-	addtimer(CALLBACK(src, PROC_REF(floor_remove), dreamer, appearance), lower_duration)
+	addtimer(CALLBACK(src, PROC_REF(floor_remove), appearance), lower_duration)
 
-/datum/hallucination/floor_shift/proc/floor_remove(mob/living/carbon/dreamer, mutable_appearance/appearance)
-	if(dreamer?.client)
-		dreamer.client.images -= appearance
-
+/datum/hallucination/floor_shift/proc/floor_remove(mutable_appearance/appearance)
+	if(affected_client)
+		affected_client.images -= appearance
+	shifted_appearances -= appearance
 	qdel(appearance)
+
+/datum/hallucination/floor_shift/Destroy()
+	for(var/mutable_appearance/appearance as anything in shifted_appearances)
+		if(affected_client)
+			affected_client.images -= appearance
+		qdel(appearance)
+	shifted_appearances = null
+	affected_client = null
+	return ..() // TA EDIT END
 
 /datum/hallucination/fake_heartattack
 
@@ -1280,7 +1299,7 @@ GLOBAL_LIST_INIT(hallucination_list, list(
 	to_chat(victim, span_userdanger(pick("MY HEART STOPS BEATING!", "I CAN'T FEEL MY HEART!", "WHERE IS MY HEART?")))
 
 	victim.freakout_hud_skew()
-	victim.emote("pale", forced = TRUE)
+	victim.emote("pale", forced = TRUE) // TA EDIT
 	victim.flash_fullscreen("stressflash")
 	victim.Jitter(10)
 	victim.energy_add(-2)
