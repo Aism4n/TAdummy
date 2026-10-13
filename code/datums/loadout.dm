@@ -1036,7 +1036,7 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	name = "Loincloth"
 	category = "Аксессуары"
 	path = /obj/item/clothing/under/roguetown/loincloth
-
+//TA EDIT START
 /datum/loadout_item/spectacles_fancy
 	name = "Fancy Spectacles"
 	category = "Аксессуары"
@@ -1056,7 +1056,7 @@ GLOBAL_LIST_EMPTY(loadout_items_by_category)
 	name = "Smokey Onyxa Spectacles"
 	category = "Аксессуары"
 	path = /obj/item/clothing/mask/rogue/spectacles/sglasses
-
+//TA EDIT END
 /datum/loadout_item/spectacles
 	name = "Spectacles"
 	category = "Аксессуары"
